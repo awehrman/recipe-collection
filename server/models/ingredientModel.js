@@ -19,42 +19,83 @@ const _relatedIngredients = new WeakMap();
 const _substitutes = new WeakMap();
 const _references = new WeakMap();
 
-const _isRootIngredient = new WeakMap();
 const _isValidated = new WeakMap();
 
 /*===================================================
 =            Ingredient Class Definition            =
 ===================================================*/
 module.exports = class Ingredient {
-	constructor(name) {
-		if ((typeof name === 'string' || name instanceof String) && (name !== '')) {
-			_ingredientID.set(this, uuid.v1());
-			_parentIngredientID.set(this, null);
-			_dateCreated.set(this, moment());
-			_dateUpdated.set(this, moment());
+	constructor(value) {
+		try {
+			// if we're just passing a string for the name
+			if ((typeof value === 'string' || value instanceof String) && (value !== '')) {
+				_ingredientID.set(this, uuid.v1());
+				_parentIngredientID.set(this, null);
+				_dateCreated.set(this, moment());
+				_dateUpdated.set(this, moment());
 
-			_name.set(this, name);
-			_plural.set(this, null);
+				_name.set(this, value);
+				_plural.set(this, null);
 
-			_properties.set(this, {
-				'meat': false,
-			  'poultry': false,
-			  'fish': false,
-			  'dairy': false,
-			  'soy': false,
-			  'gluten': false
-			});
-			_alternateNames.set(this, new Set());
-			_parsingExpressions.set(this, new Set());
-			_relatedIngredients.set(this, new Set());
-			_substitutes.set(this, new Set());
-			_references.set(this, new Set());
+				_properties.set(this, {
+					'meat': false,
+				  'poultry': false,
+				  'fish': false,
+				  'dairy': false,
+				  'soy': false,
+				  'gluten': false
+				});
+				_alternateNames.set(this, new Set());
+				_parsingExpressions.set(this, new Set());
+				_relatedIngredients.set(this, new Map());
+				_substitutes.set(this, new Set());
+				_references.set(this, new Set());
 
-			_isRootIngredient.set(this, true);
-			_isValidated.set(this, false);
-			return true;
+				_isValidated.set(this, false);
+				return true;
+			}
+
+			// if we're passing an encoded object, just ensure that we have at least the ingredientID and name
+			if (value && (typeof value === 'object') && value.hasOwnProperty('ingredientID') && value.hasOwnProperty('name')) {
+				_ingredientID.set(this, value.ingredientID);
+				_parentIngredientID.set(this, value.parentIngredientID || null);
+				_dateCreated.set(this, moment(value.dateCreated) || moment());
+				_dateUpdated.set(this, moment(value.dateUpdated) || moment());
+
+				_name.set(this, value.name);
+				_plural.set(this, value.plural || null);
+
+				_properties.set(this, Object.assign({
+					'meat': false,
+				  'poultry': false,
+				  'fish': false,
+				  'dairy': false,
+				  'soy': false,
+				  'gluten': false
+				}, value.properties));
+
+				_alternateNames.set(this, new Set([ ...value.alternateNames ]));
+				_parsingExpressions.set(this, new Set([ ...value.parsingExpressions ]));
+
+				// translate our 2D array back into a Map
+				const relatedIngredients = new Map();
+				for (let rel of value.relatedIngredients) {
+					relatedIngredients.set(rel[0], rel[1]);
+				}
+
+				_relatedIngredients.set(this, relatedIngredients);
+				_substitutes.set(this, new Set([ ...value.substitutes ])); // TODO these need to be updated to maps
+				_references.set(this, new Set([ ...value.references ])); // TODO these need to be updated to maps
+
+				_isValidated.set(this, value.isValidated || false);
+
+				return true;
+			} else if (value && (typeof value === 'object') && !value.hasOwnProperty('ingredientID') || !value.hasOwnProperty('name')) {
+				throw new Error('Decoded ingredient object missing one or more required fields');
+			}
+		} catch (ex) {
+			throw new Error('Invalid constructor for Ingredient');
 		}
-		throw new Error('Invalid name parameter for Ingredient');
 	}
 
 	/*=========================================
@@ -103,7 +144,7 @@ module.exports = class Ingredient {
 
 	set dateUpdated(value) {
 		// TODO expand date validation for date-like strings
-		if (moment(value).isValid()) {
+		if (value && moment(value).isValid()) {
 			return _dateUpdated.set(this, moment(value));
 		}
 		throw new Error('Invalid dateUpdated parameter for Ingredient');
@@ -180,7 +221,6 @@ module.exports = class Ingredient {
 
 	/*----------  properties  ----------*/
 	get properties() {
-		// TODO return specific property
 		return _properties.get(this);
 	}
 
@@ -196,7 +236,7 @@ module.exports = class Ingredient {
 			_dateUpdated.set(this, moment());
 			return _properties.set(this, Object.assign(_properties.get(this), value));
 		}
-		throw new Error('Invalid properties object');
+		throw new Error('Invalid properties parameter for Ingredient');
 	}
 
 	/*----------  alternateNames  ----------*/
@@ -205,11 +245,37 @@ module.exports = class Ingredient {
 	}
 
 	set alternateNames(value) {
-		// TODO check if it already has this value
-		if (value && value !== '') {
+		if (value && (value instanceof Set)) {
+			// loop through the items in our set to validate contents
+			for (let item of value) {
+				// don't allow non-string values
+				if (typeof item !== 'string' || item.length === 0) {
+					value.delete(item);
+					break;
+				}
+
+				// don't allow values that match our name
+				if (item === _name.get(this)) {
+					throw new Error('Cannot assign current Ingredient name to alternateNames');
+				}
+
+				// handle plural name matching instance
+				if (item === _plural.get(this)) {
+					_plural.set(this, null);
+				}
+
+				// handle parsing expressions matching instance
+				if (_parsingExpressions.get(this).has(item)) {
+					_parsingExpressions.get(this).delete(item);
+				}
+
+				// TODO do we need to do anything special if this matches a relatedIngredient or substitute?
+			}
+
 			_dateUpdated.set(this, moment());
-			return _alternateNames.set(this, value); // TODO is this correct!?
+			return _alternateNames.set(this, value);
 		}
+		throw new Error('Invalid alternateNames parameter for Ingredient');
 	}
 
 	/*----------  parsingExpressions  ----------*/
@@ -218,11 +284,37 @@ module.exports = class Ingredient {
 	}
 
 	set parsingExpressions(value) {
-		// TODO check if it already has this value
-		if (value && value !== '') {
+		if (value && (value instanceof Set)) {
+			// loop through the items in our set to validate contents
+			for (let item of value) {
+				// don't allow non-string values
+				if (typeof item !== 'string' || item.length === 0) {
+					value.delete(item);
+					break;
+				}
+
+				// don't allow values that match our name
+				if (item === _name.get(this)) {
+					throw new Error('Cannot assign current Ingredient name to parsingExpressions');
+				}
+
+				// handle plural name matching instance
+				if (item === _plural.get(this)) {
+					_plural.set(this, null);
+				}
+
+				// handle alternate name matching instance
+				if (_alternateNames.get(this).has(item)) {
+					_alternateNames.get(this).delete(item);
+				}
+
+				// TODO do we need to do anything special if this matches a relatedIngredient or substitute?
+			}
+
 			_dateUpdated.set(this, moment());
-			return _parsingExpressions.set(this, value); // TODO is this correct!?
+			return _parsingExpressions.set(this, value);
 		}
+		throw new Error('Invalid parsingExpressions parameter for Ingredient');
 	}
 
 	/*----------  relatedIngredients  ----------*/
@@ -231,11 +323,37 @@ module.exports = class Ingredient {
 	}
 
 	set relatedIngredients(value) {
-		// TODO check if it already has this value
-		if (value && value !== '') {
+		if (value && (value instanceof Map)) {
+			for (let [name, id] of value) {
+				// if we aren't providing a name, or our id is something other than a valid UUID or null
+				if (!name || (typeof name !== 'string') || (name.length === 0) || (!isUUID.v1(id) && id !== null)) {
+					// remove this item
+					value.delete(name);
+				} else {
+					let relatedIngredient = null;
+					// look up this ingredient reference
+					if (id !== null) {
+						//relatedIngredient = ingredientController.findIngredient('id', id);
+					} else {
+						//relatedIngredient = ingredientController.findIngredient('name', name);
+					}
+
+					// if we didn't find an existing ingredient either by id or name
+					if (relatedIngredient === null) {
+						// create the ingredient
+						relatedIngredient = new Ingredient(name);
+
+						// TODO save ingredient to DB
+
+						value.set(name, relatedIngredient.ingredientID);
+					}
+				}
+			}
+
 			_dateUpdated.set(this, moment());
-			return _relatedIngredients.set(this, value); // TODO is this correct!?
+			return _relatedIngredients.set(this, value);
 		}
+		throw new Error('Invalid relatedIngredients parameter for Ingredient');
 	}
 
 	/*----------  substitutes  ----------*/
@@ -244,11 +362,11 @@ module.exports = class Ingredient {
 	}
 
 	set substitutes(value) {
-		// TODO check if it already has this value
-		if (value && value !== '') {
+		if (value && (value instanceof Set)) {
 			_dateUpdated.set(this, moment());
-			return _substitutes.set(this, value); // TODO is this correct!?
+			return _substitutes.set(this, value);
 		}
+		throw new Error('Invalid substitutes parameter for Ingredient');
 	}
 
 	/*----------  references  ----------*/
@@ -257,24 +375,11 @@ module.exports = class Ingredient {
 	}
 
 	set references(value) {
-		// TODO check if it already has this value
-		if (value && value !== '') {
+		if (value && (value instanceof Set)) {
 			_dateUpdated.set(this, moment());
-			return _relatedIngredients.set(this, value); // TODO is this correct!?
+			return _references.set(this, value);
 		}
-	}
-
-	/*----------  isRootIngredient  ----------*/
-	get isRootIngredient() {
-		return _isRootIngredient.get(this);
-	}
-
-	set isRootIngredient(value) {
-		if (typeof(value) === "boolean") {
-			_dateUpdated.set(this, moment());
-			return _isRootIngredient.set(this, value);
-		}
-		throw new Error('Invalid isRootIngredient parameter for Ingredient');
+		throw new Error('Invalid references parameter for Ingredient');
 	}
 
 	/*----------  isValidated  ----------*/
@@ -312,13 +417,50 @@ module.exports = class Ingredient {
 			substitutes: _substitutes.get(this),
 			references: _references.get(this),
 
-			isRootIngredient: _isRootIngredient.get(this),
 			isValidated: _isValidated.get(this)
 		};
 	}
 
-	updateProperty(key, value) {
-		// TODO
+	encodeIngredient() {
+		// before we can save an ingredient as a JSON object
+		// we need to convert its Maps and Sets to arrays
+		const encoded = {
+			ingredientID: null,
+			parentIngredientID: null,
+			dateCreated: null,
+			dateUpdated: null,
+
+			name: null,
+			plural: null,
+			properties: {},
+
+			alternateNames: [],
+			parsingExpressions: [],
+			relatedIngredients: [],
+			substitutes: [],
+			references: [],
+
+			isValidated: false
+		};
+
+		encoded.ingredientID = _ingredientID.get(this);
+		encoded.parentIngredientID = _parentIngredientID.get(this);
+		encoded.dateCreated = _dateCreated.get(this);
+		encoded.dateUpdated = _dateUpdated.get(this);
+
+		encoded.name = _name.get(this);
+		encoded.plural = _plural.get(this);
+		encoded.properties = Object.assign(_properties.get(this), {});
+
+		encoded.alternateNames = [ ..._alternateNames.get(this) ];
+		encoded.parsingExpressions = [ ..._parsingExpressions.get(this) ];
+		encoded.relatedIngredients = [ ..._relatedIngredients.get(this) ];
+		encoded.substitutes = [ ..._substitutes.get(this) ];
+		encoded.references = [ ..._references.get(this) ];
+
+		encoded.isValidated = _isValidated.get(this);
+
+		return JSON.stringify(encoded, null, 2);
 	}
 
 	addAlternateName(value) {

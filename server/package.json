@@ -6,8 +6,8 @@
   "author": "Alexandra Wehrman",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon ./bin/www",
-    "test": "mocha \"./tests/**/*.spec.js\""
+    "start": "NODE_ENV=dev nodemon ./bin/www",
+    "test": "NODE_ENV=test mocha \"./tests/**/*.spec.js\""
   },
   "dependencies": {
     "body-parser": "^1.18.2",
@@ -16,6 +16,7 @@
     "cheerio": "^1.0.0-rc.2",
     "colors": "^1.2.1",
     "debug": "^3.1.0",
+    "dotenv": "^5.0.1",
     "evernote": "^2.0.5",
     "express": "^4.16.3",
     "express-session": "^1.15.6",

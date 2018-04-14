@@ -1,0 +1,80 @@
+[
+{
+  "ingredientID": "0eef23d0-3f35-11e8-9692-3d22a379ab33",
+  "parentIngredientID": null,
+  "dateCreated": "2018-04-13T16:09:35.117Z",
+  "dateUpdated": "2018-04-13T16:09:35.118Z",
+  "name": "potato",
+  "plural": "potatoes",
+  "properties": {
+    "meat": false,
+    "poultry": false,
+    "fish": false,
+    "dairy": false,
+    "soy": false,
+    "gluten": false
+  },
+  "alternateNames": [],
+  "parsingExpressions": [],
+  "relatedIngredients": [],
+  "substitutes": [],
+  "references": [],
+  "isValidated": false
+},{
+  "ingredientID": "0eef4ae0-3f35-11e8-9692-3d22a379ab33",
+  "parentIngredientID": null,
+  "dateCreated": "2018-04-13T16:09:35.118Z",
+  "dateUpdated": "2018-04-13T16:09:35.119Z",
+  "name": "flour",
+  "plural": null,
+  "properties": {
+    "meat": false,
+    "poultry": false,
+    "fish": false,
+    "dairy": false,
+    "soy": false,
+    "gluten": true
+  },
+  "alternateNames": [
+    "all-purpose flour"
+  ],
+  "parsingExpressions": [
+    "flour for dusting"
+  ],
+  "relatedIngredients": [
+    [
+      "bread flour",
+      "0eef4ae2-3f35-11e8-9692-3d22a379ab33"
+    ]
+  ],
+  "substitutes": [],
+  "references": [],
+  "isValidated": false
+},{
+  "ingredientID": "0eef4ae1-3f35-11e8-9692-3d22a379ab33",
+  "parentIngredientID": null,
+  "dateCreated": "2018-04-13T16:09:35.118Z",
+  "dateUpdated": "2018-04-13T16:09:35.119Z",
+  "name": "bread flour",
+  "plural": null,
+  "properties": {
+    "meat": false,
+    "poultry": false,
+    "fish": false,
+    "dairy": false,
+    "soy": false,
+    "gluten": true
+  },
+  "alternateNames": [],
+  "parsingExpressions": [],
+  "relatedIngredients": [
+    [
+      "flour",
+      "0eef4ae0-3f35-11e8-9692-3d22a379ab33"
+    ]
+  ],
+  "substitutes": [],
+  "references": [],
+  "isValidated": false
+}
+]

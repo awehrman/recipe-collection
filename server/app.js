@@ -1,8 +1,14 @@
+const dotenv = require('dotenv');
 const express = require('express');
 
 const indexRoute = require('./routes/index');
 
 const app = express();
+
+// set environment variables
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.load();
+}
 
 // routes
 app.use('/', indexRoute);
