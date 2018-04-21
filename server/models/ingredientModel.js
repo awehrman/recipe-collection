@@ -1,6 +1,10 @@
+const fs = require('fs');
 const isUUID = require('is-uuid');
 const uuid = require('uuid');
 const moment = require('moment');
+
+const ingredientController = require('../controllers/ingredientController');
+const DB_PATH = (process.env.NODE_ENV === 'test') ? 'tests/data' : 'data';
 
 /*----------  Private Ingredient Variables  ----------*/
 
@@ -24,8 +28,11 @@ const _isValidated = new WeakMap();
 /*===================================================
 =            Ingredient Class Definition            =
 ===================================================*/
-module.exports = class Ingredient {
+class Ingredient {
 	constructor(value) {
+		if (!(this instanceof Ingredient)) {
+	    throw new Error("Ingredient needs to be called with the new keyword");
+	  }
 		try {
 			// if we're just passing a string for the name
 			if ((typeof value === 'string' || value instanceof String) && (value !== '')) {
@@ -324,6 +331,7 @@ module.exports = class Ingredient {
 
 	set relatedIngredients(value) {
 		if (value && (value instanceof Map)) {
+			// go through the items in our Map to ensure that they've valid
 			for (let [name, id] of value) {
 				// if we aren't providing a name, or our id is something other than a valid UUID or null
 				if (!name || (typeof name !== 'string') || (name.length === 0) || (!isUUID.v1(id) && id !== null)) {
@@ -333,17 +341,23 @@ module.exports = class Ingredient {
 					let relatedIngredient = null;
 					// look up this ingredient reference
 					if (id !== null) {
-						//relatedIngredient = ingredientController.findIngredient('id', id);
+						console.log(`looking ingredient up by id ${id}`.yellow);
+						relatedIngredient = ingredientController.findIngredients('id', id);
 					} else {
-						//relatedIngredient = ingredientController.findIngredient('name', name);
+						console.log(`looking ingredient up by name ${name}`.yellow);
+						relatedIngredient = ingredientController.findIngredients('name', name);
 					}
 
+					console.log(relatedIngredient);
+
 					// if we didn't find an existing ingredient either by id or name
-					if (relatedIngredient === null) {
+					if (relatedIngredient && relatedIngredient.length === 0) {
 						// create the ingredient
 						relatedIngredient = new Ingredient(name);
 
 						// TODO save ingredient to DB
+						console.log('should be writting to the database'.green);
+						this.saveIngredient();
 
 						value.set(name, relatedIngredient.ingredientID);
 					}
@@ -463,6 +477,23 @@ module.exports = class Ingredient {
 		return JSON.stringify(encoded, null, 2);
 	}
 
+	saveIngredient() {
+		let ingredients = [];
+
+		try {
+			ingredients = JSON.parse(fs.readFileSync(`${DB_PATH}/ingredients.json`, 'utf8'));
+		} catch (ex) {
+			throw new Error('Error reading ingredients.json');
+		}
+
+		ingredients.push(this.encodeIngredient());
+
+		// save ingredients
+		fs.writeFileSync(`${DB_PATH}/ingredients.json`, `[\n${ingredients}\n]`, 'utf-8', (err) => {
+			if (err) throw new Error(`An error occurred while writing ingredients data`);
+		});
+	}
+
 	addAlternateName(value) {
 		// TODO
 	}
@@ -506,3 +537,5 @@ module.exports = class Ingredient {
 	/*=====  End of Ingredient Methods  ======*/
 };
 /*=====  End of Ingredient Class Definition  ======*/
+
+module.exports = Ingredient;

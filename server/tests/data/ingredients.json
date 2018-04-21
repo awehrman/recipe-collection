@@ -1,1 +1,24 @@
-[]
+[
+{
+  "ingredientID": "afd65d10-457d-11e8-b4f8-7d13d4b940e9",
+  "parentIngredientID": null,
+  "dateCreated": "2018-04-21T16:04:35.809Z",
+  "dateUpdated": "2018-04-21T16:04:35.809Z",
+  "name": "potato",
+  "plural": null,
+  "properties": {
+    "meat": false,
+    "poultry": false,
+    "fish": false,
+    "dairy": false,
+    "soy": false,
+    "gluten": false
+  },
+  "alternateNames": [],
+  "parsingExpressions": [],
+  "relatedIngredients": [],
+  "substitutes": [],
+  "references": [],
+  "isValidated": false
+}
+]

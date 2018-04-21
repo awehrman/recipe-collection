@@ -1,10 +1,12 @@
 const fs = require('fs');
 
-const Ingredient = require('../models/ingredientModel');
-
 const DB_PATH = (process.env.NODE_ENV === 'test') ? 'tests/data' : 'data';
 
 exports.loadIngredients = () => {
+	// this is purely to avoid a circular dependency
+	// TODO this is probably a code smell so look into better patterns
+	const Ingredient = require('../models/ingredientModel');
+
 	let ingredients = [];
 	const converted = [];
 
@@ -66,3 +68,4 @@ exports.findIngredients = (key = null, value = null) => {
 
 	return ingredients;
 };
+

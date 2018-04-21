@@ -138,7 +138,6 @@ describe('Ingredient Class ============================================='.magent
 			expect(decoded.references).to.be.empty;
 
 			expect(decoded.isValidated).to.be.false;
-
 		});
 
 		it('[ingredientID] should update with a valid UUID', function() {
@@ -694,7 +693,7 @@ describe('Ingredient Class ============================================='.magent
 			ing.relatedIngredients = related;
 			refreshArrays();
 			// TODO expects
-			//expect('allie to finish writing tests').to.be.true;
+			expect('allie to finish writing tests').to.be.true;
 			reset();
 
 			// if we pass in an ingredientID that doesn't exist in our database
@@ -703,7 +702,7 @@ describe('Ingredient Class ============================================='.magent
 			ing.relatedIngredients = related;
 			refreshArrays();
 			// TODO expects
-			//expect('allie to finish writing tests').to.be.true;
+			expect('allie to finish writing tests').to.be.true;
 			reset();
 
 			// if we pass in an ingredientID that doesn't exist in our database
@@ -712,7 +711,7 @@ describe('Ingredient Class ============================================='.magent
 			ing.relatedIngredients = related;
 			refreshArrays();
 			// TODO expects
-			//expect('allie to finish writing tests').to.be.true;
+			expect('allie to finish writing tests').to.be.true;
 			reset();
 
 			// if we pass in an ingredientID that doesn't exist in our database
@@ -721,7 +720,7 @@ describe('Ingredient Class ============================================='.magent
 			ing.relatedIngredients = related;
 			refreshArrays();
 			// TODO expects
-			//expect('allie to finish writing tests').to.be.true;
+			expect('allie to finish writing tests').to.be.true;
 			reset();
 
 			// if we...
@@ -730,7 +729,7 @@ describe('Ingredient Class ============================================='.magent
 			ing.relatedIngredients = related;
 			refreshArrays();
 			// TODO expects
-			//expect('allie to finish writing tests').to.be.true;
+			expect('allie to finish writing tests').to.be.true;
 
 			reset();
 
@@ -740,7 +739,7 @@ describe('Ingredient Class ============================================='.magent
 			ing.relatedIngredients = related;
 			refreshArrays();
 			// TODO expects
-			//expect('allie to finish writing tests').to.be.true;
+			expect('allie to finish writing tests').to.be.true;
 
 			reset();
 
@@ -926,8 +925,36 @@ describe('Ingredient Class ============================================='.magent
 			expect(IsJSON(encoded)).to.be.true;
 		});
 
-		it.skip('[decodeIngredient] should convert a JSON formatted ingredient back to an Ingredient object', function() {
+		it('[saveIngredient] should save an ingredient to the database', function() {
+			let ingredients = [];
+			let foundPotato = false;
 
+			// expect to not find our ingredient on the first go
+			try {
+				ingredients = JSON.parse(fs.readFileSync('tests/data/ingredients.json', 'utf8'));
+			} catch (ex) {
+				throw new Error('Error reading ingredients.json');
+			}
+
+			for (let ing of ingredients) {
+				if (ing.name === 'potato') { foundPotato = true; }
+			}
+			expect(foundPotato).to.be.false;
+
+			const ing = new Ingredient('potato');
+			ing.saveIngredient();
+
+			try {
+				ingredients = JSON.parse(fs.readFileSync('tests/data/ingredients.json', 'utf8'));
+			} catch (ex) {
+				throw new Error('Error reading ingredients.json');
+			}
+
+			for (let ing of ingredients) {
+				if (ing.name === 'potato') { foundPotato = true; }
+			}
+			// should find it in the second pass after we save it
+			expect(foundPotato).to.be.true;
 		});
 
 		it.skip('TODO: addAlternateName()', function() {
