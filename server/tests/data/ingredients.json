@@ -1,24 +1,160 @@
 [
-{
-  "ingredientID": "afd65d10-457d-11e8-b4f8-7d13d4b940e9",
-  "parentIngredientID": null,
-  "dateCreated": "2018-04-21T16:04:35.809Z",
-  "dateUpdated": "2018-04-21T16:04:35.809Z",
-  "name": "potato",
-  "plural": null,
-  "properties": {
-    "meat": false,
-    "poultry": false,
-    "fish": false,
-    "dairy": false,
-    "soy": false,
-    "gluten": false
+  {
+    "ingredientID": "c5b78080-4647-11e8-b1bb-47116a584e8d",
+    "parentIngredientID": null,
+    "dateCreated": "2018-04-22T16:11:10.856Z",
+    "dateUpdated": "2018-04-22T16:11:10.882Z",
+    "name": "yam",
+    "plural": "yams",
+    "properties": {
+      "meat": false,
+      "poultry": false,
+      "fish": false,
+      "dairy": false,
+      "soy": false,
+      "gluten": false
+    },
+    "alternateNames": [
+      "sweet potato"
+    ],
+    "parsingExpressions": [
+      "diced yams"
+    ],
+    "relatedIngredients": [],
+    "substitutes": [],
+    "references": [],
+    "isValidated": false
   },
-  "alternateNames": [],
-  "parsingExpressions": [],
-  "relatedIngredients": [],
-  "substitutes": [],
-  "references": [],
-  "isValidated": false
-}
+  {
+    "ingredientID": "c5b7f5b0-4647-11e8-b1bb-47116a584e8d",
+    "parentIngredientID": null,
+    "dateCreated": "2018-04-22T16:11:10.859Z",
+    "dateUpdated": "2018-04-22T16:11:10.859Z",
+    "name": "baby boomer potato",
+    "plural": null,
+    "properties": {
+      "meat": false,
+      "poultry": false,
+      "fish": false,
+      "dairy": false,
+      "soy": false,
+      "gluten": false
+    },
+    "alternateNames": [],
+    "parsingExpressions": [],
+    "relatedIngredients": [],
+    "substitutes": [],
+    "references": [],
+    "isValidated": false
+  },
+  {
+    "ingredientID": "c5b843d0-4647-11e8-b1bb-47116a584e8d",
+    "parentIngredientID": null,
+    "dateCreated": "2018-04-22T16:11:10.861Z",
+    "dateUpdated": "2018-04-22T16:11:10.861Z",
+    "name": "yukon gold potato",
+    "plural": null,
+    "properties": {
+      "meat": false,
+      "poultry": false,
+      "fish": false,
+      "dairy": false,
+      "soy": false,
+      "gluten": false
+    },
+    "alternateNames": [],
+    "parsingExpressions": [],
+    "relatedIngredients": [],
+    "substitutes": [],
+    "references": [],
+    "isValidated": false
+  },
+  {
+    "ingredientID": "c5b90720-4647-11e8-b1bb-47116a584e8d",
+    "parentIngredientID": null,
+    "dateCreated": "2018-04-22T16:11:10.866Z",
+    "dateUpdated": "2018-04-22T16:11:10.866Z",
+    "name": "fingerling potato",
+    "plural": null,
+    "properties": {
+      "meat": false,
+      "poultry": false,
+      "fish": false,
+      "dairy": false,
+      "soy": false,
+      "gluten": false
+    },
+    "alternateNames": [],
+    "parsingExpressions": [],
+    "relatedIngredients": [],
+    "substitutes": [],
+    "references": [],
+    "isValidated": false
+  },
+  {
+    "ingredientID": "c5b9f180-4647-11e8-b1bb-47116a584e8d",
+    "parentIngredientID": null,
+    "dateCreated": "2018-04-22T16:11:10.872Z",
+    "dateUpdated": "2018-04-22T16:11:10.872Z",
+    "name": "purple potato",
+    "plural": null,
+    "properties": {
+      "meat": false,
+      "poultry": false,
+      "fish": false,
+      "dairy": false,
+      "soy": false,
+      "gluten": false
+    },
+    "alternateNames": [],
+    "parsingExpressions": [],
+    "relatedIngredients": [],
+    "substitutes": [],
+    "references": [],
+    "isValidated": false
+  },
+  {
+    "ingredientID": "c5be1031-4647-11e8-b1bb-47116a584e8d",
+    "parentIngredientID": null,
+    "dateCreated": "2018-04-22T16:11:10.899Z",
+    "dateUpdated": "2018-04-22T16:11:10.902Z",
+    "name": "bay leaf",
+    "plural": "bay leaves",
+    "properties": {
+      "meat": false,
+      "poultry": false,
+      "fish": false,
+      "dairy": false,
+      "soy": false,
+      "gluten": false
+    },
+    "alternateNames": [],
+    "parsingExpressions": [],
+    "relatedIngredients": [],
+    "substitutes": [],
+    "references": [],
+    "isValidated": false
+  },
+  {
+    "ingredientID": "c5befa90-4647-11e8-b1bb-47116a584e8d",
+    "parentIngredientID": null,
+    "dateCreated": "2018-04-22T16:11:10.905Z",
+    "dateUpdated": "2018-04-22T16:11:10.905Z",
+    "name": "sugar",
+    "plural": null,
+    "properties": {
+      "meat": false,
+      "poultry": false,
+      "fish": false,
+      "dairy": false,
+      "soy": false,
+      "gluten": false
+    },
+    "alternateNames": [],
+    "parsingExpressions": [],
+    "relatedIngredients": [],
+    "substitutes": [],
+    "references": [],
+    "isValidated": false
+  }
 ]

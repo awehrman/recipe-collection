@@ -630,7 +630,7 @@ describe('Ingredient Class ============================================='.magent
 			}).to.throw('Invalid parsingExpressions parameter for Ingredient');
 		});
 
-		it.skip('[relatedIngredients] should update with a valid Ingredient reference', function() {
+		it('[relatedIngredients] should update with a valid Ingredient reference', function() {
 			const ing = new Ingredient('potato');
 			let related = new Map();
 			let keys, values, uniqueKeys, uniqueValues = [];
@@ -656,73 +656,127 @@ describe('Ingredient Class ============================================='.magent
 			expect(ing.relatedIngredients.size).to.equal(1);
 			expect(keys.includes('yam')).to.be.true;
 			expect(values[0]).to.be.not.null;
-			reset();
 
+			// expect yam to exist as an ingredient
+			let newIng = ingredientController.findIngredients('name', 'yam');
+			expect(newIng.length).to.equal(1);
+			expect(newIng[0].name).to.equal('yam');
+			reset();
 
 			// if we pass multiple null ingredientIDs
 			// we still expect to get new Ingredients back for each instance
-			related.set('yam', null);
+			related.set('baby boomer potato', null);
 			related.set('yukon gold potato', null);
 			ing.relatedIngredients = related;
 			refreshArrays();
 			expect(ing.relatedIngredients.size).to.equal(2);
-			expect(keys.includes('yam')).to.be.true;
+			expect(keys.includes('baby boomer potato')).to.be.true;
 			expect(values[0]).to.be.not.null;
 			expect(keys.includes('yukon gold potato')).to.be.true;
 			expect(values[1]).to.be.not.null;
+
+			newIng = ingredientController.findIngredients('name', 'baby boomer potato');
+			expect(newIng.length).to.equal(1);
+			expect(newIng[0].name).to.equal('baby boomer potato');
+
+			newIng = ingredientController.findIngredients('name', 'yukon gold potato');
+			expect(newIng.length).to.equal(1);
+			expect(newIng[0].name).to.equal('yukon gold potato');
+
 			reset();
 
 			// if we pass the same ingredient twice, the map should handle this de-duplication for us
-			related.set('yam', null);
-			related.set('yam', null);
+			related.set('fingerling potato', null);
+			related.set('fingerling potato', null);
 			expect(related.size).to.equal(1);
+			ing.relatedIngredients = related;
+			refreshArrays();
+			expect(ing.relatedIngredients.size).to.equal(1);
+			expect(keys.includes('fingerling potato')).to.be.true;
+			expect(values[0]).to.be.not.null;
+
+			newIng = ingredientController.findIngredients('name', 'fingerling potato');
+			expect(newIng.length).to.equal(1);
+			expect(newIng[0].name).to.equal('fingerling potato');
+
 			reset();
+
 
 			// if we pass in an ingredientID that doesn't exist in our database
 			// go ahead and create the ingredient
-			related.set('yam', 'dcbaa4a0-3aae-11e8-842e-95ab6a86b1b2'); // ID DOESN'T EXIST - NO NAME MATCHES
+			related.set('purple potato', 'dcbaa4a0-3aae-11e8-842e-95ab6a86b1b2'); // ID DOESN'T EXIST - NO NAME MATCHES
 			ing.relatedIngredients = related;
 			refreshArrays();
 			expect(ing.relatedIngredients.size).to.be.equal(1);
-			expect(ing.relatedIngredients.get('yam')).to.be.not.equal('dcbaa4a0-3aae-11e8-842e-95ab6a86b1b2');
+			expect(ing.relatedIngredients.get('purple potato')).to.be.not.equal('dcbaa4a0-3aae-11e8-842e-95ab6a86b1b2');
 			reset();
 
-			// if we pass in an ingredientID that doesn't exist in our database
+
+			// if we pass in an ingredientID that doesn't exist in our database, but the name does
 			related.set('yam', 'dcbaa4a0-3aae-11e8-842e-95ab6a86b1b2'); // ID DOESN'T EXIST - ONE NAME MATCH
-			related.set('yam', null);
 			ing.relatedIngredients = related;
 			refreshArrays();
-			// TODO expects
-			expect('allie to finish writing tests').to.be.true;
+			expect(ing.relatedIngredients.size).to.equal(1);
+			expect(keys.includes('yam')).to.be.true;
+			expect(values[0]).to.be.not.null;
+
+			// expect yam to exist as an ingredient
+			newIng = ingredientController.findIngredients('name', 'yam');
+			expect(newIng.length).to.equal(1);
+			expect(newIng[0].name).to.equal('yam');
+			reset();
+
+			// update our yam ingredient with a plural value
+			let yam = ingredientController.findIngredients('name', 'yam')[0];
+			yam.plural = 'yams';
+			yam.alternateNames = new Set([ 'sweet potato' ]);
+			yam.parsingExpressions = new Set([ 'diced yams' ]);
+			yam.saveIngredient();
+
+			// if we pass in an ingredientID that doesn't exist in our database
+			related.set('yams', 'dcbaa4a0-3aae-11e8-842e-95ab6a86b1b2'); // ID DOESN'T EXIST - ONE PLURAL NAME MATCH
+			ing.relatedIngredients = related;
+			refreshArrays();
+			// expect it to put yam in our array
+			expect(ing.relatedIngredients.size).to.equal(1);
+			expect(keys.includes('yam')).to.be.true; // make sure we save the name field
+			expect(values[0]).to.be.not.null;
+			// expect to only have a single yam in our database
+			yam = ingredientController.findIngredients('exact', 'yam');
+			expect(yam.length).to.equal(1);
+			expect(yam[0].name).to.equal('yam');
 			reset();
 
 			// if we pass in an ingredientID that doesn't exist in our database
-			related.set('yam', 'dcbaa4a0-3aae-11e8-842e-95ab6a86b1b2'); // ID DOESN'T EXIST - ONE PLURAL NAME MATCH
-			related.set('yam', null);
+			related.set('sweet potato', 'dcbaa4a0-3aae-11e8-842e-95ab6a86b1b2'); // ID DOESN'T EXIST - ONE ALT NAME MATCH
 			ing.relatedIngredients = related;
 			refreshArrays();
-			// TODO expects
-			expect('allie to finish writing tests').to.be.true;
+			// expect it to put yam in our array
+			expect(ing.relatedIngredients.size).to.equal(1);
+			expect(keys.includes('yam')).to.be.true; // make sure we save the name field
+			expect(values[0]).to.be.not.null;
+			// expect to only have a single yam in our database
+			yam = ingredientController.findIngredients('exact', 'yam');
+			expect(yam.length).to.equal(1);
+			expect(yam[0].name).to.equal('yam');
 			reset();
+
 
 			// if we pass in an ingredientID that doesn't exist in our database
-			related.set('yam', 'dcbaa4a0-3aae-11e8-842e-95ab6a86b1b2'); // ID DOESN'T EXIST - ONE ALT NAME MATCH
-			related.set('yam', null);
+			related.set('diced yams', 'dcbaa4a0-3aae-11e8-842e-95ab6a86b1b2'); // ID DOESN'T EXIST - ONE ALT NAME MATCH
 			ing.relatedIngredients = related;
+			console.log(ing.relatedIngredients);
 			refreshArrays();
-			// TODO expects
-			expect('allie to finish writing tests').to.be.true;
+			// expect it to put yam in our array
+			expect(ing.relatedIngredients.size).to.equal(1);
+			expect(keys.includes('yam')).to.be.true; // make sure we save the name field
+			expect(values[0]).to.be.not.null;
+			// expect to only have a single yam in our database
+			yam = ingredientController.findIngredients('exact', 'yam');
+			expect(yam.length).to.equal(1);
+			expect(yam[0].name).to.equal('yam');
 			reset();
-
-			// if we pass in an ingredientID that doesn't exist in our database
-			related.set('yam', 'dcbaa4a0-3aae-11e8-842e-95ab6a86b1b2'); // ID DOESN'T EXIST - ONE PARSING EXP MATCH
-			related.set('yam', null);
-			ing.relatedIngredients = related;
-			refreshArrays();
-			// TODO expects
-			expect('allie to finish writing tests').to.be.true;
-			reset();
-
+/*
 			// if we...
 			related.set('yam', 'dcbaa4a0-3aae-11e8-842e-95ab6a86b1b2'); // DOESN'T EXIST
 			related.set('yam', 'dcbaa4a0-3aae-11e8-842e-95ab6a86b1b3'); // DOESN'T EXIST
@@ -806,6 +860,7 @@ describe('Ingredient Class ============================================='.magent
 			expect(() => {
 				ing.relatedIngredients = new Set();
 			}).to.throw('Invalid relatedIngredients parameter for Ingredient');
+*/
 		});
 
 		it.skip('[substitutes] should update with a valid Ingredient reference', function() {
@@ -913,21 +968,18 @@ describe('Ingredient Class ============================================='.magent
 			let ing = new Ingredient('potato');
 			let encoded = ing.encodeIngredient();
 
-			function IsJSON(str) {
-		    try {
-		      JSON.parse(str);
-		    } catch (e) {
-		      return false;
-		    }
-		    return true;
-			}
-
-			expect(IsJSON(encoded)).to.be.true;
+			expect(typeof encoded).to.be.equal('object');
+			expect(Array.isArray(encoded.alternateNames)).to.be.true;
+			expect(Array.isArray(encoded.parsingExpressions)).to.be.true;
+			expect(Array.isArray(encoded.relatedIngredients)).to.be.true;
+			expect(Array.isArray(encoded.substitutes)).to.be.true;
+			expect(Array.isArray(encoded.references)).to.be.true;
 		});
 
 		it('[saveIngredient] should save an ingredient to the database', function() {
 			let ingredients = [];
-			let foundPotato = false;
+			let foundIngredient = false;
+			let numIngredients = 0;
 
 			// expect to not find our ingredient on the first go
 			try {
@@ -937,11 +989,12 @@ describe('Ingredient Class ============================================='.magent
 			}
 
 			for (let ing of ingredients) {
-				if (ing.name === 'potato') { foundPotato = true; }
+				if (ing.name === 'bay leaf') { foundIngredient = true; }
 			}
-			expect(foundPotato).to.be.false;
+			expect(foundIngredient).to.be.false;
+			numIngredients = ingredients.length;
 
-			const ing = new Ingredient('potato');
+			const ing = new Ingredient('bay leaf');
 			ing.saveIngredient();
 
 			try {
@@ -951,10 +1004,40 @@ describe('Ingredient Class ============================================='.magent
 			}
 
 			for (let ing of ingredients) {
-				if (ing.name === 'potato') { foundPotato = true; }
+				if (ing.name === 'bay leaf') { foundIngredient = true; }
 			}
 			// should find it in the second pass after we save it
-			expect(foundPotato).to.be.true;
+			expect(foundIngredient).to.be.true;
+			expect((ingredients.length - numIngredients)).to.equal(1);
+			numIngredients = ingredients.length;
+
+			// should not be allowed to save the same ingredient twice
+			ing.plural = 'bay leaves';
+			ing.saveIngredient();
+			try {
+				ingredients = JSON.parse(fs.readFileSync('tests/data/ingredients.json', 'utf8'));
+			} catch (ex) {
+				throw new Error('Error reading ingredients.json');
+			}
+			expect((ingredients.length - numIngredients)).to.equal(0);
+
+			// should be allowed to save subsequent ingredients on different ingredients
+			const ing2 = new Ingredient('sugar');
+			ing2.saveIngredient();
+			foundIngredient = false;
+
+			try {
+				ingredients = JSON.parse(fs.readFileSync('tests/data/ingredients.json', 'utf8'));
+			} catch (ex) {
+				throw new Error('Error reading ingredients.json');
+			}
+
+			for (let ing of ingredients) {
+				if (ing.name === 'sugar') { foundIngredient = true; }
+			}
+			expect(foundIngredient).to.be.true;
+			expect((ingredients.length - numIngredients)).to.equal(1);
+
 		});
 
 		it.skip('TODO: addAlternateName()', function() {

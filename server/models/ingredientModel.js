@@ -333,6 +333,7 @@ class Ingredient {
 		if (value && (value instanceof Map)) {
 			// go through the items in our Map to ensure that they've valid
 			for (let [name, id] of value) {
+				console.log(`${name} - ${id} -------------------`.green);
 				// if we aren't providing a name, or our id is something other than a valid UUID or null
 				if (!name || (typeof name !== 'string') || (name.length === 0) || (!isUUID.v1(id) && id !== null)) {
 					// remove this item
@@ -341,24 +342,30 @@ class Ingredient {
 					let relatedIngredient = null;
 					// look up this ingredient reference
 					if (id !== null) {
-						console.log(`looking ingredient up by id ${id}`.yellow);
-						relatedIngredient = ingredientController.findIngredients('id', id);
-					} else {
-						console.log(`looking ingredient up by name ${name}`.yellow);
-						relatedIngredient = ingredientController.findIngredients('name', name);
+						//console.log(`looking up by id ${id}...`.yellow);
+						relatedIngredient = ingredientController.findIngredients('ingredientID', id);
 					}
 
-					console.log(relatedIngredient);
+					if (!relatedIngredient || relatedIngredient.length === 0) {
+						//console.log(`looking up by name ${name}...`.yellow);
+						relatedIngredient = ingredientController.findIngredients('exact', name);
+
+
+						// if we found a match, make sure we're saving only the ingredient name in our list
+						if (relatedIngredient && relatedIngredient.length === 1) {
+							//console.log('about to rename our current map value');
+							value.delete(name);
+							value.set(relatedIngredient[0].name, relatedIngredient[0].ingredientID);
+						}
+					}
 
 					// if we didn't find an existing ingredient either by id or name
 					if (relatedIngredient && relatedIngredient.length === 0) {
+						//console.log('creating new ingredient');
 						// create the ingredient
 						relatedIngredient = new Ingredient(name);
-
-						// TODO save ingredient to DB
-						console.log('should be writting to the database'.green);
-						this.saveIngredient();
-
+						relatedIngredient.saveIngredient();
+						value.delete(name);
 						value.set(name, relatedIngredient.ingredientID);
 					}
 				}
@@ -474,10 +481,11 @@ class Ingredient {
 
 		encoded.isValidated = _isValidated.get(this);
 
-		return JSON.stringify(encoded, null, 2);
+		return encoded;
 	}
 
 	saveIngredient() {
+		console.log('saveIngredient'.yellow);
 		let ingredients = [];
 
 		try {
@@ -486,10 +494,24 @@ class Ingredient {
 			throw new Error('Error reading ingredients.json');
 		}
 
-		ingredients.push(this.encodeIngredient());
+		// determine if this is an existing ingredient or not
+		let existingIngredient = ingredientController.findIngredients('ingredientID', _ingredientID.get(this));
+
+		// add this ingredient if it hasn't been added before
+		if (existingIngredient && existingIngredient.length === 0) {
+			ingredients.push(this.encodeIngredient());
+		} else {
+			// otherwise update the exisiting record
+			// TODO should this just be findIndex? check performance
+			ingredients.forEach((ing, index) => {
+		    if (ing.ingredientID === _ingredientID.get(this)) {
+		      ingredients[index] = this.encodeIngredient();
+		    }
+			});
+		}
 
 		// save ingredients
-		fs.writeFileSync(`${DB_PATH}/ingredients.json`, `[\n${ingredients}\n]`, 'utf-8', (err) => {
+		fs.writeFileSync(`${DB_PATH}/ingredients.json`, JSON.stringify(ingredients, null, 2), 'utf-8', (err) => {
 			if (err) throw new Error(`An error occurred while writing ingredients data`);
 		});
 	}
