@@ -1,9 +1,9 @@
 [
   {
-    "ingredientID": "c5b78080-4647-11e8-b1bb-47116a584e8d",
+    "ingredientID": "5b244661-4aff-11e8-8e81-8543436e1900",
     "parentIngredientID": null,
-    "dateCreated": "2018-04-22T16:11:10.856Z",
-    "dateUpdated": "2018-04-22T16:11:10.882Z",
+    "dateCreated": "2018-04-28T16:15:24.102Z",
+    "dateUpdated": "2018-04-28T16:15:24.136Z",
     "name": "yam",
     "plural": "yams",
     "properties": {
@@ -20,16 +20,21 @@
     "parsingExpressions": [
       "diced yams"
     ],
-    "relatedIngredients": [],
+    "relatedIngredients": [
+      [
+        "potato",
+        "5b3adba0-4aff-11e8-8e81-8543436e1900"
+      ]
+    ],
     "substitutes": [],
     "references": [],
     "isValidated": false
   },
   {
-    "ingredientID": "c5b7f5b0-4647-11e8-b1bb-47116a584e8d",
+    "ingredientID": "5b24bb90-4aff-11e8-8e81-8543436e1900",
     "parentIngredientID": null,
-    "dateCreated": "2018-04-22T16:11:10.859Z",
-    "dateUpdated": "2018-04-22T16:11:10.859Z",
+    "dateCreated": "2018-04-28T16:15:24.105Z",
+    "dateUpdated": "2018-04-28T16:15:24.105Z",
     "name": "baby boomer potato",
     "plural": null,
     "properties": {
@@ -48,10 +53,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "c5b843d0-4647-11e8-b1bb-47116a584e8d",
+    "ingredientID": "5b2557d0-4aff-11e8-8e81-8543436e1900",
     "parentIngredientID": null,
-    "dateCreated": "2018-04-22T16:11:10.861Z",
-    "dateUpdated": "2018-04-22T16:11:10.861Z",
+    "dateCreated": "2018-04-28T16:15:24.109Z",
+    "dateUpdated": "2018-04-28T16:15:24.109Z",
     "name": "yukon gold potato",
     "plural": null,
     "properties": {
@@ -70,10 +75,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "c5b90720-4647-11e8-b1bb-47116a584e8d",
+    "ingredientID": "5b261b20-4aff-11e8-8e81-8543436e1900",
     "parentIngredientID": null,
-    "dateCreated": "2018-04-22T16:11:10.866Z",
-    "dateUpdated": "2018-04-22T16:11:10.866Z",
+    "dateCreated": "2018-04-28T16:15:24.114Z",
+    "dateUpdated": "2018-04-28T16:15:24.114Z",
     "name": "fingerling potato",
     "plural": null,
     "properties": {
@@ -92,10 +97,32 @@
     "isValidated": false
   },
   {
-    "ingredientID": "c5b9f180-4647-11e8-b1bb-47116a584e8d",
+    "ingredientID": "5b26de70-4aff-11e8-8e81-8543436e1900",
     "parentIngredientID": null,
-    "dateCreated": "2018-04-22T16:11:10.872Z",
-    "dateUpdated": "2018-04-22T16:11:10.872Z",
+    "dateCreated": "2018-04-28T16:15:24.119Z",
+    "dateUpdated": "2018-04-28T16:15:24.119Z",
+    "name": "kennebec potato",
+    "plural": null,
+    "properties": {
+      "meat": false,
+      "poultry": false,
+      "fish": false,
+      "dairy": false,
+      "soy": false,
+      "gluten": false
+    },
+    "alternateNames": [],
+    "parsingExpressions": [],
+    "relatedIngredients": [],
+    "substitutes": [],
+    "references": [],
+    "isValidated": false
+  },
+  {
+    "ingredientID": "5b2816f0-4aff-11e8-8e81-8543436e1900",
+    "parentIngredientID": null,
+    "dateCreated": "2018-04-28T16:15:24.127Z",
+    "dateUpdated": "2018-04-28T16:15:24.127Z",
     "name": "purple potato",
     "plural": null,
     "properties": {
@@ -114,10 +141,146 @@
     "isValidated": false
   },
   {
-    "ingredientID": "c5be1031-4647-11e8-b1bb-47116a584e8d",
+    "ingredientID": "5b2de350-4aff-11e8-8e81-8543436e1900",
     "parentIngredientID": null,
-    "dateCreated": "2018-04-22T16:11:10.899Z",
-    "dateUpdated": "2018-04-22T16:11:10.902Z",
+    "dateCreated": "2018-04-28T16:15:24.165Z",
+    "dateUpdated": "2018-04-28T16:15:24.208Z",
+    "name": "chicken stock",
+    "plural": "chicken stocks",
+    "properties": {
+      "meat": false,
+      "poultry": false,
+      "fish": false,
+      "dairy": false,
+      "soy": false,
+      "gluten": false
+    },
+    "alternateNames": [
+      "chicken wing stock"
+    ],
+    "parsingExpressions": [
+      "can of chicken stock"
+    ],
+    "relatedIngredients": [],
+    "substitutes": [],
+    "references": [],
+    "isValidated": false
+  },
+  {
+    "ingredientID": "5b2ea6a0-4aff-11e8-8e81-8543436e1900",
+    "parentIngredientID": null,
+    "dateCreated": "2018-04-28T16:15:24.170Z",
+    "dateUpdated": "2018-04-28T16:15:24.170Z",
+    "name": "chicken broth",
+    "plural": null,
+    "properties": {
+      "meat": false,
+      "poultry": false,
+      "fish": false,
+      "dairy": false,
+      "soy": false,
+      "gluten": false
+    },
+    "alternateNames": [],
+    "parsingExpressions": [],
+    "relatedIngredients": [],
+    "substitutes": [],
+    "references": [],
+    "isValidated": false
+  },
+  {
+    "ingredientID": "5b2f1bd0-4aff-11e8-8e81-8543436e1900",
+    "parentIngredientID": null,
+    "dateCreated": "2018-04-28T16:15:24.173Z",
+    "dateUpdated": "2018-04-28T16:15:24.173Z",
+    "name": "vegetable broth",
+    "plural": null,
+    "properties": {
+      "meat": false,
+      "poultry": false,
+      "fish": false,
+      "dairy": false,
+      "soy": false,
+      "gluten": false
+    },
+    "alternateNames": [],
+    "parsingExpressions": [],
+    "relatedIngredients": [],
+    "substitutes": [],
+    "references": [],
+    "isValidated": false
+  },
+  {
+    "ingredientID": "5b307b60-4aff-11e8-8e81-8543436e1900",
+    "parentIngredientID": null,
+    "dateCreated": "2018-04-28T16:15:24.182Z",
+    "dateUpdated": "2018-04-28T16:15:24.182Z",
+    "name": "stock",
+    "plural": null,
+    "properties": {
+      "meat": false,
+      "poultry": false,
+      "fish": false,
+      "dairy": false,
+      "soy": false,
+      "gluten": false
+    },
+    "alternateNames": [],
+    "parsingExpressions": [],
+    "relatedIngredients": [],
+    "substitutes": [],
+    "references": [],
+    "isValidated": false
+  },
+  {
+    "ingredientID": "5b318cd0-4aff-11e8-8e81-8543436e1900",
+    "parentIngredientID": null,
+    "dateCreated": "2018-04-28T16:15:24.189Z",
+    "dateUpdated": "2018-04-28T16:15:24.189Z",
+    "name": "beef broth",
+    "plural": null,
+    "properties": {
+      "meat": false,
+      "poultry": false,
+      "fish": false,
+      "dairy": false,
+      "soy": false,
+      "gluten": false
+    },
+    "alternateNames": [],
+    "parsingExpressions": [],
+    "relatedIngredients": [],
+    "substitutes": [],
+    "references": [],
+    "isValidated": false
+  },
+  {
+    "ingredientID": "5b32ec60-4aff-11e8-8e81-8543436e1900",
+    "parentIngredientID": null,
+    "dateCreated": "2018-04-28T16:15:24.198Z",
+    "dateUpdated": "2018-04-28T16:15:24.198Z",
+    "name": "beef stock",
+    "plural": null,
+    "properties": {
+      "meat": false,
+      "poultry": false,
+      "fish": false,
+      "dairy": false,
+      "soy": false,
+      "gluten": false
+    },
+    "alternateNames": [],
+    "parsingExpressions": [],
+    "relatedIngredients": [],
+    "substitutes": [],
+    "references": [],
+    "isValidated": false
+  },
+  {
+    "ingredientID": "5b38b8c0-4aff-11e8-8e81-8543436e1900",
+    "parentIngredientID": null,
+    "dateCreated": "2018-04-28T16:15:24.236Z",
+    "dateUpdated": "2018-04-28T16:15:24.240Z",
     "name": "bay leaf",
     "plural": "bay leaves",
     "properties": {
@@ -136,10 +299,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "c5befa90-4647-11e8-b1bb-47116a584e8d",
+    "ingredientID": "5b3a3f60-4aff-11e8-8e81-8543436e1900",
     "parentIngredientID": null,
-    "dateCreated": "2018-04-22T16:11:10.905Z",
-    "dateUpdated": "2018-04-22T16:11:10.905Z",
+    "dateCreated": "2018-04-28T16:15:24.246Z",
+    "dateUpdated": "2018-04-28T16:15:24.246Z",
     "name": "sugar",
     "plural": null,
     "properties": {
@@ -153,6 +316,33 @@
     "alternateNames": [],
     "parsingExpressions": [],
     "relatedIngredients": [],
+    "substitutes": [],
+    "references": [],
+    "isValidated": false
+  },
+  {
+    "ingredientID": "5b3adba0-4aff-11e8-8e81-8543436e1900",
+    "parentIngredientID": null,
+    "dateCreated": "2018-04-28T16:15:24.250Z",
+    "dateUpdated": "2018-04-28T16:15:24.255Z",
+    "name": "potato",
+    "plural": null,
+    "properties": {
+      "meat": false,
+      "poultry": false,
+      "fish": false,
+      "dairy": false,
+      "soy": false,
+      "gluten": false
+    },
+    "alternateNames": [],
+    "parsingExpressions": [],
+    "relatedIngredients": [
+      [
+        "yam",
+        "5b244661-4aff-11e8-8e81-8543436e1900"
+      ]
+    ],
     "substitutes": [],
     "references": [],
     "isValidated": false

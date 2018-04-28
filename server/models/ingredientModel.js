@@ -4,6 +4,8 @@ const uuid = require('uuid');
 const moment = require('moment');
 
 const ingredientController = require('../controllers/ingredientController');
+const recipeController = require('../controllers/recipeController');
+
 const DB_PATH = (process.env.NODE_ENV === 'test') ? 'tests/data' : 'data';
 
 /*----------  Private Ingredient Variables  ----------*/
@@ -52,11 +54,13 @@ class Ingredient {
 				  'soy': false,
 				  'gluten': false
 				});
+
 				_alternateNames.set(this, new Set());
 				_parsingExpressions.set(this, new Set());
+
 				_relatedIngredients.set(this, new Map());
-				_substitutes.set(this, new Set());
-				_references.set(this, new Set());
+				_substitutes.set(this, new Map());
+				_references.set(this, new Map());
 
 				_isValidated.set(this, false);
 				return true;
@@ -84,15 +88,25 @@ class Ingredient {
 				_alternateNames.set(this, new Set([ ...value.alternateNames ]));
 				_parsingExpressions.set(this, new Set([ ...value.parsingExpressions ]));
 
-				// translate our 2D array back into a Map
+				// translate our 2D arrays back into a Maps
 				const relatedIngredients = new Map();
 				for (let rel of value.relatedIngredients) {
 					relatedIngredients.set(rel[0], rel[1]);
 				}
 
+				const substitutes = new Map();
+				for (let sub of value.substitutes) {
+					substitutes.set(sub[0], sub[1]);
+				}
+
+				const references = new Map();
+				for (let sub of value.references) {
+					references.set(sub[0], sub[1]);
+				}
+
 				_relatedIngredients.set(this, relatedIngredients);
-				_substitutes.set(this, new Set([ ...value.substitutes ])); // TODO these need to be updated to maps
-				_references.set(this, new Set([ ...value.references ])); // TODO these need to be updated to maps
+				_substitutes.set(this, substitutes);
+				_references.set(this, references);
 
 				_isValidated.set(this, value.isValidated || false);
 
@@ -331,45 +345,8 @@ class Ingredient {
 
 	set relatedIngredients(value) {
 		if (value && (value instanceof Map)) {
-			// go through the items in our Map to ensure that they've valid
-			for (let [name, id] of value) {
-				console.log(`${name} - ${id} -------------------`.green);
-				// if we aren't providing a name, or our id is something other than a valid UUID or null
-				if (!name || (typeof name !== 'string') || (name.length === 0) || (!isUUID.v1(id) && id !== null)) {
-					// remove this item
-					value.delete(name);
-				} else {
-					let relatedIngredient = null;
-					// look up this ingredient reference
-					if (id !== null) {
-						//console.log(`looking up by id ${id}...`.yellow);
-						relatedIngredient = ingredientController.findIngredients('ingredientID', id);
-					}
-
-					if (!relatedIngredient || relatedIngredient.length === 0) {
-						//console.log(`looking up by name ${name}...`.yellow);
-						relatedIngredient = ingredientController.findIngredients('exact', name);
-
-
-						// if we found a match, make sure we're saving only the ingredient name in our list
-						if (relatedIngredient && relatedIngredient.length === 1) {
-							//console.log('about to rename our current map value');
-							value.delete(name);
-							value.set(relatedIngredient[0].name, relatedIngredient[0].ingredientID);
-						}
-					}
-
-					// if we didn't find an existing ingredient either by id or name
-					if (relatedIngredient && relatedIngredient.length === 0) {
-						//console.log('creating new ingredient');
-						// create the ingredient
-						relatedIngredient = new Ingredient(name);
-						relatedIngredient.saveIngredient();
-						value.delete(name);
-						value.set(name, relatedIngredient.ingredientID);
-					}
-				}
-			}
+			// ensure that each ingredient in here is valid or setup as another ingredient
+			value = this.validateMapIngredients(value);
 
 			_dateUpdated.set(this, moment());
 			return _relatedIngredients.set(this, value);
@@ -383,7 +360,10 @@ class Ingredient {
 	}
 
 	set substitutes(value) {
-		if (value && (value instanceof Set)) {
+		if (value && (value instanceof Map)) {
+			// ensure that each ingredient in here is valid or setup as another ingredient
+			value = this.validateMapIngredients(value);
+
 			_dateUpdated.set(this, moment());
 			return _substitutes.set(this, value);
 		}
@@ -396,7 +376,28 @@ class Ingredient {
 	}
 
 	set references(value) {
-		if (value && (value instanceof Set)) {
+		if (value && (value instanceof Map)) {
+			// go through the items in our Map to ensure that they've valid
+			for (let [line, id] of value) {
+				// if we aren't providing a line, or our id is something other than a valid UUID or null
+				if (!line || (typeof line !== 'string') || (line.length === 0) || (!isUUID.v1(id) && id !== null)) {
+					// remove this item
+					value.delete(line);
+				} else {
+					let recipe = null;
+					// look up this recipe reference
+					if (id !== null) {
+						recipe = recipeController.findRecipes('recipeID', id);
+					}
+
+					// if we didn't find an existing recipe either by id
+					if (recipe && recipe.length === 0) {
+						// then delete this line
+						value.delete(line);
+					}
+				}
+			}
+
 			_dateUpdated.set(this, moment());
 			return _references.set(this, value);
 		}
@@ -484,8 +485,7 @@ class Ingredient {
 		return encoded;
 	}
 
-	saveIngredient() {
-		console.log('saveIngredient'.yellow);
+	saveIngredient(originalName = null) {
 		let ingredients = [];
 
 		try {
@@ -496,6 +496,35 @@ class Ingredient {
 
 		// determine if this is an existing ingredient or not
 		let existingIngredient = ingredientController.findIngredients('ingredientID', _ingredientID.get(this));
+
+		// make sure each relatedIngredient on this item also has this ingredient as a relation
+		// ie. if saving 'potato' with a relatedIngredient of 'yam'
+		// 'yam' should also have a relatedIngredient of 'potato'
+
+		// loop through related ingredients
+		const values = [ ...this.relatedIngredients.values() ]; // ids
+
+		if (values && values.length > 0) {
+			for (let id of values) {
+				// lookup this ingredient by id
+				let related = ingredientController.findIngredients('ingredientID', id);
+				related = (related.length === 1) ? related[0] : null;
+
+				// if our ingredient isn't listed in the relatedIngredients of this item add it
+				if (related && !related.relatedIngredients.has(this.name)) {
+					// add our current ingredient to related
+					related.relatedIngredients.set(this.name, this.ingredientID);
+					related.saveIngredient(this.name);
+
+					// re-pull our ingredients now that we've updated them
+					try {
+						ingredients = JSON.parse(fs.readFileSync(`${DB_PATH}/ingredients.json`, 'utf8'));
+					} catch (ex) {
+						throw new Error('Error reading ingredients.json');
+					}
+				}
+			}
+		}
 
 		// add this ingredient if it hasn't been added before
 		if (existingIngredient && existingIngredient.length === 0) {
@@ -514,6 +543,44 @@ class Ingredient {
 		fs.writeFileSync(`${DB_PATH}/ingredients.json`, JSON.stringify(ingredients, null, 2), 'utf-8', (err) => {
 			if (err) throw new Error(`An error occurred while writing ingredients data`);
 		});
+	}
+
+	validateMapIngredients(value) {
+		// go through the items in our Map to ensure that they've valid
+		for (let [name, id] of value) {
+			// if we aren't providing a name, or our id is something other than a valid UUID or null
+			if (!name || (typeof name !== 'string') || (name.length === 0) || (!isUUID.v1(id) && id !== null)) {
+				// remove this item
+				value.delete(name);
+			} else {
+				let ingredient = null;
+				// look up this ingredient reference
+				if (id !== null) {
+					ingredient = ingredientController.findIngredients('ingredientID', id);
+				}
+
+				if (!ingredient || ingredient.length === 0) {
+					ingredient = ingredientController.findIngredients('exact', name);
+
+					// if we found a match, make sure we're saving only the ingredient name in our list
+					if (ingredient && ingredient.length === 1) {
+						value.delete(name);
+						value.set(ingredient[0].name, ingredient[0].ingredientID);
+					}
+				}
+
+				// if we didn't find an existing ingredient either by id or name
+				if (ingredient && ingredient.length === 0) {
+					// create the ingredient
+					ingredient = new Ingredient(name);
+					ingredient.saveIngredient();
+					value.delete(name);
+					value.set(name, ingredient.ingredientID);
+				}
+			}
+		}
+
+		return value;
 	}
 
 	addAlternateName(value) {
