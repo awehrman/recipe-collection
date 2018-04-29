@@ -488,44 +488,8 @@ describe('Ingredient Class ============================================='.magent
 
 		it('[alternateNames] should update with a valid string', function() {
 			const ing = new Ingredient('potato');
-			// if the value is the same as the name
-			// don't allow it, because we can't leave the name empty
-			expect(() => {
-				ing.alternateNames = new Set(['potato']);
-			}).to.throw('Cannot assign current Ingredient name to alternateNames');
 
-			// if the value is the same as the plural
-			// remove the plural
-			// add it to alt name
-			ing.plural = 'potatoes';
-			ing.alternateNames = new Set(['potatoes']);
-			expect(ing.alternateNames.has('potatoes')).to.be.true;
-			expect(ing.alternateNames.size).to.equal(1);
-			expect(ing.plural).to.be.null;
-
-			// if the value is the same as an instance within parsing expressions
-			// remove the parse exp
-			// add it ot the alt name
-			ing.parsingExpressions = new Set(['small potatoes']);
-			expect(ing.parsingExpressions.has('small potatoes')).to.be.true;
-			expect(ing.parsingExpressions.size).to.equal(1);
-
-			ing.alternateNames = new Set(['small potatoes']);
-			expect(ing.plural).to.be.null;
-			expect(ing.alternateNames.has('small potatoes')).to.be.true;
-			expect(ing.alternateNames.size).to.equal(1);
-			expect(ing.parsingExpressions.has('small potatoes')).to.be.false;
-			expect(ing.parsingExpressions.size).to.equal(0);
-
-			// if the value is already in the alt names
-			// it should de-duplicate
-			ing.alternateNames = new Set(['potatoes', 'potatoes']);
-			expect(ing.alternateNames.has('potatoes')).to.be.true;
-			expect(ing.alternateNames.size).to.equal(1);
-
-			// TODO come back to handling relatedIngredient matches
-			// TODO come back to handling substitute matches
-
+			// don't accept non-sense
 			ing.alternateNames = new Set([ undefined ]);
 			expect(ing.alternateNames.size).to.equal(0);
 			ing.alternateNames = new Set([ '' ]);
@@ -560,6 +524,44 @@ describe('Ingredient Class ============================================='.magent
 			expect(() => {
 				ing.alternateNames = 'spud';
 			}).to.throw('Invalid alternateNames parameter for Ingredient');
+
+			// ignore any entries that match our extisting name
+			ing.alternateNames = new Set(['potato']);
+			expect(ing.alternateNames.size).to.be.equal(0);
+			expect(ing.alternateNames.has('potato')).to.be.false;
+
+			// anytime we pass in a completely new set, we want that to override the existing set
+
+
+			// if the value is the same as the plural
+			// remove the plural
+			// add it to alt name
+			ing.plural = 'potatoes';
+			ing.alternateNames = new Set(['potatoes']);
+			expect(ing.alternateNames.has('potatoes')).to.be.true;
+			expect(ing.alternateNames.size).to.equal(1);
+			expect(ing.plural).to.be.null;
+
+			// if the value is the same as an instance within parsing expressions
+			// remove the parse exp
+			// add it ot the alt name
+			ing.parsingExpressions = new Set(['small potatoes']);
+			expect(ing.parsingExpressions.has('small potatoes')).to.be.true;
+			expect(ing.parsingExpressions.size).to.equal(1);
+
+			ing.alternateNames = new Set(['small potatoes']);
+			expect(ing.plural).to.be.null;
+			expect(ing.alternateNames.has('small potatoes')).to.be.true;
+			expect(ing.alternateNames.size).to.equal(1);
+			expect(ing.parsingExpressions.has('small potatoes')).to.be.false;
+			expect(ing.parsingExpressions.size).to.equal(0);
+
+			// if the value is already in the alt names
+			// it should de-duplicate
+			ing.alternateNames = new Set(['potatoes', 'potatoes']);
+			expect(ing.alternateNames.has('potatoes')).to.be.true;
+			expect(ing.alternateNames.size).to.equal(1);
+
 		});
 
 		it('[parsingExpressions] should update with a valid string', function() {
@@ -1265,47 +1267,91 @@ describe('Ingredient Class ============================================='.magent
 			expect(potato.relatedIngredients.size).to.be.equal(1);
 		});
 
-		it.skip('[validateMapIngredients] should only ensure each valid ingredient is saved to the database', function() {
-			// a lot of these tests are already covered in relatedIngredients and substitutes, so maybe this is unncessary
+		it('[validateMapIngredients] should only ensure each valid ingredient is saved to the database', function() {
+			// a lot of these tests are already covered in relatedIngredients and substitutes, so maybe this is unncessary post-refactor
 		});
 
-		it.skip('TODO: addAlternateName()', function() {
+		it('[addAlternateName] should add a new alternate name to the set', function() {
+			const ing = new Ingredient('new potato');
+
+			// don't allow non-sense
+			expect(() => ing.addAlternateName()).to.throw('Invalid alternateNames parameter for Ingredient');
+			expect(() => ing.addAlternateName('')).to.throw('Invalid alternateNames parameter for Ingredient');
+			expect(() => ing.addAlternateName(NaN)).to.throw('Invalid alternateNames parameter for Ingredient');
+			expect(() => ing.addAlternateName(null)).to.throw('Invalid alternateNames parameter for Ingredient');
+			expect(() => ing.addAlternateName(123)).to.throw('Invalid alternateNames parameter for Ingredient');
+
+			// don't allow alternate names matching an existing ingredient
+			expect(() => ing.addAlternateName('yam')).to.throw('Alternate name is already in use');
+
+			// don't allow alternate names matching an existing ingredient's plural name
+			expect(() => ing.addAlternateName('yams')).to.throw('Alternate name is already in use');
+
+			// don't allow alternate names matching an existing ingredient's alternate name
+			expect(() => ing.addAlternateName('sweet potato')).to.throw('Alternate name is already in use');
+
+			// don't allow alternate names matching an existing ingredient's parsing expression
+			expect(() => ing.addAlternateName('diced yams')).to.throw('Alternate name is already in use');
+
+			// allow any other valid, unused string
+			ing.addAlternateName('starchy potato');
+			expect(ing.alternateNames.size).to.equal(1);
+			expect(ing.alternateNames.has('starchy potato')).to.be.true;
+
+			// if matching an existing alt name, de-duplicate
+			ing.addAlternateName('starchy potato');
+			expect(ing.alternateNames.size).to.be.equal(1);
+			expect(ing.alternateNames.has('starchy potato')).to.be.true;
+
+			// don't allow any strings matching the current name of the un-saved ingredient
+			expect(() => ing.addAlternateName('new potato')).to.throw('Cannot assign current Ingredient name to alternateNames');
+
+			// if matching the existing plural name, should remove the plural and accept as alt name
+			ing.plural = 'new potatoes';
+			ing.addAlternateName('new potatoes');
+			expect(ing.plural).to.be.null;
+			expect(ing.alternateNames.has('new potatoes')).to.be.true;
+
+			// if matching an existing parsing expression, should remove the parsing expression and accept as alt name
+			ing.parsingExpressions = new Set(['diced potato']);
+			ing.addAlternateName('diced potato');
+			expect(ing.parsingExpressions.size).to.be.equal(0);
+			expect(ing.alternateNames.has('diced potato')).to.be.true;
+		});
+
+		it.skip('[removeAlternateName] should remove a given alternate name from the set', function() {
 
 		});
 
-		it.skip('TODO: removeAlternateName()', function() {
+		it.skip('[addParsingExpression] should add a new parsing expression to the set', function() {
 
 		});
 
-		it.skip('TODO: addParsingExpression()', function() {
+		it.skip('[removeParsingExpression] should remove a given parsing expression from the set', function() {
 
 		});
 
-		it.skip('TODO: removeParsingExpression()', function() {
+		it.skip('[addRelatedIngredient] should add a valid related ingredient to the map', function() {
 
 		});
 
-		it.skip('TODO: addRelatedIngredient()', function() {
+		it.skip('[removeRelatedIngredient] should remove a given related ingredient from the map', function() {
 
 		});
 
-		it.skip('TODO: removeRelatedIngredient()', function() {
+		it.skip('[addSubstitute] should add a new substitute ingredient to the map', function() {
 
 		});
 
-		it.skip('TODO: addSubstitute()', function() {
+		it.skip('[removeSubstitute] should remove a given substitute ingredient from the map', function() {
 
 		});
 
-		it.skip('TODO: removeSubstitute()', function() {
+		it.skip('[addReference] should add a new recipe reference to the map', function() {
 
 		});
 
-		it.skip('TODO: addReference()', function() {
-
-		});
-
-		it.skip('TODO: removeReference()', function() {
+		it.skip('[removeReference] should remove a given recipe reference from the map', function() {
 
 		});
 	});

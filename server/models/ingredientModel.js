@@ -267,34 +267,23 @@ class Ingredient {
 
 	set alternateNames(value) {
 		if (value && (value instanceof Set)) {
-			// loop through the items in our set to validate contents
+			// clear out the prior set of alternate names since we're going to replace it wholesale
+			// if you just want to append new values use addAlternateName instead
+			_alternateNames.set(this, new Set());
+
+			// for each item in our set
 			for (let item of value) {
-				// don't allow non-string values
-				if (typeof item !== 'string' || item.length === 0) {
+				try {
+					// accept it if it passes validation
+					this.addAlternateName(item);
+				} catch (ex) {
+					// or remove it from the set
 					value.delete(item);
-					break;
 				}
-
-				// don't allow values that match our name
-				if (item === _name.get(this)) {
-					throw new Error('Cannot assign current Ingredient name to alternateNames');
-				}
-
-				// handle plural name matching instance
-				if (item === _plural.get(this)) {
-					_plural.set(this, null);
-				}
-
-				// handle parsing expressions matching instance
-				if (_parsingExpressions.get(this).has(item)) {
-					_parsingExpressions.get(this).delete(item);
-				}
-
-				// TODO do we need to do anything special if this matches a relatedIngredient or substitute?
 			}
 
 			_dateUpdated.set(this, moment());
-			return _alternateNames.set(this, value);
+			return _alternateNames.get(this);
 		}
 		throw new Error('Invalid alternateNames parameter for Ingredient');
 	}
@@ -584,7 +573,40 @@ class Ingredient {
 	}
 
 	addAlternateName(value) {
-		// TODO
+		if (value && typeof value === 'string' && value.length > 0) {
+			// check that this value isn't used on any other ingredients
+			const existingIngredient = ingredientController.findIngredients('exact', value);
+			if (existingIngredient && existingIngredient.length > 0) {
+				throw new Error('Alternate name is already in use');
+			}
+
+			// check that this value dosen't not equal our current name
+			if (value === _name.get(this)) {
+				throw new Error('Cannot assign current Ingredient name to alternateNames');
+			}
+
+			// check if this value equals our current plural value
+			if (value === _plural.get(this)) {
+				// if so, we'll still accept this value, but we're remove the plural value
+				_plural.set(this, null);
+			}
+
+			// check if this value equals any of our current alternate names
+			if (_alternateNames.get(this).has(value)) {
+				// then don't do anything and get out of here
+				return _alternateNames.get(this);
+			}
+
+			// check if this value equals any of our current parsing expression values
+			if (_parsingExpressions.get(this).has(value)) {
+				// if so, we'll still accept this value, but we'll clear out that specific parsing expression value
+				_parsingExpressions.get(this).delete(value);
+			}
+
+			// if we pass all other validation, accept the alternate name
+			return _alternateNames.get(this).add(value);
+		}
+		throw new Error('Invalid alternateNames parameter for Ingredient');
 	}
 
 	removeAlternateName(value) {
