@@ -16,8 +16,6 @@ const ingredientController = require('../../controllers/ingredientController');
 	- more type checking on passing an encoded ingredient into the constructor when fields are missing
 	- should only create a new Ingredient when the name is not used on any other ingredients
 	- additional tests for:
-		- related ingredients
-		- substitutes (convert to map)
 		- references (convert to map)
 	- when a name is updated to be a name referenced on the ingredient's relatedIngredients or substitutes sets,
 		we need to trigger a merger with those records, come back to how this needs to be handled internally
@@ -26,10 +24,6 @@ const ingredientController = require('../../controllers/ingredientController');
 		is this any down-side there? I'd like to run some heap dumps to really walk through this
 
  */
-
-
-//undefined, '', NaN, null, 123, { key: value }
-
 
 describe('Ingredient Class ============================================='.magenta, function () {
 	it('should initialize test data', function() {
@@ -202,7 +196,7 @@ describe('Ingredient Class ============================================='.magent
 			}).to.throw('Updating dateCreated is not allowed');
 		});
 
-		it('[dateUpdated] should update with a valid datestamp AND anytime another Ingredient property is updated', function() {
+		it('[dateUpdated] should update with a valid datestamp', function() {
 			const ing = new Ingredient('potato');
 			let initialDate = ing.dateUpdated;
 
@@ -486,7 +480,7 @@ describe('Ingredient Class ============================================='.magent
 			}).to.throw('Invalid properties parameter for Ingredient');
 		});
 
-		it('[alternateNames] should update with a valid string', function() {
+		it('[alternateNames] should update with a valid Set containing string values', function() {
 			const ing = new Ingredient('potato');
 
 			// don't accept non-sense
@@ -561,16 +555,15 @@ describe('Ingredient Class ============================================='.magent
 			ing.alternateNames = new Set(['potatoes', 'potatoes']);
 			expect(ing.alternateNames.has('potatoes')).to.be.true;
 			expect(ing.alternateNames.size).to.equal(1);
-
 		});
 
-		it('[parsingExpressions] should update with a valid string', function() {
+		it('[parsingExpressions] should update with a valid Set containing string values', function() {
 			const ing = new Ingredient('potato');
-			// if the value is the same as the name
-			// don't allow it, because we can't leave the name empty
-			expect(() => {
-				ing.parsingExpressions = new Set(['potato']);
-			}).to.throw('Cannot assign current Ingredient name to parsingExpressions');
+
+			// ignore any entries that match our extisting name
+			ing.alternateNames = new Set(['potato']);
+			expect(ing.alternateNames.size).to.be.equal(0);
+			expect(ing.alternateNames.has('potato')).to.be.false;
 
 			// if the value is the same as the plural
 			// remove the plural
@@ -640,7 +633,7 @@ describe('Ingredient Class ============================================='.magent
 			}).to.throw('Invalid parsingExpressions parameter for Ingredient');
 		});
 
-		it('[relatedIngredients] should update with a valid Ingredient reference', function() {
+		it('[relatedIngredients] should update with a valid Map containing name/id pairs', function() {
 			const ing = new Ingredient('potato');
 			let related = new Map();
 			let keys, values, uniqueKeys, uniqueValues = [];
@@ -836,9 +829,6 @@ describe('Ingredient Class ============================================='.magent
 			reset();
 
 			// should ignore any entries with bad ingredientID values
-			related.set('yam', undefined);
-			ing.relatedIngredients = related;
-			expect(ing.relatedIngredients).to.be.empty;
 			related.set('yam', '');
 			ing.relatedIngredients = related;
 			expect(ing.relatedIngredients).to.be.empty;
@@ -881,7 +871,7 @@ describe('Ingredient Class ============================================='.magent
 			}).to.throw('Invalid relatedIngredients parameter for Ingredient');
 		});
 
-		it('[substitutes] should update with a valid Ingredient reference', function() {
+		it('[substitutes] should update with a valid Map containing name/id pairs', function() {
 			const ing = new Ingredient('vegetable stock');
 			let substitutes = new Map();
 			let keys, values, uniqueKeys, uniqueValues = [];
@@ -1079,9 +1069,6 @@ describe('Ingredient Class ============================================='.magent
 			reset();
 
 			// should ignore any entries with bad ingredientID values
-			substitutes.set('yam', undefined);
-			ing.substitutes = substitutes;
-			expect(ing.substitutes).to.be.empty;
 			substitutes.set('yam', '');
 			ing.substitutes = substitutes;
 			expect(ing.substitutes).to.be.empty;
@@ -1267,10 +1254,6 @@ describe('Ingredient Class ============================================='.magent
 			expect(potato.relatedIngredients.size).to.be.equal(1);
 		});
 
-		it('[validateMapIngredients] should only ensure each valid ingredient is saved to the database', function() {
-			// a lot of these tests are already covered in relatedIngredients and substitutes, so maybe this is unncessary post-refactor
-		});
-
 		it('[addAlternateName] should add a new alternate name to the set', function() {
 			const ing = new Ingredient('new potato');
 
@@ -1319,40 +1302,225 @@ describe('Ingredient Class ============================================='.magent
 			expect(ing.alternateNames.has('diced potato')).to.be.true;
 		});
 
-		it.skip('[removeAlternateName] should remove a given alternate name from the set', function() {
+		it('[removeAlternateName] should remove a given alternate name from the set', function() {
+			const ing = new Ingredient('potato');
+			ing.alternateNames = new Set([ 'new potatoes' ]);
+			expect(ing.alternateNames.has('new potatoes')).to.be.true;
+			expect(ing.alternateNames.size).to.equal(1);
 
+			// don't do anything if we don't find a match
+			ing.removeAlternateName('non-existing potato');
+			expect(ing.alternateNames.size).to.equal(1);
+
+			// remove any matching names
+			ing.removeAlternateName('new potatoes');
+			expect(ing.alternateNames.size).to.equal(0);
+			expect(ing.alternateNames.has('new potatoes')).to.be.false;
 		});
 
-		it.skip('[addParsingExpression] should add a new parsing expression to the set', function() {
+		it('[addParsingExpression] should add a new parsing expression to the set', function() {
+			const ing = new Ingredient('apple');
 
+			// don't allow non-sense
+			expect(() => ing.addParsingExpression()).to.throw('Invalid parsingExpressions parameter for Ingredient');
+			expect(() => ing.addParsingExpression('')).to.throw('Invalid parsingExpressions parameter for Ingredient');
+			expect(() => ing.addParsingExpression(NaN)).to.throw('Invalid parsingExpressions parameter for Ingredient');
+			expect(() => ing.addParsingExpression(null)).to.throw('Invalid parsingExpressions parameter for Ingredient');
+			expect(() => ing.addParsingExpression(123)).to.throw('Invalid parsingExpressions parameter for Ingredient');
+
+			// don't allow parsing expressions matching an existing ingredient
+			expect(() => ing.addParsingExpression('yam')).to.throw('Parsing expression value is already in use');
+
+			// don't allow parsing expressions matching an existing ingredient's plural name
+			expect(() => ing.addParsingExpression('yams')).to.throw('Parsing expression value is already in use');
+
+			// don't allow parsing expressions matching an existing ingredient's alternate name
+			expect(() => ing.addParsingExpression('sweet potato')).to.throw('Parsing expression value is already in use');
+
+			// don't allow parsing expressions matching an existing ingredient's parsing expression
+			expect(() => ing.addParsingExpression('diced yams')).to.throw('Parsing expression value is already in use');
+
+			// allow any other valid, unused string
+			ing.addParsingExpression('diced apples');
+			expect(ing.parsingExpressions.size).to.equal(1);
+			expect(ing.parsingExpressions.has('diced apples')).to.be.true;
+
+			// if matching an existing parsing expression, de-duplicate
+			ing.addParsingExpression('diced apples');
+			expect(ing.parsingExpressions.size).to.be.equal(1);
+			expect(ing.parsingExpressions.has('diced apples')).to.be.true;
+
+			// don't allow any strings matching the current name of the un-saved ingredient
+			expect(() => ing.addParsingExpression('apple')).to.throw('Cannot assign current Ingredient name to parsingExpressions');
+
+			// if matching the existing plural name, should remove the plural and accept as alt name
+			ing.plural = 'apples';
+			ing.addParsingExpression('apples');
+			expect(ing.plural).to.be.null;
+			expect(ing.parsingExpressions.has('apples')).to.be.true;
+
+			// if matching an existing alternate name, should remove the alternate name and accept as parsing expression
+			ing.alternateNames = new Set([ 'sagwa' ]);
+			ing.addParsingExpression('sagwa');
+			expect(ing.alternateNames.size).to.be.equal(0);
+			expect(ing.parsingExpressions.has('sagwa')).to.be.true;
 		});
 
-		it.skip('[removeParsingExpression] should remove a given parsing expression from the set', function() {
+		it('[removeParsingExpression] should remove a given parsing expression from the set', function() {
+			const ing = new Ingredient('potato');
+			ing.parsingExpressions = new Set([ 'diced potatoes' ]);
+			expect(ing.parsingExpressions.has('diced potatoes')).to.be.true;
+			expect(ing.parsingExpressions.size).to.equal(1);
 
+			// don't do anything if we don't find a match
+			ing.removeParsingExpression('non-existing potato');
+			expect(ing.parsingExpressions.size).to.equal(1);
+
+			// remove any matching names
+			ing.removeParsingExpression('diced potatoes');
+			expect(ing.parsingExpressions.size).to.equal(0);
+			expect(ing.parsingExpressions.has('diced potatoes')).to.be.false;
 		});
 
-		it.skip('[addRelatedIngredient] should add a valid related ingredient to the map', function() {
+		it('[addRelatedIngredient] should add a valid related ingredient to the map', function() {
+			const ing = new Ingredient('chicken');
 
+			// don't allow nonsense
+			expect(() => ing.addRelatedIngredient()).to.throw('Invalid relatedIngredients parameter for Ingredient');
+			expect(() => ing.addRelatedIngredient('')).to.throw('Invalid relatedIngredients parameter for Ingredient');
+			expect(() => ing.addRelatedIngredient(NaN)).to.throw('Invalid relatedIngredients parameter for Ingredient');
+			expect(() => ing.addRelatedIngredient(null)).to.throw('Invalid relatedIngredients parameter for Ingredient');
+			expect(() => ing.addRelatedIngredient(123)).to.throw('Invalid relatedIngredients parameter for Ingredient');
+
+			// if the ingredient doesn't exist, add it
+			let thigh = ingredientController.findIngredients('exact', 'chicken thigh');
+			expect(thigh.length).to.equal(0);
+
+			ing.addRelatedIngredient('chicken thigh');
+			thigh = ingredientController.findIngredients('exact', 'chicken thigh');
+			expect(thigh.length).to.equal(1);
+			expect(thigh[0].name).to.equal('chicken thigh');
+			expect(ing.relatedIngredients.size).to.equal(1);
+			let keys = [ ...ing.relatedIngredients.keys() ];
+			expect(keys.includes('chicken thigh')).to.be.true;
+
+			// clear out
+			ing.relatedIngredients = new Map();
+
+			// if the ingredient exists add it
+			let newIng = new Ingredient('chicken wing');
+			newIng.saveIngredient();
+			newIng = null;
+			newIng = ingredientController.findIngredients('exact', 'chicken wing');
+			expect(newIng.length).to.equal(1);
+			ing.addRelatedIngredient('chicken wing');
+			expect(ing.relatedIngredients.size).to.equal(1);
+			keys = [ ...ing.relatedIngredients.keys() ];
+			expect(keys.includes('chicken wing')).to.be.true;
+
+			// clear out
+			ing.relatedIngredients = new Map();
+
+			// if the ingredient already exists in the map, don't duplicate
+			ing.addRelatedIngredient('chicken wing');
+			expect(ing.relatedIngredients.size).to.equal(1);
+			keys = [ ...ing.relatedIngredients.keys() ];
+			expect(keys.includes('chicken wing')).to.be.true;
 		});
 
-		it.skip('[removeRelatedIngredient] should remove a given related ingredient from the map', function() {
+		it('[removeRelatedIngredient] should remove a given related ingredient from the map', function() {
+			const ing = new Ingredient('whole wheat flour');
+			ing.addRelatedIngredient('flour');
+			expect(ing.relatedIngredients.has('flour')).to.be.true;
+			expect(ing.relatedIngredients.size).to.equal(1);
+			ing.saveIngredient();
 
+			let flour = ingredientController.findIngredients('exact', 'flour')[0];
+			expect(flour.relatedIngredients.has('whole wheat flour')).to.be.true;
+			expect(flour.relatedIngredients.size).to.equal(1);
+
+			// don't do anything if we don't find a match
+			ing.removeRelatedIngredient('non-existing flour');
+			expect(ing.relatedIngredients.size).to.equal(1);
+
+			// remove any matching names
+			ing.removeRelatedIngredient('flour');
+			expect(ing.relatedIngredients.size).to.equal(0);
+			expect(ing.relatedIngredients.has('flour')).to.be.false;
+
+			// should not affect our other ingredient relations
+			flour = ingredientController.findIngredients('exact', 'flour')[0];
+			expect(flour.relatedIngredients.has('whole wheat flour')).to.be.true;
+			expect(flour.relatedIngredients.size).to.equal(1);
 		});
 
-		it.skip('[addSubstitute] should add a new substitute ingredient to the map', function() {
+		it('[addSubstitute] should add a new substitute ingredient to the map', function() {
+			const ing = new Ingredient('oil');
 
+			// don't allow nonsense
+			expect(() => ing.addSubstitute()).to.throw('Invalid substitutes parameter for Ingredient');
+			expect(() => ing.addSubstitute('')).to.throw('Invalid substitutes parameter for Ingredient');
+			expect(() => ing.addSubstitute(NaN)).to.throw('Invalid substitutes parameter for Ingredient');
+			expect(() => ing.addSubstitute(null)).to.throw('Invalid substitutes parameter for Ingredient');
+			expect(() => ing.addSubstitute(123)).to.throw('Invalid substitutes parameter for Ingredient');
+
+			// if the ingredient doesn't exist, add it
+			let oil = ingredientController.findIngredients('exact', 'vegetable oil');
+			expect(oil.length).to.equal(0);
+
+			ing.addSubstitute('vegetable oil');
+			oil = ingredientController.findIngredients('exact', 'vegetable oil');
+			expect(oil.length).to.equal(1);
+			expect(oil[0].name).to.equal('vegetable oil');
+			expect(ing.substitutes.size).to.equal(1);
+			let keys = [ ...ing.substitutes.keys() ];
+			expect(keys.includes('vegetable oil')).to.be.true;
+
+			// clear out
+			ing.substitutes = new Map();
+
+			// if the ingredient exists add it
+			let newIng = new Ingredient('canola oil');
+			newIng.saveIngredient();
+			newIng = null;
+			newIng = ingredientController.findIngredients('exact', 'canola oil');
+			expect(newIng.length).to.equal(1);
+			ing.addSubstitute('canola oil');
+			expect(ing.substitutes.size).to.equal(1);
+			keys = [ ...ing.substitutes.keys() ];
+			expect(keys.includes('canola oil')).to.be.true;
+
+			// clear out
+			ing.substitutes = new Map();
+
+			// if the ingredient already exists in the map, don't duplicate
+			ing.addSubstitute('canola oil');
+			expect(ing.substitutes.size).to.equal(1);
+			keys = [ ...ing.substitutes.keys() ];
+			expect(keys.includes('canola oil')).to.be.true;
 		});
 
-		it.skip('[removeSubstitute] should remove a given substitute ingredient from the map', function() {
+		it('[removeSubstitute] should remove a given substitute ingredient from the map', function() {
+			const ing = new Ingredient('apple cider vinegar');
+			ing.addSubstitute('vinegar');
+			expect(ing.substitutes.has('vinegar')).to.be.true;
+			expect(ing.substitutes.size).to.equal(1);
+			ing.saveIngredient();
 
+			// don't do anything if we don't find a match
+			ing.removeSubstitute('non-existing vinegar');
+			expect(ing.substitutes.size).to.equal(1);
+
+			// remove any matching names
+			ing.removeSubstitute('vinegar');
+			expect(ing.substitutes.size).to.equal(0);
+			expect(ing.substitutes.has('vinegar')).to.be.false;
 		});
 
 		it.skip('[addReference] should add a new recipe reference to the map', function() {
-
 		});
 
 		it.skip('[removeReference] should remove a given recipe reference from the map', function() {
-
 		});
 	});
 });

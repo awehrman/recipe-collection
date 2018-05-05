@@ -10,13 +10,6 @@ const server = require('../../app');
 const Ingredient = require('../../models/ingredientModel');
 const ingredientController = require('../../controllers/ingredientController');
 
-/**
-
-	TODO:
-		- finish findIngredients() tests
-
- */
-
 /*
 		// populating preset data
 		// NOTE: this is going to generate new IDs everytime so if you re-run you're going to have to update the

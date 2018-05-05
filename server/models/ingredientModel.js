@@ -295,34 +295,23 @@ class Ingredient {
 
 	set parsingExpressions(value) {
 		if (value && (value instanceof Set)) {
-			// loop through the items in our set to validate contents
+			// clear out the prior set of parsing expressions since we're going to replace it wholesale
+			// if you just want to append new values use addParsingExpression instead
+			_parsingExpressions.set(this, new Set());
+
+			// for each item in our set
 			for (let item of value) {
-				// don't allow non-string values
-				if (typeof item !== 'string' || item.length === 0) {
+				try {
+					// accept it if it passes validation
+					this.addParsingExpression(item);
+				} catch (ex) {
+					// or remove it from the set
 					value.delete(item);
-					break;
 				}
-
-				// don't allow values that match our name
-				if (item === _name.get(this)) {
-					throw new Error('Cannot assign current Ingredient name to parsingExpressions');
-				}
-
-				// handle plural name matching instance
-				if (item === _plural.get(this)) {
-					_plural.set(this, null);
-				}
-
-				// handle alternate name matching instance
-				if (_alternateNames.get(this).has(item)) {
-					_alternateNames.get(this).delete(item);
-				}
-
-				// TODO do we need to do anything special if this matches a relatedIngredient or substitute?
 			}
 
 			_dateUpdated.set(this, moment());
-			return _parsingExpressions.set(this, value);
+			return _parsingExpressions.get(this);
 		}
 		throw new Error('Invalid parsingExpressions parameter for Ingredient');
 	}
@@ -334,11 +323,23 @@ class Ingredient {
 
 	set relatedIngredients(value) {
 		if (value && (value instanceof Map)) {
-			// ensure that each ingredient in here is valid or setup as another ingredient
-			value = this.validateMapIngredients(value);
+			// clear out the prior set of related ingredients since we're going to replace it wholesale
+			// if you just want to append new values use addRelatedIngredient instead
+			_relatedIngredients.set(this, new Map());
+
+			// go through the items in our Map to ensure that they've valid
+			for (let [name, id] of value) {
+				try {
+					// accept it if it passes validation
+					this.addRelatedIngredient(name, id);
+				} catch (ex) {
+					// or remove it from the map
+					value.delete(name);
+				}
+			}
 
 			_dateUpdated.set(this, moment());
-			return _relatedIngredients.set(this, value);
+			return _relatedIngredients.get(this);
 		}
 		throw new Error('Invalid relatedIngredients parameter for Ingredient');
 	}
@@ -350,11 +351,23 @@ class Ingredient {
 
 	set substitutes(value) {
 		if (value && (value instanceof Map)) {
-			// ensure that each ingredient in here is valid or setup as another ingredient
-			value = this.validateMapIngredients(value);
+			// clear out the prior set of substitutes since we're going to replace it wholesale
+			// if you just want to append new values use addSubstitute instead
+			_substitutes.set(this, new Map());
+
+			// go through the items in our Map to ensure that they've valid
+			for (let [name, id] of value) {
+				try {
+					// accept it if it passes validation
+					this.addSubstitute(name, id);
+				} catch (ex) {
+					// or remove it from the map
+					value.delete(name);
+				}
+			}
 
 			_dateUpdated.set(this, moment());
-			return _substitutes.set(this, value);
+			return _substitutes.get(this);
 		}
 		throw new Error('Invalid substitutes parameter for Ingredient');
 	}
@@ -534,44 +547,6 @@ class Ingredient {
 		});
 	}
 
-	validateMapIngredients(value) {
-		// go through the items in our Map to ensure that they've valid
-		for (let [name, id] of value) {
-			// if we aren't providing a name, or our id is something other than a valid UUID or null
-			if (!name || (typeof name !== 'string') || (name.length === 0) || (!isUUID.v1(id) && id !== null)) {
-				// remove this item
-				value.delete(name);
-			} else {
-				let ingredient = null;
-				// look up this ingredient reference
-				if (id !== null) {
-					ingredient = ingredientController.findIngredients('ingredientID', id);
-				}
-
-				if (!ingredient || ingredient.length === 0) {
-					ingredient = ingredientController.findIngredients('exact', name);
-
-					// if we found a match, make sure we're saving only the ingredient name in our list
-					if (ingredient && ingredient.length === 1) {
-						value.delete(name);
-						value.set(ingredient[0].name, ingredient[0].ingredientID);
-					}
-				}
-
-				// if we didn't find an existing ingredient either by id or name
-				if (ingredient && ingredient.length === 0) {
-					// create the ingredient
-					ingredient = new Ingredient(name);
-					ingredient.saveIngredient();
-					value.delete(name);
-					value.set(name, ingredient.ingredientID);
-				}
-			}
-		}
-
-		return value;
-	}
-
 	addAlternateName(value) {
 		if (value && typeof value === 'string' && value.length > 0) {
 			// check that this value isn't used on any other ingredients
@@ -610,31 +585,138 @@ class Ingredient {
 	}
 
 	removeAlternateName(value) {
-		// TODO
+		if (_alternateNames.get(this).has(value)) {
+			_alternateNames.get(this).delete(value);
+		}
 	}
 
 	addParsingExpression(value) {
-		// TODO
+		if (value && typeof value === 'string' && value.length > 0) {
+			// check that this value isn't used on any other ingredients
+			const existingIngredient = ingredientController.findIngredients('exact', value);
+			if (existingIngredient && existingIngredient.length > 0) {
+				throw new Error('Parsing expression value is already in use');
+			}
+
+			// check that this value dosen't not equal our current name
+			if (value === _name.get(this)) {
+				throw new Error('Cannot assign current Ingredient name to parsingExpressions');
+			}
+
+			// check if this value equals our current plural value
+			if (value === _plural.get(this)) {
+				// if so, we'll still accept this value, but we're remove the plural value
+				_plural.set(this, null);
+			}
+
+			// check if this value equals any of our current parsing expression values
+			if (_parsingExpressions.get(this).has(value)) {
+				// then don't do anything and get out of here
+				return _parsingExpressions.get(this);
+			}
+
+			// check if this value equals any of our current alternate names
+			if (_alternateNames.get(this).has(value)) {
+				// if so, we'll still accept this value, but we'll clear out that specific alternate name
+				_alternateNames.get(this).delete(value);
+			}
+
+			// if we pass all other validation, accept the alternate name
+			return _parsingExpressions.get(this).add(value);
+		}
+		throw new Error('Invalid parsingExpressions parameter for Ingredient');
 	}
 
 	removeParsingExpression(value) {
-		// TODO
+		if (_parsingExpressions.get(this).has(value)) {
+			_parsingExpressions.get(this).delete(value);
+		}
 	}
 
-	addRelatedIngredient(value) {
-		// TODO
+	addRelatedIngredient(name, id = null) {
+		// if we aren't providing a name, or our id is something other than a valid UUID or null
+		if (!name || (typeof name !== 'string') || (name.length === 0) || (!isUUID.v1(id) && id !== null)) {
+			// remove this item
+			_relatedIngredients.get(this).delete(name);
+		} else {
+			let ingredient = null;
+			// look up this ingredient reference
+			if (id !== null) {
+				ingredient = ingredientController.findIngredients('ingredientID', id);
+			}
+
+			if (!ingredient || ingredient.length === 0) {
+				ingredient = ingredientController.findIngredients('exact', name);
+
+				// if we found a match, make sure we're saving only the ingredient name in our list
+				if (ingredient && ingredient.length === 1) {
+					_relatedIngredients.get(this).delete(name);
+					_relatedIngredients.get(this).set(ingredient[0].name, ingredient[0].ingredientID);
+				}
+			}
+
+			// if we didn't find an existing ingredient either by id or name
+			if (ingredient && ingredient.length === 0) {
+				// create the ingredient
+				ingredient = new Ingredient(name);
+				ingredient.saveIngredient();
+				_relatedIngredients.get(this).delete(name);
+				_relatedIngredients.get(this).set(name, ingredient.ingredientID);
+			}
+
+			return _relatedIngredients.get(this);
+		}
+
+		throw new Error('Invalid relatedIngredients parameter for Ingredient');
 	}
 
 	removeRelatedIngredient(value) {
-		// TODO
+		if (_relatedIngredients.get(this).has(value)) {
+			_relatedIngredients.get(this).delete(value);
+		}
 	}
 
-	addSubstitute(value) {
-		// TODO
+	addSubstitute(name, id = null) {
+		// if we aren't providing a name, or our id is something other than a valid UUID or null
+		if (!name || (typeof name !== 'string') || (name.length === 0) || (!isUUID.v1(id) && id !== null)) {
+			// remove this item
+			_substitutes.get(this).delete(name);
+		} else {
+			let ingredient = null;
+			// look up this ingredient reference
+			if (id !== null) {
+				ingredient = ingredientController.findIngredients('ingredientID', id);
+			}
+
+			if (!ingredient || ingredient.length === 0) {
+				ingredient = ingredientController.findIngredients('exact', name);
+
+				// if we found a match, make sure we're saving only the ingredient name in our list
+				if (ingredient && ingredient.length === 1) {
+					_substitutes.get(this).delete(name);
+					_substitutes.get(this).set(ingredient[0].name, ingredient[0].ingredientID);
+				}
+			}
+
+			// if we didn't find an existing ingredient either by id or name
+			if (ingredient && ingredient.length === 0) {
+				// create the ingredient
+				ingredient = new Ingredient(name);
+				ingredient.saveIngredient();
+				_substitutes.get(this).delete(name);
+				_substitutes.get(this).set(name, ingredient.ingredientID);
+			}
+
+			return _substitutes.get(this);
+		}
+
+		throw new Error('Invalid substitutes parameter for Ingredient');
 	}
 
 	removeSubstitute(value) {
-		// TODO
+		if (_substitutes.get(this).has(value)) {
+			_substitutes.get(this).delete(value);
+		}
 	}
 
 	addReference(value) {
