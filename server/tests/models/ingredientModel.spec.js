@@ -1145,26 +1145,26 @@ describe('Ingredient Class ============================================='.magent
 	});
 
 	describe('Ingredient Methods ============================================='.magenta, function () {
-		it('[getIngredient] should return all Ingredient properties on a given ingredient', function() {
+		it('[getIngredient] should return an Ingredient object', function() {
 			let ing = new Ingredient('potato');
-			let response = ing.getIngredient();
+			let obj = ing.getIngredient();
 
-			expect(response.hasOwnProperty('ingredientID')).to.be.true;
-			expect(response.hasOwnProperty('parentIngredientID')).to.be.true;
-			expect(response.hasOwnProperty('dateCreated')).to.be.true;
-			expect(response.hasOwnProperty('dateUpdated')).to.be.true;
-			expect(response.hasOwnProperty('name')).to.be.true;
-			expect(response.hasOwnProperty('plural')).to.be.true;
-			expect(response.hasOwnProperty('properties')).to.be.true;
-			expect(response.hasOwnProperty('alternateNames')).to.be.true;
-			expect(response.hasOwnProperty('parsingExpressions')).to.be.true;
-			expect(response.hasOwnProperty('relatedIngredients')).to.be.true;
-			expect(response.hasOwnProperty('substitutes')).to.be.true;
-			expect(response.hasOwnProperty('references')).to.be.true;
-			expect(response.hasOwnProperty('isValidated')).to.be.true;
+			expect(obj.hasOwnProperty('ingredientID')).to.be.true;
+			expect(obj.hasOwnProperty('parentIngredientID')).to.be.true;
+			expect(obj.hasOwnProperty('dateCreated')).to.be.true;
+			expect(obj.hasOwnProperty('dateUpdated')).to.be.true;
+			expect(obj.hasOwnProperty('name')).to.be.true;
+			expect(obj.hasOwnProperty('plural')).to.be.true;
+			expect(obj.hasOwnProperty('properties')).to.be.true;
+			expect(obj.hasOwnProperty('alternateNames')).to.be.true;
+			expect(obj.hasOwnProperty('parsingExpressions')).to.be.true;
+			expect(obj.hasOwnProperty('relatedIngredients')).to.be.true;
+			expect(obj.hasOwnProperty('substitutes')).to.be.true;
+			expect(obj.hasOwnProperty('references')).to.be.true;
+			expect(obj.hasOwnProperty('isValidated')).to.be.true;
 		});
 
-		it('[encodeIngredient] should convert the Ingredient to a JSON friendly format', function() {
+		it('[encodeIngredient] should encode the Ingredient object into writeable JSON', function() {
 			let ing = new Ingredient('potato');
 			let encoded = ing.encodeIngredient();
 
@@ -1176,7 +1176,7 @@ describe('Ingredient Class ============================================='.magent
 			expect(Array.isArray(encoded.references)).to.be.true;
 		});
 
-		it('[saveIngredient] should save an ingredient to the database', function() {
+		it('[saveIngredient] should write the Ingredient to the database', function() {
 			let ingredients = [];
 			let foundIngredient = false;
 			let numIngredients = 0;

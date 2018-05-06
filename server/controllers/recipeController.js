@@ -43,3 +43,13 @@ exports.findRecipes = (key = null, value = null) => {
 	return recipes;
 };
 
+exports.isValidImageFormat = (path) => {
+	if (path && (typeof path === 'string' || path instanceof String) && (path !== '')) {
+		if (path.split('.').length === 2) {
+			const validExtensions = [ 'png', 'jpg', 'jpeg', 'jp2', 'gif', 'tiff', 'bmp' ];
+			const extension = path.split('.').pop();
+			return validExtensions.includes(extension);
+		}
+	}
+	return false;
+};

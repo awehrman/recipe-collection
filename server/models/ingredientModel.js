@@ -446,45 +446,25 @@ class Ingredient {
 	}
 
 	encodeIngredient() {
-		// before we can save an ingredient as a JSON object
-		// we need to convert its Maps and Sets to arrays
-		const encoded = {
-			ingredientID: null,
-			parentIngredientID: null,
-			dateCreated: null,
-			dateUpdated: null,
+		return {
+			ingredientID: _ingredientID.get(this),
+			parentIngredientID: _parentIngredientID.get(this),
+			dateCreated: _dateCreated.get(this),
+			dateUpdated: _dateUpdated.get(this),
 
-			name: null,
-			plural: null,
-			properties: {},
+			name: _name.get(this),
+			plural: _plural.get(this),
+			properties: Object.assign(_properties.get(this), {}),
 
-			alternateNames: [],
-			parsingExpressions: [],
-			relatedIngredients: [],
-			substitutes: [],
-			references: [],
+			// translate Sets and Maps to Arrays
+			alternateNames: [ ..._alternateNames.get(this) ],
+			parsingExpressions: [ ..._parsingExpressions.get(this) ],
+			relatedIngredients: [ ..._relatedIngredients.get(this) ],
+			substitutes: [ ..._substitutes.get(this) ],
+			references: [ ..._references.get(this) ],
 
-			isValidated: false
+			isValidated: _isValidated.get(this)
 		};
-
-		encoded.ingredientID = _ingredientID.get(this);
-		encoded.parentIngredientID = _parentIngredientID.get(this);
-		encoded.dateCreated = _dateCreated.get(this);
-		encoded.dateUpdated = _dateUpdated.get(this);
-
-		encoded.name = _name.get(this);
-		encoded.plural = _plural.get(this);
-		encoded.properties = Object.assign(_properties.get(this), {});
-
-		encoded.alternateNames = [ ..._alternateNames.get(this) ];
-		encoded.parsingExpressions = [ ..._parsingExpressions.get(this) ];
-		encoded.relatedIngredients = [ ..._relatedIngredients.get(this) ];
-		encoded.substitutes = [ ..._substitutes.get(this) ];
-		encoded.references = [ ..._references.get(this) ];
-
-		encoded.isValidated = _isValidated.get(this);
-
-		return encoded;
 	}
 
 	saveIngredient(originalName = null) {
