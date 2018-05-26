@@ -432,7 +432,7 @@ describe('Recipe Class ============================================='.magenta, f
 			// TODO
 		});
 
-		it.skip('[removeTag]should remove a matching string and UUID pair from the tags Map', function() {
+		it.skip('[removeTag] should remove a matching string and UUID pair from the tags Map', function() {
 			// TODO
 		});
 

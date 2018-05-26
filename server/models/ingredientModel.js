@@ -467,7 +467,7 @@ class Ingredient {
 		};
 	}
 
-	saveIngredient(originalName = null) {
+	saveIngredient() {
 		let ingredients = [];
 
 		try {
