@@ -26,7 +26,7 @@ const _image = new WeakMap();
 const _categories = new WeakMap();
 const _tags = new WeakMap();
 
-const _ingredients = new WeakMap();
+const _ingredientLines = new WeakMap();
 const _instructions = new WeakMap();
 
 /*===================================================
@@ -52,7 +52,8 @@ class Recipe {
 				_categories.set(this, new Map());
 				_tags.set(this, new Map());
 
-				// TODO fill in ingredients and instructions later
+				_ingredientLines.set(this, new Map());
+				_instructions.set(this, new Map());
 
 				return true;
 			}
@@ -79,10 +80,21 @@ class Recipe {
 					tags.set(tag[0], tag[1]);
 				}
 
+				const ingredientLines = new Map();
+				for (let ing of value.ingredientLines) {
+					ingredientLines.set(ing[0], ing[1]);
+				}
+
+				const instructions = new Map();
+				for (let instr of value.instructions) {
+					instructions.set(instr[0], instr[1]);
+				}
+
 				_categories.set(this, categories);
 				_tags.set(this, tags);
+				_ingredientLines.set(this, ingredientLines);
+				_instructions.set(this, instructions);
 
-				// TODO fill in ingredients and instructions later
 				return true;
 			}
 
@@ -249,22 +261,60 @@ class Recipe {
 		throw new Error('Invalid tags provided');
 	}
 
-	/*----------  ingredients  ----------*/
-	get ingredients() {
-		// TODO
+	/*----------  ingredientLines  ----------*/
+	get ingredientLines() {
+		return _ingredientLines.get(this);
 	}
 
-	set ingredients(value) {
-		// TODO
+	set ingredientLines(value) {
+		if (value && (value instanceof Map)) {
+			// clear out the prior set of ingredientLines since we're going to replace it wholesale
+			// if you just want to append new values use addIngredientLine instead
+			_ingredientLines.set(this, new Map());
+
+			// go through the items in our Map to ensure that they've valid
+			for (let [ing, id] of value) {
+				try {
+					// accept it if it passes validation
+					this.addIngredientLine(ing, id);
+				} catch (ex) {
+					// or remove it from the map
+					value.delete(ing);
+				}
+			}
+
+			_dateUpdated.set(this, moment());
+			return _ingredientLines.get(this);
+		}
+		throw new Error('Invalid ingredientLines provided for Recipe');
 	}
 
 	/*----------  instructions  ----------*/
 	get instructions() {
-		// TODO
+		return _instructions.get(this);
 	}
 
 	set instructions(value) {
-		// TODO
+		if (value && (value instanceof Map)) {
+			// clear out the prior set of _instructions since we're going to replace it wholesale
+			// if you just want to append new values use addInstruction instead
+			_instructions.set(this, new Map());
+
+			// go through the items in our Map to ensure that they've valid
+			for (let [ing, id] of value) {
+				try {
+					// accept it if it passes validation
+					this.addInstruction(ing, id);
+				} catch (ex) {
+					// or remove it from the map
+					value.delete(ing);
+				}
+			}
+
+			_dateUpdated.set(this, moment());
+			return _instructions.get(this);
+		}
+		throw new Error('Invalid instructions provided for Recipe');
 	}
 	/*=====  End of Getters / Setters  ======*/
 
@@ -285,8 +335,8 @@ class Recipe {
 			categories: _categories.get(this),
 			tags: _tags.get(this),
 
-			// TODO ingredients: _ingredients.get(this),
-			// TODO instructions: _instructions.get(this)
+			ingredientLines: _ingredientLines.get(this),
+			instructions: _instructions.get(this)
 		};
 	}
 
@@ -304,8 +354,8 @@ class Recipe {
 			categories: [ ..._categories.get(this) ],
 			tags: [ ..._tags.get(this) ],
 
-			// TODO ingredients: [ ...ingredients.get(this) ],
-			// TODO instructions: [ ...instructions.get(this) ]
+			ingredientLines: [ ..._ingredientLines.get(this) ],
+			instructions: [ ..._instructions.get(this) ]
 		};
 	}
 
@@ -427,20 +477,97 @@ class Recipe {
 		}
 	}
 
-	addIngredient() {
-		// TODO
+	addIngredientLine(line) {
+		// if we aren't providing a line
+		if (!line || (typeof line !== 'object')) {
+			// remove this item
+			_ingredientLines.get(this).delete(line);
+		} else {
+			const hasReference = line.hasOwnProperty('reference') && (line.reference.trim().length > 0);
+			const hasBlock = line.hasOwnProperty('block') && (typeof line.block === 'number');
+			const hasLine = line.hasOwnProperty('line') && (typeof line.line === 'number');
+			const hasParsedDetermination = line.hasOwnProperty('isParsed') && (typeof line.isParsed === 'boolean')
+			const isExistingLocation = [ ..._ingredientLines.get(this).keys() ].filter(k => (k.line === line.line) && (k.block === line.block))
+
+			if (!hasReference) {
+				throw new Error('Ingredient Line is missing reference line');
+			}
+
+			if (!hasBlock) {
+				throw new Error('Ingredient Line is missing a block line reference');
+			}
+
+			if (!hasLine) {
+				throw new Error('Ingredient Line is missing a line number reference');
+			}
+
+			if (!hasParsedDetermination) {
+				throw new Error('Ingredient Line is missing a parsed determination');
+			}
+
+			// check if this block and line number are already used
+			if (isExistingLocation.length > 0) {
+				throw new Error('Ingredient Line already exists at this location');
+			}
+
+			_ingredientLines.get(this).set(line);
+
+			return _ingredientLines.get(this);
+		}
+
+		throw new Error('Invalid ingredientLines parameter for Recipe');
 	}
 
-	removeIngredient() {
-		// TODO
+	removeIngredientLine(blockNum, lineNum) {
+		const line = [ ..._ingredientLines.get(this).keys() ].filter(k => (k.block === blockNum) && (k.line === lineNum));
+		
+		if (line.length > 0) {
+			_ingredientLines.get(this).delete(line[0]);
+		}
 	}
 
-	addInstruction() {
-		// TODO
+	addInstruction(line) {
+		// if we aren't providing a line
+		if (!line || (typeof line !== 'object')) {
+			// remove this item
+			_instructions.get(this).delete(line);
+		} else {
+			const hasReference = line.hasOwnProperty('reference') && (line.reference.trim().length > 0);
+			const hasBlock = line.hasOwnProperty('block') && (typeof line.block === 'number');
+			const hasLine = line.hasOwnProperty('line') && (typeof line.line === 'number');
+			const isExistingLocation = [ ..._instructions.get(this).keys() ].filter(k => (k.line === line.line) && (k.block === line.block))
+
+			if (!hasReference) {
+				throw new Error('Instruction is missing reference line');
+			}
+
+			if (!hasBlock) {
+				throw new Error('Instruction is missing a block line reference');
+			}
+
+			if (!hasLine) {
+				throw new Error('Instruction is missing a line number reference');
+			}
+
+			// check if this block and line number are already used
+			if (isExistingLocation.length > 0) {
+				throw new Error('Instruction already exists at this location');
+			}
+
+			_instructions.get(this).set(line);
+
+			return _instructions.get(this);
+		}
+
+		throw new Error('Invalid instructions parameter for Recipe');
 	}
 
-	removeInstruction() {
-		// TODO
+	removeInstruction(blockNum, lineNum) {
+		const line = [ ..._instructions.get(this).keys() ].filter(k => (k.block === blockNum) && (k.line === lineNum));
+		
+		if (line.length > 0) {
+			_instructions.get(this).delete(line[0]);
+		}
 	}
 	/*=====  End of Recipe Methods  ======*/
 };

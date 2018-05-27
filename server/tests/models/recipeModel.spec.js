@@ -21,8 +21,6 @@ const tagController = require('../../controllers/tagController');
   	we might want some kind of confirmation that the ingredients/instructions were identified correctly
 	  if all of the ingredient lines within were parsed successfully
 	  if the ingredient lines have all been validated as well
-	- ingredients and isntructions should probably be setup as their own classes
-		come back to theses once basic recipe methods are finished and ingredient references are zipped up
 
  */
 
@@ -74,8 +72,8 @@ describe.only('Recipe Class ============================================='.magen
 		    "image": "images/d00f2e31-507d-11e8-92b8-87300f04d0d7.png",
 		    "categories":  [ [ 'Fish', '9edffec0-5091-11e8-a81f-c91c7c9345ea' ] ],
 		    "tags": [ [ 'imported', 'bcd7a810-5091-11e8-9a9d-adbccf9cc4a6' ] ],
-		    //"ingredients": [...],
-		    //"instructions": [...]
+		    "ingredientLines": [],
+		    "instructions": []
 		  })).to.throw('Invalid constructor for Recipe');
 
 			// # passing a fully encoded Recipe object should return a true Recipe object
@@ -86,8 +84,8 @@ describe.only('Recipe Class ============================================='.magen
 		    "image": "images/d00f2e31-507d-11e8-92b8-87300f04d0d7.png",
 		    "categories": [ [ 'Fish', '9edffec0-5091-11e8-a81f-c91c7c9345ea' ] ], // TODO add some values
 		    "tags": [ [ 'imported', 'bcd7a810-5091-11e8-9a9d-adbccf9cc4a6' ] ], // TODO add some values
-		    //"ingredients": [...],
-		    //"instructions": [...]
+		    "ingredientLines": [],
+		    "instructions": []
 		  });
 			// should have a recipeID
 			expect(rp2.recipeID).to.equal("d00f2e31-507d-11e8-92b8-87300f04d0d7");
@@ -386,12 +384,149 @@ describe.only('Recipe Class ============================================='.magen
 			expect(() => { rp.tags = { tags: "Fish" }; }).to.throw('Invalid tags provided');
 		});
 
-		it.skip('[ingredients] TODO', function() {
-			// TODO
+		it('[ingredientLines] should update with a valid Map containing ingredient lines', function() {
+			let rp = new Recipe();
+			let ingredientLines = new Map();
+			let keys, values, uniqueKeys, uniqueValues = [];
+
+			const reset = function() {
+				ingredientLines = new Map();
+				keys = [];
+				values = [];
+			}
+
+			const refreshArrays = function(map) {
+				keys = [ ...rp.ingredientLines.keys() ]; // names
+				values = [ ...rp.ingredientLines.values() ]; // ids
+				uniqueKeys = [ ...new Set([keys])];
+				uniqueValues = [ ...new Set([values])];
+			}
+
+			// should accept a valid map
+			let line = {
+	      "block": 0,
+	      "line": 0,
+	      "reference": "2 tablespoons olive oil",
+	      "isParsed": true,
+	      "amounts": {
+	        "values": [
+	          "2"
+	        ]
+	      },
+	      "unitDescriptor": null,
+	      "units": {
+	        "values": [
+	          "tablespoons"
+	        ]
+	      },
+	      "amountUnitSeparator": null,
+	      "ingDescriptor": null,
+	      "comments": "",
+	      "filler": [
+	        [],
+	        [],
+	        [],
+	        [],
+	        []
+	      ],
+	      "ingredients": [
+	        {
+	          "ingredientID": "b21c6980-6129-11e8-8eb4-ef06482bb95d",
+	          "name": "olive oil",
+	          "validated": false
+	        }
+	      ]
+	    };
+			ingredientLines.set(line, rp.recipeID);
+			rp.ingredientLines = ingredientLines;
+			refreshArrays();
+			expect(rp.ingredientLines.size).to.equal(1);
+
+			reset();
+
+			// should throw an error if we pass in somethrp other than a Map
+			expect(() => {
+				rp.ingredientLines = undefined;
+			}).to.throw('Invalid ingredientLines provided for Recipe');
+			expect(() => {
+				rp.ingredientLines = '';
+			}).to.throw('Invalid ingredientLines provided for Recipe');
+			expect(() => {
+				rp.ingredientLines = NaN;
+			}).to.throw('Invalid ingredientLines provided for Recipe');
+			expect(() => {
+				rp.ingredientLines = null;
+			}).to.throw('Invalid ingredientLines provided for Recipe');
+			expect(() => {
+				rp.ingredientLines = 123;
+			}).to.throw('Invalid ingredientLines provided for Recipe');
+			expect(() => {
+				rp.ingredientLines = { line: '1 cup apples' };
+			}).to.throw('Invalid ingredientLines provided for Recipe');
+			expect(() => {
+				rp.ingredientLines = '1 cup apples';
+			}).to.throw('Invalid ingredientLines provided for Recipe');
+			expect(() => {
+				rp.ingredientLines = new Set();
+			}).to.throw('Invalid ingredientLines provided for Recipe');
 		});
 
-		it.skip('[instructions] TODO', function() {
-			// TODO
+		it('[instructions] should update with a valid Map containing instruction lines', function() {
+			let rp = new Recipe();
+			let instructions = new Map();
+			let keys, values, uniqueKeys, uniqueValues = [];
+
+			const reset = function() {
+				instructions = new Map();
+				keys = [];
+				values = [];
+			}
+
+			const refreshArrays = function(map) {
+				keys = [ ...rp.instructions.keys() ]; // names
+				values = [ ...rp.instructions.values() ]; // ids
+				uniqueKeys = [ ...new Set([keys])];
+				uniqueValues = [ ...new Set([values])];
+			}
+
+			// should accept a valid map
+			let line = {
+	      "block": 1,
+	      "line": 0,
+	      "reference": "2 tablespoons olive oil",
+	    };
+			instructions.set(line, rp.recipeID);
+			rp.instructions = instructions;
+			refreshArrays();
+			expect(rp.instructions.size).to.equal(1);
+
+			reset();
+
+			// should throw an error if we pass in somethrp other than a Map
+			expect(() => {
+				rp.instructions = undefined;
+			}).to.throw('Invalid instructions provided for Recipe');
+			expect(() => {
+				rp.instructions = '';
+			}).to.throw('Invalid instructions provided for Recipe');
+			expect(() => {
+				rp.instructions = NaN;
+			}).to.throw('Invalid instructions provided for Recipe');
+			expect(() => {
+				rp.instructions = null;
+			}).to.throw('Invalid instructions provided for Recipe');
+			expect(() => {
+				rp.instructions = 123;
+			}).to.throw('Invalid instructions provided for Recipe');
+			expect(() => {
+				rp.instructions = { line: '1 cup apples' };
+			}).to.throw('Invalid instructions provided for Recipe');
+			expect(() => {
+				rp.instructions = '1 cup apples';
+			}).to.throw('Invalid instructions provided for Recipe');
+			expect(() => {
+				rp.instructions = new Set();
+			}).to.throw('Invalid instructions provided for Recipe');
 		});
 	});
 
@@ -408,8 +543,8 @@ describe.only('Recipe Class ============================================='.magen
 			expect(obj.hasOwnProperty('image')).to.be.true;
 			expect(obj.hasOwnProperty('categories')).to.be.true;
 			expect(obj.hasOwnProperty('tags')).to.be.true;
-			// TODO expect(obj.hasOwnProperty('ingredients')).to.be.true;
-			// TODO expect(obj.hasOwnProperty('instructions')).to.be.true;
+			expect(obj.hasOwnProperty('ingredientLines')).to.be.true;
+			expect(obj.hasOwnProperty('instructions')).to.be.true;
 		});
 
 		it('[encodeRecipe] should encode the Recipe object into writeable JSON', function() {
@@ -420,8 +555,8 @@ describe.only('Recipe Class ============================================='.magen
 			expect(typeof encoded).to.be.equal('object');
 			expect(Array.isArray(encoded.categories)).to.be.true;
 			expect(Array.isArray(encoded.tags)).to.be.true;
-
-			// # TODO should translate ingredients and instructions
+			expect(Array.isArray(encoded.ingredientLines)).to.be.true;
+			expect(Array.isArray(encoded.instructions)).to.be.true;
 		});
 
 		it('[saveRecipe] should write the Recipe to the database', function() {
@@ -621,20 +756,358 @@ describe.only('Recipe Class ============================================='.magen
 			expect(rp.tags.has('Vegan')).to.be.false;
 		});
 
-		it.skip('[addIngredient] TODO', function() {
-			// TODO
+		it('[addIngredientLine] should add a valid ingredient object to the ingredientLines Map', function() {
+			const rp = new Recipe();
+
+			// don't allow nonsense
+			expect(() => rp.addIngredientLine()).to.throw('Invalid ingredientLines parameter for Recipe');
+			expect(() => rp.addIngredientLine('')).to.throw('Invalid ingredientLines parameter for Recipe');
+			expect(() => rp.addIngredientLine(NaN)).to.throw('Invalid ingredientLines parameter for Recipe');
+			expect(() => rp.addIngredientLine(null)).to.throw('Invalid ingredientLines parameter for Recipe');
+			expect(() => rp.addIngredientLine(123)).to.throw('Invalid ingredientLines parameter for Recipe');
+
+			// should reject lines that lack a reference
+			let line = {
+	      "block": 0,
+	      "line": 0,
+	      //"reference": "2 tablespoons olive oil",
+	      "isParsed": true,
+	      "amounts": {
+	        "values": [
+	          "2"
+	        ]
+	      },
+	      "unitDescriptor": null,
+	      "units": {
+	        "values": [
+	          "tablespoons"
+	        ]
+	      },
+	      "amountUnitSeparator": null,
+	      "ingDescriptor": null,
+	      "comments": "",
+	      "filler": [
+	        [],
+	        [],
+	        [],
+	        [],
+	        []
+	      ],
+	      "ingredients": [
+	        {
+	          "ingredientID": "b21c6980-6129-11e8-8eb4-ef06482bb95d",
+	          "name": "olive oil",
+	          "validated": false
+	        }
+	      ]
+	    };
+	    expect(() => rp.addIngredientLine(line)).to.throw('Ingredient Line is missing reference line');
+
+			// should reject lines that lack a block
+			line = {
+	      //"block": 0,
+	      "line": 0,
+	      "reference": "2 tablespoons olive oil",
+	      "isParsed": true,
+	      "amounts": {
+	        "values": [
+	          "2"
+	        ]
+	      },
+	      "unitDescriptor": null,
+	      "units": {
+	        "values": [
+	          "tablespoons"
+	        ]
+	      },
+	      "amountUnitSeparator": null,
+	      "ingDescriptor": null,
+	      "comments": "",
+	      "filler": [
+	        [],
+	        [],
+	        [],
+	        [],
+	        []
+	      ],
+	      "ingredients": [
+	        {
+	          "ingredientID": "b21c6980-6129-11e8-8eb4-ef06482bb95d",
+	          "name": "olive oil",
+	          "validated": false
+	        }
+	      ]
+	    };
+	    expect(() => rp.addIngredientLine(line)).to.throw('Ingredient Line is missing a block line reference');
+			
+			// should reject lines that lack a line number
+			line = {
+	      "block": 0,
+	      //"line": 0,
+	      "reference": "2 tablespoons olive oil",
+	      "isParsed": true,
+	      "amounts": {
+	        "values": [
+	          "2"
+	        ]
+	      },
+	      "unitDescriptor": null,
+	      "units": {
+	        "values": [
+	          "tablespoons"
+	        ]
+	      },
+	      "amountUnitSeparator": null,
+	      "ingDescriptor": null,
+	      "comments": "",
+	      "filler": [
+	        [],
+	        [],
+	        [],
+	        [],
+	        []
+	      ],
+	      "ingredients": [
+	        {
+	          "ingredientID": "b21c6980-6129-11e8-8eb4-ef06482bb95d",
+	          "name": "olive oil",
+	          "validated": false
+	        }
+	      ]
+	    };
+	    expect(() => rp.addIngredientLine(line)).to.throw('Ingredient Line is missing a line number reference');
+
+	    // should reject lines that lack a isParsed value
+			line = {
+	      "block": 0,
+	      "line": 0,
+	      "reference": "2 tablespoons olive oil",
+	      //"isParsed": true,
+	      "amounts": {
+	        "values": [
+	          "2"
+	        ]
+	      },
+	      "unitDescriptor": null,
+	      "units": {
+	        "values": [
+	          "tablespoons"
+	        ]
+	      },
+	      "amountUnitSeparator": null,
+	      "ingDescriptor": null,
+	      "comments": "",
+	      "filler": [
+	        [],
+	        [],
+	        [],
+	        [],
+	        []
+	      ],
+	      "ingredients": [
+	        {
+	          "ingredientID": "b21c6980-6129-11e8-8eb4-ef06482bb95d",
+	          "name": "olive oil",
+	          "validated": false
+	        }
+	      ]
+	    };
+	    expect(() => rp.addIngredientLine(line)).to.throw('Ingredient Line is missing a parsed determination');
+
+			// should accept lines with these three items
+			line = {
+	      "block": 0,
+	      "line": 0,
+	      "reference": "2 tablespoons olive oil",
+	      "isParsed": true,
+	      "amounts": {
+	        "values": [
+	          "2"
+	        ]
+	      },
+	      "unitDescriptor": null,
+	      "units": {
+	        "values": [
+	          "tablespoons"
+	        ]
+	      },
+	      "amountUnitSeparator": null,
+	      "ingDescriptor": null,
+	      "comments": "",
+	      "filler": [
+	        [],
+	        [],
+	        [],
+	        [],
+	        []
+	      ],
+	      "ingredients": [
+	        {
+	          "ingredientID": "b21c6980-6129-11e8-8eb4-ef06482bb95d",
+	          "name": "olive oil",
+	          "validated": false
+	        }
+	      ]
+	    };
+	    rp.addIngredientLine(line);
+	    expect(rp.ingredientLines.size).to.equal(1);
+
+			// should not accept a line with the same block and line number
+			line = {
+	      "block": 0,
+	      "line": 0,
+	      "reference": "4 tablespoons fat",
+	      "isParsed": true,
+	      "amounts": {
+	        "values": [
+	          "4"
+	        ]
+	      },
+	      "unitDescriptor": null,
+	      "units": {
+	        "values": [
+	          "tablespoons"
+	        ]
+	      },
+	      "amountUnitSeparator": null,
+	      "ingDescriptor": null,
+	      "comments": "",
+	      "filler": [
+	        [],
+	        [],
+	        [],
+	        [],
+	        []
+	      ],
+	      "ingredients": [
+	        {
+	          "ingredientID": "c21c6980-6129-11e8-8eb4-ef06482bb95d",
+	          "name": "fat",
+	          "validated": false
+	        }
+	      ]
+	    };
+	    expect(() => rp.addIngredientLine(line)).to.throw('Ingredient Line already exists at this location');
 		});
 
-		it.skip('[removeIngredient] TODO', function() {
-			// TODO
+		it('[removeIngredientLine] should remove a matching ingredient line at the given block/line position from the map', function() {
+			const rp = new Recipe();
+			rp.addIngredientLine({
+	      "block": 0,
+	      "line": 0,
+	      "reference": "2 tablespoons olive oil",
+	      "isParsed": true,
+	      "amounts": {
+	        "values": [
+	          "2"
+	        ]
+	      },
+	      "unitDescriptor": null,
+	      "units": {
+	        "values": [
+	          "tablespoons"
+	        ]
+	      },
+	      "amountUnitSeparator": null,
+	      "ingDescriptor": null,
+	      "comments": "",
+	      "filler": [
+	        [],
+	        [],
+	        [],
+	        [],
+	        []
+	      ],
+	      "ingredients": [
+	        {
+	          "ingredientID": "b21c6980-6129-11e8-8eb4-ef06482bb95d",
+	          "name": "olive oil",
+	          "validated": false
+	        }
+	      ]
+	    });
+			expect(rp.ingredientLines.size).to.equal(1);
+			rp.saveRecipe();
+
+			// don't do anything if we don't find a match
+			rp.removeIngredientLine(1, 1);
+			expect(rp.ingredientLines.size).to.equal(1);
+
+			// remove any matching names
+			rp.removeIngredientLine(0, 0);
+			expect(rp.ingredientLines.size).to.equal(0);
 		});
 
-		it.skip('[addInstruction] TODO', function() {
-			// TODO
+		it('[addInstruction] should add a valid instruction object to the instructions Map', function() {
+			const rp = new Recipe();
+
+			// don't allow nonsense
+			expect(() => rp.addInstruction()).to.throw('Invalid instructions parameter for Recipe');
+			expect(() => rp.addInstruction('')).to.throw('Invalid instructions parameter for Recipe');
+			expect(() => rp.addInstruction(NaN)).to.throw('Invalid instructions parameter for Recipe');
+			expect(() => rp.addInstruction(null)).to.throw('Invalid instructions parameter for Recipe');
+			expect(() => rp.addInstruction(123)).to.throw('Invalid instructions parameter for Recipe');
+
+			// should reject lines that lack a reference
+			let line = {
+	      "block": 0,
+	      "line": 0,
+	      //"reference": "2 tablespoons olive oil",
+	    };
+	    expect(() => rp.addInstruction(line)).to.throw('Instruction is missing reference line');
+
+			// should reject lines that lack a block
+			line = {
+	      //"block": 0,
+	      "line": 0,
+	      "reference": "Mix ingredients together.",
+	    };
+	    expect(() => rp.addInstruction(line)).to.throw('Instruction is missing a block line reference');
+			
+			// should reject lines that lack a line number
+			line = {
+	      "block": 0,
+	      //"line": 0,
+	      "reference": "Mix ingredients together.",
+	    };
+	    expect(() => rp.addInstruction(line)).to.throw('Instruction is missing a line number reference');
+
+	    
+			// should accept lines with these three items
+			line = {
+	      "block": 0,
+	      "line": 0,
+	      "reference": "Mix ingredients together.",
+	    };
+	    rp.addInstruction(line);
+	    expect(rp.instructions.size).to.equal(1);
+
+			// should not accept a line with the same block and line number
+			line = {
+	      "block": 0,
+	      "line": 0,
+	      "reference": "Pre-heat oven.",
+	    };
+	    expect(() => rp.addInstruction(line)).to.throw('Instruction already exists at this location');
 		});
 
-		it.skip('[removeInstruction] TODO', function() {
-			// TODO
+		it('[removeInstruction] should remove a matching instruction line at the given block/line position from the map', function() {
+			const rp = new Recipe();
+			rp.addInstruction({
+	      "block": 0,
+	      "line": 0,
+	      "reference": "Pre-heat the oven to 500F."
+	    });
+			expect(rp.instructions.size).to.equal(1);
+			rp.saveRecipe();
+
+			// don't do anything if we don't find a match
+			rp.removeInstruction(1, 1);
+			expect(rp.instructions.size).to.equal(1);
+
+			// remove any matching names
+			rp.removeInstruction(0, 0);
+			expect(rp.instructions.size).to.equal(0);
 		});
 	});
 });

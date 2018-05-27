@@ -1113,7 +1113,7 @@ describe('Ingredient Class ============================================='.magent
 			}).to.throw('Invalid substitutes parameter for Ingredient');
 		});
 
-		it('[references] should update with a valid Recipe reference', function() {
+		it('[references] should update with a valid Map containing recipe references', function() {
 			let ing = new Ingredient('apple');
 			let references = new Map();
 			let keys, values, uniqueKeys, uniqueValues = [];
