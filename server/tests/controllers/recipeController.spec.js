@@ -32,7 +32,7 @@ describe('Recipe Controller ============================================='.magen
 
 	describe('Recipe Methods ============================================='.magenta, function () {
 		it('[loadRecipes] should return an array of Recipe objects', function() {
-			let recipes = recipeController.loadRecipes();
+			const recipes = recipeController.loadRecipes();
 			for (let rp of recipes) {
 				expect(typeof rp === 'object').to.be.true;
 			}

@@ -71,7 +71,7 @@ class Tag {
 	}
 
 	set dateCreated(value) {
-		throw new Error('Updating dateCreated is not allowed');
+		throw new Error('Cannot update dateCreated value');
 	}
 
 	/*----------  evernoteGUID  ----------*/

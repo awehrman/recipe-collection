@@ -31,6 +31,13 @@ describe('Tag Controller ============================================='.magenta,
 	});
 
 	describe('Tag Methods ============================================='.magenta, function () {
+		it('[loadTags] should return an array of Tag objects', function() {
+			const tags = tagController.loadTags();
+			for (let tag of tags) {
+				expect(typeof tag === 'object').to.be.true;
+			}
+		});
+
 		it('[findTags] should return an array of tags matching the search key and value', function() {
 			let tags = [];
 
@@ -40,7 +47,7 @@ describe('Tag Controller ============================================='.magenta,
 			tags = [];
 
 			const rp = new Tag();
-			rp.name = "Fish";
+			rp.name = "Vegan";
 			rp.saveTag();
 
 			tags = tagController.findTags();

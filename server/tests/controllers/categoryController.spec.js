@@ -31,6 +31,13 @@ describe('Category Controller ============================================='.mag
 	});
 
 	describe('Category Methods ============================================='.magenta, function () {
+		it('[loadCategories] should return an array of Category objects', function() {
+			const categories = categoryController.loadCategories();
+			for (let cat of categories) {
+				expect(typeof cat === 'object').to.be.true;
+			}
+		});
+
 		it('[findCategories] should return an array of categories matching the search key and value', function() {
 			let categories = [];
 

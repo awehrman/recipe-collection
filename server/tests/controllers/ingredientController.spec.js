@@ -69,7 +69,7 @@ describe('Ingredient Controller ============================================='.m
 
 	describe('Ingredient Methods ============================================='.magenta, function () {
 		it('[loadIngredients] should return an array of Ingredient objects', function() {
-			let ingredients = ingredientController.loadIngredients();
+			const ingredients = ingredientController.loadIngredients();
 			for (let ing of ingredients) {
 				expect(typeof ing === 'object').to.be.true;
 			}

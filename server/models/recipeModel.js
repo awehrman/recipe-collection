@@ -11,6 +11,7 @@ const DB_PATH = (process.env.NODE_ENV === 'test') ? 'tests/data' : 'data';
 /*----------  Private Recipe Variables  ----------*/
 
 const _recipeID = new WeakMap();
+const _evernoteGUID = new WeakMap();
 const _dateCreated = new WeakMap();
 const _dateUpdated = new WeakMap();
 
@@ -36,6 +37,7 @@ class Recipe {
 			// if we didn't pass a value parameter, just create an empty object
 			if ((typeof value === 'undefined') || !value) {
 				_recipeID.set(this, uuid.v1());
+				_evernoteGUID.set(this, null);
 				_dateCreated.set(this, moment());
 				_dateUpdated.set(this, moment());
 
@@ -54,6 +56,7 @@ class Recipe {
 			// if we have a value, ensure that it at least has an associated recipeID
 			if (value && (typeof value === 'object') && value.hasOwnProperty('recipeID')) {
 				_recipeID.set(this, value.recipeID);
+				_evernoteGUID.set(this, value.evernoteGUID || null);
 				_dateCreated.set(this, moment(value.dateCreated) || moment());
 				_dateUpdated.set(this, moment(value.dateUpdated) || moment());
 
@@ -100,6 +103,19 @@ class Recipe {
 			return _recipeID.set(this, value);
 		}
 		throw new Error('Invalid recipeID provided');
+	}
+
+	/*----------  evernoteGUID  ----------*/
+	get evernoteGUID() {
+		return _evernoteGUID.get(this);
+	}
+
+	set evernoteGUID(value) {
+		if ((typeof value === 'string' || value instanceof String) && (value !== '')) {
+			_dateUpdated.set(this, moment());
+			return _evernoteGUID.set(this, value);
+		}
+		throw new Error('Invalid evernoteGUID provided');
 	}
 
 	/*----------  dateCreated  ----------*/

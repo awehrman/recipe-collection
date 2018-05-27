@@ -136,6 +136,30 @@ describe('Recipe Class ============================================='.magenta, f
 			expect(() => { rp.recipeID = { recipeID: "d00f2e31-507d-11e8-92b8-87300f04d0d7" }; }).to.throw('Invalid recipeID provided');
 		});
 
+		it('[evernoteGUID] should update with a valid string', function() {
+			const rp = new Recipe();
+			let initialDate = rp.dateUpdated;
+
+			// # should be able to read
+			expect(rp.evernoteGUID).to.be.null;
+
+			// # should be able to assign strings
+			rp.evernoteGUID = "98a6cff1-5151-11e8-a376-357e61021145";
+			expect(rp.evernoteGUID).to.equal("98a6cff1-5151-11e8-a376-357e61021145");
+			// should update the dateUpdated value
+			expect(rp.dateUpdated).to.not.equal(initialDate);
+
+			// # should throw exception 'Invalid evernoteGUID provided' if invalid string is provided
+			// ... such as undefined
+			expect(() => { rp.evernoteGUID = undefined; }).to.throw('Invalid evernoteGUID provided');
+			// ... such as integers
+			expect(() => { rp.evernoteGUID = 123; }).to.throw('Invalid evernoteGUID provided');
+			// ... such as empty strings
+			expect(() => { rp.evernoteGUID = ''; }).to.throw('Invalid evernoteGUID provided');
+			// ... such as objects
+			expect(() => { rp.evernoteGUID = { evernoteGUID: "98a6cff1-5151-11e8-a376-357e61021145" }; }).to.throw('Invalid evernoteGUID provided');
+		});
+
 		it('[dateCreated] should be read only', function() {
 			const rp = new Recipe();
 			// # should be able to read value
