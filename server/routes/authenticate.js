@@ -52,11 +52,11 @@ router.get('/callback', (req, res, next) => {
       } else {
         // store the access token in the session
         req.session.oauthToken = oauthToken;
-        req.session.evernoteClient = new Evernote.Client({
+        /*req.session.evernoteClient = new Evernote.Client({
 		      token: oauthToken,
 		      sandbox: process.env.SANDBOX,
 		      china: process.env.CHINA,
-		    });
+		    });*/
        
         try {
           res.redirect('/import');
