@@ -9,6 +9,8 @@ const moment = require('moment');
 const server = require('../../app');
 const Ingredient = require('../../models/ingredientModel');
 const ingredientController = require('../../controllers/ingredientController');
+const Recipe = require('../../models/recipeModel');
+const recipeController = require('../../controllers/recipeController');
 
 /**
 
@@ -25,9 +27,9 @@ const ingredientController = require('../../controllers/ingredientController');
 
  */
 
-describe('Ingredient Class ============================================='.magenta, function () {
+describe.only('Ingredient Class ============================================='.magenta, function () {
 	it('should initialize test data', function() {
-		const databases = [ 'ingredients' ];
+		const databases = [ 'ingredients', 'recipes' ];
 
 		// load presets for each database
 		for (let db of databases) {
@@ -1111,8 +1113,96 @@ describe('Ingredient Class ============================================='.magent
 			}).to.throw('Invalid substitutes parameter for Ingredient');
 		});
 
-		it.skip('[references] should update with a valid Recipe reference', function() {
-			// TODO need to implement recipe model and basic controller functions before we can come back to this
+		it('[references] should update with a valid Recipe reference', function() {
+			let ing = new Ingredient('apple');
+			let references = new Map();
+			let keys, values, uniqueKeys, uniqueValues = [];
+
+			const reset = function() {
+				references = new Map();
+				keys = [];
+				values = [];
+			}
+
+			const refreshArrays = function(map) {
+				keys = [ ...ing.references.keys() ]; // names
+				values = [ ...ing.references.values() ]; // ids
+				uniqueKeys = [ ...new Set([keys])];
+				uniqueValues = [ ...new Set([values])];
+			}
+
+			const rp = new Recipe();
+			rp.saveRecipe();
+
+			// should accept a valid map
+			references.set('1 cup apples', rp.recipeID);
+			ing.references = references;
+			refreshArrays();
+			expect(ing.references.size).to.equal(1);
+			expect(keys.includes('1 cup apples')).to.be.true;
+
+			reset();
+
+			// should ignore any entries with bad line values
+			references.set(undefined, 'dcbaa4a0-3aae-11e8-842e-95ab6a86b1b2');
+			ing.references = references;
+			expect(ing.references).to.be.empty;
+			references.set('', 'dcbaa4a0-3aae-11e8-842e-95ab6a86b1b2');
+			ing.references = references;
+			expect(ing.references).to.be.empty;
+			references.set(NaN, 'dcbaa4a0-3aae-11e8-842e-95ab6a86b1b2');
+			ing.references = references;
+			expect(ing.references).to.be.empty;
+			references.set(123, 'dcbaa4a0-3aae-11e8-842e-95ab6a86b1b2');
+			ing.references = references;
+			expect(ing.references).to.be.empty;
+			references.set({ line: '1 cup apples' }, 'dcbaa4a0-3aae-11e8-842e-95ab6a86b1b2');
+			ing.references = references;
+			expect(ing.references).to.be.empty;
+
+			reset();
+
+			// should ignore any entries with bad recipeID values
+			references.set('1 cup apples', '');
+			ing.references = references;
+			expect(ing.references).to.be.empty;
+			references.set('1 cup apples', NaN);
+			ing.references = references;
+			expect(ing.references).to.be.empty;
+			references.set('1 cup apples', 123);
+			ing.references = references;
+			expect(ing.references).to.be.empty;
+			references.set('1 cup apples', { recipeID: 'dcbaa4a0-3aae-11e8-842e-95ab6a86b1b2' });
+			ing.references = references;
+			expect(ing.references).to.be.empty;
+
+			reset();
+
+			// should throw an error if we pass in something other than a Map
+			expect(() => {
+				ing.references = undefined;
+			}).to.throw('Invalid references parameter for Ingredient');
+			expect(() => {
+				ing.references = '';
+			}).to.throw('Invalid references parameter for Ingredient');
+			expect(() => {
+				ing.references = NaN;
+			}).to.throw('Invalid references parameter for Ingredient');
+			expect(() => {
+				ing.references = null;
+			}).to.throw('Invalid references parameter for Ingredient');
+			expect(() => {
+				ing.references = 123;
+			}).to.throw('Invalid references parameter for Ingredient');
+			expect(() => {
+				ing.references = { line: '1 cup apples' };
+			}).to.throw('Invalid references parameter for Ingredient');
+			expect(() => {
+				ing.references = '1 cup apples';
+			}).to.throw('Invalid references parameter for Ingredient');
+			expect(() => {
+				ing.references = new Set();
+			}).to.throw('Invalid references parameter for Ingredient');
 		});
 
 		it('[isValidated] should update with a true/false value', function() {
@@ -1454,7 +1544,7 @@ describe('Ingredient Class ============================================='.magent
 			expect(flour.relatedIngredients.size).to.equal(1);
 		});
 
-		it('[addSubstitute] should add a new substitute ingredient to the map', function() {
+		it('[addReference] should add a new substitute ingredient to the map', function() {
 			const ing = new Ingredient('oil');
 
 			// don't allow nonsense
@@ -1475,7 +1565,6 @@ describe('Ingredient Class ============================================='.magent
 			expect(ing.substitutes.size).to.equal(1);
 			let keys = [ ...ing.substitutes.keys() ];
 			expect(keys.includes('vegetable oil')).to.be.true;
-
 			// clear out
 			ing.substitutes = new Map();
 
@@ -1517,10 +1606,57 @@ describe('Ingredient Class ============================================='.magent
 			expect(ing.substitutes.has('vinegar')).to.be.false;
 		});
 
-		it.skip('[addReference] should add a new recipe reference to the map', function() {
+		it('[addReference] should add a new recipe reference to the map', function() {
+			const ing = new Ingredient('chicken');
+
+			// setup a recipe
+			const recipe = new Recipe();
+			recipe.saveRecipe();
+
+			// don't allow nonsense
+			expect(() => ing.addReference()).to.throw('Invalid reference parameter for Ingredient');
+			expect(() => ing.addReference('')).to.throw('Invalid reference parameter for Ingredient');
+			expect(() => ing.addReference(NaN)).to.throw('Invalid reference parameter for Ingredient');
+			expect(() => ing.addReference(null)).to.throw('Invalid reference parameter for Ingredient');
+			expect(() => ing.addReference(123)).to.throw('Invalid reference parameter for Ingredient');
+
+			// don't add a line without an id
+			ing.addReference('1 cup shredded chicken', null);
+			expect(ing.references.size).to.equal(0);
+
+			// add valid recipe line reference
+			ing.addReference('1 cup shredded chicken', recipe.recipeID);
+			expect(ing.references.size).to.equal(1);
+			keys = [ ...ing.references.keys() ];
+			expect(keys.includes('1 cup shredded chicken')).to.be.true;
+
+			// don't allow duplicate lines from the same recipe
+			ing.addReference('1 cup shredded chicken', recipe.recipeID);
+			expect(ing.references.size).to.equal(1);
+			keys = [ ...ing.references.keys() ];
+			expect(keys.includes('1 cup shredded chicken')).to.be.true;
 		});
 
-		it.skip('[removeReference] should remove a given recipe reference from the map', function() {
+		it('[removeReference] should remove a given recipe reference from the map', function() {
+			const ing = new Ingredient('apple cider vinegar');
+
+			// setup a recipe
+			const recipe = new Recipe();
+			recipe.saveRecipe();
+
+			ing.addReference('splash apple ciper vinegar', recipe.recipeID);
+			expect(ing.references.has('splash apple ciper vinegar')).to.be.true;
+			expect(ing.references.size).to.equal(1);
+			ing.saveIngredient();
+
+			// don't do anything if we don't find a match
+			ing.removeReference('non-existing vinegar line', recipe.recipeID);
+			expect(ing.references.size).to.equal(1);
+
+			// remove any matching names
+			ing.removeReference('splash apple ciper vinegar', recipe.recipeID);
+			expect(ing.references.size).to.equal(0);
+			expect(ing.references.has('splash apple ciper vinegar')).to.be.false;
 		});
 	});
 });

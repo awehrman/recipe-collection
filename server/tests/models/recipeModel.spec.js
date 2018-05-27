@@ -19,7 +19,6 @@ const recipeController = require('../../controllers/recipeController');
 	  if the ingredient lines have all been validated as well
 	- ingredients and isntructions should probably be setup as their own classes
 		come back to theses once basic recipe methods are finished and ingredient references are zipped up
-	- should we keep a separate reference to the Evernote note GUID?
 
  */
 

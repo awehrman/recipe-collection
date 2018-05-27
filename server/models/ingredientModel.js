@@ -379,29 +379,23 @@ class Ingredient {
 
 	set references(value) {
 		if (value && (value instanceof Map)) {
-			// go through the items in our Map to ensure that they've valid
-			for (let [line, id] of value) {
-				// if we aren't providing a line, or our id is something other than a valid UUID or null
-				if (!line || (typeof line !== 'string') || (line.length === 0) || (!isUUID.v1(id) && id !== null)) {
-					// remove this item
-					value.delete(line);
-				} else {
-					let recipe = null;
-					// look up this recipe reference
-					if (id !== null) {
-						recipe = recipeController.findRecipes('recipeID', id);
-					}
+			// clear out the prior set of references since we're going to replace it wholesale
+			// if you just want to append new values use addReference instead
+			_references.set(this, new Map());
 
-					// if we didn't find an existing recipe either by id
-					if (recipe && recipe.length === 0) {
-						// then delete this line
-						value.delete(line);
-					}
+			// go through the items in our Map to ensure that they've valid
+			for (let [name, id] of value) {
+				try {
+					// accept it if it passes validation
+					this.addReference(name, id);
+				} catch (ex) {
+					// or remove it from the map
+					value.delete(name);
 				}
 			}
 
 			_dateUpdated.set(this, moment());
-			return _references.set(this, value);
+			return _references.get(this);
 		}
 		throw new Error('Invalid references parameter for Ingredient');
 	}
@@ -699,12 +693,38 @@ class Ingredient {
 		}
 	}
 
-	addReference(value) {
-		// TODO
+	addReference(line, id) {
+		// if we aren't providing a line, or our id is something other than a valid UUID or null
+		if (!line || (typeof line !== 'string') || (line.length === 0) || (!isUUID.v1(id) && id !== null)) {
+			// remove this item
+			_references.get(this).delete(line);
+		} else {
+			let recipe = null;
+			// look up this recipe reference
+			if (id !== null) {
+				recipe = recipeController.findRecipes('recipeID', id);
+			}
+
+			// if we didn't find this recipe by id
+			if (recipe && recipe.length === 0) {
+				// then don't accept this line
+				_references.get(this).delete(line);
+			} 
+
+			if (recipe && recipe.length === 1) {
+				_references.get(this).set(line, id);
+			}
+
+			return _references.get(this);
+		}
+
+		throw new Error('Invalid reference parameter for Ingredient');
 	}
 
 	removeReference(value) {
-		// TODO
+		if (_references.get(this).has(value)) {
+			_references.get(this).delete(value);
+		}
 	}
 
 	/*=====  End of Ingredient Methods  ======*/

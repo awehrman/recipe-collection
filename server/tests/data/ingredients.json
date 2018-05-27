@@ -1,9 +1,9 @@
 [
   {
-    "ingredientID": "ddf60371-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "099a6cc1-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.527Z",
-    "dateUpdated": "2018-05-27T15:23:11.557Z",
+    "dateCreated": "2018-05-27T16:57:28.204Z",
+    "dateUpdated": "2018-05-27T16:57:28.231Z",
     "name": "yam",
     "plural": "yams",
     "properties": {
@@ -23,7 +23,7 @@
     "relatedIngredients": [
       [
         "potato",
-        "de0aeb00-61c1-11e8-a69b-bbee30fbc159"
+        "09b12910-61cf-11e8-9b73-afa1636cfeef"
       ]
     ],
     "substitutes": [],
@@ -31,10 +31,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "ddf678a0-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "099ae1f0-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.530Z",
-    "dateUpdated": "2018-05-27T15:23:11.530Z",
+    "dateCreated": "2018-05-27T16:57:28.207Z",
+    "dateUpdated": "2018-05-27T16:57:28.207Z",
     "name": "baby boomer potato",
     "plural": null,
     "properties": {
@@ -53,10 +53,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "ddf6c6c0-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "099b3010-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.532Z",
-    "dateUpdated": "2018-05-27T15:23:11.532Z",
+    "dateCreated": "2018-05-27T16:57:28.209Z",
+    "dateUpdated": "2018-05-27T16:57:28.209Z",
     "name": "yukon gold potato",
     "plural": null,
     "properties": {
@@ -75,10 +75,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "ddf76300-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "099bcc50-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.536Z",
-    "dateUpdated": "2018-05-27T15:23:11.536Z",
+    "dateCreated": "2018-05-27T16:57:28.213Z",
+    "dateUpdated": "2018-05-27T16:57:28.213Z",
     "name": "fingerling potato",
     "plural": null,
     "properties": {
@@ -97,10 +97,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "ddf82650-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "099c4180-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.541Z",
-    "dateUpdated": "2018-05-27T15:23:11.541Z",
+    "dateCreated": "2018-05-27T16:57:28.216Z",
+    "dateUpdated": "2018-05-27T16:57:28.216Z",
     "name": "kennebec potato",
     "plural": null,
     "properties": {
@@ -119,10 +119,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "ddf8e9a0-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "099d04d0-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.546Z",
-    "dateUpdated": "2018-05-27T15:23:11.546Z",
+    "dateCreated": "2018-05-27T16:57:28.221Z",
+    "dateUpdated": "2018-05-27T16:57:28.221Z",
     "name": "purple potato",
     "plural": null,
     "properties": {
@@ -141,10 +141,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "ddfe67e0-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "09a0d560-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.582Z",
-    "dateUpdated": "2018-05-27T15:23:11.624Z",
+    "dateCreated": "2018-05-27T16:57:28.246Z",
+    "dateUpdated": "2018-05-27T16:57:28.297Z",
     "name": "chicken stock",
     "plural": "chicken stocks",
     "properties": {
@@ -167,10 +167,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "ddff5240-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "09a1e6d0-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.588Z",
-    "dateUpdated": "2018-05-27T15:23:11.588Z",
+    "dateCreated": "2018-05-27T16:57:28.253Z",
+    "dateUpdated": "2018-05-27T16:57:28.253Z",
     "name": "chicken broth",
     "plural": null,
     "properties": {
@@ -189,10 +189,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "ddffee80-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "09a28310-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.592Z",
-    "dateUpdated": "2018-05-27T15:23:11.592Z",
+    "dateCreated": "2018-05-27T16:57:28.257Z",
+    "dateUpdated": "2018-05-27T16:57:28.257Z",
     "name": "vegetable broth",
     "plural": null,
     "properties": {
@@ -211,10 +211,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "de00d8e0-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "09a3bb90-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.598Z",
-    "dateUpdated": "2018-05-27T15:23:11.599Z",
+    "dateCreated": "2018-05-27T16:57:28.265Z",
+    "dateUpdated": "2018-05-27T16:57:28.265Z",
     "name": "stock",
     "plural": null,
     "properties": {
@@ -233,10 +233,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "de01ea50-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "09a4cd00-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.605Z",
-    "dateUpdated": "2018-05-27T15:23:11.605Z",
+    "dateCreated": "2018-05-27T16:57:28.272Z",
+    "dateUpdated": "2018-05-27T16:57:28.272Z",
     "name": "beef broth",
     "plural": null,
     "properties": {
@@ -255,10 +255,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "de0349e0-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "09a67ab0-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.614Z",
-    "dateUpdated": "2018-05-27T15:23:11.614Z",
+    "dateCreated": "2018-05-27T16:57:28.283Z",
+    "dateUpdated": "2018-05-27T16:57:28.283Z",
     "name": "beef stock",
     "plural": null,
     "properties": {
@@ -277,10 +277,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "de08c820-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "09af5450-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.650Z",
-    "dateUpdated": "2018-05-27T15:23:11.656Z",
+    "dateCreated": "2018-05-27T16:57:28.341Z",
+    "dateUpdated": "2018-05-27T16:57:28.345Z",
     "name": "bay leaf",
     "plural": "bay leaves",
     "properties": {
@@ -299,10 +299,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "de0a27b0-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "09b08cd0-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.659Z",
-    "dateUpdated": "2018-05-27T15:23:11.659Z",
+    "dateCreated": "2018-05-27T16:57:28.349Z",
+    "dateUpdated": "2018-05-27T16:57:28.349Z",
     "name": "sugar",
     "plural": null,
     "properties": {
@@ -321,10 +321,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "de0aeb00-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "09b12910-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.664Z",
-    "dateUpdated": "2018-05-27T15:23:11.665Z",
+    "dateCreated": "2018-05-27T16:57:28.353Z",
+    "dateUpdated": "2018-05-27T16:57:28.354Z",
     "name": "potato",
     "plural": null,
     "properties": {
@@ -340,7 +340,7 @@
     "relatedIngredients": [
       [
         "yam",
-        "ddf60371-61c1-11e8-a69b-bbee30fbc159"
+        "099a6cc1-61cf-11e8-9b73-afa1636cfeef"
       ]
     ],
     "substitutes": [],
@@ -348,10 +348,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "de1460e0-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "09b93f60-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.726Z",
-    "dateUpdated": "2018-05-27T15:23:11.726Z",
+    "dateCreated": "2018-05-27T16:57:28.406Z",
+    "dateUpdated": "2018-05-27T16:57:28.406Z",
     "name": "chicken thigh",
     "plural": null,
     "properties": {
@@ -370,10 +370,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "de154b40-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "09ba50d0-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.732Z",
-    "dateUpdated": "2018-05-27T15:23:11.732Z",
+    "dateCreated": "2018-05-27T16:57:28.413Z",
+    "dateUpdated": "2018-05-27T16:57:28.413Z",
     "name": "chicken wing",
     "plural": null,
     "properties": {
@@ -392,10 +392,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "de174710-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "09bc2590-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.745Z",
-    "dateUpdated": "2018-05-27T15:23:11.745Z",
+    "dateCreated": "2018-05-27T16:57:28.425Z",
+    "dateUpdated": "2018-05-27T16:57:28.425Z",
     "name": "flour",
     "plural": null,
     "properties": {
@@ -411,7 +411,7 @@
     "relatedIngredients": [
       [
         "whole wheat flour",
-        "de172000-61c1-11e8-a69b-bbee30fbc159"
+        "09bbd770-61cf-11e8-9b73-afa1636cfeef"
       ]
     ],
     "substitutes": [],
@@ -419,10 +419,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "de172000-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "09bbd770-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.744Z",
-    "dateUpdated": "2018-05-27T15:23:11.744Z",
+    "dateCreated": "2018-05-27T16:57:28.423Z",
+    "dateUpdated": "2018-05-27T16:57:28.423Z",
     "name": "whole wheat flour",
     "plural": null,
     "properties": {
@@ -438,7 +438,7 @@
     "relatedIngredients": [
       [
         "flour",
-        "de174710-61c1-11e8-a69b-bbee30fbc159"
+        "09bc2590-61cf-11e8-9b73-afa1636cfeef"
       ]
     ],
     "substitutes": [],
@@ -446,10 +446,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "de1b17a0-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "09c06b50-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.770Z",
-    "dateUpdated": "2018-05-27T15:23:11.770Z",
+    "dateCreated": "2018-05-27T16:57:28.453Z",
+    "dateUpdated": "2018-05-27T16:57:28.453Z",
     "name": "vegetable oil",
     "plural": null,
     "properties": {
@@ -468,10 +468,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "de1c2910-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "09c12ea0-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.777Z",
-    "dateUpdated": "2018-05-27T15:23:11.777Z",
+    "dateCreated": "2018-05-27T16:57:28.458Z",
+    "dateUpdated": "2018-05-27T16:57:28.458Z",
     "name": "canola oil",
     "plural": null,
     "properties": {
@@ -490,10 +490,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "de1e9a10-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "09c32a70-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.793Z",
-    "dateUpdated": "2018-05-27T15:23:11.793Z",
+    "dateCreated": "2018-05-27T16:57:28.471Z",
+    "dateUpdated": "2018-05-27T16:57:28.471Z",
     "name": "vinegar",
     "plural": null,
     "properties": {
@@ -512,10 +512,10 @@
     "isValidated": false
   },
   {
-    "ingredientID": "de1e24e0-61c1-11e8-a69b-bbee30fbc159",
+    "ingredientID": "09c2dc50-61cf-11e8-9b73-afa1636cfeef",
     "parentIngredientID": null,
-    "dateCreated": "2018-05-27T15:23:11.790Z",
-    "dateUpdated": "2018-05-27T15:23:11.790Z",
+    "dateCreated": "2018-05-27T16:57:28.469Z",
+    "dateUpdated": "2018-05-27T16:57:28.469Z",
     "name": "apple cider vinegar",
     "plural": null,
     "properties": {
@@ -532,10 +532,37 @@
     "substitutes": [
       [
         "vinegar",
-        "de1e9a10-61c1-11e8-a69b-bbee30fbc159"
+        "09c32a70-61cf-11e8-9b73-afa1636cfeef"
       ]
     ],
     "references": [],
+    "isValidated": false
+  },
+  {
+    "ingredientID": "09c610a0-61cf-11e8-9b73-afa1636cfeef",
+    "parentIngredientID": null,
+    "dateCreated": "2018-05-27T16:57:28.490Z",
+    "dateUpdated": "2018-05-27T16:57:28.490Z",
+    "name": "apple cider vinegar",
+    "plural": null,
+    "properties": {
+      "meat": false,
+      "poultry": false,
+      "fish": false,
+      "dairy": false,
+      "soy": false,
+      "gluten": false
+    },
+    "alternateNames": [],
+    "parsingExpressions": [],
+    "relatedIngredients": [],
+    "substitutes": [],
+    "references": [
+      [
+        "splash apple ciper vinegar",
+        "09c610a1-61cf-11e8-9b73-afa1636cfeef"
+      ]
+    ],
     "isValidated": false
   }
 ]
