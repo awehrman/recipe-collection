@@ -7,8 +7,12 @@ const fs = require('fs');
 const moment = require('moment');
 
 const server = require('../../app');
+const Category = require('../../models/categoryModel');
+const categoryController = require('../../controllers/categoryController');
 const Recipe = require('../../models/recipeModel');
 const recipeController = require('../../controllers/recipeController');
+const Tag = require('../../models/tagModel');
+const tagController = require('../../controllers/tagController');
 
 /**
 
@@ -23,9 +27,9 @@ const recipeController = require('../../controllers/recipeController');
  */
 
 
-describe('Recipe Class ============================================='.magenta, function () {
+describe.only('Recipe Class ============================================='.magenta, function () {
 	it('should initialize test data', function() {
-		const databases = [ 'recipes' ];
+		const databases = [ 'categories', 'recipes', 'tags' ];
 
 		// load presets for each database
 		for (let db of databases) {
@@ -289,20 +293,37 @@ describe('Recipe Class ============================================='.magenta, f
 		it('[categories] should update with a valid Map with name/id pairs', function() {
 			const rp = new Recipe();
 			let initialDate = rp.dateUpdated;
+			let categories = new Map();
 
 			// # should accept an empty Map
-			rp.categories = new Map();
+			rp.categories = categories;
 			expect(rp.categories.size).to.equal(0);
 			expect(rp.dateUpdated).to.not.equal(initialDate);
 			initialDate = rp.dateUpdated;
 
+			const cat = new Category();
+			cat.name = "Beef";
+			cat.saveCategory();
+
 			// # should accept a Map with valid categories
 			// ... such as a Map containing existing categories
-			expect("TODO").to.be.true;
+			categories.set(cat.name, cat.categoryID);
+			rp.categories = categories;
+			expect(rp.categories.size).to.equal(1);
+			expect(rp.dateUpdated).to.not.equal(initialDate);
+			initialDate = rp.dateUpdated;
+
 			// ... such as a Map containing new category assignments
-			expect("TODO").to.be.true;
+			rp.categories = categories.set("Lamb", null);
+			expect(rp.categories.size).to.equal(2);
+			expect(rp.dateUpdated).to.not.equal(initialDate);
+			initialDate = rp.dateUpdated;
+
 			// ... such as a Map containing duplicated existing categories
-			expect("TODO").to.be.true;
+			rp.categories = categories.set(cat.name, cat.categoryID);
+			expect(rp.categories.size).to.equal(2);
+			expect(rp.dateUpdated).to.not.equal(initialDate);
+			initialDate = rp.dateUpdated;
 
 			// # should throw exception 'Invalid categories provided' if invalid Map is provided
 			// ... such as null
@@ -320,20 +341,37 @@ describe('Recipe Class ============================================='.magenta, f
 		it('[tags] should update with a valid Map with name/id pairs', function() {
 			const rp = new Recipe();
 			let initialDate = rp.dateUpdated;
+			let tags = new Map();
 
 			// # should accept an empty Map
-			rp.tags = new Map();
+			rp.tags = tags;
 			expect(rp.tags.size).to.equal(0);
 			expect(rp.dateUpdated).to.not.equal(initialDate);
 			initialDate = rp.dateUpdated;
 
+			const tag = new Tag();
+			tag.name = "Beef";
+			tag.saveTag();
+
 			// # should accept a Map with valid tags
 			// ... such as a Map containing existing tags
-			expect("TODO").to.be.true;
-			// ... such as a Map containing new category assignments
-			expect("TODO").to.be.true;
+			tags.set(tag.name, tag.tagID);
+			rp.tags = tags;
+			expect(rp.tags.size).to.equal(1);
+			expect(rp.dateUpdated).to.not.equal(initialDate);
+			initialDate = rp.dateUpdated;
+
+			// ... such as a Map containing new tag assignments
+			rp.tags = tags.set("Lamb", null);
+			expect(rp.tags.size).to.equal(2);
+			expect(rp.dateUpdated).to.not.equal(initialDate);
+			initialDate = rp.dateUpdated;
+
 			// ... such as a Map containing duplicated existing tags
-			expect("TODO").to.be.true;
+			rp.tags = tags.set(tag.name, tag.tagID);
+			expect(rp.tags.size).to.equal(2);
+			expect(rp.dateUpdated).to.not.equal(initialDate);
+			initialDate = rp.dateUpdated;
 
 			// # should throw exception 'Invalid tags provided' if invalid Map is provided
 			// ... such as null
@@ -345,7 +383,7 @@ describe('Recipe Class ============================================='.magenta, f
 			// ... such as empty strings
 			expect(() => { rp.tags = ''; }).to.throw('Invalid tags provided');
 			// ... such as objects
-			expect(() => { rp.tags = { tags: "imported" }; }).to.throw('Invalid tags provided');
+			expect(() => { rp.tags = { tags: "Fish" }; }).to.throw('Invalid tags provided');
 		});
 
 		it.skip('[ingredients] TODO', function() {
@@ -443,20 +481,144 @@ describe('Recipe Class ============================================='.magenta, f
 			expect((recipes.length - numRecipes)).to.equal(0);
 		});
 
-		it.skip('[addCategory] should add a valid string and UUID pair to the categories Map', function() {
-			// TODO
+		it('[addCategory] should add a valid string and UUID pair to the categories Map', function() {
+			const rp = new Recipe();
+
+			// don't allow nonsense
+			expect(() => rp.addCategory()).to.throw('Invalid categories parameter for Recipe');
+			expect(() => rp.addCategory('')).to.throw('Invalid categories parameter for Recipe');
+			expect(() => rp.addCategory(NaN)).to.throw('Invalid categories parameter for Recipe');
+			expect(() => rp.addCategory(null)).to.throw('Invalid categories parameter for Recipe');
+			expect(() => rp.addCategory(123)).to.throw('Invalid categories parameter for Recipe');
+
+			// if the category doesn't exist, add it
+			let quiche = categoryController.findCategories('name', 'Quiche');
+			expect(quiche.length).to.equal(0);
+
+			rp.addCategory('Quiche');
+			quiche = categoryController.findCategories('name', 'Quiche');
+
+			expect(quiche.length).to.equal(1);
+			expect(quiche[0].name).to.equal('Quiche');
+			expect(rp.categories.size).to.equal(1);
+			let keys = [ ...rp.categories.keys() ];
+			expect(keys.includes('Quiche')).to.be.true;
+
+			// clear out
+			rp.categories = new Map();
+
+			let cake = new Category();
+			cake.name = "Cake";
+			cake.saveCategory();
+
+			cake = categoryController.findCategories('name', 'Cake');
+			expect(cake.length).to.equal(1);
+			expect(cake[0].name).to.equal('Cake');
+
+			rp.addCategory('Cake');
+
+			cake = categoryController.findCategories('name', 'Cake');
+			expect(cake.length).to.equal(1);
+			expect(cake[0].name).to.equal('Cake');
+			expect(rp.categories.size).to.equal(1);
+			keys = [ ...rp.categories.keys() ];
+			expect(keys.includes('Cake')).to.be.true;
+
+			// clear out
+			rp.categories = new Map();
+
+			// if the ingredient already exists in the map, don't duplicate
+			rp.addCategory('Cake');
+			expect(rp.categories.size).to.equal(1);
+			keys = [ ...rp.categories.keys() ];
+			expect(keys.includes('Cake')).to.be.true;
 		});
 
-		it.skip('[removeCategory] should remove a matching string and UUID pair from the categories Map', function() {
-			// TODO
+		it('[removeCategory] should remove a matching string and UUID pair from the categories Map', function() {
+			const rp = new Recipe();
+			rp.addCategory('Beef');
+			expect(rp.categories.has('Beef')).to.be.true;
+			expect(rp.categories.size).to.equal(1);
+			rp.saveRecipe();
+
+			// don't do anything if we don't find a match
+			rp.removeCategory('not a thing');
+			expect(rp.categories.size).to.equal(1);
+
+			// remove any matchrp names
+			rp.removeCategory('Beef');
+			expect(rp.categories.size).to.equal(0);
+			expect(rp.categories.has('Beef')).to.be.false;
 		});
 
-		it.skip('[addTag] should add a valid string and UUID pair to the tags Map', function() {
-			// TODO
+		it('[addTag] should add a valid string and UUID pair to the tags Map', function() {
+			const rp = new Recipe();
+
+			// don't allow nonsense
+			expect(() => rp.addTag()).to.throw('Invalid tags parameter for Recipe');
+			expect(() => rp.addTag('')).to.throw('Invalid tags parameter for Recipe');
+			expect(() => rp.addTag(NaN)).to.throw('Invalid tags parameter for Recipe');
+			expect(() => rp.addTag(null)).to.throw('Invalid tags parameter for Recipe');
+			expect(() => rp.addTag(123)).to.throw('Invalid tags parameter for Recipe');
+
+			// if the tag doesn't exist, add it
+			let korean = tagController.findTags('name', 'korean');
+			expect(korean.length).to.equal(0);
+
+			rp.addTag('korean');
+			korean = tagController.findTags('name', 'korean');
+
+			expect(korean.length).to.equal(1);
+			expect(korean[0].name).to.equal('korean');
+			expect(rp.tags.size).to.equal(1);
+			let keys = [ ...rp.tags.keys() ];
+			expect(keys.includes('korean')).to.be.true;
+
+			// clear out
+			rp.tags = new Map();
+
+			let vietnamese = new Tag();
+			vietnamese.name = "vietnamese";
+			vietnamese.saveTag();
+
+			vietnamese = tagController.findTags('name', 'vietnamese');
+			expect(vietnamese.length).to.equal(1);
+			expect(vietnamese[0].name).to.equal('vietnamese');
+
+			rp.addTag('vietnamese');
+
+			vietnamese = tagController.findTags('name', 'vietnamese');
+			expect(vietnamese.length).to.equal(1);
+			expect(vietnamese[0].name).to.equal('vietnamese');
+			expect(rp.tags.size).to.equal(1);
+			keys = [ ...rp.tags.keys() ];
+			expect(keys.includes('vietnamese')).to.be.true;
+
+			// clear out
+			rp.tags = new Map();
+
+			// if the ingredient already exists in the map, don't duplicate
+			rp.addTag('vietnamese');
+			expect(rp.tags.size).to.equal(1);
+			keys = [ ...rp.tags.keys() ];
+			expect(keys.includes('vietnamese')).to.be.true;
 		});
 
-		it.skip('[removeTag] should remove a matching string and UUID pair from the tags Map', function() {
-			// TODO
+		it('[removeTag] should remove a matching string and UUID pair from the tags Map', function() {
+			const rp = new Recipe();
+			rp.addTag('Vegan');
+			expect(rp.tags.has('Vegan')).to.be.true;
+			expect(rp.tags.size).to.equal(1);
+			rp.saveRecipe();
+
+			// don't do anything if we don't find a match
+			rp.removeTag('not a thing');
+			expect(rp.tags.size).to.equal(1);
+
+			// remove any matching names
+			rp.removeTag('Vegan');
+			expect(rp.tags.size).to.equal(0);
+			expect(rp.tags.has('Vegan')).to.be.false;
 		});
 
 		it.skip('[addIngredient] TODO', function() {

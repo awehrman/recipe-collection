@@ -1,8 +1,32 @@
 [
   {
-    "tagID": "de23a321-61c1-11e8-a69b-bbee30fbc159",
-    "dateCreated": "2018-05-27T15:23:11.826Z",
+    "tagID": "94fa9340-61d8-11e8-910c-ffce5e7034e9",
+    "dateCreated": "2018-05-27T18:05:47.508Z",
     "evernoteGUID": null,
-    "name": "Vegetarian"
+    "name": "Beef"
+  },
+  {
+    "tagID": "94fb0870-61d8-11e8-910c-ffce5e7034e9",
+    "dateCreated": "2018-05-27T18:05:47.511Z",
+    "evernoteGUID": null,
+    "name": "Lamb"
+  },
+  {
+    "tagID": "94fd5260-61d8-11e8-910c-ffce5e7034e9",
+    "dateCreated": "2018-05-27T18:05:47.526Z",
+    "evernoteGUID": null,
+    "name": "korean"
+  },
+  {
+    "tagID": "94fda080-61d8-11e8-910c-ffce5e7034e9",
+    "dateCreated": "2018-05-27T18:05:47.528Z",
+    "evernoteGUID": null,
+    "name": "vietnamese"
+  },
+  {
+    "tagID": "94fe15b1-61d8-11e8-910c-ffce5e7034e9",
+    "dateCreated": "2018-05-27T18:05:47.531Z",
+    "evernoteGUID": null,
+    "name": "Vegan"
   }
 ]

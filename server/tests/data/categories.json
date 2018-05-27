@@ -1,8 +1,26 @@
 [
   {
-    "categoryID": "ddf34450-61c1-11e8-a69b-bbee30fbc159",
-    "dateCreated": "2018-05-27T15:23:11.509Z",
+    "categoryID": "94f84950-61d8-11e8-910c-ffce5e7034e9",
+    "dateCreated": "2018-05-27T18:05:47.493Z",
     "evernoteGUID": null,
-    "name": "Seafood"
+    "name": "Beef"
+  },
+  {
+    "categoryID": "94f981d0-61d8-11e8-910c-ffce5e7034e9",
+    "dateCreated": "2018-05-27T18:05:47.501Z",
+    "evernoteGUID": null,
+    "name": "Lamb"
+  },
+  {
+    "categoryID": "94fc40f0-61d8-11e8-910c-ffce5e7034e9",
+    "dateCreated": "2018-05-27T18:05:47.519Z",
+    "evernoteGUID": null,
+    "name": "Quiche"
+  },
+  {
+    "categoryID": "94fc8f10-61d8-11e8-910c-ffce5e7034e9",
+    "dateCreated": "2018-05-27T18:05:47.521Z",
+    "evernoteGUID": null,
+    "name": "Cake"
   }
 ]

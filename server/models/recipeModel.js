@@ -3,8 +3,12 @@ const isUUID = require('is-uuid');
 const uuid = require('uuid');
 const moment = require('moment');
 
+const Category = require('./categoryModel');
+const categoryController = require('../controllers/categoryController');
 const ingredientController = require('../controllers/ingredientController');
 const recipeController = require('../controllers/recipeController');
+const Tag = require('./tagModel');
+const tagController = require('../controllers/tagController');
 
 const DB_PATH = (process.env.NODE_ENV === 'test') ? 'tests/data' : 'data';
 
@@ -335,20 +339,92 @@ class Recipe {
 		});
 	}
 
-	addCategory() {
-		// TODO
+	addCategory(name, id = null) {
+		// if we aren't providing a name, or our id is something other than a valid UUID or null
+		if (!name || (typeof name !== 'string') || (name.length === 0) || (!isUUID.v1(id) && id !== null)) {
+			// remove this item
+			_categories.get(this).delete(name);
+		} else {
+			let category = null;
+			// look up this category reference
+			if (id !== null) {
+				category = categoryController.findCategories('categoryID', id);
+			}
+
+			if (!category || (category && category.length === 0)) {
+				category = categoryController.findCategories('name', name);
+			}
+
+			// if we found a match, make sure we're saving only the category name in our list
+			if (category && category.length === 1) {
+				_categories.get(this).delete(name);
+				_categories.get(this).set(category[0].name, category[0].categoryID);
+			}
+
+			// if we didn't find an existing category either by id or name
+			if (!category || (category && category.length === 0)) {
+				// create the category
+				category = new Category();
+				category.name = name;
+				category.saveCategory();
+				_categories.get(this).delete(name);
+				_categories.get(this).set(name, category.categoryID);
+			}
+
+			return _categories.get(this);
+		}
+
+		throw new Error('Invalid categories parameter for Recipe');
 	}
 
-	removeCategory() {
-		// TODO
+	removeCategory(value) {
+		if (_categories.get(this).has(value)) {
+			_categories.get(this).delete(value);
+		}
 	}
 
-	addTag() {
-		// TODO
+	addTag(name, id = null) {
+		// if we aren't providing a name, or our id is something other than a valid UUID or null
+		if (!name || (typeof name !== 'string') || (name.length === 0) || (!isUUID.v1(id) && id !== null)) {
+			// remove this item
+			_tags.get(this).delete(name);
+		} else {
+			let tag = null;
+			// look up this tag reference
+			if (id !== null) {
+				tag = tagController.findTags('tagID', id);
+			}
+
+			if (!tag || (tag && tag.length === 0)) {
+				tag = tagController.findTags('name', name);
+			}
+
+			// if we found a match, make sure we're saving only the tag name in our list
+			if (tag && tag.length === 1) {
+				_tags.get(this).delete(name);
+				_tags.get(this).set(tag[0].name, tag[0].tagID);
+			}
+
+			// if we didn't find an existing tag either by id or name
+			if (!tag || (tag && tag.length === 0)) {
+				// create the tag
+				tag = new Tag();
+				tag.name = name;
+				tag.saveTag();
+				_tags.get(this).delete(name);
+				_tags.get(this).set(name, tag.tagID);
+			}
+
+			return _tags.get(this);
+		}
+
+		throw new Error('Invalid tags parameter for Recipe');
 	}
 
-	removeTag() {
-		// TODO
+	removeTag(value) {
+		if (_tags.get(this).has(value)) {
+			_tags.get(this).delete(value);
+		}
 	}
 
 	addIngredient() {

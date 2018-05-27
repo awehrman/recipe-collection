@@ -113,6 +113,7 @@ class Category {
 		};
 	}
 
+	// TODO throw error if no id or name
 	saveCategory() {
 		let categories = [];
 

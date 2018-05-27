@@ -27,7 +27,7 @@ const recipeController = require('../../controllers/recipeController');
 
  */
 
-describe.only('Ingredient Class ============================================='.magenta, function () {
+describe('Ingredient Class ============================================='.magenta, function () {
 	it('should initialize test data', function() {
 		const databases = [ 'ingredients', 'recipes' ];
 
