@@ -23,7 +23,7 @@ exports.loadRecipes = () => {
 	}
 
 	return converted;
-}
+};
 
 exports.findRecipes = (key = null, value = null) => {
 	let recipes = this.loadRecipes();

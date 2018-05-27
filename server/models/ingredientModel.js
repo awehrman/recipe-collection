@@ -521,6 +521,25 @@ class Ingredient {
 		});
 	}
 
+	removeIngredient() {
+		let ingredients = [];
+
+		try {
+			ingredients = JSON.parse(fs.readFileSync(`${DB_PATH}/ingredients.json`, 'utf8'));
+		} catch (ex) {
+			throw new Error('Error reading ingredients.json');
+		}
+
+		const index = ingredients.findIndex(i => i.ingredientID === _ingredientID.get(this));
+		if (index !== -1) {
+			ingredients.splice(index, 1);
+		}
+
+		fs.writeFileSync(`${DB_PATH}/ingredients.json`, JSON.stringify(ingredients, null, 2), 'utf-8', (err) => {
+			if (err) throw new Error(`An error occurred while writing ingredients data`);
+		});
+	}
+
 	addAlternateName(value) {
 		if (value && typeof value === 'string' && value.length > 0) {
 			// check that this value isn't used on any other ingredients

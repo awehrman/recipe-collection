@@ -247,5 +247,19 @@ describe('Category Class ============================================='.magenta,
 			expect(foundCategory).to.be.true;
 			expect((categories.length - numCategories)).to.equal(0);
 		});
+
+		it('[removeCategory] should remove the Category from the database', function() {
+			let cat = new Category();
+			cat.name = "Dumplings";
+			cat.saveCategory();
+
+			let foundCat = categoryController.findCategories('name', 'Dumplings');
+			expect(foundCat.length).to.equal(1);
+
+			cat.removeCategory();
+
+			foundCat = categoryController.findCategories('name', 'Dumplings');
+			expect(foundCat.length).to.equal(0);
+		});
 	});
 });

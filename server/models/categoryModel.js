@@ -144,6 +144,25 @@ class Category {
 		});
 	}
 
+	removeCategory() {
+		let categories = [];
+
+		try {
+			categories = JSON.parse(fs.readFileSync(`${DB_PATH}/categories.json`, 'utf8'));
+		} catch (ex) {
+			throw new Error('Error reading categories.json');
+		}
+
+		const index = categories.findIndex(i => i.categoryID === _categoryID.get(this));
+		if (index !== -1) {
+			categories.splice(index, 1);
+		}
+
+		fs.writeFileSync(`${DB_PATH}/categories.json`, JSON.stringify(categories, null, 2), 'utf-8', (err) => {
+			if (err) throw new Error(`An error occurred while writing categories data`);
+		});
+	}
+
 	/*=====  End of Category Methods  ======*/
 };
 /*=====  End of Category Class Definition  ======*/

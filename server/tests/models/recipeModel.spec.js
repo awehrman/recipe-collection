@@ -25,7 +25,7 @@ const tagController = require('../../controllers/tagController');
  */
 
 
-describe.only('Recipe Class ============================================='.magenta, function () {
+describe('Recipe Class ============================================='.magenta, function () {
 	it('should initialize test data', function() {
 		const databases = [ 'categories', 'recipes', 'tags' ];
 
@@ -615,6 +615,19 @@ describe.only('Recipe Class ============================================='.magen
 			expect(foundRecipe).to.be.true;
 			expect((recipes.length - numRecipes)).to.equal(0);
 		});
+
+		it('[removeRecipe] should remove the Recipe from the database', function() {
+			let rp = new Recipe();
+			rp.saveRecipe();
+
+			let foundRecipe = recipeController.findRecipes('recipeID', rp.recipeID);
+			expect(foundRecipe.length).to.equal(1);
+
+			rp.removeRecipe();
+
+			foundRecipe = recipeController.findRecipes('recipeID', rp.recipeID);
+			expect(foundRecipe.length).to.equal(0);
+		});	
 
 		it('[addCategory] should add a valid string and UUID pair to the categories Map', function() {
 			const rp = new Recipe();

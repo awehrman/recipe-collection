@@ -389,6 +389,25 @@ class Recipe {
 		});
 	}
 
+	removeRecipe() {
+		let recipes = [];
+
+		try {
+			recipes = JSON.parse(fs.readFileSync(`${DB_PATH}/recipes.json`, 'utf8'));
+		} catch (ex) {
+			throw new Error('Error reading recipes.json');
+		}
+
+		const index = recipes.findIndex(rp => rp.recipeID === _recipeID.get(this));
+		if (index !== -1) {
+			recipes.splice(index, 1);
+		}
+
+		fs.writeFileSync(`${DB_PATH}/recipes.json`, JSON.stringify(recipes, null, 2), 'utf-8', (err) => {
+			if (err) throw new Error(`An error occurred while writing recipes data`);
+		});
+	}
+
 	addCategory(name, id = null) {
 		// if we aren't providing a name, or our id is something other than a valid UUID or null
 		if (!name || (typeof name !== 'string') || (name.length === 0) || (!isUUID.v1(id) && id !== null)) {

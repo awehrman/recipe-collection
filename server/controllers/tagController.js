@@ -23,7 +23,7 @@ exports.loadTags = () => {
 	}
 
 	return converted;
-}
+};
 
 exports.findTags = (key = null, value = null) => {
 	let tags = this.loadTags();
@@ -42,4 +42,4 @@ exports.findTags = (key = null, value = null) => {
 	}
 
 	return tags;
-}
+};

@@ -1344,6 +1344,19 @@ describe('Ingredient Class ============================================='.magent
 			expect(potato.relatedIngredients.size).to.be.equal(1);
 		});
 
+		it('[removeIngredient] should remove the Ingredient from the database', function() {
+			let ing = new Ingredient('maple syrup');
+			ing.saveIngredient();
+
+			let foundIng = ingredientController.findIngredients('name', 'maple syrup');
+			expect(foundIng.length).to.equal(1);
+
+			ing.removeIngredient();
+
+			foundIng = ingredientController.findIngredients('name', 'maple syrup');
+			expect(foundIng.length).to.equal(0);
+		});
+
 		it('[addAlternateName] should add a new alternate name to the set', function() {
 			const ing = new Ingredient('new potato');
 

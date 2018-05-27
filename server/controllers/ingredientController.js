@@ -23,7 +23,7 @@ exports.loadIngredients = () => {
 	}
 
 	return converted;
-}
+};
 
 exports.findIngredients = (key = null, value = null) => {
 	let ingredients = this.loadIngredients();
@@ -68,4 +68,3 @@ exports.findIngredients = (key = null, value = null) => {
 
 	return ingredients;
 };
-

@@ -23,7 +23,7 @@ exports.loadCategories = () => {
 	}
 
 	return converted;
-}
+};
 
 exports.findCategories = (key = null, value = null) => {
 	let categories = this.loadCategories();
@@ -43,4 +43,4 @@ exports.findCategories = (key = null, value = null) => {
 	}
 
 	return categories;
-}
+};

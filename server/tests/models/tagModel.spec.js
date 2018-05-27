@@ -247,5 +247,19 @@ describe('Tag Class ============================================='.magenta, func
 			expect(foundTag).to.be.true;
 			expect((tags.length - numTags)).to.equal(0);
 		});
+
+		it('[removeTag] should remove the Tag from the database', function() {
+			let tag = new Tag();
+			tag.name = "Paleo";
+			tag.saveTag();
+
+			let foundTag = tagController.findTags('name', 'Paleo');
+			expect(foundTag.length).to.equal(1);
+
+			tag.removeTag();
+
+			foundTag = tagController.findTags('name', 'Paleo');
+			expect(foundTag.length).to.equal(0);
+		});
 	});
 });

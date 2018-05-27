@@ -143,6 +143,25 @@ class Tag {
 		});
 	}
 
+	removeTag() {
+		let tags = [];
+
+		try {
+			tags = JSON.parse(fs.readFileSync(`${DB_PATH}/tags.json`, 'utf8'));
+		} catch (ex) {
+			throw new Error('Error reading tags.json');
+		}
+
+		const index = tags.findIndex(i => i.tagID === _tagID.get(this));
+		if (index !== -1) {
+			tags.splice(index, 1);
+		}
+
+		fs.writeFileSync(`${DB_PATH}/tags.json`, JSON.stringify(tags, null, 2), 'utf-8', (err) => {
+			if (err) throw new Error(`An error occurred while writing tags data`);
+		});
+	}
+
 	/*=====  End of Tag Methods  ======*/
 };
 /*=====  End of Tag Class Definition  ======*/
