@@ -1,3 +1,4 @@
+const colors = require('colors');
 const Evernote = require('evernote');
 const express = require('express');
 const router = express.Router();
@@ -7,8 +8,8 @@ router.get('/', (req, res, next) => {
 	const client = new Evernote.Client({
     consumerKey: process.env.API_CONSUMER_KEY,
     consumerSecret: process.env.API_CONSUMER_SECRET,
-    sandbox: process.env.SANDBOX,
-    china: process.env.CHINA
+    sandbox: (process.env.SANDBOX == true) ? true : false,
+    china: (process.env.CHINA == true) ? true : false
   });
 
 	// check if we have a valid token in our session already
@@ -16,6 +17,7 @@ router.get('/', (req, res, next) => {
 		// and pass us along
 		res.redirect('/import');
 	} else {
+
 	  // otherwise request a new token
 	  client.getRequestToken(process.env.OAuthCallback, function(error, oauthToken, oauthTokenSecret, results) {
 	    if (error) {
@@ -40,8 +42,8 @@ router.get('/callback', (req, res, next) => {
 	const client = new Evernote.Client({
     consumerKey: process.env.API_CONSUMER_KEY,
     consumerSecret: process.env.API_CONSUMER_SECRET,
-    sandbox: process.env.SANDBOX,
-    china: process.env.CHINA
+    sandbox: (process.env.SANDBOX == true) ? true : false,
+    china: (process.env.CHINA == true) ? true : false
   });
 
 	client.getAccessToken(req.session.oauthToken, req.session.oauthTokenSecret, req.query.oauth_verifier,
@@ -52,11 +54,6 @@ router.get('/callback', (req, res, next) => {
       } else {
         // store the access token in the session
         req.session.oauthToken = oauthToken;
-        /*req.session.evernoteClient = new Evernote.Client({
-		      token: oauthToken,
-		      sandbox: process.env.SANDBOX,
-		      china: process.env.CHINA,
-		    });*/
        
         try {
           res.redirect('/import');

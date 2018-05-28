@@ -19,7 +19,7 @@ router.get('/download', (req, res, next) => {
 		res.redirect('/authenticate');
 	} else {
 		// start import process
-		importController.downloadNotes(req, res, next);
+		importController.stageNotes(req, res, next);
 	}
 });
 

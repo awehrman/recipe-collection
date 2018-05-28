@@ -14,12 +14,12 @@ exports.convertNotes = (req, res, next) => {
 	res.json({ status: 'convertNotes' });
 };
 
-exports.downloadNotes = (req, res, next) => {
+exports.stageNotes = (req, res, next) => {
 	// setup access to evernote's datastore
   const client = new Evernote.Client({
     token: req.session.oauthToken,
-    sandbox: process.env.SANDBOX,
-    china: process.env.CHINA,
+    sandbox: (process.env.SANDBOX == true) ? true : false,
+    china: (process.env.CHINA == true) ? true : false
   });
 
   const store = client.getNoteStore();
@@ -27,18 +27,21 @@ exports.downloadNotes = (req, res, next) => {
 	// create a search filter for notes that haven't been tagged as 'imported' yet
 	// return a batch of note metadata that matches this criteria
 	this.findNotes(store, next)
-		.then(notes => this.queryNotes(store, notes, next))
+		.then(notes => this.downloadNotes(store, notes, next))
 		.then(status => {
-			res.json({ status } )
+			res.redirect('/import');
+			//res.json({ status });
 		})
 		.catch(next);
 };
 
 exports.renderImport = (req, res, next) => {
-	let numberStaged = 0;
+	fs.readdir(DB_PATH, (err, files) => {
+	  const notes = files.filter(n => n.includes('.json'));
 
-	res.render("import", {
-		numberStaged: () => numberStaged
+	  res.render("import", {
+			numberStaged: () => notes.length
+		});
 	});
 };
 
@@ -49,8 +52,6 @@ exports.renderImport = (req, res, next) => {
 ======================================*/
 
 exports.findNotes = async (store, next) => {
-	console.log('findNotes'.yellow);
-
 	// filter result set to those that haven't been tagged as 'imported' yet
 	const filter = new Evernote.NoteStore.NoteFilter({ words: '-tag:imported' });
   
@@ -76,7 +77,6 @@ exports.findNotes = async (store, next) => {
   // find the metadata for the notes that match our search criteria
   return await store.findNotesMetadata(filter, offset, maxResults, spec)
   	.then(results => {
-  		console.log('back from findNotesMetadata'.green);
   		// warn the user if we're all out of notes to import
   		if (results.notes.length === 0) {
     		const err = new Error('No new notes to import!');
@@ -91,7 +91,6 @@ exports.findNotes = async (store, next) => {
 };
 
 exports.downloadNote = async (store, note, next) => {
-	console.log('downloadNote'.yellow);
 	// setup note filter
 	const spec = new Evernote.NoteStore.NoteResultSpec({
     includeContent: true,
@@ -108,13 +107,14 @@ exports.downloadNote = async (store, note, next) => {
   	.then(data => {
   		console.log(`... ${data.title}`.cyan);
 
-  		const noteContent = {
-  			evernoteGUID: data.guid,
-  			title: data.title,
-  			source: data.attributes.sourceURL,
-  			image: data.resources[0].data.body,
+  		let noteContent = {
   			category: data.notebookGuid,
-  			tags: data.tagGuids
+  			content: data.content,
+  			evernoteGUID: data.guid,
+  			image: data.resources[0].data.body,
+  			source: data.attributes.sourceURL,
+  			tags: data.tagGuids,
+  			title: data.title
   		};
 
   		// write the note to a file
@@ -123,29 +123,84 @@ exports.downloadNote = async (store, note, next) => {
 				// TODO think about this a bit more... should i re-try?
 			});
 
-  		return true;
+  		// return the note data for tagging
+  		return data;
   	})
   	.catch(next);
 };
 
-exports.queryNotes = async (store, notes, next) => {
-	console.log('queryNotes'.yellow);
-	console.log(notes.length);
+exports.findTag = async (store, tagName) => {
+	return await store.listTags()
+		.then(tags => {
+			// look up or create the tag that we passed in
+			let tag = tags.filter(t => t.name === tagName);
+			if (tag && tag.length > 0) {
+				return tag[0];
+			}
 
+			// if we didn't find the tag, create it
+			return store.createTag({ name: tagName })
+				.then(tag => {
+					return tag;
+				})
+				.catch(err => {
+					console.log(err);
+		    });
+		})
+		.catch(err => {
+			console.log(err);
+	  });
+};
+
+exports.tagNote = async (store, note, tag) => {
+	// add tag to note
+	note.tagGuids = (!note.tagGuids) ? [ tag.guid ] : note.tagGuids.push(tag.guid);
+
+	// from the evernote docs:
+	// With the exception of the note's title and guid, fields that are not being changed
+	// do not need to be set. If the content is not being modified, note.content should be
+	// left unset. If the list of resources is not being modified, note.resources should be
+	// left unset.
+
+	// so that's why we're nulling these out for this call
+	note.content = null;
+	note.resources = null
+
+	return await store.updateNote(note);
+};
+
+/*=====  End of Evernote Calls  ======*/
+
+exports.downloadNotes = async (store, notes, tag, next) => {
 	if (notes && notes.length > 0) {
-		// pull down the note content for each note in our list
-		notes = notes.map(async note => {
-			console.log('getting ready to download a new note!');
-			return await this.downloadNote(store, note).catch(next);
-		});
+		// lookup or create the 'imported' tag
+		return await this.findTag(store, 'imported')
+			.then(tag => {
+				// then go through each note
+				notes = notes.map(async note => {
+					// download the note content to the staging environment
+					return await this.downloadNote(store, note)
+						// and tag the note in evernote as 'imported'
+						.then(note => this.tagNote(store, note, tag))
+						.catch(err => {
+							console.log(err);
+						});
+				});
 
-		return Promise.all(notes).then((results) => {
-			const numDownloaded = (results) ? results.length : 0;
-			return `Finished downloading ${numDownloaded} notes.`;
-		}).catch(next);
+				// return a status completed once all notes are resolved
+				return Promise.all(notes)
+					.then((results) => {
+						const numDownloaded = (results) ? results.length : 0;
+						return `Finished downloading ${numDownloaded} notes.`;
+					})
+					.catch(err => {
+						console.log(err);
+					});
+
+			}).catch(err => {
+				console.log(err);
+			});
 	}
 
 	return [];
 };
-
-/*=====  End of Evernote Calls  ======*/
