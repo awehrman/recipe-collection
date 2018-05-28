@@ -212,7 +212,7 @@ class Ingredient {
 	}
 
 	set plural(value) {
-		if ((typeof value === 'string' || value instanceof String) && (value !== '')) {
+		if ((value === null) || (typeof value === 'string' || value instanceof String) && (value !== '')) {
 			const plural = _plural.get(this);
 
 			// don't allow plural values that match our name
@@ -462,6 +462,7 @@ class Ingredient {
 	}
 
 	saveIngredient() {
+		console.log('saveIngredient'.yellow);
 		let ingredients = [];
 
 		try {
@@ -712,26 +713,27 @@ class Ingredient {
 		}
 	}
 
-	addReference(line, id) {
-		// if we aren't providing a line, or our id is something other than a valid UUID or null
-		if (!line || (typeof line !== 'string') || (line.length === 0) || (!isUUID.v1(id) && id !== null)) {
+	addReference(line, recipeID) {
+		console.log('addReference'.yellow);
+		// if we aren't providing a line, or our recipeID is something other than a valid UUID or null
+		if (!line || (typeof line !== 'string') || (line.length === 0) || (!isUUID.v1(recipeID) && recipeID !== null)) {
 			// remove this item
 			_references.get(this).delete(line);
 		} else {
 			let recipe = null;
 			// look up this recipe reference
-			if (id !== null) {
-				recipe = recipeController.findRecipes('recipeID', id);
+			if (recipeID !== null) {
+				recipe = recipeController.findRecipes('recipeID', recipeID);
 			}
 
-			// if we didn't find this recipe by id
+			// if we didn't find this recipe by recipeID
 			if (recipe && recipe.length === 0) {
 				// then don't accept this line
 				_references.get(this).delete(line);
 			} 
 
 			if (recipe && recipe.length === 1) {
-				_references.get(this).set(line, id);
+				_references.get(this).set(line, recipeID);
 			}
 
 			return _references.get(this);

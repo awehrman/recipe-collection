@@ -9,7 +9,7 @@ router.get('/', (req, res, next) => {
 		res.redirect('/authenticate');
 	} else {
 		// start import process
-		importController.renderImport(req, res, next);
+		importController.renderPage(req, res, next);
 	}
 });
 

@@ -58,6 +58,8 @@ describe('Recipe Class ============================================='.magenta, f
 			const rp = new Recipe();
 			// should assign a recipeID
 			expect(rp.recipeID).to.exist;
+			// should assign a evernoteGUID
+			expect(rp.evernoteGUID).to.exist;
 			// should set dateCreated
 			expect(moment.isMoment(rp.dateCreated)).to.equal(true);
 			// should assign a default image placeholder
@@ -89,6 +91,8 @@ describe('Recipe Class ============================================='.magenta, f
 		  });
 			// should have a recipeID
 			expect(rp2.recipeID).to.equal("d00f2e31-507d-11e8-92b8-87300f04d0d7");
+			// should have a evernoteGUID
+			expect('TODO').to.equal('finish adding evernoteGUID to recipe tests');
 			// should have matching datecreated
 			expect(rp2.dateCreated).to.exist;
 			expect(moment.isMoment(rp2.dateCreated)).to.equal(true);

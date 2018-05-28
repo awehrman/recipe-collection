@@ -31,7 +31,10 @@ exports.findRecipes = (key = null, value = null) => {
 	// possible keys to filter search by
 	const searchExpressions = {
 		// lookup by recipeID
-		recipeID: () => recipes.filter(i => i.recipeID === value)
+		recipeID: () => recipes.filter(i => i.recipeID === value),
+
+		// lookup by evernoteGUID
+		evernoteGUID: () => recipes.filter(i => i.evernoteGUID === value)
 
 		// TODO extend this
 	};

@@ -404,9 +404,6 @@ describe('Ingredient Class ============================================='.magent
 				ing.plural = NaN;
 			}).to.throw('Invalid plural parameter for Ingredient');
 			expect(() => {
-				ing.plural = null;
-			}).to.throw('Invalid plural parameter for Ingredient');
-			expect(() => {
 				ing.plural = 123;
 			}).to.throw('Invalid plural parameter for Ingredient');
 			expect(() => {

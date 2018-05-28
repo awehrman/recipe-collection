@@ -325,6 +325,7 @@ class Recipe {
 	getRecipe() {
 		return {
 			recipeID: _recipeID.get(this),
+			evernoteGUID: _evernoteGUID.get(this),
 			dateCreated: _dateCreated.get(this),
 			dateUpdated: _dateUpdated.get(this),
 
@@ -343,6 +344,7 @@ class Recipe {
 	encodeRecipe() {
 		return {
 			recipeID: _recipeID.get(this),
+			evernoteGUID: _evernoteGUID.get(this),
 			dateCreated: _dateCreated.get(this),
 			dateUpdated: _dateUpdated.get(this),
 
@@ -354,8 +356,8 @@ class Recipe {
 			categories: [ ..._categories.get(this) ],
 			tags: [ ..._tags.get(this) ],
 
-			ingredientLines: [ ..._ingredientLines.get(this) ],
-			instructions: [ ..._instructions.get(this) ]
+			ingredientLines: [ ..._ingredientLines.get(this) ].map(l => l[0]),
+			instructions: [ ..._instructions.get(this) ].map(l => l[0])
 		};
 	}
 
