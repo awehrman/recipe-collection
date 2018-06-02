@@ -1,0 +1,138 @@
+@import '../../../App.scss';
+
+section {
+	.filters {
+		display: flex;
+		font-size: .875em;
+		color: #222;
+
+		.left {
+			flex: 1;
+
+			a {
+				text-decoration: none;
+				margin-right: 20px;
+				color: #222;
+
+				+ .new {
+					color: dodgerblue;
+				}
+			}
+
+			a.active {
+				font-weight: 600;
+			}
+		}
+
+		.right {
+			flex: 1;
+			text-align: right;
+			font-weight: 600;
+
+			button {
+				text-decoration: none;
+				margin-left: 20px;
+				border: 0;
+				text-transform: capitalize;
+				color: $lighterGrey;
+				font-size: 1em;
+				padding: 0;
+				cursor: pointer;
+				background: white;
+				outline: 0;
+			}
+		}
+	}
+
+	.view {
+		ul.containers {
+			list-style-type: none;
+			padding: 0;
+			margin: 20px 0; 
+			color: #222;
+
+			li.container {
+				margin-bottom: 16px;
+				width: 100%;
+				display: flex;
+				flex-wrap: wrap;
+				flex-direction: column;
+
+				.line {
+					flex-basis: 100%;
+					font-size: 1.2em;
+					padding-bottom: 16px;
+					border-bottom: 1px solid #ddd;
+					display: flex;
+					justify-content: space-between;
+					cursor: pointer;
+
+					.count {
+						color: $lighterGrey;
+						text-align: right;
+					}
+				}
+
+				ul.ingredients {
+					margin: 0;
+					list-style-type: none;
+					flex-basis: 100%;
+					line-height: 1.4;
+					padding: 16px;
+
+					li.ingredient {
+						cursor: pointer;
+
+						&:hover {
+							color: dodgerblue;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+@media (min-width: 500px) {
+	section .view ul.containers {
+		li.container {
+			ul.ingredients {
+				column-count: 2;
+	    	column-gap: 16px;
+			}
+		}
+	}
+}
+
+@media (min-width: 800px) {
+	section .view ul.containers {
+		li.container {
+			ul.ingredients {
+				column-count: 3;
+	    	column-gap: 16px;
+			}
+		}
+	}
+}
+
+@media (min-width: 1000px) {
+	section .view ul.containers {
+		li.container {
+			ul.ingredients {
+				column-count: 4;
+	    	column-gap: 16px;
+			}
+		}
+	}
+}
+
+@media (min-width: 1300px) {
+	section .view ul.containers {
+		li.container {
+			ul.ingredients {
+				column-count: 5;
+	    	column-gap: 16px;
+			}
+		}
+	}
+}

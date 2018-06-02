@@ -35,6 +35,7 @@ a.button {
 	color: white;
 	border-radius: 20px;
 	margin-right: 20px;
+	margin-bottom: 20px;
 }
 
 a.button:hover {
