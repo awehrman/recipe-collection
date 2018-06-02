@@ -115,6 +115,7 @@ class Category {
 
 	// TODO throw error if no id or name
 	saveCategory() {
+		console.log('saveCategory'.yellow);
 		let categories = [];
 
 		try {

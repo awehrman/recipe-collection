@@ -462,7 +462,6 @@ class Ingredient {
 	}
 
 	saveIngredient() {
-		console.log('saveIngredient'.yellow);
 		let ingredients = [];
 
 		try {
@@ -714,7 +713,6 @@ class Ingredient {
 	}
 
 	addReference(line, recipeID) {
-		console.log('addReference'.yellow);
 		// if we aren't providing a line, or our recipeID is something other than a valid UUID or null
 		if (!line || (typeof line !== 'string') || (line.length === 0) || (!isUUID.v1(recipeID) && recipeID !== null)) {
 			// remove this item

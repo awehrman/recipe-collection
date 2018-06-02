@@ -6,9 +6,13 @@ const imageminJpegtran = require('imagemin-jpegtran');
 const imageminPngquant = require('imagemin-pngquant');
 const uuid = require('uuid');
 
+const Category = require('./../models/categoryModel');
+const categoryController = require('./categoryController');
+const parserController = require('./parserController');
 const recipeController = require('./recipeController');
 const Recipe = require('./../models/recipeModel');
-const parserController = require('./parserController');
+const Tag = require('./../models/tagModel');
+const tagController = require('./tagController');
 
 const STAGE_PATH = (process.env.NODE_ENV === 'test') ? 'tests/data/staging' : 'data/staging';
 
@@ -17,11 +21,18 @@ const STAGE_PATH = (process.env.NODE_ENV === 'test') ? 'tests/data/staging' : 'd
 ====================================*/
 
 exports.convertNotes = (req, res, next) => {
+	// setup access to evernote's datastore
+  const client = new Evernote.Client({
+    token: req.session.oauthToken,
+    sandbox: (process.env.SANDBOX == true) ? true : false,
+    china: (process.env.CHINA == true) ? true : false
+  });
+
+  const store = client.getNoteStore();
+
 	// go through each note in the staging environment
-	importNotes((filename, note) => importNote(filename, note), err => console.log(err));
+	importNotes((filename, note) => importNote(store, filename, note), err => console.log(err));
 	
-
-
 	res.redirect('/import');
 };
 
@@ -62,7 +73,7 @@ exports.stageNotes = (req, res, next) => {
 
 /*----------  Importer Methods  ----------*/
 
-importNote = async (filename, note) => {
+importNote = async (store, filename, note) => {
 	const existing = recipeController.findRecipes('evernoteGUID', note.evernoteGUID);
 
 	// check to see if this evernoteGUID is already recorded in our recipes db
@@ -72,13 +83,17 @@ importNote = async (filename, note) => {
 		rp.evernoteGUID = note.evernoteGUID;
 		rp.title = note.title;
 		rp.source = note.source;
-		rp.image = note.imagePath;
+		// rename the image path to use our recipeID
+		rp.image = note.imagePath.replace(note.evernoteGUID, rp.recipeID);
+
+		// save the initial recipe data so when we add ingredients they'll have a valid recipeID reference
+		rp.saveRecipe();
 
 		await Promise.all([
 			// parse note content
 			parserController.parseNoteContent(note.content, rp.recipeID),
 			// lookup tag and category data
-			lookupMetadata(note)
+			lookupMetadata(store, note)
 		]).then(results => {
 			rp.categories = results[1].categories;
 			rp.tags = results[1].tags;
@@ -92,22 +107,43 @@ importNote = async (filename, note) => {
 			});
 
 			rp.saveRecipe();
+
+			return rp;
+		})
+		.then(rp => {
+			// cleanup staging files
+
+			// move image to public/images
+			fs.rename(`${STAGE_PATH}${note.imagePath}`, `public${rp.image}`, (err) => {
+			  if (err) throw err;
+			});
+
+			// remove current note
+			fs.unlink(`${STAGE_PATH}/${rp.evernoteGUID}.json`, (err) => {
+			  if (err) throw err;
+			});
 		})
 		.catch(err => {
 			console.log(err);
+
+			// TODO
+			// think through how this should be handled
+		});
+	} else {
+		// if we do already have this recipe in imported, just remove the related files from stage
+		// remove current image
+		fs.unlink(`${STAGE_PATH}${note.imagePath}`, (err) => {
+		  if (err) throw err;
 		});
 
-
-	} else {
-		// remove this image
-		console.log('TODO removing existing recipe...');
-
-		// remove this file
+		// remove current note
+		fs.unlink(`${STAGE_PATH}/${note.evernoteGUID}.json`, (err) => {
+		  if (err) throw err;
+		});
 	}
 };
 
 importNotes = (callback) => {
-	console.log('importNotes'.cyan);
 	// go through each file in our staging directory
 	fs.readdir(`${STAGE_PATH}/`, function(err, files) {
     if (err) {
@@ -131,17 +167,75 @@ importNotes = (callback) => {
   });
 };
 
-lookupMetadata = (note) => {
-	console.log('lookupMetadata'.magenta);
+lookupMetadata = async (store, note) => {
+	// lookup category
+	let cat = categoryController.findCategories('evernoteGUID', note.category);
+	if (cat && cat.length === 0) {
+		// then look it up
+		cat = await findNotebook(store, note.category)
+			.then(evernoteCategory => {
+				// if found, save locally
+				if (evernoteCategory) {
+					const newCat = new Category();
+					newCat.name = evernoteCategory.name;
+					newCat.evernoteGUID = evernoteCategory.guid;
+					newCat.saveCategory();
+					return newCat;
+				}
+				return null;
+			})
+			.catch(err => {
+				console.log(err);
+			});
+	} else if (cat && cat.length === 1) {
+		cat = cat[0];
+	}
+
+	const categories = new Map();
+	if (cat) {
+		categories.set(cat.name, cat.categoryID);
+	}
+
+	// lookup tags
+	const tags = new Map();
+	if (note.tags && note.tags.length > 0) {
+		note.tags.forEach(async tag => {
+			let existingTag = tagController.findTags('evernoteGUID', tag);
+
+			if (existingTag && existingTag.length === 0) {
+				// then look it up
+				existingTag = await findTag(store, null, tag)
+					.then(evernoteTag => {
+						// if found, save locally
+						if (evernoteTag) {
+							const newTag = new Tag();
+							newTag.name = evernoteTag.name;
+							newTag.evernoteGUID = evernoteTag.guid;
+							newTag.saveTag();
+							return newTag;
+						}
+						return null;
+					})
+					.catch(err => {
+						console.log(err);
+					});
+			} else if (existingTag && existingTag.length === 1) {
+				existingTag = existingTag[0];
+			}
+
+			if (existingTag) {
+				tags.set(existingTag.name, existingTag.categoryID);
+			}
+		});
+	}
 
 	return {
-		categories: new Map(),
-		tags: new Map()
+		categories: categories,
+		tags: tags
 	};
 };
 
 processImageContent = async (store, note) => {
-	console.log('processImageContent'.blue);
 	// minify image data
 	const optimizedImage = await imagemin.buffer(note.resources[0].data.body, {
     plugins: [
@@ -161,7 +255,6 @@ processImageContent = async (store, note) => {
 };
 
 writeNoteContent = async (store, note) => {
-	console.log('writeNoteContent'.blue);
 	const noteExport = {
 		category: note.notebookGuid,
 		content: note.content,
@@ -179,7 +272,6 @@ writeNoteContent = async (store, note) => {
 	});
 
 	// pass back only the essentials for tagging
-	console.log(note.tagGuids);
 	return {
 		guid: note.guid,
 		title: note.title,
@@ -247,7 +339,6 @@ downloadNotes = async (store, notes, tag, next) => {
 };
 
 findNotes = async (store, next) => {
-	console.log('findNotes'.yellow);
 	// filter result set to those that haven't been tagged as 'imported' yet
 	const filter = new Evernote.NoteStore.NoteFilter({ words: '-tag:imported' });
 	// TODO this needs to be expanded to excludes unsorted recipes, but either i'm fucking up
@@ -288,23 +379,50 @@ findNotes = async (store, next) => {
   	.catch(next);
 };
 
-findTag = async (store, tagName) => {
-	return await store.listTags()
-		.then(tags => {
-			// look up or create the tag that we passed in
-			let tag = tags.filter(t => t.name === tagName);
-			if (tag && tag.length > 0) {
-				return tag[0];
+findNotebook = async (store, notebookGUID) => {
+	return await store.listNotebooks()
+		.then(categories => {
+			// look up the category that we passed in
+			let cat = categories.filter(c => c.guid === notebookGUID);
+			if (cat && cat.length === 1) {
+				return cat[0];
 			}
 
-			// if we didn't find the tag, create it
-			return store.createTag({ name: tagName })
-				.then(tag => {
-					return tag;
-				})
-				.catch(err => {
-					console.log(err);
-		    });
+			// if we didn't find it just return null
+			return null;
+		})
+		.catch(err => {
+			console.log(err);
+	  });
+};
+
+findTag = async (store, tagName, tagGUID = null) => {
+	return await store.listTags()
+		.then(tags => {
+			if (tagName && tagName.length > 0) {
+				// look up by name
+				let tag = tags.filter(t => t.name === tagName);
+				if (tag && tag.length === 1) {
+					return tag[0];
+				}
+
+				// if we didn't find the tag, create it
+				return store.createTag({ name: tagName })
+					.then(tag => {
+						return tag;
+					})
+					.catch(err => {
+						console.log(err);
+			    });
+			}
+
+			if (tagGUID) {
+				// lookup by evernoteGUID
+				let tag = tags.filter(t => t.guid === tagGUID);
+				if (tag && tag.length === 1) {
+					return tag[0];
+				}
+			}
 		})
 		.catch(err => {
 			console.log(err);

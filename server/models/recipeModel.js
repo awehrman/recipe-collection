@@ -442,6 +442,7 @@ class Recipe {
 				_categories.get(this).set(name, category.categoryID);
 			}
 
+
 			return _categories.get(this);
 		}
 

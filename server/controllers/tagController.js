@@ -30,11 +30,14 @@ exports.findTags = (key = null, value = null) => {
 
 	// possible keys to filter search by
 	const searchExpressions = {
-		// lookup by tagID
-		tagID: () => tags.filter(i => i.tagID === value),
+		// lookup by evernoteGUID
+		evernoteGUID: () => tags.filter(i => i.evernoteGUID === value),
 
 		// lookup by name
-		name: () => tags.filter(i => i.name === value)
+		name: () => tags.filter(i => i.name === value),
+
+		// lookup by tagID
+		tagID: () => tags.filter(i => i.tagID === value)
 	};
 
 	if (key !== null && value !== null) {

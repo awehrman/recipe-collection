@@ -33,6 +33,9 @@ exports.findCategories = (key = null, value = null) => {
 		// lookup by categoryID
 		categoryID: () => categories.filter(i => i.categoryID === value),
 
+		// lookup by evernoteGUID
+		evernoteGUID: () => categories.filter(i => i.evernoteGUID === value),
+
 		// lookup by name
 		name: () => categories.filter(i => i.name === value)
 		// TODO add in category relations to search by child/parent categories

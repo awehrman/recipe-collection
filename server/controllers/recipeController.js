@@ -2,13 +2,12 @@ const fs = require('fs');
 
 const DB_PATH = (process.env.NODE_ENV === 'test') ? 'tests/data' : 'data';
 
-exports.loadRecipes = () => {
+exports.loadRecipes = (isEncodeObject = false) => {
 	// this is purely to avoid a circular dependency
 	// TODO this is probably a code smell so look into better patterns
 	const Recipe = require('../models/recipeModel');
 
 	let recipes = [];
-	const converted = [];
 
 	// load recipes from flat file
 	try {
@@ -17,12 +16,11 @@ exports.loadRecipes = () => {
 		throw new Error('Error reading recipes.json');
 	}
 
-	for (let rp of recipes) {
-		// convert 'encoded' recipe to Recipe object
-		converted.push(new Recipe(rp));
+	if (!isEncodeObject) {
+		recipes = recipes.map(rp => new Recipe(rp));
 	}
-
-	return converted;
+	
+	return recipes;
 };
 
 exports.findRecipes = (key = null, value = null) => {

@@ -1,14 +1,17 @@
 const bodyParser = require('body-parser');
 const colors = require('colors');
+const cookieSession = require('cookie-session');
 const dotenv = require('dotenv');
 const express = require('express');
-const cookieSession = require('cookie-session');
 const logger = require('morgan');
 const path = require('path');
 
-const indexRoute = require('./routes/index');
-const importRoute = require('./routes/import');
 const authRoute = require('./routes/authenticate');
+const importRoute = require('./routes/import');
+const indexRoute = require('./routes/index');
+const ingredientsRoute = require('./routes/ingredients');
+const recipesRoute = require('./routes/recipes');
+
 
 // set environment variables
 if (process.env.NODE_ENV !== 'production') {
@@ -36,8 +39,10 @@ app.set('view engine', 'pug');
 
 // routes
 app.use('/', indexRoute);
-app.use('/import', importRoute);
 app.use('/authenticate', authRoute);
+app.use('/import', importRoute);
+app.use('/ingredients', ingredientsRoute);
+app.use('/recipes', recipesRoute);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

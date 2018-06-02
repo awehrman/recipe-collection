@@ -1,15 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
-const Ingredient = require('../models/ingredientModel');
-
-// TODO
 router.get('/', (req, res, next) => {
-	console.log('GET: /');
-	let ing = new Ingredient('potato');
-	console.log(ing.name);
-
-  res.json(ing.name);
+	res.send({ response: "Connected" }).status(200);
 });
 
 module.exports = router;

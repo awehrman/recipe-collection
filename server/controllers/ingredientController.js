@@ -2,13 +2,25 @@ const fs = require('fs');
 
 const DB_PATH = (process.env.NODE_ENV === 'test') ? 'tests/data' : 'data';
 
-exports.loadIngredients = () => {
+exports.loadErrors = () => {
+	let errors = [];
+
+	// load errors from flat file
+	try {
+		errors = JSON.parse(fs.readFileSync(`${DB_PATH}/errors.json`, 'utf8'));
+	} catch (ex) {
+		throw new Error('Error reading errors.json');
+	}
+
+	return errors;
+};
+
+exports.loadIngredients = (isEncodeObject = false) => {
 	// this is purely to avoid a circular dependency
 	// TODO this is probably a code smell so look into better patterns
 	const Ingredient = require('../models/ingredientModel');
 
 	let ingredients = [];
-	const converted = [];
 
 	// load ingredients from flat file
 	try {
@@ -17,12 +29,11 @@ exports.loadIngredients = () => {
 		throw new Error('Error reading ingredients.json');
 	}
 
-	for (let ing of ingredients) {
-		// convert 'encoded' ingredient to Ingredient object
-		converted.push(new Ingredient(ing));
+	if (!isEncodeObject) {
+		ingredients = ingredients.map(ing => new Ingredient(ing));
 	}
 
-	return converted;
+	return ingredients;
 };
 
 exports.findIngredients = (key = null, value = null) => {
