@@ -20,7 +20,16 @@ router.get('/errors', (req, res, next) => {
 
 router.get('/errors/count', (req, res, next) => {
 	const errors = ingredientController.loadErrors();
-  res.json({ count: errors.length });
+
+
+  res.json({
+  	errors: {
+  		data: errors.filter(e => e.type === 'data').length,
+			parsing: errors.filter(e => e.type === 'parsing').length,
+			semantic: errors.filter(e => e.type === 'semantic').length,
+			total: errors.length
+  	}
+  });
 });
 
 module.exports = router;
