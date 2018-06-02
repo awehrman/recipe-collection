@@ -5,7 +5,7 @@ const recipeController = require('../controllers/recipeController');
 
 router.get('/', (req, res, next) => {
 	const recipes = recipeController.loadRecipes(true);
-  res.json(recipes);
+  res.json({ recipes: recipes });
 });
 
 router.get('/count', (req, res, next) => {
@@ -18,7 +18,7 @@ router.get('/ingredientLines', (req, res, next) => {
 
 	let lines = recipes.map(rp => rp.ingredientLines.map(l => { return { reference: l.reference, isParsed: l.isParsed } }));
   lines = [].concat(...lines);
-  res.json(lines);
+  res.json({ ingredientLines: lines });
 });
 
 router.get('/ingredientLines/count', (req, res, next) => {

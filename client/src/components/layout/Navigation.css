@@ -1,0 +1,28 @@
+nav {
+  background: navy;
+  position: absolute;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  top: 0; }
+  nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0; }
+    nav ul li {
+      font-size: 1em;
+      text-align: right;
+      padding: 10px; }
+      nav ul li:hover span {
+        display: inline-block; }
+      nav ul li a {
+        text-decoration: none;
+        color: dodgerblue; }
+        nav ul li a span {
+          display: none;
+          margin-right: 10px;
+          font-size: .875em;
+          font-weight: 600; }
+    nav ul li:last-of-type {
+      margin-bottom: 0; }

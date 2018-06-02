@@ -1,0 +1,30 @@
+@import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700");
+* {
+  -webkit-font-smoothing: antialiased; }
+
+body {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Source Sans Pro", Verdana, sans-serif;
+  font-weight: 400;
+  font-size: 100%; }
+
+header {
+  box-sizing: border-box;
+  background: #f8f8f8;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  padding: 40px;
+  height: 160px; }
+  header h1 {
+    margin: 0;
+    font-weight: 200;
+    font-size: 2em;
+    color: #909497; }
+
+section {
+  margin: 40px; }
+  section h2 {
+    font-size: 1.2em; }

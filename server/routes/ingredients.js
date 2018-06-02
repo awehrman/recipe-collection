@@ -5,7 +5,7 @@ const ingredientController = require('../controllers/ingredientController');
 
 router.get('/', (req, res, next) => {
 	const ingredients = ingredientController.loadIngredients(true);
-  res.json(ingredients);
+  res.json({ ingredients: ingredients });
 });
 
 router.get('/count', (req, res, next) => {
@@ -15,12 +15,11 @@ router.get('/count', (req, res, next) => {
 
 router.get('/errors', (req, res, next) => {
 	const errors = ingredientController.loadErrors();
-  res.json(errors);
+  res.json({ errors: errors });
 });
 
 router.get('/errors/count', (req, res, next) => {
 	const errors = ingredientController.loadErrors();
-
 
   res.json({
   	errors: {
