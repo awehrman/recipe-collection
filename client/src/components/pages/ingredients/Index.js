@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { NotificationManager } from 'react-notifications';
 
+import Card from './Card';
+
 import './Index.css';
 
 class Index extends Component {
@@ -13,18 +15,21 @@ class Index extends Component {
 			ingredients: [],
 			status: 'Loading Ingredients ...',
 
-			currentGroup: 'relationship',
+			currentGroup: 'name',
 			groups: [ 'name', 'property', 'count', 'relationship' ],
 
 			currentView: 'all',
 			views: [ 'all', 'new', 'search' ],
+
+			isPagerEnabled: false,
+			pagerLabels: [],
 
 			containers: [{
 				label: 'All Ingredients',
 				count: 0,
 				ingredients: [],
 				isExpanded: true,
-				isCardView: false,
+				isCardEnabled: false,
 				currentIngredient: null
 			}]
 		};
@@ -32,6 +37,64 @@ class Index extends Component {
 
 	componentDidMount() {
     this.getIngredientList();
+  }
+
+  onContainerClick(e, container) {
+  	console.warn('onContainerClick');
+
+  	// only hide container if we're clicking on the div itself
+  	if (e.target.nodeName === 'DIV') {
+
+	  	let containers = JSON.parse(JSON.stringify(this.state.containers));
+
+	  	containers = containers.map(c => {
+	  		// find and update the group that contains this ingredient
+	  		if (c.label === container.label) {
+	  			c.isExpanded = !c.isExpanded;
+	  			c.isCardEnabled = false;
+	  		} return c;
+	  	});
+
+	  	this.setState({
+	  		containers
+	  	});
+	  }
+  }
+
+  onIngredientClick(e, container, ingredient) {
+  	e.stopPropagation(); // prevent event from bubbling up to onContainerClick()
+  	console.warn('onIngredientClick');
+
+  	let containers = JSON.parse(JSON.stringify(this.state.containers));
+
+  	// if no cards were expanded, then open the clicked on item
+  	if (container.currentIngredient === null && !container.isCardEnabled) {
+  		container.currentIngredient = ingredient;
+  		container.isCardEnabled = true;
+  	}
+  	// if we clicked on the same item that's currently expanded, close the card
+  	else if (container.currentIngredient !== null && container.currentIngredient.ingredientID === ingredient.ingredientID) {
+  		container.currentIngredient = null;
+  		container.isCardEnabled = false;
+  	}
+  	// otherwise switch to the clicked on item
+  	else {
+  		container.currentIngredient = ingredient;
+  		container.isCardEnabled = true;
+  	}
+
+  	containers = containers.map(c => {
+  		// find and update the group that contains this ingredient
+  		if (c.label === container.label) {
+  			c.currentIngredient = container.currentIngredient;
+  			c.isCardEnabled = container.isCardEnabled;
+  		}
+  		return c;
+  	});
+
+  	this.setState({
+  		containers
+  	});
   }
 
 	getIngredientList() {
@@ -73,7 +136,7 @@ class Index extends Component {
 	updateView(view = null) {
 		let containers = [];
 		
-		let { currentGroup, currentView, status } = this.state;
+		let { currentGroup, currentView, isPagerEnabled, pagerLabels, status } = this.state;
 		// TODO how deep of a clone do we need here?
 		let viewIngredients = [ ...this.state.ingredients ];
 
@@ -140,7 +203,7 @@ class Index extends Component {
 							count: containerIngredients.length,
 							ingredients: containerIngredients,
 							isExpanded: true, // TODO
-							isCardView: false, // TODO
+							isCardEnabled: false, // TODO
 							currentIngredient: null // TODO
 						};
 					} return null;
@@ -174,13 +237,13 @@ class Index extends Component {
 							count: containerIngredients.length,
 							ingredients: containerIngredients,
 							isExpanded: true, // TODO
-							isCardView: false, // TODO
+							isCardEnabled: false, // TODO
 							currentIngredient: null // TODO
 						};
   				}
 
   				// put any ingredients with a singular references in their own group
-  				if ((index === 0 || index === 1) && singleReferences) {
+  				if ((index === 0 && !zeroReferences) || (index === 1 && zeroReferences)) {
   					containerIngredients = viewIngredients.filter(i => i.referenceCount === 1);
 
   					return {
@@ -188,7 +251,7 @@ class Index extends Component {
 							count: containerIngredients.length,
 							ingredients: containerIngredients,
 							isExpanded: true, // TODO
-							isCardView: false, // TODO
+							isCardEnabled: false, // TODO
 							currentIngredient: null // TODO
 						};
   				}
@@ -208,26 +271,15 @@ class Index extends Component {
 						count: containerIngredients.length,
 						ingredients: containerIngredients,
 						isExpanded: true, // TODO
-						isCardView: false, // TODO
+						isCardEnabled: false, // TODO
 						currentIngredient: null // TODO
 					};
   			}).filter(c => c);
 
   			break;
   		case 'relationship':
-  			const parentIngredients = viewIngredients.filter(i => i.parentIngredientID);
-  			const childIngredients = viewIngredients.filter(i => !i.parentIngredientID);
-
-  			if (parentIngredients.length > 0) {
-					containers.push({
-						label: `Parent Ingredients`,
-						count: parentIngredients.length,
-						ingredients: parentIngredients,
-						isExpanded: true, // TODO
-						isCardView: false, // TODO
-						currentIngredient: null // TODO
-					});
-				}
+  			const parentIngredients = viewIngredients.filter(i => !i.parentIngredientID);
+  			const childIngredients = viewIngredients.filter(i => i.parentIngredientID);
 
   			if (childIngredients.length > 0) {
 					containers.push({
@@ -235,29 +287,72 @@ class Index extends Component {
 						count: childIngredients.length,
 						ingredients: childIngredients,
 						isExpanded: true, // TODO
-						isCardView: false, // TODO
+						isCardEnabled: false, // TODO
 						currentIngredient: null // TODO
 					});
 				}
+
+  			if (parentIngredients.length > 0) {
+					containers.push({
+						label: `Parent Ingredients`,
+						count: parentIngredients.length,
+						ingredients: parentIngredients,
+						isExpanded: true, // TODO
+						isCardEnabled: false, // TODO
+						currentIngredient: null // TODO
+					});
+				}
+
   			break;
   		default: // name
-  			containers.push({
-					label: (currentView === 'search') ? `Search Results` : `${currentView.charAt(0).toUpperCase() + currentView.slice(1)} Ingredients`,
-					count: viewIngredients.length,
-					ingredients: viewIngredients,
-					isExpanded: true, // TODO
-					isCardView: false, // TODO
-					currentIngredient: null // TODO
-				});
+  			// if we have less than 500 ingredients, display them in a single container
+  			if (viewIngredients.length <= 500) {
+	  			containers.push({
+						label: (currentView === 'search') ? `Search Results` : `${currentView.charAt(0).toUpperCase() + currentView.slice(1)} Ingredients`,
+						count: viewIngredients.length,
+						ingredients: viewIngredients,
+						isExpanded: true, // TODO
+						isCardEnabled: false, // TODO
+						currentIngredient: null // TODO
+					});
+	  		} else {
+	  			// otherwise break up into containers by letter
+	  			isPagerEnabled = true;
+
+	  			// create an array of unique letters used
+	  			pagerLabels = viewIngredients.map(i => i.name.charAt(0)).filter((char, index, self) => self.indexOf(char) === index && char.match(/[a-z]/i));
+	  			const containsSymbols = viewIngredients.map(i => i.name.charAt(0)).filter(char => !char.match(/[a-z]/i)).length > 0;
+	  			if (containsSymbols) {
+	  				pagerLabels.unshift('@');
+	  			}
+
+	  			containers = pagerLabels.map((char, index) => {
+	  				let containerIngredients = [];
+	  				if (char === '@') {
+	  					containerIngredients = viewIngredients.filter(i => !i.name.charAt(0).match(/[a-z]/i));
+	  				} else {
+	  					containerIngredients = viewIngredients.filter(i => i.name.charAt(0) === char);
+						}
+
+	  				return {
+							label: char,
+							count: containerIngredients.length,
+							ingredients: containerIngredients,
+							isExpanded: (index === 0) ? true : false, // TODO
+							isCardEnabled: false, // TODO
+							currentIngredient: null // TODO
+						};
+	  			});
+
+	  		}
   			break;
   	}
-
-  	console.warn(view);
-  	console.log(containers);
 
 		this.setState({
 			currentView: view,
 			containers,
+			isPagerEnabled,
+			pagerLabels,
 			status
 		});
 	}
@@ -266,45 +361,68 @@ class Index extends Component {
 		let ingredientList = [];
 
   	// if we have more than 100 ingredients in this container, we'll group these by letter
-  	if (container.ingredients && container.ingredients.length > 100) {
-  		const alphabet = [ 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
-  		let nonAlphaCharacters = container.ingredients.filter(i => !~alphabet.indexOf(i.name[0]));
+  	if (container.ingredients && (container.ingredients.length > 100) && (container.ingredients.length <= 500)) {
+  		const hasSymbols = container.ingredients.map(i => i.name.charAt(0)).filter(char => !char.match(/[a-z]/i)).length > 0;
+  		const letters = container.ingredients.map(i => i.name.charAt(0)).filter((char, index, self) => self.indexOf(char) === index && char.match(/[a-z]/i));
 
-  		// TODO consider adding symbol header
+  		if (hasSymbols) {
+  			// push header symbol
+  			ingredientList.push({ key: '@_header', className: 'header', 'name': '@', onClick: e => e.stopPropagation() });
+  			
+  			// push grouping
+  			ingredientList = ingredientList.concat(container.ingredients
+													.filter(i => !i.name.charAt(0).match(/[a-z]/i))
+													.map(i => {
+														return {
+															key: `${i.ingredientID}_ing`,
+															className: 'ingredient',
+															name: i.name,
+															onClick: e => this.onIngredientClick(e, container, i)
+														};
+													})
+												);
+  		}
 
-  		// handle any non-alpha characters as a single grouping
-  		ingredientList.push(nonAlphaCharacters.map(i =>
-  			<li className="ingredient" key={ `li_${i.ingredientID}` }>
-					{ i.name }
-				</li>
-  		));
+  		// loop through the used letters and push their ingredient groups
+  		ingredientList = ingredientList.concat(...letters
+								  			.map(char => {
+									  			let grouping = [];
+									  			// push header letter
+									  			grouping.push({ key: `${char}_header`, className: 'header', 'name': char, onClick: e => e.stopPropagation() });
 
-  		ingredientList.push(alphabet.map(a => {
-  			// create a placeholder for the letter ('A')
-  			const header = [ <li className="header"  key={ `li_${a}` }>{ a }</li> ];
-  			// create list items for each ingredient under than letter ('aleppo chili pepper', 'allspice', 'almond')
-  			const groupingByLetter = container.ingredients.map(i => {
-					if (a === i.name.toLowerCase().charAt(0)) {
-						return (
-							<li className="ingredient"  key={ `li_${i.ingredientID}` }>
-								{ i.name }
-							</li>
-						);
-					} return null;
-				}).filter(i => i);
+									  			// push grouping
+									  			grouping = grouping.concat(container.ingredients
+									  									.filter(i => i.name.charAt(0) === char)
+									  									.map(i => {
+									  										return {
+									  											key: `${i.ingredientID}_ing`,
+																					className: 'ingredient',
+																					name: i.name,
+																					onClick: e => this.onIngredientClick(e, container, i)
+									  										}
+									  									})
+									  								);
 
-				return (groupingByLetter.length > 0) ? header.concat(groupingByLetter) : null;
-  		}));
+									  			return grouping;
+									  		})
+									  	);
   	} else {
-  		// otherwise we'll just list out the ingredients
-  		ingredientList.push(container.ingredients.map(i =>
-  			<li className="ingredient" key={ `li_${i.ingredientID}` }>
-					{ i.name }
-				</li>
-  		));
+  		// just return everything
+  		ingredientList = container.ingredients.map(i => {
+  			return {
+  				key: `${i.ingredientID}_ing`,
+					className: 'ingredient',
+					name: i.name,
+					onClick: e => this.onIngredientClick(e, container, i)
+  			};
+  		})
   	}
 
-  	return ingredientList;
+  	return ingredientList.map(i =>
+  		<li key={ i.key } className={ i.className } onClick={ i.onClick }>
+  			{ i.name }
+  		</li>
+  	);
 	}
 
 	renderFilters() {
@@ -339,27 +457,47 @@ class Index extends Component {
 	}
 
 	renderView() {
-		const { containers } = this.state;
+		const { containers, currentGroup, currentView, ingredients } = this.state;
 
 		return (
 			<div className="view">
+				{/* TODO (isPagerEnabled) ? this.renderPager() : null */}
 				<ul className="containers">
 		  		{
 			  		containers.map(c => {
 				  		return (
-				  			<li className="container" key={ c.label }>
+				  			<li className='container' key={ c.label } onClick={ (e) => this.onContainerClick(e, c) }>
 				  				{/* Container Header */}
 					  			<div className="line">
 					  				{ c.label }
 					  				<span className="count">{ c.count }</span>
 					  			</div>
 
-					  			{/* Container Ingredients */}
-					  			<ul className="ingredients" id={ c.label }>
-										{ this.renderIngredients(c) }
-									</ul>
 
-									{/* TODO Container Card */}
+					  			{/* Expanded Card */}
+									{
+					    			(c.isCardEnabled)
+							    		? <Card
+							    				container={ c }
+													ingredient={ c.currentIngredient }
+													ingredients={ ingredients }
+													isEditMode={ (currentView === 'new') ? true : false }
+													group={ currentGroup }
+													updateView={ this.updateView }
+													view={ currentView }
+												/>
+											: null
+									}
+
+					  			{/* Container Ingredients */}
+					  			{
+					  				(c.isExpanded)
+					  					? <ul className={ (c.isCardEnabled) ? 'ingredients expanded' : 'ingredients' } id={ c.label }>
+													{ this.renderIngredients(c) }
+												</ul>
+											: null
+					  			}
+
 					  		</li>
 					  	)
 				  	})

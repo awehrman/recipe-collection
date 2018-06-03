@@ -1,9 +1,9 @@
 @import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700");
 * {
-  -webkit-font-smoothing: antialiased; }
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box; }
 
 body {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
   font-family: "Source Sans Pro", Verdana, sans-serif;
@@ -49,7 +49,7 @@ section .filters {
     font-weight: 600; }
     section .filters .right button {
       text-decoration: none;
-      margin-left: 20px;
+      margin-left: 16px;
       border: 0;
       text-transform: capitalize;
       color: #909497;
@@ -74,7 +74,7 @@ section .view ul.containers {
     width: 100%;
     display: flex;
     flex-wrap: wrap;
-    flex-direction: column; }
+    border-bottom: 0; }
     section .view ul.containers li.container .line {
       flex-basis: 100%;
       font-size: 1.2em;
@@ -86,10 +86,23 @@ section .view ul.containers {
       section .view ul.containers li.container .line .count {
         color: #909497;
         text-align: right; }
+    section .view ul.containers li.container form.card {
+      background: white;
+      padding: 0;
+      margin: 0;
+      flex-basis: 100%;
+      width: 100%;
+      max-height: 500px;
+      padding: 20px;
+      border-bottom: 1px solid #ddd; }
+    section .view ul.containers li.container ul.ingredients.expanded {
+      height: 200px;
+      overflow: scroll;
+      border-bottom: 1px solid #ddd; }
     section .view ul.containers li.container ul.ingredients {
+      flex-basis: 100%;
       margin: 0;
       list-style-type: none;
-      flex-basis: 100%;
       line-height: 1.4;
       padding: 16px; }
       section .view ul.containers li.container ul.ingredients li.ingredient {
@@ -107,17 +120,28 @@ section .view ul.containers {
     column-count: 2;
     column-gap: 16px; } }
 
-@media (min-width: 800px) {
+@media (min-width: 700px) {
   section .view ul.containers li.container ul.ingredients {
     column-count: 3;
     column-gap: 16px; } }
 
-@media (min-width: 1000px) {
+@media (min-width: 880px) {
+  section .view ul.containers li.container form.card {
+    flex-basis: 70%;
+    flex-grow: 2;
+    order: 1;
+    height: 500px;
+    border-left: 1px solid #ddd; }
+  section .view ul.containers li.container ul.ingredients.expanded {
+    column-count: unset;
+    flex-basis: 25%;
+    height: 500px;
+    overflow: scroll; }
   section .view ul.containers li.container ul.ingredients {
     column-count: 4;
     column-gap: 16px; } }
 
-@media (min-width: 1300px) {
+@media (min-width: 1200px) {
   section .view ul.containers li.container ul.ingredients {
     column-count: 5;
     column-gap: 16px; } }

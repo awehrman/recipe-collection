@@ -1,5 +1,12 @@
 @import '../../../App.scss';
 
+// TODO tune these more once we have card content populated
+$mobileCardHeight: 500px;
+$desktopCardHeight: 500px;
+
+$mobileListHeight: 200px;
+$desktopListHeight: $desktopCardHeight;
+
 section {
 	.filters {
 		display: flex;
@@ -31,7 +38,7 @@ section {
 
 			button {
 				text-decoration: none;
-				margin-left: 20px;
+				margin-left: 16px;
 				border: 0;
 				text-transform: capitalize;
 				color: $lighterGrey;
@@ -62,7 +69,8 @@ section {
 				width: 100%;
 				display: flex;
 				flex-wrap: wrap;
-				flex-direction: column;
+				//flex-direction: column;
+				border-bottom: 0;
 
 				.line {
 					flex-basis: 100%;
@@ -79,10 +87,27 @@ section {
 					}
 				}
 
+				form.card {
+					background: white;
+					padding: 0;
+					margin: 0;
+					flex-basis: 100%;
+					width: 100%;
+					max-height: $mobileCardHeight;
+					padding: 20px;
+					border-bottom: 1px solid #ddd;
+				}
+
+				ul.ingredients.expanded {
+					height: $mobileListHeight;
+					overflow: scroll;
+					border-bottom: 1px solid #ddd;
+				}
+
 				ul.ingredients {
+					flex-basis: 100%;
 					margin: 0;
 					list-style-type: none;
-					flex-basis: 100%;
 					line-height: 1.4;
 					padding: 16px;
 
@@ -117,7 +142,7 @@ section {
 	}
 }
 
-@media (min-width: 800px) {
+@media (min-width: 700px) {
 	section .view ul.containers {
 		li.container {
 			ul.ingredients {
@@ -128,9 +153,24 @@ section {
 	}
 }
 
-@media (min-width: 1000px) {
+@media (min-width: 880px) {
 	section .view ul.containers {
 		li.container {
+			form.card {
+				flex-basis: 70%;
+				flex-grow: 2;
+				order: 1;
+				height: $desktopCardHeight;
+				border-left: 1px solid #ddd;
+			}
+
+			ul.ingredients.expanded {
+				column-count: unset;
+				flex-basis: 25%;
+				height: $desktopListHeight;
+				overflow: scroll;
+			}
+
 			ul.ingredients {
 				column-count: 4;
 	    	column-gap: 16px;
@@ -139,7 +179,7 @@ section {
 	}
 }
 
-@media (min-width: 1300px) {
+@media (min-width: 1200px) {
 	section .view ul.containers {
 		li.container {
 			ul.ingredients {
