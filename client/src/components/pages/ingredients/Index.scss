@@ -44,6 +44,12 @@ section {
 		}
 	}
 
+	.status {
+		display: block;
+		margin-top: 20px;
+		color: #222;
+	}
+
 	.view {
 		ul.containers {
 			list-style-type: none;
@@ -86,6 +92,13 @@ section {
 						&:hover {
 							color: dodgerblue;
 						}
+					}
+
+					li.header {
+						font-size: 2em;
+						display: inline-block;
+						width: 100%;
+						font-weight: 600;
 					}
 				}
 			}

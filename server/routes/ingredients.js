@@ -8,6 +8,21 @@ router.get('/', (req, res, next) => {
   res.json({ ingredients: ingredients });
 });
 
+router.get('/list', (req, res, next) => {
+	let ingredients = ingredientController.loadIngredients(true);
+	ingredients = ingredients.map(i => {
+		return {
+			ingredientID: i.ingredientID,
+			parentIngredientID: i.parentIngredientID,
+			name: i.name,
+			isValidated: i.isValidated,
+			properties: i.properties,
+			referenceCount: i.references.length
+		}
+	});
+  res.json({ ingredients: ingredients });
+});
+
 router.get('/count', (req, res, next) => {
 	const ingredients = ingredientController.loadIngredients(true);
   res.json({ count: ingredients.length });

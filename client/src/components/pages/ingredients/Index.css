@@ -59,6 +59,11 @@ section .filters {
       background: white;
       outline: 0; }
 
+section .status {
+  display: block;
+  margin-top: 20px;
+  color: #222; }
+
 section .view ul.containers {
   list-style-type: none;
   padding: 0;
@@ -91,6 +96,11 @@ section .view ul.containers {
         cursor: pointer; }
         section .view ul.containers li.container ul.ingredients li.ingredient:hover {
           color: dodgerblue; }
+      section .view ul.containers li.container ul.ingredients li.header {
+        font-size: 2em;
+        display: inline-block;
+        width: 100%;
+        font-weight: 600; }
 
 @media (min-width: 500px) {
   section .view ul.containers li.container ul.ingredients {

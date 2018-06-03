@@ -11,41 +11,49 @@ class Index extends Component {
 
 		this.state = {
 			ingredients: [],
-			status: '',
+			status: 'Loading Ingredients ...',
 
-			currentGroup: 'name',
-			groups: [
-				{ group: 'name', labels: [ '@', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' ] },
-				{ group: 'property', labels: [ 'meat', 'poultry', 'fish', 'dairy', 'soy', 'gluten', 'other' ] },
-				{ group: 'count', labels: [ '1', '2-9', '10-19', '20-29', '30-39', '40-49', '50+' ] },
-				{ group: 'relationship', labels: [ 'child', 'parent' ] } 
-			],
+			currentGroup: 'relationship',
+			groups: [ 'name', 'property', 'count', 'relationship' ],
 
-			currentView: {
-				activeIngredient: null,
-				containers: [],
-				ingredients: [],
-				view: 'all'
-			},
+			currentView: 'all',
 			views: [ 'all', 'new', 'search' ],
+
+			containers: [{
+				label: 'All Ingredients',
+				count: 0,
+				ingredients: [],
+				isExpanded: true,
+				isCardView: false,
+				currentIngredient: null
+			}]
 		};
 	}
 
 	componentDidMount() {
-		// TODO limit by view?
-    this.getIngredients();
+    this.getIngredientList();
   }
 
-	getIngredients() {
-		// TODO may want to limit this result set down to ingredientID, name, isRootIngredient
-		// and then do subsequent gets on card open
-		axios.get('/ingredients')
+	getIngredientList() {
+		const { views, currentView } = this.state;
+
+		// check if we're passing a view in through our URL
+		let view = this.props.location.pathname.split('/ingredients')[1];
+		view = (view !== '' && view !== '/') ? view.split('/')[1] : null;
+
+		// if this is an invalid view in the URL, just use the previous currentView
+		if (!view || (views.indexOf(view) === -1)) {
+			view = currentView;
+		}
+
+		axios.get('/ingredients/list')
       .then(res => {
       	const ingredients = res.data.ingredients.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 
       	this.setState({
-      		ingredients
-      	}, () => this.updateView('all'));
+      		ingredients,
+      		currentView: view
+      	}, () => this.updateView(view));
       })
       .catch(err => {
       	NotificationManager.error('', 'Could not get ingredients', 3000);
@@ -53,198 +61,203 @@ class Index extends Component {
 	}
 
 	updateGroup() {
-		// TODO
+		const { currentGroup, groups } = this.state;
+		const currentIndex = groups.findIndex(g => g === currentGroup);
+		const nextGroup = (currentIndex !== (groups.length - 1)) ? groups[currentIndex + 1] : groups[0];
+
+  	this.setState({
+  		currentGroup: nextGroup
+  	}, () => this.updateView());
 	}
 
-	updateView(view = null, resultSet = [], resultStatus = []) {
+	updateView(view = null) {
 		let containers = [];
-		let filteredIngredients = [];
-		let activeIngredient = null;
 		
 		let { currentGroup, currentView, status } = this.state;
-		const ingredients = [ ...this.state.ingredients ]; // TODO is this sufficient for deep nesting?
+		// TODO how deep of a clone do we need here?
+		let viewIngredients = [ ...this.state.ingredients ];
 
 		if (!view) {
-			view = currentView.view;
+			view = currentView;
 		}
-
-		console.warn(view);
 
 		// filter ingredients by view conditions
 		switch(view) {
-			case 'all':
-				filteredIngredients = ingredients; // TODO is this a safe copy?
-				// set view message if we don't have any ingredients
-				if (status === '' && filteredIngredients && filteredIngredients.length === 0) {
-		  		status = "No ingredients have been added yet.";
-		  	}
-
-				break;
 			case 'new':
-				filteredIngredients = ingredients.filter(i => !i.isValidated);
+				viewIngredients = viewIngredients.filter(i => !i.isValidated);
 
 				// set view message if we don't have any new unverified ingredients
-				if (status === '' && filteredIngredients && filteredIngredients.length === 0) {
-		  		status = "No new ingredients have been imported.";
+				if (viewIngredients && viewIngredients.length === 0) {
+		  		status = "No new ingredients have been added.";
+		  	} else {
+		  		status = '';
 		  	}
 
 				break;
 			case 'search':
-				filteredIngredients = (resultSet) ? resultSet : [];
-				status = resultStatus;
+				// TODO
+				//viewIngredients = (resultSet) ? resultSet : [];
+				//status = resultStatus;
 
 				break;
-			default:
-				filteredIngredients = resultSet;
-				status = resultStatus;
+			default: // all
+				// set view message if we don't have any ingredients
+				if (viewIngredients && viewIngredients.length === 0) {
+		  		status = "No ingredients have been added.";
+		  	} else {
+		  		status = '';
+		  	}
 				break;
 		}
 
 		// group ingredients into containers
 		switch(currentGroup) {
   		case 'property':
-  			/*const { propertyLabels } = this.state;
+  			const labels = [ 'meat', 'poultry', 'fish', 'dairy', 'soy', 'gluten', 'other' ];
 
-  			containers = propertyLabels.map((label, index) => {
-  				let groupIngredients = [];
+  			containers = labels.map(label => {
+  				let containerIngredients = [];
 
-					switch (label) {
-						case "Meat":
-							groupIngredients = filteredIngredients.filter(i => i.properties.meat);
-							break;
-						case "Poultry":
-							groupIngredients = filteredIngredients.filter(i => i.properties.poultry);
-							break;
-						case "Fish":
-							groupIngredients = filteredIngredients.filter(i => i.properties.fish);
-							break;
-						case "Dairy":
-							groupIngredients = filteredIngredients.filter(i => i.properties.dairy);
-							break;
-						case "Soy":
-							groupIngredients = filteredIngredients.filter(i => i.properties.soy);
-							break;
-						case "Gluten":
-							groupIngredients = filteredIngredients.filter(i => i.properties.gluten);
-							break;
-						default: // other
-							groupIngredients = filteredIngredients.filter(i => {
-								let result = true;
-								for (let p in i.properties) {
-									if (i.properties[p]) {
-										result = false;
-										break;
-									}
+  				if (label !== 'other') {
+  					containerIngredients = viewIngredients.filter(i => i.properties.hasOwnProperty(label) && i.properties[label]);
+  				} else {
+  					// if this ingredient didn't get put into any other containers
+  					containerIngredients = viewIngredients.filter(i => {
+							let result = true;
+							for (let p in i.properties) {
+								if (i.properties[p]) {
+									result = false;
+									break;
 								}
-								return result;
-							});
-							break;
-					}
+							}
+							return result;
+						});
+  				}
 
-					if (container && (container.label === label)) {
-						if (view === 'new' && isInitialized) {
-		  				activeIngredient = getNextIngredient(groupIngredients, container);
-		  			}
-		  		} else {
-		  			activeIngredient = null;
-		  		}
-
-		  		isContainerExpanded = (containers && containers[index]) ? containers[index].isContainerExpanded : isContainerExpanded;
-
-					if (groupIngredients.length > 0) {
+					if (containerIngredients.length > 0) {
 						return {
-							label,
-							count: groupIngredients.length,
-		  				ingredients: groupIngredients,
-		  				isContainerExpanded,
-		  				isCardExpanded: (activeIngredient) ? true : false,
-		  				activeIngredient
+							label: label.charAt(0).toUpperCase() + label.slice(1),
+							count: containerIngredients.length,
+							ingredients: containerIngredients,
+							isExpanded: true, // TODO
+							isCardView: false, // TODO
+							currentIngredient: null // TODO
 						};
 					} return null;
-				}).filter(c => c !== null);*/
+				}).filter(c => c);
   			break;
   		case 'count':
-  			/*const { countLabels } = this.state;
+  			// get the largest references count from the bunch
+  			const upperBound = viewIngredients.map(i => i.referenceCount).reduce((prev, current) => (prev > current) ? prev : current);
+  			
+  			// determine exception categories for ingredients with 0 and/or 1 references
+  			const zeroReferences = (viewIngredients.filter(i => i.referenceCount === 0).length > 0) ? 1 : 0;
+  			const singleReferences = (viewIngredients.filter(i => i.referenceCount === 1).length > 0) ? 1 : 0;
+  			
+  			const containerSize = Math.ceil(upperBound / 10) + zeroReferences + singleReferences;
 
-  			console.warn(filteredIngredients);
+  			// setup label ranges
+  			let rangeStart = 2;
+  			let rangeEnd = 10;
 
-  			containers = countLabels.map((label, index) => {
-  				let groupIngredients = [];
+  			// create an appropriately sized array
+  			containers = [ ...Array(containerSize) ];
+  			containers = containers.map((c, index) => {
+  				let containerIngredients = [];
 
-					switch (label) {
-						case "1":
-							groupIngredients = filteredIngredients.filter(i => i.references.length === 1);
-							break;
-						case "2-5":
-							groupIngredients = filteredIngredients.filter(i => i.references.length > 1 && i.references.length <= 5);
-							break;
-						case "6-10":
-							groupIngredients = filteredIngredients.filter(i => i.references.length > 5 && i.references.length <= 10);
-							break;
-						case "11-20":
-							groupIngredients = filteredIngredients.filter(i => i.references.length > 10 && i.references.length <= 20);
-							break;
-						default: // 21+
-							groupIngredients = filteredIngredients.filter(i => i.references.length > 20);
-							break;
-					}
+  				// put any ingredients with zero references in their own group
+  				if (index === 0 && zeroReferences) {
+  					containerIngredients = viewIngredients.filter(i => i.referenceCount === 0);
 
-					if (container && (container.label === label)) {
-						if (view === 'new' && isInitialized) {
-		  				activeIngredient = getNextIngredient(groupIngredients, container);
-		  			}
-		  		} else {
-		  			activeIngredient = null;
-		  		}
-
-		  		isContainerExpanded = (containers && containers[index]) ? containers[index].isContainerExpanded : isContainerExpanded;
-
-					if (groupIngredients.length > 0) {
-						return {
-							label,
-							count: groupIngredients.length,
-		  				ingredients: groupIngredients,
-		  				isContainerExpanded,
-		  				isCardExpanded: (activeIngredient) ? true : false,
-		  				activeIngredient
+  					return {
+							label: "0 References",
+							count: containerIngredients.length,
+							ingredients: containerIngredients,
+							isExpanded: true, // TODO
+							isCardView: false, // TODO
+							currentIngredient: null // TODO
 						};
-					} return null;
-				}).filter(c => c !== null);*/
+  				}
+
+  				// put any ingredients with a singular references in their own group
+  				if ((index === 0 || index === 1) && singleReferences) {
+  					containerIngredients = viewIngredients.filter(i => i.referenceCount === 1);
+
+  					return {
+							label: "1 Reference",
+							count: containerIngredients.length,
+							ingredients: containerIngredients,
+							isExpanded: true, // TODO
+							isCardView: false, // TODO
+							currentIngredient: null // TODO
+						};
+  				}
+
+					// adjust the index based on whether we have any exception groups  				
+  				const adjustedIndex = (index - zeroReferences - singleReferences);
+  				
+  				if (adjustedIndex > 0) {
+	  				rangeStart = (adjustedIndex * 10) + 1;
+	  				rangeEnd = (adjustedIndex * 10) + 10;
+	  			}
+
+	  			containerIngredients = viewIngredients.filter(i => i.referenceCount >= rangeStart && i.referenceCount <= rangeEnd);
+
+  				return {
+						label: `${rangeStart}-${rangeEnd} References`,
+						count: containerIngredients.length,
+						ingredients: containerIngredients,
+						isExpanded: true, // TODO
+						isCardView: false, // TODO
+						currentIngredient: null // TODO
+					};
+  			}).filter(c => c);
+
   			break;
-  		case 'relation':
-  			// TODO
+  		case 'relationship':
+  			const parentIngredients = viewIngredients.filter(i => i.parentIngredientID);
+  			const childIngredients = viewIngredients.filter(i => !i.parentIngredientID);
+
+  			if (parentIngredients.length > 0) {
+					containers.push({
+						label: `Parent Ingredients`,
+						count: parentIngredients.length,
+						ingredients: parentIngredients,
+						isExpanded: true, // TODO
+						isCardView: false, // TODO
+						currentIngredient: null // TODO
+					});
+				}
+
+  			if (childIngredients.length > 0) {
+					containers.push({
+						label: `Child Ingredients`,
+						count: childIngredients.length,
+						ingredients: childIngredients,
+						isExpanded: true, // TODO
+						isCardView: false, // TODO
+						currentIngredient: null // TODO
+					});
+				}
   			break;
   		default: // name
-  			if (view === 'new') {
-  				// TODO
-  				//activeIngredient = getNextIngredient(filteredIngredients, container);
-  			}
-
-	  		if (filteredIngredients && filteredIngredients.length > 0) {
-	  			containers = [{
-	  				label: (view === 'search') ? `Search Results` : `${view.charAt(0).toUpperCase() + view.slice(1)} Ingredients`,
-	  				count: filteredIngredients.length,
-	  				ingredients: filteredIngredients,
-	  				// TODO
-	  				//isContainerExpanded: true,
-	  				//isCardExpanded: (container && container.isCardExpanded && filteredIngredients && filteredIngredients.length > 0 && activeIngredient) ? true : false, // TODO
-	  			}];
-	  		} else {
-	  			containers = [];
-	  		}
+  			containers.push({
+					label: (currentView === 'search') ? `Search Results` : `${currentView.charAt(0).toUpperCase() + currentView.slice(1)} Ingredients`,
+					count: viewIngredients.length,
+					ingredients: viewIngredients,
+					isExpanded: true, // TODO
+					isCardView: false, // TODO
+					currentIngredient: null // TODO
+				});
   			break;
   	}
 
-		// TODO activeIngredient
-
+  	console.warn(view);
+  	console.log(containers);
 
 		this.setState({
-			currentView: {
-				activeIngredient,
-				containers,
-				ingredients: filteredIngredients,
-				view,
-			},
+			currentView: view,
+			containers,
 			status
 		});
 	}
@@ -326,8 +339,7 @@ class Index extends Component {
 	}
 
 	renderView() {
-  	const currentView = Object.assign({}, this.state.currentView);
-  	const containers = (currentView && currentView.hasOwnProperty('containers') ? currentView.containers : []);
+		const { containers } = this.state;
 
 		return (
 			<div className="view">
@@ -336,18 +348,18 @@ class Index extends Component {
 			  		containers.map(c => {
 				  		return (
 				  			<li className="container" key={ c.label }>
-				  				{/* Group Header */}
+				  				{/* Container Header */}
 					  			<div className="line">
 					  				{ c.label }
 					  				<span className="count">{ c.count }</span>
 					  			</div>
 
-					  			{/* Ingredient List */}
+					  			{/* Container Ingredients */}
 					  			<ul className="ingredients" id={ c.label }>
 										{ this.renderIngredients(c) }
 									</ul>
 
-									{/* TODO Expanded Card */}
+									{/* TODO Container Card */}
 					  		</li>
 					  	)
 				  	})
@@ -366,9 +378,12 @@ class Index extends Component {
 					<h1>Ingredients</h1>
 				</header>
 				<section>
-					{ (status !== '') ? <span className="status">{ status }</span> : null }
 					{ this.renderFilters() }
-					{ this.renderView() }
+					{
+						(status && status.length > 0)
+							? <span className="status">{ status }</span>
+							: this.renderView()
+					}
 				</section>
 			</article>
 		);
