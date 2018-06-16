@@ -56,10 +56,11 @@ describe('Recipe Class ============================================='.magenta, f
 
 			// # passing no parameters should return an empty Recipe object
 			const rp = new Recipe();
+
 			// should assign a recipeID
 			expect(rp.recipeID).to.exist;
-			// should assign a evernoteGUID
-			expect(rp.evernoteGUID).to.exist;
+			// should assign an empty evernoteGUID
+			expect(rp.evernoteGUID).to.be.null;
 			// should set dateCreated
 			expect(moment.isMoment(rp.dateCreated)).to.equal(true);
 			// should assign a default image placeholder
@@ -69,6 +70,7 @@ describe('Recipe Class ============================================='.magenta, f
 			// should match 'Cannot instantiate an existing Recipe without a recipeID value'
 			expect(() => new Recipe({
 		    //"recipeID": "d00f2e31-507d-11e8-92b8-87300f04d0d7",
+		    "evernoteGUID": "096af31a-0c9b-4151-a420-cc60e8c3b7d1",
 		    "title": "Roasted John Dory",
 		    "source": "http://www.delicious.com.au/recipes/roasted-john-dory-baby-spinach-umami-butter/21c1a415-2966-4987-a4df-827cf8d065e2?current_section=recipes",
 		    "image": "images/d00f2e31-507d-11e8-92b8-87300f04d0d7.png",
@@ -81,6 +83,7 @@ describe('Recipe Class ============================================='.magenta, f
 			// # passing a fully encoded Recipe object should return a true Recipe object
 			const rp2 = new Recipe({
 		    "recipeID": "d00f2e31-507d-11e8-92b8-87300f04d0d7",
+		    "evernoteGUID": "096af31a-0c9b-4151-a420-cc60e8c3b7d1",
 		    "title": "Roasted John Dory",
 		    "source": "http://www.delicious.com.au/recipes/roasted-john-dory-baby-spinach-umami-butter/21c1a415-2966-4987-a4df-827cf8d065e2?current_section=recipes",
 		    "image": "images/d00f2e31-507d-11e8-92b8-87300f04d0d7.png",
@@ -92,7 +95,7 @@ describe('Recipe Class ============================================='.magenta, f
 			// should have a recipeID
 			expect(rp2.recipeID).to.equal("d00f2e31-507d-11e8-92b8-87300f04d0d7");
 			// should have a evernoteGUID
-			expect('TODO').to.equal('finish adding evernoteGUID to recipe tests');
+			expect(rp2.evernoteGUID).to.equal("096af31a-0c9b-4151-a420-cc60e8c3b7d1");
 			// should have matching datecreated
 			expect(rp2.dateCreated).to.exist;
 			expect(moment.isMoment(rp2.dateCreated)).to.equal(true);
@@ -968,6 +971,7 @@ describe('Recipe Class ============================================='.magenta, f
 	    };
 	    rp.addIngredientLine(line);
 	    expect(rp.ingredientLines.size).to.equal(1);
+
 
 			// should not accept a line with the same block and line number
 			line = {

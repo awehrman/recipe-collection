@@ -208,6 +208,9 @@ parseIngredientLine = (line, recipeID) => {
 		// but we'd ideally like this to look for 'black sesame seeds' and 'white sesame seeds'
 		// 
 
+		// TODO filter out known error values
+		// [ 'data', 'semantic', 'instruction', 'equipment' ]
+
 		// log separators
 		if (parsed.ingredients.hasOwnProperty('separator')) {
 			console.log(parsed.ingredients);
@@ -232,6 +235,9 @@ parseIngredientLine = (line, recipeID) => {
 		line.ingredients = parsed.ingredients.values.map((ing, index) => {
 			let plural = null;
 
+			// TODO there's got to be a better place to do this
+			pluralize.addUncountableRule('molasses');
+
 	    // determine if this parsed as a singular or plural value
 	    if (pluralize.singular(ing) !== ing) {
 	    	plural = ing;
@@ -248,14 +254,14 @@ parseIngredientLine = (line, recipeID) => {
 
 	    // if we found a match, update this ingredient's references
 	    if (existing && existing.length === 1) {
-	    	console.log(`updating: ${existing[0].name}`.cyan);
+	    	//console.log(`updating: ${existing[0].name}`.cyan);
 	    	existing = existing[0];
 
 	    	// update reference
 	    	existing.addReference(line.reference, recipeID);
 	    	existing.saveIngredient();
 
-	    	return existing;
+	    	return existing.encodeIngredient();
 	    	//console.log(existing.getIngredient());
 			} else if (existing && existing.length === 0) {
 				console.log(`creating: ${ing}`.green);
@@ -266,7 +272,7 @@ parseIngredientLine = (line, recipeID) => {
 				newIng.saveIngredient();
 				//console.log(newIng.getIngredient());
 
-				return newIng;
+				return newIng.encodeIngredient();
 			} else {
 				// if we found multiple matches, then something's gone horribly awry!
     		throw new Error(`Multiple matches found for ingredient "${ing}"`);
@@ -276,20 +282,9 @@ parseIngredientLine = (line, recipeID) => {
 	} catch (err) {
 		console.log(`failed to parse: ${line.reference}`.red);
 
-		let errors = [];
-
-		try {
-			errors = JSON.parse(fs.readFileSync(`data/errors.json`, 'utf8'));
-		} catch (ex) {
-			throw new Error('Error reading errors.json');
-		}
-
-		errors.push({ reference: line.reference, type: 'parsing' });
-
-		// save errors
-		fs.writeFileSync(`data/errors.json`, JSON.stringify(errors, null, 2), 'utf-8', (err) => {
-			if (err) throw new Error(`An error occurred while writing parsing error data`);
-		});
+		let ingredient = new Ingredient(line.reference);
+		ingredient.addReference(line.reference, recipeID);
+		ingredientController.saveError({ associations: [], type: 'parsing' }, ingredient.encodeIngredient());
 	}
 
 	return line;

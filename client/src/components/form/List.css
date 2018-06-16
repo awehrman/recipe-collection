@@ -1,0 +1,133 @@
+@import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700");
+* {
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Source Sans Pro", Verdana, sans-serif;
+  font-weight: 400;
+  font-size: 100%; }
+
+header {
+  box-sizing: border-box;
+  background: #f8f8f8;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  padding: 40px;
+  height: 160px; }
+  header h1 {
+    margin: 0;
+    font-weight: 200;
+    font-size: 2em;
+    color: #909497; }
+
+section {
+  margin: 20px 40px; }
+  section h2 {
+    font-size: 1.2em; }
+
+.notification-enter {
+  visibility: hidden;
+  transform: translate3d(0, 10px, 0); }
+
+.notification-enter.notification-enter-active {
+  visibility: visible;
+  transform: translate3d(0, 0, 0);
+  transition: all 1s linear; }
+
+.notification-leave {
+  visibility: visible; }
+
+.notification-leave.notification-leave-active {
+  visibility: hidden;
+  transition: all .4s linear; }
+
+.notification-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 900; }
+  .notification-container .notification {
+    padding: 10px; }
+    .notification-container .notification h4 {
+      font-size: .8em;
+      font-weight: 400;
+      margin: 0;
+      padding: 0; }
+  .notification-container .notification-success {
+    border-left: 4px mediumseagreen solid;
+    background: beige; }
+  .notification-container .notification-error {
+    border-left: 4px tomato solid;
+    background: mistyrose; }
+
+.field.list {
+  font-size: 1em;
+  padding-bottom: 10px;
+  min-height: 25px; }
+  .field.list label {
+    display: inline-block;
+    font-size: .8em;
+    font-weight: 600; }
+  .field.list button.add {
+    display: inline-block;
+    border: 0;
+    color: dodgerblue;
+    text-decoration: underline;
+    padding: 0;
+    margin: 0 0 0 6px;
+    background: transparent;
+    cursor: pointer; }
+    .field.list button.add svg {
+      font-size: .8em;
+      margin-bottom: 2px; }
+  .field.list button.add:hover {
+    border-bottom: 0 !important; }
+  .field.list ul.list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0 !important;
+    margin-bottom: 4px; }
+    .field.list ul.list li {
+      font-size: .8em;
+      color: #222;
+      line-height: 1.6; }
+      .field.list ul.list li button {
+        font-size: 1em;
+        color: dodgerblue;
+        line-height: 1.6;
+        font-weight: 400;
+        padding: 4px 0 0;
+        border: 0;
+        border-bottom: 1px solid dodgerblue;
+        cursor: pointer; }
+        .field.list ul.list li button:focus {
+          outline: 0; }
+  .field.list input {
+    margin-top: 6px;
+    border: 0;
+    border-bottom: 1px solid dodgerblue;
+    padding-bottom: 4px;
+    width: 180px; }
+  .field.list input:focus {
+    outline: 0; }
+  .field.list ul.suggestions {
+    padding: 0;
+    margin-left: -2px;
+    font-size: .8em; }
+    .field.list ul.suggestions li {
+      display: inline-block;
+      margin-top: 4px;
+      padding-right: 6px;
+      margin-left: 4px; }
+      .field.list ul.suggestions li a {
+        text-decoration: none;
+        color: #222; }
+      .field.list ul.suggestions li a:hover, .field.list ul.suggestions li a:focus, .field.list ul.suggestions li a.active {
+        cursor: pointer;
+        color: dodgerblue;
+        outline: 0; }

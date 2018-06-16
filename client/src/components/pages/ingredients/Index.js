@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { NotificationManager } from 'react-notifications';
 
+import { clone } from '../../../lib/util';
 import Card from './Card';
 
 import './Index.css';
@@ -13,6 +14,8 @@ class Index extends Component {
 
 		this.state = {
 			ingredients: [],
+			ingredientsCount: 0,
+			newIngredientsCount: 0,
 			status: 'Loading Ingredients ...',
 
 			currentGroup: 'name',
@@ -33,19 +36,24 @@ class Index extends Component {
 				currentIngredient: null
 			}]
 		};
+
+		this._source = axios.CancelToken.source();
+		this.getIngredientList = this.getIngredientList.bind(this);
 	}
 
 	componentDidMount() {
     this.getIngredientList();
   }
 
-  onContainerClick(e, container) {
-  	console.warn('onContainerClick');
+  componentWillUnmount() {
+    this._source.cancel('Cancelling request due to unmount.');
+	}
 
+  onContainerClick(e, container) {
   	// only hide container if we're clicking on the div itself
   	if (e.target.nodeName === 'DIV') {
 
-	  	let containers = JSON.parse(JSON.stringify(this.state.containers));
+	  	let containers = clone(this.state.containers);
 
 	  	containers = containers.map(c => {
 	  		// find and update the group that contains this ingredient
@@ -63,13 +71,12 @@ class Index extends Component {
 
   onIngredientClick(e, container, ingredient) {
   	e.stopPropagation(); // prevent event from bubbling up to onContainerClick()
-  	console.warn('onIngredientClick');
 
-  	let containers = JSON.parse(JSON.stringify(this.state.containers));
+  	let containers = clone(this.state.containers);
 
   	// if no cards were expanded, then open the clicked on item
   	if (container.currentIngredient === null && !container.isCardEnabled) {
-  		container.currentIngredient = ingredient;
+  		container.currentIngredient = clone(ingredient);
   		container.isCardEnabled = true;
   	}
   	// if we clicked on the same item that's currently expanded, close the card
@@ -77,9 +84,10 @@ class Index extends Component {
   		container.currentIngredient = null;
   		container.isCardEnabled = false;
   	}
+
   	// otherwise switch to the clicked on item
   	else {
-  		container.currentIngredient = ingredient;
+  		container.currentIngredient = clone(ingredient);
   		container.isCardEnabled = true;
   	}
 
@@ -94,11 +102,13 @@ class Index extends Component {
 
   	this.setState({
   		containers
-  	});
+  	}, () => console.log('finished updating containers'));
   }
 
-	getIngredientList() {
-		const { views, currentView } = this.state;
+	getIngredientList(currentIngredientID = null) {
+		console.warn('getIngredientList');
+		const { currentView } = this.state;
+		const views = [ ...this.state.views ];
 
 		// check if we're passing a view in through our URL
 		let view = this.props.location.pathname.split('/ingredients')[1];
@@ -109,14 +119,16 @@ class Index extends Component {
 			view = currentView;
 		}
 
-		axios.get('/ingredients/list')
+		axios.get('/ingredients/list', { cancelToken: this._source.token })
       .then(res => {
       	const ingredients = res.data.ingredients.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 
       	this.setState({
       		ingredients,
+      		ingredientsCount: res.data.ingredients.length,
+      		newIngredientsCount: res.data.ingredients.filter(i => !i.isValidated).length,
       		currentView: view
-      	}, () => this.updateView(view));
+      	}, () => this.updateView(view, currentIngredientID));
       })
       .catch(err => {
       	NotificationManager.error('', 'Could not get ingredients', 3000);
@@ -124,7 +136,8 @@ class Index extends Component {
 	}
 
 	updateGroup() {
-		const { currentGroup, groups } = this.state;
+		const { currentGroup } = this.state;
+		const groups = [ ...this.state.groups ];
 		const currentIndex = groups.findIndex(g => g === currentGroup);
 		const nextGroup = (currentIndex !== (groups.length - 1)) ? groups[currentIndex + 1] : groups[0];
 
@@ -133,15 +146,29 @@ class Index extends Component {
   	}, () => this.updateView());
 	}
 
-	updateView(view = null) {
+	updateView(view = null, currentIngredient = null) {
+		console.warn(`updateView: ${view} ${currentIngredient}`);
+		let { currentGroup, currentView, isPagerEnabled, status } = this.state;
+		let viewIngredients = clone(this.state.ingredients);
+		let pagerLabels = [ ...this.state.pagerLabels ];
 		let containers = [];
-		
-		let { currentGroup, currentView, isPagerEnabled, pagerLabels, status } = this.state;
-		// TODO how deep of a clone do we need here?
-		let viewIngredients = [ ...this.state.ingredients ];
+		let nextCurrent;
+		currentIngredient = (currentIngredient) ? clone(currentIngredient) : null;
 
-		if (!view) {
-			view = currentView;
+		// use the existing view if we didn't pass a new one
+		view = (!view) ? currentView : view;
+
+		// if we passed a currentIngredient, determine what the next ingredient should be
+		const getNextIngredient = (ingredients, currentName) => {
+			let i = 0;
+			while (ingredients[i] && ingredients[i].hasOwnProperty('name') && currentName && (ingredients[i].name < currentName))
+				{ i++; }
+
+			if (ingredients[i]) {
+				return ingredients[i];
+			} else if (ingredients && ingredients.length > 0) {
+				return ingredients[0];
+			} return null;
 		}
 
 		// filter ingredients by view conditions
@@ -197,27 +224,38 @@ class Index extends Component {
 						});
   				}
 
+  				// check if this container has our active ingredient
+  				if (currentIngredient) {
+  					nextCurrent = getNextIngredient(containerIngredients, currentIngredient.name);
+  				}
+
 					if (containerIngredients.length > 0) {
 						return {
 							label: label.charAt(0).toUpperCase() + label.slice(1),
 							count: containerIngredients.length,
 							ingredients: containerIngredients,
 							isExpanded: true, // TODO
-							isCardEnabled: false, // TODO
-							currentIngredient: null // TODO
+							isCardEnabled:  currentIngredient ? true : false,
+							currentIngredient: currentIngredient ? nextCurrent : null
 						};
 					} return null;
 				}).filter(c => c);
   			break;
   		case 'count':
+  			console.log(viewIngredients.map(i => i.referenceCount));
   			// get the largest references count from the bunch
-  			const upperBound = viewIngredients.map(i => i.referenceCount).reduce((prev, current) => (prev > current) ? prev : current);
+  			const upperBound = viewIngredients
+									  				.map(i => i.referenceCount)
+									  				.reduce((prev, current) => (prev > current) ? prev : current);
   			
   			// determine exception categories for ingredients with 0 and/or 1 references
-  			const zeroReferences = (viewIngredients.filter(i => i.referenceCount === 0).length > 0) ? 1 : 0;
-  			const singleReferences = (viewIngredients.filter(i => i.referenceCount === 1).length > 0) ? 1 : 0;
+  			const containsNoReferences = (viewIngredients.filter(i => i.referenceCount === 0).length > 0) ? 1 : 0;
+  			const containsSingleReference = (viewIngredients.filter(i => i.referenceCount === 1).length > 0) ? 1 : 0;
   			
-  			const containerSize = Math.ceil(upperBound / 10) + zeroReferences + singleReferences;
+  			// determine number of groups needed outside of our two exception groups
+  			let containerSize = (upperBound > 1) ? Math.ceil(upperBound / 10) : 0;
+  			// add in the exception group count
+  			containerSize += containsNoReferences + containsSingleReference;
 
   			// setup label ranges
   			let rangeStart = 2;
@@ -229,35 +267,45 @@ class Index extends Component {
   				let containerIngredients = [];
 
   				// put any ingredients with zero references in their own group
-  				if (index === 0 && zeroReferences) {
+  				if (index === 0 && containsNoReferences) {
   					containerIngredients = viewIngredients.filter(i => i.referenceCount === 0);
+
+  					// check if this container has our active ingredient
+	  				if (currentIngredient) {
+	  					nextCurrent = getNextIngredient(containerIngredients, currentIngredient.name);
+	  				}
 
   					return {
 							label: "0 References",
 							count: containerIngredients.length,
 							ingredients: containerIngredients,
 							isExpanded: true, // TODO
-							isCardEnabled: false, // TODO
-							currentIngredient: null // TODO
+							isCardEnabled:  currentIngredient ? true : false,
+							currentIngredient: currentIngredient ? nextCurrent : null
 						};
   				}
 
   				// put any ingredients with a singular references in their own group
-  				if ((index === 0 && !zeroReferences) || (index === 1 && zeroReferences)) {
+  				if ((index === 0 && !containsNoReferences) || (index === 1 && containsNoReferences)) {
   					containerIngredients = viewIngredients.filter(i => i.referenceCount === 1);
+
+  					// check if this container has our active ingredient
+	  				if (currentIngredient) {
+	  					nextCurrent = getNextIngredient(containerIngredients, currentIngredient.name);
+	  				}
 
   					return {
 							label: "1 Reference",
 							count: containerIngredients.length,
 							ingredients: containerIngredients,
 							isExpanded: true, // TODO
-							isCardEnabled: false, // TODO
-							currentIngredient: null // TODO
+							isCardEnabled:  currentIngredient ? true : false,
+							currentIngredient: currentIngredient ? nextCurrent : null
 						};
   				}
 
 					// adjust the index based on whether we have any exception groups  				
-  				const adjustedIndex = (index - zeroReferences - singleReferences);
+  				const adjustedIndex = (index - containsNoReferences - containsSingleReference);
   				
   				if (adjustedIndex > 0) {
 	  				rangeStart = (adjustedIndex * 10) + 1;
@@ -266,13 +314,18 @@ class Index extends Component {
 
 	  			containerIngredients = viewIngredients.filter(i => i.referenceCount >= rangeStart && i.referenceCount <= rangeEnd);
 
+	  			// check if this container has our active ingredient
+  				if (currentIngredient) {
+  					nextCurrent = getNextIngredient(containerIngredients, currentIngredient.name);
+  				}
+
   				return {
 						label: `${rangeStart}-${rangeEnd} References`,
 						count: containerIngredients.length,
 						ingredients: containerIngredients,
 						isExpanded: true, // TODO
-						isCardEnabled: false, // TODO
-						currentIngredient: null // TODO
+						isCardEnabled:  currentIngredient ? true : false,
+						currentIngredient: currentIngredient ? nextCurrent : null
 					};
   			}).filter(c => c);
 
@@ -281,15 +334,25 @@ class Index extends Component {
   			const parentIngredients = viewIngredients.filter(i => !i.parentIngredientID);
   			const childIngredients = viewIngredients.filter(i => i.parentIngredientID);
 
+
+				// check if this container has our active ingredient
+				if (currentIngredient) {
+					nextCurrent = getNextIngredient(childIngredients, currentIngredient.name);
+				}
+
   			if (childIngredients.length > 0) {
 					containers.push({
 						label: `Child Ingredients`,
 						count: childIngredients.length,
 						ingredients: childIngredients,
 						isExpanded: true, // TODO
-						isCardEnabled: false, // TODO
-						currentIngredient: null // TODO
+						isCardEnabled:  currentIngredient ? true : false,
+						currentIngredient: currentIngredient ? nextCurrent : null
 					});
+				}
+
+				if (currentIngredient) {
+					nextCurrent = getNextIngredient(parentIngredients, currentIngredient.name);
 				}
 
   			if (parentIngredients.length > 0) {
@@ -298,13 +361,18 @@ class Index extends Component {
 						count: parentIngredients.length,
 						ingredients: parentIngredients,
 						isExpanded: true, // TODO
-						isCardEnabled: false, // TODO
-						currentIngredient: null // TODO
+						isCardEnabled:  currentIngredient ? true : false,
+						currentIngredient: currentIngredient ? nextCurrent : null
 					});
 				}
 
   			break;
   		default: // name
+				// check if this container has our active ingredient
+				if (currentIngredient) {
+					nextCurrent = getNextIngredient(viewIngredients, currentIngredient.name);
+				}
+
   			// if we have less than 500 ingredients, display them in a single container
   			if (viewIngredients.length <= 500) {
 	  			containers.push({
@@ -312,8 +380,8 @@ class Index extends Component {
 						count: viewIngredients.length,
 						ingredients: viewIngredients,
 						isExpanded: true, // TODO
-						isCardEnabled: false, // TODO
-						currentIngredient: null // TODO
+						isCardEnabled:  currentIngredient ? true : false,
+						currentIngredient: currentIngredient ? nextCurrent : null
 					});
 	  		} else {
 	  			// otherwise break up into containers by letter
@@ -339,8 +407,8 @@ class Index extends Component {
 							count: containerIngredients.length,
 							ingredients: containerIngredients,
 							isExpanded: (index === 0) ? true : false, // TODO
-							isCardEnabled: false, // TODO
-							currentIngredient: null // TODO
+							isCardEnabled: currentIngredient ? true : false,
+							currentIngredient: currentIngredient ? nextCurrent : null
 						};
 	  			});
 
@@ -358,10 +426,12 @@ class Index extends Component {
 	}
 
 	renderIngredients(container) {
+		//const ingredients = [ ...this.state.ingredients ];
+		const ingredients = clone(this.state.ingredients);
 		let ingredientList = [];
 
   	// if we have more than 100 ingredients in this container, we'll group these by letter
-  	if (container.ingredients && (container.ingredients.length > 100) && (container.ingredients.length <= 500)) {
+  	if (container.ingredients && (container.ingredients.length > 100) && (ingredients.length <= 500)) {
   		const hasSymbols = container.ingredients.map(i => i.name.charAt(0)).filter(char => !char.match(/[a-z]/i)).length > 0;
   		const letters = container.ingredients.map(i => i.name.charAt(0)).filter((char, index, self) => self.indexOf(char) === index && char.match(/[a-z]/i));
 
@@ -426,22 +496,21 @@ class Index extends Component {
 	}
 
 	renderFilters() {
-		const { currentGroup, currentView, ingredients } = this.state;
-		const newIngCount = ingredients.filter(i => !i.isValidated);
+		const { currentGroup, currentView, ingredientsCount, newIngredientsCount } = this.state;
 
 		let newClassList = (currentView === 'new') ? 'active' : '';
   	// if we have unverified ingredients, add an additional class for color
-  	newClassList += (newIngCount.length !== 0) ? ' new' : '';
+  	newClassList += (newIngredientsCount.length !== 0) ? ' new' : '';
 
 		return (
 			<div className="filters">
   			{/* View Selection */}
 	  		<div className="left">
 					<Link to={ `/ingredients` } className={ (currentView === 'all') ? 'active' : '' } onClick={ () => this.updateView('all') }>
-						{ `View All ${ingredients.length}` }
+						{ `View${'\xa0'}All${'\xa0'}${ingredientsCount}` }
 					</Link>
 					<Link to={ `/ingredients/new` } className={ newClassList } onClick={ () => this.updateView('new') }>
-						{ `Newly Imported ${newIngCount.length}` }
+						{ `Newly${'\xa0'}Imported${'\xa0'}${newIngredientsCount}` }
 					</Link>
 	  		</div>
 
@@ -457,7 +526,9 @@ class Index extends Component {
 	}
 
 	renderView() {
-		const { containers, currentGroup, currentView, ingredients } = this.state;
+		const { currentView } = this.state;
+		const containers = clone(this.state.containers);
+		const ingredients = clone(this.state.ingredients);
 
 		return (
 			<div className="view">
@@ -478,13 +549,11 @@ class Index extends Component {
 									{
 					    			(c.isCardEnabled)
 							    		? <Card
-							    				container={ c }
 													ingredient={ c.currentIngredient }
 													ingredients={ ingredients }
+													key={ c.currentIngredient.ingredientID }
 													isEditMode={ (currentView === 'new') ? true : false }
-													group={ currentGroup }
-													updateView={ this.updateView }
-													view={ currentView }
+													refresh={ this.getIngredientList }
 												/>
 											: null
 									}

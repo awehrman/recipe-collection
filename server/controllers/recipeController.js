@@ -2,25 +2,26 @@ const fs = require('fs');
 
 const DB_PATH = (process.env.NODE_ENV === 'test') ? 'tests/data' : 'data';
 
-exports.loadRecipes = (isEncodeObject = false) => {
-	// this is purely to avoid a circular dependency
-	// TODO this is probably a code smell so look into better patterns
-	const Recipe = require('../models/recipeModel');
+exports.findRecipe = (key = null, value = null) => {
+	let recipes = this.loadRecipes();
 
-	let recipes = [];
+	// possible keys to filter search by
+	const searchExpressions = {
+		// lookup by recipeID
+		recipeID: () => recipes.filter(i => i.recipeID === value),
 
-	// load recipes from flat file
-	try {
-		recipes = JSON.parse(fs.readFileSync(`${DB_PATH}/recipes.json`, 'utf8'));
-	} catch (ex) {
-		throw new Error('Error reading recipes.json');
+		// lookup by name
+		name: () => recipes.filter(i => i.name === value),
+	};
+
+	if (key !== null && value !== null) {
+		recipes = searchExpressions[key]();
 	}
 
-	if (!isEncodeObject) {
-		recipes = recipes.map(rp => new Recipe(rp));
+	if (recipes.length === 1) {
+		return recipes[0];
 	}
-	
-	return recipes;
+	return null;
 };
 
 exports.findRecipes = (key = null, value = null) => {
@@ -53,4 +54,25 @@ exports.isValidImageFormat = (path) => {
 		}
 	}
 	return false;
+};
+
+exports.loadRecipes = (isEncodeObject = false) => {
+	// this is purely to avoid a circular dependency
+	// TODO this is probably a code smell so look into better patterns
+	const Recipe = require('../models/recipeModel');
+
+	let recipes = [];
+
+	// load recipes from flat file
+	try {
+		recipes = JSON.parse(fs.readFileSync(`${DB_PATH}/recipes.json`, 'utf8'));
+	} catch (ex) {
+		throw new Error('Error reading recipes.json');
+	}
+
+	if (!isEncodeObject) {
+		recipes = recipes.map(rp => new Recipe(rp));
+	}
+	
+	return recipes;
 };

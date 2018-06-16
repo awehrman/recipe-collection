@@ -81,13 +81,14 @@ class Recipe {
 				}
 
 				const ingredientLines = new Map();
+			
 				for (let ing of value.ingredientLines) {
-					ingredientLines.set(ing[0], ing[1]);
+					ingredientLines.set(`${ing[1].block}_${ing[1].line}`, ing[1]);
 				}
 
 				const instructions = new Map();
 				for (let instr of value.instructions) {
-					instructions.set(instr[0], instr[1]);
+					instructions.set(`${instr[1].block}_${instr[1].line}`, instr[1]);
 				}
 
 				_categories.set(this, categories);
@@ -356,8 +357,8 @@ class Recipe {
 			categories: [ ..._categories.get(this) ],
 			tags: [ ..._tags.get(this) ],
 
-			ingredientLines: [ ..._ingredientLines.get(this) ].map(l => l[0]),
-			instructions: [ ..._instructions.get(this) ].map(l => l[0])
+			ingredientLines: [ ..._ingredientLines.get(this) ],
+			instructions: [ ..._instructions.get(this) ]
 		};
 	}
 
@@ -499,17 +500,17 @@ class Recipe {
 		}
 	}
 
-	addIngredientLine(line) {
-		// if we aren't providing a line
-		if (!line || (typeof line !== 'object')) {
+	addIngredientLine(line = null) {
+		// if we provided an invalid line, remove it
+		if (typeof line !== 'object') {
 			// remove this item
-			_ingredientLines.get(this).delete(line);
-		} else {
+			_ingredientLines.get(this).delete(`${line.block}_${line.line}`);
+		} else if (line) {
 			const hasReference = line.hasOwnProperty('reference') && (line.reference.trim().length > 0);
 			const hasBlock = line.hasOwnProperty('block') && (typeof line.block === 'number');
 			const hasLine = line.hasOwnProperty('line') && (typeof line.line === 'number');
-			const hasParsedDetermination = line.hasOwnProperty('isParsed') && (typeof line.isParsed === 'boolean')
-			const isExistingLocation = [ ..._ingredientLines.get(this).keys() ].filter(k => (k.line === line.line) && (k.block === line.block))
+			const hasParsedDetermination = line.hasOwnProperty('isParsed') && (typeof line.isParsed === 'boolean');
+			const isExistingLocation = [ ..._ingredientLines.get(this).values() ].filter(k => (k.line === line.line) && (k.block === line.block));
 
 			if (!hasReference) {
 				throw new Error('Ingredient Line is missing reference line');
@@ -532,7 +533,7 @@ class Recipe {
 				throw new Error('Ingredient Line already exists at this location');
 			}
 
-			_ingredientLines.get(this).set(line);
+			_ingredientLines.get(this).set(`${line.block}_${line.line}`, line);
 
 			return _ingredientLines.get(this);
 		}
@@ -541,23 +542,23 @@ class Recipe {
 	}
 
 	removeIngredientLine(blockNum, lineNum) {
-		const line = [ ..._ingredientLines.get(this).keys() ].filter(k => (k.block === blockNum) && (k.line === lineNum));
+		const line = [ ..._ingredientLines.get(this).values() ].filter(k => (k.block === blockNum) && (k.line === lineNum));
 		
-		if (line.length > 0) {
-			_ingredientLines.get(this).delete(line[0]);
+		if (line.length === 1) {
+			_ingredientLines.get(this).delete(`${line[0].block}_${line[0].line}`);
 		}
 	}
 
-	addInstruction(line) {
-		// if we aren't providing a line
-		if (!line || (typeof line !== 'object')) {
+	addInstruction(line = null) {
+		// if we provided an invalid line, remove it
+		if (typeof line !== 'object') {
 			// remove this item
-			_instructions.get(this).delete(line);
-		} else {
+			_instructions.get(this).delete(`${line.block}_${line.line}`);
+		} else if (line) {
 			const hasReference = line.hasOwnProperty('reference') && (line.reference.trim().length > 0);
 			const hasBlock = line.hasOwnProperty('block') && (typeof line.block === 'number');
 			const hasLine = line.hasOwnProperty('line') && (typeof line.line === 'number');
-			const isExistingLocation = [ ..._instructions.get(this).keys() ].filter(k => (k.line === line.line) && (k.block === line.block))
+			const isExistingLocation = [ ..._instructions.get(this).values() ].filter(k => (k.line === line.line) && (k.block === line.block))
 
 			if (!hasReference) {
 				throw new Error('Instruction is missing reference line');
@@ -576,7 +577,7 @@ class Recipe {
 				throw new Error('Instruction already exists at this location');
 			}
 
-			_instructions.get(this).set(line);
+			_instructions.get(this).set(`${line.block}_${line.line}`, line);
 
 			return _instructions.get(this);
 		}
@@ -585,12 +586,13 @@ class Recipe {
 	}
 
 	removeInstruction(blockNum, lineNum) {
-		const line = [ ..._instructions.get(this).keys() ].filter(k => (k.block === blockNum) && (k.line === lineNum));
+		const line = [ ..._instructions.get(this).values() ].filter(k => (k.block === blockNum) && (k.line === lineNum));
 		
-		if (line.length > 0) {
-			_instructions.get(this).delete(line[0]);
+		if (line.length === 1) {
+			_instructions.get(this).delete(`${line[0].block}_${line[0].line}`);
 		}
 	}
+
 	/*=====  End of Recipe Methods  ======*/
 };
 /*=====  End of Recipe Class Definition  ======*/

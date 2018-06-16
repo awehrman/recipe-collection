@@ -1,0 +1,211 @@
+@import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700");
+* {
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Source Sans Pro", Verdana, sans-serif;
+  font-weight: 400;
+  font-size: 100%; }
+
+header {
+  box-sizing: border-box;
+  background: #f8f8f8;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  padding: 40px;
+  height: 160px; }
+  header h1 {
+    margin: 0;
+    font-weight: 200;
+    font-size: 2em;
+    color: #909497; }
+
+section {
+  margin: 20px 40px; }
+  section h2 {
+    font-size: 1.2em; }
+
+.notification-enter {
+  visibility: hidden;
+  transform: translate3d(0, 10px, 0); }
+
+.notification-enter.notification-enter-active {
+  visibility: visible;
+  transform: translate3d(0, 0, 0);
+  transition: all 1s linear; }
+
+.notification-leave {
+  visibility: visible; }
+
+.notification-leave.notification-leave-active {
+  visibility: hidden;
+  transition: all .4s linear; }
+
+.notification-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 900; }
+  .notification-container .notification {
+    padding: 10px; }
+    .notification-container .notification h4 {
+      font-size: .8em;
+      font-weight: 400;
+      margin: 0;
+      padding: 0; }
+  .notification-container .notification-success {
+    border-left: 4px mediumseagreen solid;
+    background: beige; }
+  .notification-container .notification-error {
+    border-left: 4px tomato solid;
+    background: mistyrose; }
+
+.modal {
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background: white;
+  z-index: 100;
+  padding: 30px 40px;
+  position: fixed;
+  top: 70px;
+  left: 40px;
+  right: 40px; }
+  .modal h1 {
+    margin-top: 0; }
+  .modal .content {
+    line-height: 1.8; }
+    .modal .content .stylizedContainer {
+      display: inline-block;
+      margin: 0 4px; }
+      .modal .content .stylizedContainer input {
+        color: dodgerblue;
+        font-weight: 700; }
+        .modal .content .stylizedContainer input::placeholder {
+          color: #ddd;
+          font-style: italic;
+          border-bottom: 2px solid #ddd;
+          padding-bottom: 4px; }
+        .modal .content .stylizedContainer input:focus + .input-highlight {
+          border-top: 2px solid dodgerblue; }
+      .modal .content .stylizedContainer .input-highlight {
+        font-weight: 700; }
+    .modal .content .placeholder {
+      position: absolute;
+      top: -1000px;
+      left: 0;
+      background: transparent;
+      color: dodgerblue;
+      font-weight: 700;
+      font-size: 1em;
+      text-transform: lowercase;
+      padding: 0;
+      margin: 0;
+      margin-right: 4px;
+      margin-left: -6px;
+      display: block; }
+    .modal .content select {
+      border: 0;
+      background: transparent;
+      color: dodgerblue;
+      font-weight: 700;
+      font-size: 1em;
+      text-transform: lowercase;
+      padding: 0;
+      margin: 0;
+      margin-right: 4px;
+      margin-left: -6px;
+      display: inline-block; }
+      .modal .content select:focus {
+        outline: 0; }
+    .modal .content ul.suggestions {
+      padding: 0;
+      margin-left: -2px;
+      font-size: .8em; }
+      .modal .content ul.suggestions li {
+        display: inline-block;
+        margin-top: 4px;
+        padding-right: 6px;
+        margin-left: 4px; }
+        .modal .content ul.suggestions li a {
+          text-decoration: none;
+          color: #222; }
+        .modal .content ul.suggestions li a:hover, .modal .content ul.suggestions li a:focus, .modal .content ul.suggestions li a.active {
+          cursor: pointer;
+          color: dodgerblue;
+          outline: 0; }
+    .modal .content .field.properties {
+      flex-basis: auto;
+      color: #222;
+      display: flex;
+      justify-content: flex-start;
+      flex-wrap: wrap; }
+      .modal .content .field.properties .checkbox {
+        display: inline-block; }
+        .modal .content .field.properties .checkbox label {
+          position: relative;
+          padding-left: 20px;
+          margin-right: 16px;
+          font-weight: 400;
+          cursor: pointer; }
+        .modal .content .field.properties .checkbox label::before {
+          display: block;
+          position: absolute;
+          top: 5px;
+          left: 0;
+          width: 11px;
+          height: 11px;
+          border-radius: 3px;
+          background-color: white;
+          border: 1px solid #ddd;
+          content: ''; }
+      .modal .content .field.properties .checkbox:last-of-type label {
+        padding-right: 0;
+        margin-right: 0; }
+      .modal .content .field.properties .checkbox input[type='checkbox'] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 0;
+        opacity: 0;
+        pointer-events: none;
+        display: none; }
+        .modal .content .field.properties .checkbox input[type='checkbox']:checked + label::after {
+          display: block;
+          position: absolute;
+          top: 5px;
+          left: 2px;
+          width: 11px;
+          height: 11px;
+          background: url("/images/checkmark.png");
+          background-size: cover;
+          content: ''; }
+  .modal .controls {
+    display: flex;
+    flex-wrap: wrap;
+    flex-basis: 100%;
+    justify-content: space-between;
+    margin-top: 20px; }
+    .modal .controls span.warnings {
+      color: tomato;
+      flex-basis: 100%;
+      font-style: italic; }
+    .modal .controls button.cancel {
+      border: 0;
+      color: #222;
+      padding: 5px 0;
+      font-size: .875em;
+      cursor: pointer; }
+    .modal .controls button.save {
+      border: 0;
+      background: dodgerblue;
+      color: white;
+      border-radius: 3px;
+      padding: 5px 10px;
+      font-size: .875em;
+      cursor: pointer; }

@@ -4,14 +4,14 @@ const fs = require('fs');
 const imagemin = require('imagemin');
 const imageminJpegtran = require('imagemin-jpegtran');
 const imageminPngquant = require('imagemin-pngquant');
-const uuid = require('uuid');
 
 const Category = require('./../models/categoryModel');
+const Recipe = require('./../models/recipeModel');
+const Tag = require('./../models/tagModel');
+
 const categoryController = require('./categoryController');
 const parserController = require('./parserController');
 const recipeController = require('./recipeController');
-const Recipe = require('./../models/recipeModel');
-const Tag = require('./../models/tagModel');
 const tagController = require('./tagController');
 
 const STAGE_PATH = (process.env.NODE_ENV === 'test') ? 'tests/data/staging' : 'data/staging';
@@ -99,6 +99,17 @@ importNote = async (store, filename, note) => {
 			rp.tags = results[1].tags;
 
 			results[0].ingredientLines.forEach(line => {
+				// trim down our ingredient info for the parsed lines
+				if (line.hasOwnProperty('ingredients') && line.ingredients.length > 0) {
+					line.ingredients = line.ingredients.map(ing => {
+						return {
+							ingredientID: ing.ingredientID,
+							name: ing.name,
+							properties: Object.assign(ing.properties, {}),
+							isValidated: ing.isValidated
+						};
+					})
+				}
 				rp.addIngredientLine(line);
 			});
 
@@ -169,6 +180,8 @@ importNotes = (callback) => {
 
 lookupMetadata = async (store, note) => {
 	// lookup category
+	//console.log(note.category);
+	// TODO i'm still getting duplicates here
 	let cat = categoryController.findCategories('evernoteGUID', note.category);
 	if (cat && cat.length === 0) {
 		// then look it up
@@ -180,6 +193,7 @@ lookupMetadata = async (store, note) => {
 					newCat.name = evernoteCategory.name;
 					newCat.evernoteGUID = evernoteCategory.guid;
 					newCat.saveCategory();
+					console.log(`create category "${evernoteCategory.name}"`.yellow);
 					return newCat;
 				}
 				return null;

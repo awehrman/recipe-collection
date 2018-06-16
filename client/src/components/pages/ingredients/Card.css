@@ -1,0 +1,164 @@
+form.card {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-content: flex-start; }
+  form.card .field label {
+    font-size: 1em; }
+  form.card .top {
+    flex-basis: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between; }
+    form.card .top .field.stacked {
+      flex-basis: auto; }
+      form.card .top .field.stacked .stylizedContainer.name {
+        color: dodgerblue !important;
+        font-size: 20px; }
+        form.card .top .field.stacked .stylizedContainer.name input:focus + .input-highlight {
+          border-top: 2px solid dodgeblue; }
+        form.card .top .field.stacked .stylizedContainer.name .input-highlight {
+          font-size: 20px; }
+      form.card .top .field.stacked .stylizedContainer.plural {
+        font-size: 14px;
+        font-weight: 400;
+        font-style: italic;
+        color: #bbb; }
+        form.card .top .field.stacked .stylizedContainer.plural input:focus + .input-highlight {
+          border-top: 2px solid #ddd; }
+        form.card .top .field.stacked .stylizedContainer.plural .input-highlight {
+          font-size: 14px;
+          font-weight: 400;
+          font-style: italic; }
+    form.card .top .field.properties {
+      flex-basis: auto;
+      color: #666;
+      display: flex;
+      justify-content: flex-start;
+      flex-wrap: wrap; }
+      form.card .top .field.properties .checkbox {
+        display: inline-block; }
+        form.card .top .field.properties .checkbox label {
+          position: relative;
+          padding-left: 20px;
+          margin-right: 16px;
+          font-weight: 400;
+          cursor: pointer; }
+        form.card .top .field.properties .checkbox label::before {
+          display: block;
+          position: absolute;
+          top: 5px;
+          left: 0;
+          width: 11px;
+          height: 11px;
+          border-radius: 3px;
+          background-color: white;
+          border: 1px solid #ddd;
+          content: ''; }
+      form.card .top .field.properties .checkbox:last-of-type label {
+        padding-right: 0;
+        margin-right: 0; }
+      form.card .top .field.properties .checkbox input[type='checkbox'] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 0;
+        opacity: 0;
+        pointer-events: none;
+        display: none; }
+        form.card .top .field.properties .checkbox input[type='checkbox']:checked + label::after {
+          display: block;
+          position: absolute;
+          top: 2px;
+          left: 1px;
+          font-family: "Font Awesome 5 Pro";
+          content: "\f00c";
+          font-weight: 900;
+          color: dodgerblue; }
+  form.card .left {
+    margin-top: 10px;
+    flex-basis: 100%; }
+  form.card .left.collapse {
+    flex-basis: 0 !important; }
+  form.card .right {
+    margin-top: 10px;
+    flex-basis: 100%; }
+    form.card .right .field.references, form.card .right .field.related {
+      overflow-y: scroll;
+      max-height: 125px; }
+      form.card .right .field.references label, form.card .right .field.related label {
+        font-weight: 600;
+        margin-bottom: 10px; }
+      form.card .right .field.references ul, form.card .right .field.related ul {
+        list-style-type: none;
+        padding: 0; }
+        form.card .right .field.references ul li, form.card .right .field.related ul li {
+          font-size: .8em;
+          color: #222;
+          line-height: 1.6; }
+    form.card .right .field.related {
+      margin-top: 10px; }
+  form.card .bottom {
+    display: flex;
+    flex-wrap: wrap;
+    flex-basis: 100%; }
+    form.card .bottom button {
+      background: white;
+      padding: 0;
+      margin: 0;
+      border: 0;
+      cursor: pointer;
+      font-family: "Source Sans Pro", Verdana, sans-serif;
+      font-weight: 600;
+      font-size: 14px; }
+      form.card .bottom button svg {
+        font-size: 18px;
+        padding-right: 8px; }
+    form.card .bottom button.edit {
+      order: 60;
+      margin-top: 16px;
+      color: dodgerblue;
+      display: flex;
+      justify-content: flex-end;
+      flex-basis: 100%; }
+    form.card .bottom button:focus {
+      outline: none; }
+    form.card .bottom .left {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start; }
+      form.card .bottom .left button {
+        margin-bottom: 10px; }
+      form.card .bottom .left button.merge {
+        color: goldenrod; }
+      form.card .bottom .left button.parent {
+        color: dodgerblue; }
+      form.card .bottom .left button.parsingError {
+        color: tomato; }
+    form.card .bottom .right {
+      box-sizing: border-box;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      align-items: flex-end; }
+      form.card .bottom .right .warnings {
+        flex-basis: 100%;
+        text-align: right;
+        font-size: .875em;
+        color: tomato;
+        list-style-type: none;
+        margin: 0;
+        padding: 0; }
+      form.card .bottom .right button.cancel {
+        color: #222;
+        font-weight: 400;
+        margin-right: 20px; }
+      form.card .bottom .right button.save {
+        color: mediumspringgreen; }
+
+@media (min-width: 600px) {
+  form.card .left {
+    flex-basis: 50%; }
+  form.card .right {
+    flex-basis: 50%; } }

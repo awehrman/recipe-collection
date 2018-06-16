@@ -25,3 +25,54 @@ section {
 
 	}
 }
+
+.notification-enter {
+  visibility: hidden;
+  transform: translate3d(0, 10px, 0);
+}
+
+.notification-enter.notification-enter-active {
+  visibility: visible;
+  transform: translate3d(0, 0, 0);
+  transition: all 1s linear;
+}
+
+.notification-leave {
+  visibility: visible;
+  //transform: translate3d(0, 0, 0);
+}
+
+.notification-leave.notification-leave-active {
+  visibility: hidden;
+  //transform: translate3d(0, 100%, 0);
+  transition: all .4s linear;
+}
+
+.notification-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 900;
+
+	.notification {
+		padding: 10px;
+
+		h4 {
+			font-size: .8em;
+			font-weight: 400;
+			margin: 0;
+			padding: 0;
+		}
+	}
+
+	.notification-success {
+		border-left: 4px mediumseagreen solid;
+		background: beige;
+	}
+
+	.notification-error {
+		border-left: 4px tomato solid;
+		background: mistyrose;
+	}
+}

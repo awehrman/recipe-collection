@@ -5,7 +5,8 @@ nav {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  top: 0; }
+  top: 0;
+  z-index: 1000; }
   nav ul {
     list-style-type: none;
     padding: 0;

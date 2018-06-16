@@ -15,13 +15,14 @@ const recipeController = require('../../controllers/recipeController');
 /**
 
 	TODO:
+	- consider swapping parsing expressions for associated descriptors found in references
+	- adjust alternate names and parsing expressions to receive an object with singular/plural values
 	- more type checking on passing an encoded ingredient into the constructor when fields are missing
 	- should only create a new Ingredient when the name is not used on any other ingredients
 	- additional tests for:
 		- references (convert to map)
 	- when a name is updated to be a name referenced on the ingredient's relatedIngredients or substitutes sets,
 		we need to trigger a merger with those records, come back to how this needs to be handled internally
-	- adjust alternate names and parsing expressions to receive an object with singular/plural values
 	- should alternateNames/parsingExprsesions be WeakSets? And related, substitutes, references WeakMaps?
 		is this any down-side there? I'd like to run some heap dumps to really walk through this
 
