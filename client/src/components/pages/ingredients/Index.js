@@ -102,7 +102,7 @@ class Index extends Component {
 
   	this.setState({
   		containers
-  	}, () => console.log('finished updating containers'));
+  	});
   }
 
 	getIngredientList(currentIngredientID = null) {
@@ -426,7 +426,6 @@ class Index extends Component {
 	}
 
 	renderIngredients(container) {
-		//const ingredients = [ ...this.state.ingredients ];
 		const ingredients = clone(this.state.ingredients);
 		let ingredientList = [];
 
@@ -514,7 +513,7 @@ class Index extends Component {
 					</Link>
 	  		</div>
 
-	  		{/* group Selection */}
+	  		{/* Group Selection */}
 	  		<div className="right">
 					<div className="groupBy">
 						Group By

@@ -87,7 +87,7 @@ class Card extends Component {
   		case "edit":
   			this.toggleEditMode();
 		  	break;
-		  case "error": // does this ever get called?
+		  case "error":
 		  	const associated = (modal.hasOwnProperty('values') && modal.values.hasOwnProperty('associated'))
 		  																? modal.values.associated : [];
 		  	const errorType = (modal.hasOwnProperty('values') && modal.values.hasOwnProperty('type'))
@@ -97,6 +97,7 @@ class Card extends Component {
 		  	this.saveIngredient(null, error);
 		  	break;
 		 	case "merge":
+		 		// TODO
 		 		break;
   		case "modal":
   			this.toggleModal(subtype);
@@ -286,7 +287,7 @@ class Card extends Component {
   			ingredient.parsingExpressions.push(value);
   			break;
   		case 'sub':
-  		// the back-end will fill in the most up-to-date ID for us
+  			// the back-end will fill in the most up-to-date ID for us
   			ingredient.substitutes.push({ ingredientID: null, name: value });
   			break;
   		default:
@@ -348,7 +349,6 @@ class Card extends Component {
 	}
 
 	renderReferences(ingredient) {
-		// TODO how am i loosing references when i switch into edit mode?
 		if (ingredient && ingredient.hasOwnProperty('references') && ingredient.references.length > 0) {
   		return (
   			<div className="field references">

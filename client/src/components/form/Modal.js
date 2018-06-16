@@ -14,8 +14,8 @@ class Modal extends Component {
     super(props);
 
     this.state = {
-    	associations: [],
-    	currentErrorType: 'data',
+    	associated: [],
+    	type: 'data',
     	warning: null
     };
 
@@ -30,25 +30,25 @@ class Modal extends Component {
 
   onErrorSelect(e) {
   	this.setState({
-  		currentErrorType: e.target.value
+  		type: e.target.value
   	});
   };
 
   onSave(e) {
   	console.warn('onSave');
   	e.preventDefault();
-  	const { associations, currentErrorType } = this.state;
+  	const { associated, type } = this.state;
 
   	switch (this.props.modal.type) {
   		case 'error':
-		  	if (!currentErrorType) {
+		  	if (!type) {
 		  		this.setState({
 		  			warning: 'Must provide error type'
 		  		});
 		  	} else {
 			  	const error = {
-			  		associations,
-			  		currentErrorType
+			  		associated,
+			  		type
 			  	};
 
 			  	this.props.saveIngredient(null, error);
@@ -60,12 +60,12 @@ class Modal extends Component {
   }
 
   updateList(e, code, value) {
-		const { associations } = this.state;
-  	associations.push(value);
-  	console.log('updateList ' + JSON.stringify(associations));
+		const { associated } = this.state;
+  	associated.push(value);
+  	console.log('updateList ' + JSON.stringify(associated));
 
   	this.setState({
-  		associations
+  		associated
   	});
   }
 
@@ -75,13 +75,13 @@ class Modal extends Component {
 
   	switch (this.props.modal.type) {
   		case 'error':
-  			const associations = clone(this.state.associations);
-		  	const { currentErrorType } = this.state;
+  			const associated = clone(this.state.associated);
+		  	const { type } = this.state;
   			const errors = [
   				{ code: 'data', label: 'Bad Input' },
   				{ code: 'equipment', label: 'Equipment Item' },
   				{ code: 'instruction', label: 'Instruction Line' },
-  				{ code: 'semantic', label: 'Incorrect Ingredient' },
+  				{ code: 'semantic', label: 'Incorrectly Parsed' },
   			];
 
 		  	return (
@@ -93,7 +93,7 @@ class Modal extends Component {
 							onChange={ this.onErrorSelect }
 						/>
 						{/* if this is a standard parsing error, allow to associate it with one or more ingredients */
-							(currentErrorType === 'semantic')
+							(type === 'semantic')
 								? <List
 										code={ "err" }
 										currentIngredient={ ingredient }
@@ -101,7 +101,7 @@ class Modal extends Component {
 										isEditMode={ true }
 										key={ "alt" }
 										label={ "Associate Ingredient" }
-										list={ associations }
+										list={ associated }
 										updateList={ this.updateList }
 									/>
 								: null

@@ -92,10 +92,30 @@ class Index extends Component {
 					<div>Recipes: { recipes }</div>
 
 					<h2>Percentages</h2>
-					<div>Overall Accuracy: { (errors && errors.hasOwnProperty('total') && lines && (lines > 0)) ? `${(100 - (((errors.total) / lines) * 100)).toFixed(2)}%` : null }</div>
-					<div>Adjusted Accuracy: { (errors && errors.hasOwnProperty('parsing') && errors.hasOwnProperty('semantic') && lines && (lines > 0)) ? `${(100 - (((errors.parsing + errors.semantic) / lines) * 100)).toFixed(2)}%` : null }</div>
-					<div>Parse Rate: { (errors && errors.hasOwnProperty('parsing') && lines && (lines > 0)) ? `${(100 - (((errors.parsing) / lines) * 100)).toFixed(2)}%` : null }</div>
-					<div>Data Accuracy: { (errors && errors.hasOwnProperty('data') && lines && (lines > 0)) ? `${(100 - (((errors.data) / lines) * 100)).toFixed(2)}%` : null }</div>
+					<div>Overall Accuracy: 
+						{ (errors && errors.hasOwnProperty('total') && lines && (lines > 0))
+								? ` ${(100 - (((errors.total) / lines) * 100)).toFixed(2)}%`
+								: null
+						}
+					</div>
+					<div>Adjusted Accuracy: 
+						{ (errors && errors.hasOwnProperty('parsing') && errors.hasOwnProperty('semantic') && lines && (lines > 0))
+								? ` ${(100 - (((errors.parsing + errors.semantic) / lines) * 100)).toFixed(2)}%`
+								: null
+						}
+					</div>
+					<div>Parse Rate: 
+						{ (errors && errors.hasOwnProperty('parsing') && lines && (lines > 0))
+								? ` ${(100 - (((errors.parsing) / lines) * 100)).toFixed(2)}%`
+								: null
+						}
+					</div>
+					<div>Data Accuracy: 
+						{ (errors && errors.hasOwnProperty('data') && errors.hasOwnProperty('instruction') && errors.hasOwnProperty('equipment') && lines && (lines > 0))
+								? ` ${(100 - (((errors.data + errors.instruction + errors.equipment) / lines) * 100)).toFixed(2)}%`
+								: null
+						}
+					</div>
 
 
 					<h2>Errors</h2>
@@ -107,6 +127,12 @@ class Index extends Component {
 
 					{ /* an error caused by bad input data from the original note */ }
 					<div>Data Errors: { (errors && errors.hasOwnProperty('data')) ? errors.data : 0 }</div>
+
+					{ /* parsed as instruction line */ }
+					<div>Instruction Errors: { (errors && errors.hasOwnProperty('instruction')) ? errors.instruction : 0 }</div>
+
+					{ /* equipment item */ }
+					<div>Equipment Errors: { (errors && errors.hasOwnProperty('equipment')) ? errors.equipment : 0 }</div>
 				</section>
 			</article>
 		);

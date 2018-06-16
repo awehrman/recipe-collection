@@ -1,0 +1,124 @@
+# client --------------------------------------------------------------
+  # general
+    ☐ add in client-side tests
+      ...
+    ☐ adapt to BEM style naming convention on stylesheets
+      ...
+    ☐ revisit all color values used
+      ...
+    ☐ consider rewriting front-end with immuntable.js or similar
+      ...
+
+  # form
+    ☐ consider pulling Suggestions into their own component from List
+    ☐ [List - onChange] should this also match on alternate names, parsing expressions, and plural values?
+    ☐ [List] - handle onClick to other ingredient card
+    ☐ [Modal] - notification on error save is still coming back in the error state even though the api call is successful
+    ☐ [Modal] - hook up ingredient merge
+    ☐ [Modal] - hook up relationship addition
+    ☐ [Modal] - clean up your stylesheets here
+    ☐ [StylizedInput] - look at extremely long values
+
+  # layout
+    ☐ [Navigation] cleanup menu styles
+    ☐ [Search] add search component
+        ...
+
+  # dashboard
+    ☐ add error viewer to see error instances between types
+    ☐ add new ing count
+
+  # import
+    ☐ figure out better solution to CORS limitations instead of iframing this server-side view in
+      ...
+    ☐ real-time import status
+      ...
+
+  # ingredients
+    # card
+      ☐ continue to think about how related suggestions are handled and weighted
+      ☐ consider loading icon during lookup
+      ☐ clean up your sass here wehrman
+      ☐ reference item onClick on error modal or card-level to flag reference-level errors ('white' => ['3 tablespoons white or red wine vinegar'], ['10 ounces white or yellow American cheese slices (about 16)'])
+      ☐ do i need to pass a canceltoken on saveIngredient()?
+      ☐ wire up merge modal calls
+      ☐ wire up relationship modal calls
+      ☐ reconsider warning styles and placement, and edge case for multiple
+
+    # index
+      ☐ updateView still needs search view logic
+      ☐ updateView - isExpanded needs to look at containerIngredient length
+      ☐ add letter pager when the view's ingredient count > 500
+
+  # recipes
+    ...
+
+
+
+# server --------------------------------------------------------------
+  # db
+    ☐ yeah, yeah someday i'll pick a real database
+      ...
+
+  # controllers
+    # category
+      ☐ establish category heirarchy
+        ...
+      ☐ auto-categorize based on ingredient matches
+        ...
+
+    # import
+      ☐ ignore 'recipesToSort' notebook on import (-notebook:recipesToSort)
+      ☐ duplicate categories and tags are sneaking into a given import session
+      ☐ take another pass at smarter error handling whenever you get to those test cases
+      ☐ real-time importer status updates to view or front-end
+        ...
+      ☐ consider pulling down all tags and categories once if these are empty
+      ☐ importer tests
+
+    # ingredient
+      ☐ write equipment error instances
+      ☐ for data, equipment, or instruction errors, tag those evernote notes with an 'attention' tag so i can go manually clean those notes up
+      ☐ saveIngredient handle relationship updates
+      ☐ saveIngredient handle ingredient updates
+      ☐ keep looking into other ways to load IngredientModel without circular constructor issues
+      ☐ pass manual line parse?
+      ☐ updateIngredient tests
+      ☐ saveIngredient tests
+
+    # parser
+      ☐ dynamically populate keyword match lists in grammar
+      ☐ exclude any prior matching error instances on new ingredients
+
+      ☐ import pluralization exception list (ex: 'molasess', 'chilies')
+      ☐ conjunction lookup exception: "red and green bell peppers" => "red bell peppers" and "green bell peppers"
+        - consider if there should be some limitations to this rule like color restriction; review separators.json instances
+
+
+    # recipe
+      ☐ add missing recipe test cases
+      ...
+
+    # tag
+      ☐ auto-tag based on ingredient properties
+        ...
+
+  # models
+    # category
+    # import
+    # ingredient
+    # parser
+    # recipe
+    # tag
+
+  # routes
+    ☐ handle one-off ingredient reference errors instead of thru the combined saveIngredient call ('white' => ['3 tablespoons white or red wine vinegar'], ['10 ounces white or yellow American cheese slices (about 16)'])
+
+  # views
+    ☐ the staged count is sometimes off after conversion
+
+  # lib
+   ☐ 'and/or' conjunctions
+   ☐ cleanup keyword lists and allow spaces and dashes in variations with other keywords so that these don't have to be setup seaparately ('well' and 'drained' should give you all combinations of 'well-drained', 'welldrained', 'well drained')
+
+

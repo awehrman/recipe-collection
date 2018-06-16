@@ -96,7 +96,6 @@ class List extends Component {
   }
 
   onSelect(e) {
-  	console.log('onSelect');
 		e.preventDefault();
 
   	this.setState({
@@ -110,11 +109,6 @@ class List extends Component {
   }
 
   onBlur(e) {
-  	console.log(`onBlur: rel:${e.relatedTarget} ${e.relatedTarget === null} `);
-  	if (e.relatedTarget) {
-  		console.log(`len: ${e.relatedTarget.length}`);
-  	}
-
   	// re-hide the input if we click away
   	if (!e.relatedTarget) {
   		this.setState({
