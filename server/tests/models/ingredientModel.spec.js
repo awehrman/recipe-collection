@@ -176,9 +176,6 @@ describe('Ingredient Class ============================================='.magent
 				ing.parentIngredientID = NaN;
 			}).to.throw('Invalid parentIngredientID parameter for Ingredient');
 			expect(() => {
-				ing.parentIngredientID = null;
-			}).to.throw('Invalid parentIngredientID parameter for Ingredient');
-			expect(() => {
 				ing.parentIngredientID = 123;
 			}).to.throw('Invalid parentIngredientID parameter for Ingredient');
 			expect(() => {
@@ -187,6 +184,9 @@ describe('Ingredient Class ============================================='.magent
 
 			ing.parentIngredientID = "33db8400-3b65-11e8-91fe-f38e2e77f95e";
 			expect(ing.parentIngredientID).to.equal("33db8400-3b65-11e8-91fe-f38e2e77f95e");
+
+			ing.parentIngredientID = null;
+			expect(ing.parentIngredientID).to.equal(null);
 		});
 
 		it('[dateCreated] should be read only', function() {
@@ -286,6 +286,7 @@ describe('Ingredient Class ============================================='.magent
 			//console.log(ing.getIngredient());
 		});
 
+		// TODO add matching rel and sub tests
 		it('[name] should update with a valid string', function() {
 			const ing = new Ingredient('potato');
 

@@ -387,6 +387,11 @@ findNotes = async (store, next) => {
     		throw err;
     	}
 
+    	// TODO filter out any notes in the recipesToSort notebook
+    	const RECIPES_TO_SORT = "f4deaa34-0e7e-4d1a-9ebf-d6c0b04900ed";
+    	results.notes = results.notes.filter(n => n.notebookGuid !== RECIPES_TO_SORT);
+    	console.log(results.notes.length);
+
     	// return the metadata
     	return results.notes;
   	})

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 
 import Button from './Button';
 import Select from './Select';
-import StylizedInput from './StylizedInput';
 import List from './List';
 
 import { clone } from '../../lib/util';

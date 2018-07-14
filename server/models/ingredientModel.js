@@ -142,7 +142,7 @@ class Ingredient {
 	}
 
 	set parentIngredientID(value) {
-		if (value && value !== '' && isUUID.v1(value)) {
+		if ((value && value !== '' && isUUID.v1(value)) || (value === null)) {
 			_dateUpdated.set(this, moment());
 			return _parentIngredientID.set(this, value);
 		}
@@ -198,7 +198,15 @@ class Ingredient {
 				_alternateNames.get(this).add(name);
 			}
 
-			// TODO do we need to do anything special if this matches a relatedIngredient or substitute?
+			// TODO add tests
+			if (_relatedIngredients.get(this).has(value)) {
+				_relatedIngredients.get(this).delete(value);
+			}
+
+			// TODO add tests
+			if (_substitutes.get(this).has(value)) {
+				_substitutes.get(this).delete(value);
+			}
 
 			_dateUpdated.set(this, moment());
 			return _name.set(this, value);
@@ -461,7 +469,8 @@ class Ingredient {
 		};
 	}
 
-	saveIngredient() {
+	saveIngredient(ensureRelated = false) {
+		console.log('saveIngredient'.green);
 		let ingredients = [];
 
 		try {
@@ -470,40 +479,41 @@ class Ingredient {
 			throw new Error('Error reading ingredients.json');
 		}
 
-		// determine if this is an existing ingredient or not
-		let existingIngredient = ingredientController.findIngredients('ingredientID', _ingredientID.get(this));
-
 		// make sure each relatedIngredient on this item also has this ingredient as a relation
 		// ie. if saving 'potato' with a relatedIngredient of 'yam'
 		// 'yam' should also have a relatedIngredient of 'potato'
 
-		// loop through related ingredients
-		const values = [ ...this.relatedIngredients.values() ]; // ids
+		if (!ensureRelated) {
+			// loop through related ingredients
+			const values = [ ...this.relatedIngredients.values() ]; // ids
 
-		if (values && values.length > 0) {
-			for (let id of values) {
-				// lookup this ingredient by id
-				let related = ingredientController.findIngredients('ingredientID', id);
-				related = (related.length === 1) ? related[0] : null;
+			if (values && values.length > 0) {
+				for (let id of values) {
+					// lookup this ingredient by id
+					let related = ingredientController.findIngredient('ingredientID', id);
+					
+					// if our ingredient isn't listed in the relatedIngredients of this item add it
+					if (related && !related.relatedIngredients.has(_name.get(this))) {
+						// add our current ingredient to related
+						related.relatedIngredients.set(_name.get(this), _ingredientID.get(this));
+						related.saveIngredient(true);
 
-				// if our ingredient isn't listed in the relatedIngredients of this item add it
-				if (related && !related.relatedIngredients.has(this.name)) {
-					// add our current ingredient to related
-					related.relatedIngredients.set(this.name, this.ingredientID);
-					related.saveIngredient(this.name);
-
-					// re-pull our ingredients now that we've updated them
-					try {
-						ingredients = JSON.parse(fs.readFileSync(`${DB_PATH}/ingredients.json`, 'utf8'));
-					} catch (ex) {
-						throw new Error('Error reading ingredients.json');
+						// re-pull our ingredients now that we've updated them
+						try {
+							ingredients = JSON.parse(fs.readFileSync(`${DB_PATH}/ingredients.json`, 'utf8'));
+						} catch (ex) {
+							throw new Error('Error reading ingredients.json');
+						}
 					}
 				}
 			}
 		}
 
+		// determine if this is an existing ingredient or not
+		let existingIngredient = ingredientController.findIngredient('ingredientID', _ingredientID.get(this));
+
 		// add this ingredient if it hasn't been added before
-		if (existingIngredient && existingIngredient.length === 0) {
+		if (!existingIngredient) {
 			ingredients.push(this.encodeIngredient());
 		} else {
 			// otherwise update the exisiting record
@@ -540,16 +550,23 @@ class Ingredient {
 		});
 	}
 
-	addAlternateName(value) {
+	addAlternateName(value, isValidate = true) {
+		console.log('addAlternateName'.green);
 		if (value && typeof value === 'string' && value.length > 0) {
-			// check that this value isn't used on any other ingredients
-			const existingIngredient = ingredientController.findIngredients('exact', value);
-			if (existingIngredient && existingIngredient.length > 0) {
-				throw new Error('Alternate name is already in use');
+
+			if (isValidate) {
+				console.log('isValidating');
+				// check that this value isn't used on any other ingredients
+				const existingIngredient = ingredientController.findIngredient('exact', value);
+				if (existingIngredient && (existingIngredient.ingredientID !== _ingredientID.get(this))) {
+					console.log('throwing error'.red);
+					throw new Error('Alternate name is already in use');
+				}
 			}
 
 			// check that this value dosen't not equal our current name
 			if (value === _name.get(this)) {
+				console.log(value);
 				throw new Error('Cannot assign current Ingredient name to alternateNames');
 			}
 
@@ -583,12 +600,14 @@ class Ingredient {
 		}
 	}
 
-	addParsingExpression(value) {
+	addParsingExpression(value, isValidate = true) {
 		if (value && typeof value === 'string' && value.length > 0) {
-			// check that this value isn't used on any other ingredients
-			const existingIngredient = ingredientController.findIngredients('exact', value);
-			if (existingIngredient && existingIngredient.length > 0) {
-				throw new Error('Parsing expression value is already in use');
+			if (isValidate) {
+				// check that this value isn't used on any other ingredients
+				const existingIngredient = ingredientController.findIngredients('exact', value);
+				if (existingIngredient && existingIngredient.length > 0) {
+					throw new Error('Parsing expression value is already in use');
+				}
 			}
 
 			// check that this value dosen't not equal our current name
@@ -635,26 +654,24 @@ class Ingredient {
 			let ingredient = null;
 			// look up this ingredient reference
 			if (id !== null) {
-				ingredient = ingredientController.findIngredients('ingredientID', id);
+				ingredient = ingredientController.findIngredient('ingredientID', id);
 			}
 
-			if (!ingredient || ingredient.length === 0) {
-				ingredient = ingredientController.findIngredients('exact', name);
-
-				// if we found a match, make sure we're saving only the ingredient name in our list
-				if (ingredient && ingredient.length === 1) {
-					_relatedIngredients.get(this).delete(name);
-					_relatedIngredients.get(this).set(ingredient[0].name, ingredient[0].ingredientID);
-				}
+			if (!ingredient) {
+				ingredient = ingredientController.findIngredient('name', name);
 			}
 
 			// if we didn't find an existing ingredient either by id or name
-			if (ingredient && ingredient.length === 0) {
+			if (!ingredient) {
 				// create the ingredient
 				ingredient = new Ingredient(name);
 				ingredient.saveIngredient();
 				_relatedIngredients.get(this).delete(name);
 				_relatedIngredients.get(this).set(name, ingredient.ingredientID);
+			} else {
+				// if we found a match, make sure we're saving only the ingredient name in our list
+				_relatedIngredients.get(this).delete(name);
+				_relatedIngredients.get(this).set(ingredient.name, ingredient.ingredientID);
 			}
 
 			return _relatedIngredients.get(this);
@@ -678,26 +695,24 @@ class Ingredient {
 			let ingredient = null;
 			// look up this ingredient reference
 			if (id !== null) {
-				ingredient = ingredientController.findIngredients('ingredientID', id);
+				ingredient = ingredientController.findIngredient('ingredientID', id);
 			}
 
-			if (!ingredient || ingredient.length === 0) {
-				ingredient = ingredientController.findIngredients('exact', name);
-
-				// if we found a match, make sure we're saving only the ingredient name in our list
-				if (ingredient && ingredient.length === 1) {
-					_substitutes.get(this).delete(name);
-					_substitutes.get(this).set(ingredient[0].name, ingredient[0].ingredientID);
-				}
+			if (!ingredient) {
+				ingredient = ingredientController.findIngredient('name', name);
 			}
 
 			// if we didn't find an existing ingredient either by id or name
-			if (ingredient && ingredient.length === 0) {
+			if (!ingredient) {
 				// create the ingredient
 				ingredient = new Ingredient(name);
 				ingredient.saveIngredient();
 				_substitutes.get(this).delete(name);
 				_substitutes.get(this).set(name, ingredient.ingredientID);
+			} else {
+				// if we found a match, make sure we're saving only the ingredient name in our list
+				_substitutes.get(this).delete(name);
+				_substitutes.get(this).set(ingredient.name, ingredient.ingredientID);
 			}
 
 			return _substitutes.get(this);
@@ -721,16 +736,16 @@ class Ingredient {
 			let recipe = null;
 			// look up this recipe reference
 			if (recipeID !== null) {
-				recipe = recipeController.findRecipes('recipeID', recipeID);
+				recipe = recipeController.findRecipe('recipeID', recipeID);
 			}
 
 			// if we didn't find this recipe by recipeID
-			if (recipe && recipe.length === 0) {
+			if (!recipe) {
 				// then don't accept this line
 				_references.get(this).delete(line);
 			} 
 
-			if (recipe && recipe.length === 1) {
+			if (recipe) {
 				_references.get(this).set(line, recipeID);
 			}
 

@@ -35,7 +35,7 @@ exports.saveIngredient = (req, res, next) => {
 	// handle ingredient updates
 	if (!error && !parent) {
 		try {
-			this.updateIngredient(ingredient);
+			ingredient = this.updateIngredient(ingredient);
 			status = `Updated ingredient ${ingredient.name}`;
 		} catch (err) {
 			status = err;
@@ -61,6 +61,13 @@ exports.findIngredient = (key = null, value = null) => {
 
 		// lookup by name
 		name: () => ingredients.filter(i => i.name === value),
+
+		// lookup by any exact matches on all fields
+		exact: () => ingredients.filter(i =>
+			i.name === value
+			|| i.plural === value
+			|| i.alternateNames.has(value)
+			|| i.parsingExpressions.has(value)),
 	};
 
 	if (key !== null && value !== null) {
@@ -151,8 +158,6 @@ exports.loadIngredients = (isEncodeObject = false) => {
 	return ingredients;
 };
 
-// TODO think through if we should pass an optional flag for removing ingredientLine
-// i'm thinking about instances like "For Serving:" that need to get stripped out of the recipe data
 exports.saveError = (error, ingredient) => {
 
 	// possible type values:
@@ -309,35 +314,239 @@ exports.saveError = (error, ingredient) => {
 	});
 };
 
-exports.updateIngredient = (updatedIng) => {
-	let ing = null;
+exports.updateIngredient = (updated) => {
+	console.log('updateIngredient'.green);
 
-	if (!updatedIng) {
+	if (!updated) {
 		throw new Error('No ingredient to update');
 	}
 
-	// check to see if this ingredient exists
-	let existing = null;
-	if (updatedIng.hasOwnProperty('ingredientID')) {
-		existing = this.findIngredients('ingredientID', updatedIng.ingredientID);
+	if (!this.validate(updated)) {
+		throw new Error('Invaild ingredient');
+	}
+	
+	let current, parent, existing, iterator, it, next;
+	let mergeList = [];
+
+	// lookup this ingredient
+	current = this.findIngredient('ingredientID', updated.ingredientID);
+	if (!current) {
+		// or create it if its new
+		current = new Ingredient(updated.name);
 	}
 
-	// if we didn't find any matches on the id
-	if (!existing || existing.length === 0) {
-		// look it up by name
-		existing = this.findIngredients('exact', updatedIng.name);
+	// handle any parentIngredientID updates
+	if (updated.parentIngredientID !== current.parentIngredientID) {
+		console.log(`[parentIngredientID] updated: ${updated.parentIngredientID}, current: ${current.parentIngredientID}`.yellow);
+		parent = this.findIngredient('ingredientID', updated.parentIngredientID);
+		current.parentIngredientID = (parent) ? updated.parentIngredientID : null;
+	}
 
-		if (existing.length === 0) {
-			// if still no dice, then set it up as a new ingredient
-			ing = new Ingredient(updatedIng);
+	// handle any name updates
+	if (updated.name !== current.name) {
+		console.log(`[name] updated: ${updated.name}, current: ${current.name}`.yellow);
+		
+		let originalName = current.name;
+
+		// check if this value is used on any other ingredients
+		existing = this.findIngredient('exact', updated.name);
+
+		// we'll always accept a new name even if its used elsewhere
+		// this will trigger a merge if we found it on another ingredient
+		current.name = updated.name;
+		
+		// if it doesn't or this is the same ingredient
+		if (!existing || (existing.ingredientID === updated.ingredientID)) {
+			console.log(`removing alt name ${originalName}`.red);
+			// this will move the original name down to the alt names by default
+			// delete this and let the other parts handle that assignment if it was manually moved
+			current.removeAlternateName(originalName);
+		} else {
+			console.log('a match on [name] triggered a merge!'.red);
+
+			if (!mergeList.find(i => i.ingredientID === existing.ingredientID)) {
+				mergeList.push(existing);
+			}
 		}
 	}
 
-	existing = (existing.length === 1) ? existing[1] : null;
+	// plural
+	if (updated.plural !== current.plural) {
+		console.log(`[plural] updated: ${updated.plural}, current: ${current.plural}`.yellow);
 
-	if (!existing) {
-		throw new Error('Found multiple matches on this ingredient');
+		// check if this value is used on any other ingredients
+		existing = this.findIngredient('exact', updated.plural);
+		
+		current.plural = updated.plural;
+
+		// if we didn't find this used on another ingredient
+		if (!existing) {
+			//...
+		} else {
+			if (!mergeList.find(i => i.ingredientID === existing.ingredientID)) {
+				mergeList.push(existing);
+			}	
+		}
 	}
 
-	// TODO...
+	// properties
+	current.properties = updated.properties;
+
+	// alternate names
+	current.alternateNames = new Set();
+
+	if (updated.alternateNames.size > 0) {
+		iterator = updated.alternateNames.entries();
+		for (it = 0; it < updated.alternateNames.size; it++) {
+			next = iterator.next().value[0];
+			try {
+				// accept it if it passes validation
+				current.addAlternateName(next, false);
+			} catch (ex) {}
+
+			existing = this.findIngredient('exact', next);
+
+			if (existing && (existing.ingredientID !== current.ingredientID)) {
+				mergeList.push(existing);
+			}
+		}
+	}
+
+	// parsing expressions
+	current.parsingExpressions = updated.parsingExpressions;
+
+	// related ingredients
+	current.relatedIngredients = updated.relatedIngredients;
+
+	// substitutes
+	current.substitutes = updated.substitutes;
+
+	// isValidated
+	current.isValidated = updated.isValidated;
+
+	// MERGE
+	mergeList.forEach(i => {
+		console.log(`merging ${i.name}...`.red);
+		//parentIngredientID
+		if (i.parentIngredientID && i.parentIngredientID !== current.parentIngredientID) {
+			current.parentIngredientID = i.parentIngredientID;
+		}
+
+		//name
+		if ((i.name !== current.name) && (i.name !== current.plural) && !current.alternateNames.has(i.name) && !current.parsingExpressions.has(i.name)) {
+			console.log(`adding name: ${i.name} to...`.red);
+			current.addAlternateName(i.name, false);
+			console.log(current.alternateNames);
+		}
+
+		//plural
+		if (i.plural && (i.plural !== current.name) && (i.plural !== current.plural) && !current.alternateNames.has(i.plural) && !current.parsingExpressions.has(i.plural)) {
+			console.log(`adding plural: ${i.name} to...`.red);
+			current.addAlternateName(i.plural, false);
+			console.log(current.alternateNames);
+		}
+		
+		//properties
+		Object.keys(current.properties).forEach(key => {
+			current.properties[key] = i.properties[key] || current.properties[key];
+		});
+
+		//alternateNames
+		if (i.alternateNames.size > 0) {
+			const altIt = i.alternateNames.entries();
+			for (let s = 0; s < i.alternateNames.size; s++) {
+				let altName = altIt.next().value[0];
+				if ((altName !== current.name) && (altName !== current.plural) && !current.alternateNames.has(altName) && !current.parsingExpressions.has(altName)) {
+					console.log(`adding alt name: ${i.name} to...`.red);
+					current.addAlternateName(altName, false);
+					console.log(current.alternateNames);
+				}
+			}
+		}
+
+		//parsingExpressions
+		if (i.parsingExpressions.size > 0) {
+			const expIt = i.parsingExpressions.entries();
+			for (let s = 0; s < i.parsingExpressions.size; s++) {
+				let parExp = expIt.next().value[0];
+				if ((parExp !== current.name) && (parExp !== current.plural) && !current.alternateNames.has(parExp) && !current.parsingExpressions.has(parExp)) {
+					console.log(`adding parsing expression: ${i.name} to...`.red);
+					current.addParsingExpression(parExp, false);
+				}
+			}
+		}
+
+		//relatedIngredients
+		if (i.relatedIngredients.size > 0) {
+			const refIt = i.relatedIngredients.entries();
+			for (let s = 0; s < i.relatedIngredients.size; s++) {
+				let [ name, ingredientID ] = refIt.next().value;
+				console.log('adding related....'.red);
+				current.addRelatedIngredient(name);
+				console.log(current.relatedIngredients);
+			}
+		}
+
+		//substitutes
+		if (i.substitutes.size > 0) {
+			const refIt = i.substitutes.entries();
+			for (let s = 0; s < i.substitutes.size; s++) {
+				let [ name, ingredientID ] = refIt.next().value;
+				console.log('adding substitute....'.red);
+				current.addSubstitute(name);
+				console.log(current.substitutes);
+			}
+		}
+
+		//references
+		if (i.references.size > 0) {
+			const refIt = i.references.entries();
+			for (let s = 0; s < i.references.size; s++) {
+				let [ line, recipeID ] = refIt.next().value;
+				console.log('adding reference....'.red);
+				console.log(line);
+				console.log(recipeID);
+				current.addReference(line, recipeID);
+				console.log(current.references);
+			}
+		}
+
+		// isValidated
+		current.isValidated = i.isValidated || current.isValidated;
+
+		i.removeIngredient();
+	});
+
+	current.saveIngredient();
+	return current;
 };
+
+exports.validate = (value) => {
+	value = value.encodeIngredient();
+	let isValid = true;
+	const requiredProperties = [
+		'ingredientID',
+		'parentIngredientID',
+		'dateCreated',
+		'dateUpdated',
+		'name',
+		'plural',
+		'properties',
+		'alternateNames',
+		'parsingExpressions',
+		'relatedIngredients',
+		'substitutes',
+		'references',
+		'isValidated'
+	];
+
+	for (let i in requiredProperties) {
+		//console.log(`${requiredProperties[i]}: ${requiredProperties[i] in value}`.yellow);
+		if (!(requiredProperties[i] in value)) {
+			isValid = false;
+			break;
+		}
+	}
+
+	return isValid;
+}

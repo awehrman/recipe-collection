@@ -94,7 +94,6 @@
       ☐ conjunction lookup exception: "red and green bell peppers" => "red bell peppers" and "green bell peppers"
         - consider if there should be some limitations to this rule like color restriction; review separators.json instances
 
-
     # recipe
       ☐ add missing recipe test cases
       ...
@@ -102,15 +101,7 @@
     # tag
       ☐ auto-tag based on ingredient properties
         ...
-
-  # models
-    # category
-    # import
-    # ingredient
-    # parser
-    # recipe
-    # tag
-
+        
   # routes
     ☐ handle one-off ingredient reference errors instead of thru the combined saveIngredient call ('white' => ['3 tablespoons white or red wine vinegar'], ['10 ounces white or yellow American cheese slices (about 16)'])
 
