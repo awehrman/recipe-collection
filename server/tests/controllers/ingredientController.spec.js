@@ -50,7 +50,6 @@ const recipeController = require('../../controllers/recipeController');
 */
 
 const restoreTestDatabases = () => {
-	console.log('RESTORING TEST DATABASES'.yellow);
 	const databases = [ 'equipment', 'errors', 'ingredients', 'recipes' ];
 
 	// load presets for each database
@@ -69,7 +68,7 @@ const restoreTestDatabases = () => {
 	}
 };
 
-describe.only('Ingredient Controller ============================================='.magenta, function () {
+describe('Ingredient Controller ============================================='.magenta, function () {
 	it('should initialize test data', function() {
 		const databases = [ 'equipment', 'errors', 'ingredients', 'recipes' ];
 
@@ -89,14 +88,14 @@ describe.only('Ingredient Controller ===========================================
 		}
 	});
 
-	describe.skip('Ingredient Methods ============================================='.magenta, function () {
-		it.skip('[saveIngredient] should update the ingredient based on its ingredient, parent, and error values', function() {
+	describe('Ingredient Methods ============================================='.magenta, function () {
+		it('[saveIngredient] should update the ingredient based on its ingredient, parent, and error values', function() {
 
 		});
 	});
 
 	describe('Ingredient Methods ============================================='.magenta, function () {
-		it.skip('[findIngredient] should return a matching Ingredient object or null', function() {
+		it('[findIngredient] should return a matching Ingredient object or null', function() {
 			// no matches should return null
 			let ing = ingredientController.findIngredient('name', 'apple');
 			expect(ing).to.be.null;			
@@ -110,7 +109,7 @@ describe.only('Ingredient Controller ===========================================
 			expect(ing.name).to.equal('potato');
 		});
 
-		it.skip('[findIngredients] should return an array of ingredients matching the search key and value', function() {
+		it('[findIngredients] should return an array of ingredients matching the search key and value', function() {
 			let ingredients = [];
 
 			// should return all ingredients
@@ -181,12 +180,12 @@ describe.only('Ingredient Controller ===========================================
 
 			// related ingredients by ingredientID
 			ingredients = ingredientController.findIngredients('related', '0eef4ae0-3f35-11e8-9692-3d22a379ab33');
-			expect(ingredients.length).to.equal(2);
+			expect(ingredients.length).to.equal(1);
 			ingredients = [];
 
 			// related ingredients by name
 			ingredients = ingredientController.findIngredients('related', 'flour');
-			expect(ingredients.length).to.equal(2);
+			expect(ingredients.length).to.equal(1);
 			ingredients = [];
 
 			// exact match with no results
@@ -195,7 +194,7 @@ describe.only('Ingredient Controller ===========================================
 			ingredients = [];
 		});
 
-		it.skip('[loadErrors] should return an array of ingredient errors', function() {
+		it('[loadErrors] should return an array of ingredient errors', function() {
 			const errors = ingredientController.loadErrors();
 
 			for (let ing of errors) {
@@ -203,14 +202,14 @@ describe.only('Ingredient Controller ===========================================
 			}
 		});
 
-		it.skip('[loadIngredients] should return an array of Ingredient objects', function() {
+		it('[loadIngredients] should return an array of Ingredient objects', function() {
 			const ingredients = ingredientController.loadIngredients();
 			for (let ing of ingredients) {
 				expect(typeof ing === 'object').to.be.true;
 			}
 		});
 
-		it.skip('[saveError] should save an ingredient error', function() {
+		it('[saveError] should save an ingredient error', function() {
 			// [ 'parsing', 'data', 'semantic', 'instruction', 'equipment' ]
 			let errors = ingredientController.loadErrors();
 			let count = errors.length;
@@ -355,7 +354,6 @@ describe.only('Ingredient Controller ===========================================
 			// ... create the associated ingredient and assign recipeID and reference of ingredient
 			associatedMatch = ingredientController.findIngredient('name', associated);
 			expect(associatedMatch).to.exist;
-			//console.log(associatedMatch.references);
 			expect(associatedMatch.references.has(ref)).to.equal(true);
 			
 			// ... expect any connected recipes to
@@ -435,7 +433,7 @@ describe.only('Ingredient Controller ===========================================
 			// ex: 6 wt oz tomato puree - add 'wt oz' to unit 
 		});
 
-		it.skip('[updateIngredient] should throw errors for bad input', function() {
+		it('[updateIngredient] should throw errors for bad input', function() {
 			let ing, alt;
 
 			// # passing an invalid ing param should through an error
@@ -491,8 +489,6 @@ describe.only('Ingredient Controller ===========================================
 			ing.name = 'chicken breast'; 
 			ing = ingredientController.updateIngredient(ing);
 
-			console.log(ing.getIngredient());
-
 			// ... parentIngredientID
 			expect(ing.parentIngredientID).to.equal(alt.parentIngredientID);
 
@@ -508,11 +504,13 @@ describe.only('Ingredient Controller ===========================================
 
 			// # updates on an ingredient should update each property
 
+			alt = ingredientController.findIngredient('name', 'lamb');
+
 			ing = new Ingredient('lamb joint');
 			ing.saveIngredient();
 
 			ing.name = 'lamb shank';
-			ing.parentIngredientID = 'e9da5640-7176-11e8-acd0-d7ee6bf24d37';
+			ing.parentIngredientID = alt.parentIngredientID;
 			ing.plural = 'lamb shanks';
 			ing.properties = {
 				'meat': true,
@@ -532,7 +530,7 @@ describe.only('Ingredient Controller ===========================================
 
 			expect(ing.name).to.equal('lamb shank');
 			expect(ing.plural).to.equal('lamb shanks');
-			expect(ing.parentIngredientID).to.equal('e9da5640-7176-11e8-acd0-d7ee6bf24d37');
+			expect(ing.parentIngredientID).to.equal(alt.parentIngredientID);
 			expect(ing.properties.meat).to.equal(true);
 			expect(ing.alternateNames.has('lamb leg')).to.equal(true);
 			expect(ing.parsingExpressions.has('lean lamb shank')).to.equal(true);
@@ -543,7 +541,7 @@ describe.only('Ingredient Controller ===========================================
 
 		// TODO clean up
 		// TODO add more instances where the same value is applied on different fields
-		it.skip('[updateIngredient] name updates', function() {
+		it('[updateIngredient] name updates', function() {
 			// updating an ingredient with a plural value...
 
 			// ... not in use elsewhere
@@ -572,7 +570,6 @@ describe.only('Ingredient Controller ===========================================
 			ing.alternateNames = new Set();
 			ing = ingredientController.updateIngredient(ing);
 			expect(ing.name).to.equal('green chillies');
-			console.log(ing.alternateNames);
 			expect(ing.alternateNames.has('green chilly')).to.be.false;
 
 			// name is a used value on the old ing (alt), but not on the new
@@ -670,10 +667,9 @@ describe.only('Ingredient Controller ===========================================
 			expect(ing.name).to.equal(
 				'sriracha');
 			expect(ing.references.size).to.equal(2);
-			
 		});
 
-		it.skip('[updateIngredient] plural updates', function() {
+		it('[updateIngredient] plural updates', function() {
 			restoreTestDatabases();
 			let ing, alt;
 
@@ -766,9 +762,7 @@ describe.only('Ingredient Controller ===========================================
 
 			alt = ingredientController.findIngredient('name', 'green onion');
 			alt.addSubstitute('scallion', ing.ingredientID);
-			console.log(alt.substitutes);
 			alt.saveIngredient();
-			console.log(alt.getIngredient());
 			expect(alt.substitutes.has('scallion')).to.be.true;
 
 			ing = new Ingredient('spring onion');
@@ -841,8 +835,32 @@ describe.only('Ingredient Controller ===========================================
 			alt = ingredientController.findIngredient('name', 'orange juice');
 			expect(alt).to.not.exist;
 
-
 			// ... in use as a 'related ingredient' value on another ingredient
+
+			alt = new Ingredient('escarole');
+			alt.addRelatedIngredient('endive');
+			alt.saveIngredient();
+			let oldID = alt.ingredientID;
+
+			ing = ingredientController.findIngredient('name', 'endive');
+			expect([ ... ing.relatedIngredients.values() ].filter(i => i === oldID).length).to.equal(1);
+
+			alt = new Ingredient('curly endive');
+			alt.saveIngredient(true);
+
+			// update 'curly endive' to 'escarole'
+			// 'escarole' id should update on 'endive'
+			alt.name = 'escarole';
+			alt = ingredientController.updateIngredient(alt);
+
+			expect(alt.name).to.equal('escarole');
+			expect(alt.ingredientID).to.not.equal(oldID);
+			expect(alt.relatedIngredients.has('endive')).to.be.true;
+
+			ing = ingredientController.findIngredient('name', 'endive');
+			expect([ ... ing.relatedIngredients.values() ].filter(i => i === oldID).length).to.equal(0);
+			expect([ ... ing.relatedIngredients.values() ].filter(i => i === alt.ingredientID).length).to.equal(1);
+			expect(ing.relatedIngredients.has('escarole')).to.be.true;
 
 			// ... in use as a 'substitute' value on another ingredient
 		});

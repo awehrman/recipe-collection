@@ -35,7 +35,14 @@ exports.saveIngredient = (req, res, next) => {
 	// handle ingredient updates
 	if (!error && !parent) {
 		try {
+			// this is purely to avoid a circular dependency
+			// TODO this is probably a code smell so look into better patterns
+			const Ingredient = require('../models/ingredientModel');
+
+			
+			ingredient = new Ingredient(ingredient);
 			ingredient = this.updateIngredient(ingredient);
+			ingredient = ingredient.encodeIngredient();
 			status = `Updated ingredient ${ingredient.name}`;
 		} catch (err) {
 			status = err;
@@ -43,7 +50,8 @@ exports.saveIngredient = (req, res, next) => {
 	}
 
 	console.log(`${status}`.green);
-	res.json({ status, ingredient, parent, error });
+	console.log(ingredient);
+	res.json({ status, ingredient: ingredient, parent, error });
 };
 
 /*=====  End of Web Requests  ======*/
@@ -108,11 +116,14 @@ exports.findIngredients = (key = null, value = null) => {
 		// lookup all ingredients connected by the name or ingredientID provided
 		related: () => ingredients.filter(i => {
 			// match directly on name or ID
-			if (i.name === value) { return true; }
-			if (i.ingredientID === value) { return true; }
-			// find any matches linked within
-			const related = [ ...i.relatedIngredients].filter(n => n[0] === value || n[1] === value);
+			//if (i.name === value) { return true; }
+			//if (i.ingredientID === value) { return true; }
+			// find any matches linked within on related or substitutes
+			const related = [ ...i.relatedIngredients ].filter(n => n[0] === value || n[1] === value);
 			if (related.length > 0) { return true; }
+
+			const substitutes = [ ...i.substitutes ].filter(n => n[0] === value || n[1] === value);
+			if (substitutes.length > 0) { return true; }
 			return false;
 		})
 	};
@@ -315,8 +326,6 @@ exports.saveError = (error, ingredient) => {
 };
 
 exports.updateIngredient = (updated) => {
-	console.log('updateIngredient'.green);
-
 	if (!updated) {
 		throw new Error('No ingredient to update');
 	}
@@ -330,6 +339,7 @@ exports.updateIngredient = (updated) => {
 
 	// lookup this ingredient
 	current = this.findIngredient('ingredientID', updated.ingredientID);
+
 	if (!current) {
 		// or create it if its new
 		current = new Ingredient(updated.name);
@@ -337,55 +347,41 @@ exports.updateIngredient = (updated) => {
 
 	// handle any parentIngredientID updates
 	if (updated.parentIngredientID !== current.parentIngredientID) {
-		console.log(`[parentIngredientID] updated: ${updated.parentIngredientID}, current: ${current.parentIngredientID}`.yellow);
 		parent = this.findIngredient('ingredientID', updated.parentIngredientID);
 		current.parentIngredientID = (parent) ? updated.parentIngredientID : null;
 	}
 
 	// handle any name updates
 	if (updated.name !== current.name) {
-		console.log(`[name] updated: ${updated.name}, current: ${current.name}`.yellow);
-		
-		let originalName = current.name;
-
-		// check if this value is used on any other ingredients
-		existing = this.findIngredient('exact', updated.name);
+		const originalName = current.name;
 
 		// we'll always accept a new name even if its used elsewhere
 		// this will trigger a merge if we found it on another ingredient
 		current.name = updated.name;
+
+		// check if this value is used on any other ingredients
+		existing = this.findIngredient('exact', updated.name);
 		
 		// if it doesn't or this is the same ingredient
 		if (!existing || (existing.ingredientID === updated.ingredientID)) {
-			console.log(`removing alt name ${originalName}`.red);
 			// this will move the original name down to the alt names by default
 			// delete this and let the other parts handle that assignment if it was manually moved
 			current.removeAlternateName(originalName);
-		} else {
-			console.log('a match on [name] triggered a merge!'.red);
-
-			if (!mergeList.find(i => i.ingredientID === existing.ingredientID)) {
-				mergeList.push(existing);
-			}
+		} else if (existing && !mergeList.find(i => i.ingredientID === existing.ingredientID)) {
+			mergeList.push(existing);
 		}
 	}
 
 	// plural
 	if (updated.plural !== current.plural) {
-		console.log(`[plural] updated: ${updated.plural}, current: ${current.plural}`.yellow);
 
 		// check if this value is used on any other ingredients
 		existing = this.findIngredient('exact', updated.plural);
 		
 		current.plural = updated.plural;
 
-		// if we didn't find this used on another ingredient
-		if (!existing) {
-			//...
-		} else {
-			if (!mergeList.find(i => i.ingredientID === existing.ingredientID)) {
-				mergeList.push(existing);
-			}	
+		if (existing && !mergeList.find(i => i.ingredientID === existing.ingredientID)) {
+			mergeList.push(existing);
 		}
 	}
 
@@ -402,7 +398,9 @@ exports.updateIngredient = (updated) => {
 			try {
 				// accept it if it passes validation
 				current.addAlternateName(next, false);
-			} catch (ex) {}
+			} catch (ex) {
+				console.log(ex);
+			}
 
 			existing = this.findIngredient('exact', next);
 
@@ -413,7 +411,25 @@ exports.updateIngredient = (updated) => {
 	}
 
 	// parsing expressions
-	current.parsingExpressions = updated.parsingExpressions;
+	current.parsingExpressions = new Set();
+	if (updated.parsingExpressions.size > 0) {
+		iterator = updated.parsingExpressions.entries();
+		for (it = 0; it < updated.parsingExpressions.size; it++) {
+			next = iterator.next().value[0];
+			try {
+				// accept it if it passes validation
+				current.addParsingExpression(next, false);
+			} catch (ex) {
+				console.log(ex);
+			}
+
+			existing = this.findIngredient('exact', next);
+
+			if (existing && (existing.ingredientID !== current.ingredientID)) {
+				mergeList.push(existing);
+			}
+		}
+	}
 
 	// related ingredients
 	current.relatedIngredients = updated.relatedIngredients;
@@ -424,9 +440,8 @@ exports.updateIngredient = (updated) => {
 	// isValidated
 	current.isValidated = updated.isValidated;
 
-	// MERGE
+	// merge any ingredient records into current record
 	mergeList.forEach(i => {
-		console.log(`merging ${i.name}...`.red);
 		//parentIngredientID
 		if (i.parentIngredientID && i.parentIngredientID !== current.parentIngredientID) {
 			current.parentIngredientID = i.parentIngredientID;
@@ -434,16 +449,12 @@ exports.updateIngredient = (updated) => {
 
 		//name
 		if ((i.name !== current.name) && (i.name !== current.plural) && !current.alternateNames.has(i.name) && !current.parsingExpressions.has(i.name)) {
-			console.log(`adding name: ${i.name} to...`.red);
 			current.addAlternateName(i.name, false);
-			console.log(current.alternateNames);
 		}
 
 		//plural
 		if (i.plural && (i.plural !== current.name) && (i.plural !== current.plural) && !current.alternateNames.has(i.plural) && !current.parsingExpressions.has(i.plural)) {
-			console.log(`adding plural: ${i.name} to...`.red);
 			current.addAlternateName(i.plural, false);
-			console.log(current.alternateNames);
 		}
 		
 		//properties
@@ -457,9 +468,7 @@ exports.updateIngredient = (updated) => {
 			for (let s = 0; s < i.alternateNames.size; s++) {
 				let altName = altIt.next().value[0];
 				if ((altName !== current.name) && (altName !== current.plural) && !current.alternateNames.has(altName) && !current.parsingExpressions.has(altName)) {
-					console.log(`adding alt name: ${i.name} to...`.red);
 					current.addAlternateName(altName, false);
-					console.log(current.alternateNames);
 				}
 			}
 		}
@@ -470,7 +479,6 @@ exports.updateIngredient = (updated) => {
 			for (let s = 0; s < i.parsingExpressions.size; s++) {
 				let parExp = expIt.next().value[0];
 				if ((parExp !== current.name) && (parExp !== current.plural) && !current.alternateNames.has(parExp) && !current.parsingExpressions.has(parExp)) {
-					console.log(`adding parsing expression: ${i.name} to...`.red);
 					current.addParsingExpression(parExp, false);
 				}
 			}
@@ -481,9 +489,7 @@ exports.updateIngredient = (updated) => {
 			const refIt = i.relatedIngredients.entries();
 			for (let s = 0; s < i.relatedIngredients.size; s++) {
 				let [ name, ingredientID ] = refIt.next().value;
-				console.log('adding related....'.red);
 				current.addRelatedIngredient(name);
-				console.log(current.relatedIngredients);
 			}
 		}
 
@@ -492,9 +498,7 @@ exports.updateIngredient = (updated) => {
 			const refIt = i.substitutes.entries();
 			for (let s = 0; s < i.substitutes.size; s++) {
 				let [ name, ingredientID ] = refIt.next().value;
-				console.log('adding substitute....'.red);
 				current.addSubstitute(name);
-				console.log(current.substitutes);
 			}
 		}
 
@@ -503,16 +507,29 @@ exports.updateIngredient = (updated) => {
 			const refIt = i.references.entries();
 			for (let s = 0; s < i.references.size; s++) {
 				let [ line, recipeID ] = refIt.next().value;
-				console.log('adding reference....'.red);
-				console.log(line);
-				console.log(recipeID);
 				current.addReference(line, recipeID);
-				console.log(current.references);
 			}
 		}
 
 		// isValidated
 		current.isValidated = i.isValidated || current.isValidated;
+
+		// search for any connections in relatedIngredients and substitues on other ingredients that need to be updated
+		let updatedIngredients = this.findIngredients('related', i.ingredientID);
+		updatedIngredients.forEach(u => {
+			if (u.relatedIngredients.has(i.name)) {
+				u.removeRelatedIngredient(i.name);
+				u.addRelatedIngredient(current.name, current.ingredientID);
+				u.saveIngredient(true);
+			}
+
+			if (u.substitutes.has(i.name)) {
+				u.removeSubstitute(i.name);
+				u.addSubstitute(current.name, current.ingredientID);
+				u.saveIngredient(true);
+			}
+
+		});
 
 		i.removeIngredient();
 	});
@@ -522,7 +539,11 @@ exports.updateIngredient = (updated) => {
 };
 
 exports.validate = (value) => {
-	value = value.encodeIngredient();
+	// TODO clean up
+	try {
+		value = value.encodeIngredient();
+	} catch (ex) {}
+
 	let isValid = true;
 	const requiredProperties = [
 		'ingredientID',
@@ -541,7 +562,6 @@ exports.validate = (value) => {
 	];
 
 	for (let i in requiredProperties) {
-		//console.log(`${requiredProperties[i]}: ${requiredProperties[i] in value}`.yellow);
 		if (!(requiredProperties[i] in value)) {
 			isValid = false;
 			break;

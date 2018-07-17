@@ -200,7 +200,7 @@ class Card extends Component {
   saveIngredient(parent = null, error = null) {
   	console.warn('saveIngredient');
   	const ingredient = clone(this.state.ingredient);
-  	ingredient.validated = true;
+  	ingredient.isValidated = true;
 
   	axios.post('/ingredients/save', {
 	    ingredient,
@@ -280,15 +280,15 @@ class Card extends Component {
   			ingredient.alternateNames.push(value);
   			break;
   		case 'rel':
-  			// the back-end will fill in the most up-to-date ID for us
-  			ingredient.relatedIngredients.push({ ingredientID: null, name: value });
+  			// the back-end will fill in the most up-to-date ID for usre
+  			ingredient.relatedIngredients.push([ value, null ]);
   			break
   		case 'exp':
   			ingredient.parsingExpressions.push(value);
   			break;
   		case 'sub':
   			// the back-end will fill in the most up-to-date ID for us
-  			ingredient.substitutes.push({ ingredientID: null, name: value });
+  			ingredient.substitutes.push([ value, null ]);
   			break;
   		default:
   			break;
@@ -369,7 +369,7 @@ class Card extends Component {
 		if (ingredient && isEditMode) {
 	  	let related = [];
   		const name = ingredient.name; // 'active dry yeast'
-  		const nameArray = name.split(' '); // ['active', 'dry', 'yeast']
+  		const nameArray = ('name' in ingredient) ? name.split(' ') : []; // ['active', 'dry', 'yeast']
   		// consider using same word list as grammar
   		const excluded = ['a', 'from', 'the', 'you', 'be', 'for', 'with', 'plus']; // TODO expand
 

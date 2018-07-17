@@ -68,7 +68,6 @@
         ...
 
     # import
-      ☐ ignore 'recipesToSort' notebook on import (-notebook:recipesToSort)
       ☐ duplicate categories and tags are sneaking into a given import session
       ☐ take another pass at smarter error handling whenever you get to those test cases
       ☐ real-time importer status updates to view or front-end

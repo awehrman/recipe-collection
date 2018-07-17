@@ -145,6 +145,14 @@ section .view ul.containers {
         cursor: pointer; }
         section .view ul.containers li.container ul.ingredients li.ingredient:hover {
           color: dodgerblue; }
+      section .view ul.containers li.container ul.ingredients .child {
+        font-style: italic; }
+      section .view ul.containers li.container ul.ingredients .active {
+        display: inline-block;
+        background: #eee;
+        width: 100%; }
+      section .view ul.containers li.container ul.ingredients .invalid {
+        color: silver; }
       section .view ul.containers li.container ul.ingredients li.header {
         font-size: 2em;
         display: inline-block;

@@ -57,7 +57,6 @@ describe('Ingredient Class ============================================='.magent
 			expect(() => new Ingredient(123)).to.throw('Invalid constructor for Ingredient');
 
 			const ing = new Ingredient('potato');
-			//console.log(ing.getIngredient());
 
 			expect(ing.ingredientID).to.exist;
 			expect(ing.parentIngredientID).to.be.null;
@@ -278,12 +277,9 @@ describe('Ingredient Class ============================================='.magent
 			expect(initialDate).to.not.equal(ing.dateUpdated);
 			initialDate = ing.dateUpdated;
 
-			//
 			ing.isValidated = true;
 			expect(initialDate).to.not.equal(ing.dateUpdated);
 			initialDate = ing.dateUpdated;
-
-			//console.log(ing.getIngredient());
 		});
 
 		// TODO add matching rel and sub tests
@@ -330,7 +326,6 @@ describe('Ingredient Class ============================================='.magent
 			expect(ing.alternateNames.has('potatoes')).to.be.true;
 			expect(ing.alternateNames.has('spuds')).to.be.true;
 			expect(ing.alternateNames.size).to.equal(3); // { 'potato', 'potatoes', 'spuds' }
-			//console.log(ing.getIngredient());
 
 			// name: potato => yukon gold potato
 			// TODO ??? this signals a merger... come back to this
@@ -744,11 +739,13 @@ describe('Ingredient Class ============================================='.magent
 			reset();
 
 			// fill-in our yam ingredient for the next set of tests...
-			let yam = ingredientController.findIngredients('name', 'yam')[0];
+			let yam = ingredientController.findIngredient('name', 'yam');
 			yam.plural = 'yams';
 			yam.alternateNames = new Set([ 'sweet potato' ]);
 			yam.parsingExpressions = new Set([ 'diced yams' ]);
 			yam.saveIngredient();
+
+			yam = ingredientController.findIngredient('name', 'yam');
 
 			// if we pass in an ingredientID that doesn't exist in our database
 			// along with the plural name of an ingredient that does exist
@@ -782,7 +779,7 @@ describe('Ingredient Class ============================================='.magent
 
 			// if we pass in an ingredientID that doesn't exist in our database
 			// along with a used alternate name
-			related.set('diced yams', 'dcbaa4a0-3aae-11e8-842e-95ab6a86b1b2'); // ID DOESN'T EXIST - ONE ALT NAME MATCH
+			related.set('sweet potato', 'dcbaa4a0-3aae-11e8-842e-95ab6a86b1b2'); // ID DOESN'T EXIST - ONE ALT NAME MATCH
 			ing.relatedIngredients = related;
 			refreshArrays();
 			// expect it to put yam in our array

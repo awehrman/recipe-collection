@@ -119,6 +119,20 @@ section {
 						}
 					}
 
+					.child {
+						font-style: italic;
+					}
+
+					.active {
+						display: inline-block;
+						background: #eee;
+						width: 100%;
+					}
+
+					.invalid {
+						color: silver;
+					}
+
 					li.header {
 						font-size: 2em;
 						display: inline-block;

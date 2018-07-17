@@ -129,7 +129,7 @@ class List extends Component {
 	  			<Button
 	  				className="list"
 	  				/* TODO link to other card */
-		  			label={ i.name || i }
+		  			label={ i.name || i[0] || i }
 	  			/>
 	  		</li>
 	  	);

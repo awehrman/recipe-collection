@@ -469,8 +469,7 @@ class Ingredient {
 		};
 	}
 
-	saveIngredient(ensureRelated = false) {
-		console.log('saveIngredient'.green);
+	saveIngredient(skipRelated = false) {
 		let ingredients = [];
 
 		try {
@@ -483,9 +482,9 @@ class Ingredient {
 		// ie. if saving 'potato' with a relatedIngredient of 'yam'
 		// 'yam' should also have a relatedIngredient of 'potato'
 
-		if (!ensureRelated) {
+		if (!skipRelated) {
 			// loop through related ingredients
-			const values = [ ...this.relatedIngredients.values() ]; // ids
+			const values = [ ..._relatedIngredients.get(this).values() ]; // ids
 
 			if (values && values.length > 0) {
 				for (let id of values) {
@@ -493,7 +492,7 @@ class Ingredient {
 					let related = ingredientController.findIngredient('ingredientID', id);
 					
 					// if our ingredient isn't listed in the relatedIngredients of this item add it
-					if (related && !related.relatedIngredients.has(_name.get(this))) {
+					if (related && ![ ...related.relatedIngredients.values() ].find(r => r === _ingredientID.get(this))) {
 						// add our current ingredient to related
 						related.relatedIngredients.set(_name.get(this), _ingredientID.get(this));
 						related.saveIngredient(true);
@@ -551,22 +550,18 @@ class Ingredient {
 	}
 
 	addAlternateName(value, isValidate = true) {
-		console.log('addAlternateName'.green);
 		if (value && typeof value === 'string' && value.length > 0) {
 
 			if (isValidate) {
-				console.log('isValidating');
 				// check that this value isn't used on any other ingredients
 				const existingIngredient = ingredientController.findIngredient('exact', value);
 				if (existingIngredient && (existingIngredient.ingredientID !== _ingredientID.get(this))) {
-					console.log('throwing error'.red);
 					throw new Error('Alternate name is already in use');
 				}
 			}
 
 			// check that this value dosen't not equal our current name
 			if (value === _name.get(this)) {
-				console.log(value);
 				throw new Error('Cannot assign current Ingredient name to alternateNames');
 			}
 
@@ -661,18 +656,22 @@ class Ingredient {
 				ingredient = ingredientController.findIngredient('name', name);
 			}
 
+			if (!ingredient) {
+				ingredient = ingredientController.findIngredient('exact', name);
+				// if we found this ultimately by a field other than the name, we'll use the name off the ingredient
+				name = ingredient ? ingredient.name : name;
+			}
+
 			// if we didn't find an existing ingredient either by id or name
 			if (!ingredient) {
 				// create the ingredient
 				ingredient = new Ingredient(name);
 				ingredient.saveIngredient();
-				_relatedIngredients.get(this).delete(name);
-				_relatedIngredients.get(this).set(name, ingredient.ingredientID);
-			} else {
-				// if we found a match, make sure we're saving only the ingredient name in our list
-				_relatedIngredients.get(this).delete(name);
-				_relatedIngredients.get(this).set(ingredient.name, ingredient.ingredientID);
 			}
+			
+			// if we found a match, make sure we're saving only the ingredient name in our list
+			_relatedIngredients.get(this).delete(name);
+			_relatedIngredients.get(this).set(name, ingredient.ingredientID);
 
 			return _relatedIngredients.get(this);
 		}
@@ -702,18 +701,22 @@ class Ingredient {
 				ingredient = ingredientController.findIngredient('name', name);
 			}
 
+			if (!ingredient) {
+				ingredient = ingredientController.findIngredient('exact', name);
+				// if we found this ultimately by a field other than the name, we'll use the name off the ingredient
+				name = ingredient ? ingredient.name : name;
+			}
+
 			// if we didn't find an existing ingredient either by id or name
 			if (!ingredient) {
 				// create the ingredient
 				ingredient = new Ingredient(name);
 				ingredient.saveIngredient();
-				_substitutes.get(this).delete(name);
-				_substitutes.get(this).set(name, ingredient.ingredientID);
-			} else {
-				// if we found a match, make sure we're saving only the ingredient name in our list
-				_substitutes.get(this).delete(name);
-				_substitutes.get(this).set(ingredient.name, ingredient.ingredientID);
 			}
+
+			// if we found a match, make sure we're saving only the ingredient name in our list
+			_substitutes.get(this).delete(name);
+			_substitutes.get(this).set(name, ingredient.ingredientID);
 
 			return _substitutes.get(this);
 		}

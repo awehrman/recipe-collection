@@ -427,7 +427,9 @@ class Index extends Component {
 
 	renderIngredients(container) {
 		const ingredients = clone(this.state.ingredients);
+		const { currentView } = this.state;
 		let ingredientList = [];
+		let className = '';
 
   	// if we have more than 100 ingredients in this container, we'll group these by letter
   	if (container.ingredients && (container.ingredients.length > 100) && (ingredients.length <= 500)) {
@@ -442,9 +444,14 @@ class Index extends Component {
   			ingredientList = ingredientList.concat(container.ingredients
 													.filter(i => !i.name.charAt(0).match(/[a-z]/i))
 													.map(i => {
+														className = 'ingredient';
+												  	//className += (isActive) ? 'active ' : '';
+												  	className += (i.isParentIngredientID) ? ' child' : '';
+												  	className += (!i.isValidated && currentView !== 'new') ? ' invalid' : '';
+
 														return {
 															key: `${i.ingredientID}_ing`,
-															className: 'ingredient',
+															className: className || "",
 															name: i.name,
 															onClick: e => this.onIngredientClick(e, container, i)
 														};
@@ -463,9 +470,13 @@ class Index extends Component {
 									  			grouping = grouping.concat(container.ingredients
 									  									.filter(i => i.name.charAt(0) === char)
 									  									.map(i => {
+																				className = 'ingredient';
+																		  	//className += (isActive) ? 'active ' : '';
+																		  	className += (i.isParentIngredientID) ? ' child' : '';
+																		  	className += (!i.isValidated && currentView !== 'new') ? ' invalid' : '';
 									  										return {
 									  											key: `${i.ingredientID}_ing`,
-																					className: 'ingredient',
+																					className: className || "",
 																					name: i.name,
 																					onClick: e => this.onIngredientClick(e, container, i)
 									  										}
@@ -478,9 +489,13 @@ class Index extends Component {
   	} else {
   		// just return everything
   		ingredientList = container.ingredients.map(i => {
+  			className = 'ingredient';
+		  	//className += (isActive) ? 'active ' : '';
+		  	className += (i.isParentIngredientID) ? ' child' : '';
+		  	className += (!i.isValidated && currentView !== 'new') ? ' invalid' : '';
   			return {
   				key: `${i.ingredientID}_ing`,
-					className: 'ingredient',
+					className: className || "",
 					name: i.name,
 					onClick: e => this.onIngredientClick(e, container, i)
   			};
