@@ -24,7 +24,7 @@ class Modal extends Component {
 
   onCancel(e) {
   	e.preventDefault();
-  	this.props.onButtonClick(e, 'modal');
+  	this.props.onCancel(e, 'modal');
   }
 
   onErrorSelect(e) {
@@ -34,7 +34,6 @@ class Modal extends Component {
   };
 
   onSave(e) {
-  	console.warn('onSave');
   	e.preventDefault();
   	const { associated, type } = this.state;
 
@@ -61,7 +60,6 @@ class Modal extends Component {
   updateList(e, code, value) {
 		const { associated } = this.state;
   	associated.push(value);
-  	console.log('updateList ' + JSON.stringify(associated));
 
   	this.setState({
   		associated
@@ -125,7 +123,6 @@ class Modal extends Component {
   }
 
   render() {
-  	console.warn('Modal render');
   	const modal = clone(this.props.modal);
 
   	return (

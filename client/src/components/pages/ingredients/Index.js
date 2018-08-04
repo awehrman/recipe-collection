@@ -5,12 +5,15 @@ import { NotificationManager } from 'react-notifications';
 
 import { clone } from '../../../lib/util';
 import Card from './Card';
+import Search from './../../layout/Search';
 
 import './Index.css';
 
 class Index extends Component {
 	constructor(props) {
 		super(props);
+
+		this.containerIngredientRefs = {};
 
 		this.state = {
 			ingredients: [],
@@ -39,6 +42,9 @@ class Index extends Component {
 
 		this._source = axios.CancelToken.source();
 		this.getIngredientList = this.getIngredientList.bind(this);
+		this.onIngredientClick = this.onIngredientClick.bind(this);
+		this.reassignTarget = this.reassignTarget.bind(this);
+		this.updateView = this.updateView.bind(this);
 	}
 
 	componentDidMount() {
@@ -69,9 +75,55 @@ class Index extends Component {
 	  }
   }
 
-  onIngredientClick(e, container, ingredient) {
+  // TODO rename
+  // it's goign to update the view if necessary to use the correct ing target
+  reassignTarget(e, container, ingredient) {
+  	e.preventDefault();
+  	e.stopPropagation();
+		let { currentView } = this.state;
+		let target = e.target;
+  	
+  	// if we didn't click on an ingredient from the container list, then update our target to the item in the container's list
+  	if (!target || !target.classList.contains('offset')) {
+  		target = this.containerIngredientRefs[container.label + ingredient.ingredientID + "_ing"];
+  		target = (target) ? target.childNodes[0] : null;
+
+  	
+  		if (!target) {
+  			currentView = 'all';
+  		}
+  	}
+
+  	target = (!target) ? e.target : target;
+
+  	console.log(target);
+
+  	const cb = (target, e, container, ingredient) => {
+
+			this.renderIngredients(container);
+
+			if (!target || !target.classList.contains('offset')) {
+				target = this.containerIngredientRefs[container.label + ingredient.ingredientID + "_ing"];
+				target = (target) ? target.childNodes[0] : null;
+			}
+			console.warn(target);
+
+			// update the URL
+			this.props.history.push(`/ingredients/all`);
+
+			if (target) {
+				this.onIngredientClick(e, container, ingredient, target);
+			}
+		};
+
+  	this.updateView('all', ingredient, [], "", cb(target, e, container, ingredient));
+  }
+
+  onIngredientClick(e, container, ingredient, target = null) {
+  	e.preventDefault();
   	e.stopPropagation(); // prevent event from bubbling up to onContainerClick()
 
+  	target = (!target) ? e.target : target;
   	let containers = clone(this.state.containers);
 
   	// if no cards were expanded, then open the clicked on item
@@ -80,7 +132,7 @@ class Index extends Component {
   		container.isCardEnabled = true;
   	}
   	// if we clicked on the same item that's currently expanded, close the card
-  	else if (container.currentIngredient !== null && container.currentIngredient.ingredientID === ingredient.ingredientID) {
+  	else if (container.currentIngredient !== null && (container.currentIngredient && ingredient && (container.currentIngredient.ingredientID === ingredient.ingredientID))) {
   		container.currentIngredient = null;
   		container.isCardEnabled = false;
   	}
@@ -100,13 +152,16 @@ class Index extends Component {
   		return c;
   	});
 
+
   	this.setState({
   		containers
+  	}, () => {
+  		console.log(target);
+  		target.scrollIntoView();
   	});
   }
 
 	getIngredientList(currentIngredientID = null) {
-		console.warn('getIngredientList');
 		const { currentView } = this.state;
 		const views = [ ...this.state.views ];
 
@@ -122,7 +177,6 @@ class Index extends Component {
 		axios.get('/ingredients/list', { cancelToken: this._source.token })
       .then(res => {
       	const ingredients = res.data.ingredients.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
-
       	this.setState({
       		ingredients,
       		ingredientsCount: res.data.ingredients.length,
@@ -146,8 +200,7 @@ class Index extends Component {
   	}, () => this.updateView());
 	}
 
-	updateView(view = null, currentIngredient = null) {
-		console.warn(`updateView: ${view} ${currentIngredient}`);
+	updateView(view = null, currentIngredient = null, searchResults = [], searchValue = "", cb) {
 		let { currentGroup, currentView, isPagerEnabled, status } = this.state;
 		let viewIngredients = clone(this.state.ingredients);
 		let pagerLabels = [ ...this.state.pagerLabels ];
@@ -185,9 +238,12 @@ class Index extends Component {
 
 				break;
 			case 'search':
-				// TODO
-				//viewIngredients = (resultSet) ? resultSet : [];
-				//status = resultStatus;
+				viewIngredients = (searchResults) ? searchResults : [];
+				if (viewIngredients && viewIngredients.length === 0) {
+					status = `No ingredients found for ${searchValue}`;
+				} else {
+					status = '';
+				}
 
 				break;
 			default: // all
@@ -242,7 +298,6 @@ class Index extends Component {
 				}).filter(c => c);
   			break;
   		case 'count':
-  			console.log(viewIngredients.map(i => i.referenceCount));
   			// get the largest references count from the bunch
   			const upperBound = viewIngredients
 									  				.map(i => i.referenceCount)
@@ -422,7 +477,7 @@ class Index extends Component {
 			isPagerEnabled,
 			pagerLabels,
 			status
-		});
+		}, cb);
 	}
 
 	renderIngredients(container) {
@@ -445,7 +500,7 @@ class Index extends Component {
 													.filter(i => !i.name.charAt(0).match(/[a-z]/i))
 													.map(i => {
 														className = 'ingredient';
-												  	//className += (isActive) ? 'active ' : '';
+												  	className += (container.currentIngredient && (container.currentIngredient.ingredientID === i.ingredientID)) ? ' active ' : '';
 												  	className += (i.isParentIngredientID) ? ' child' : '';
 												  	className += (!i.isValidated && currentView !== 'new') ? ' invalid' : '';
 
@@ -471,7 +526,7 @@ class Index extends Component {
 									  									.filter(i => i.name.charAt(0) === char)
 									  									.map(i => {
 																				className = 'ingredient';
-																		  	//className += (isActive) ? 'active ' : '';
+																		  	className += (container.currentIngredient && (container.currentIngredient.ingredientID === i.ingredientID)) ? ' active ' : '';
 																		  	className += (i.isParentIngredientID) ? ' child' : '';
 																		  	className += (!i.isValidated && currentView !== 'new') ? ' invalid' : '';
 									  										return {
@@ -490,7 +545,7 @@ class Index extends Component {
   		// just return everything
   		ingredientList = container.ingredients.map(i => {
   			className = 'ingredient';
-		  	//className += (isActive) ? 'active ' : '';
+		  	className += (container.currentIngredient && (container.currentIngredient.ingredientID === i.ingredientID)) ? ' active ' : '';
 		  	className += (i.isParentIngredientID) ? ' child' : '';
 		  	className += (!i.isValidated && currentView !== 'new') ? ' invalid' : '';
   			return {
@@ -502,9 +557,12 @@ class Index extends Component {
   		})
   	}
 
+  	console.warn('re-rendering');
   	return ingredientList.map(i =>
-  		<li key={ i.key } className={ i.className } onClick={ i.onClick }>
-  			{ i.name }
+  		<li key={ i.key } className={ i.className } onClick={ i.onClick } ref={ el => this.containerIngredientRefs[container.label + i.key] = el }>
+  			<div className="offset">
+  				{ i.name }
+  			</div>
   		</li>
   	);
 	}
@@ -563,10 +621,12 @@ class Index extends Component {
 									{
 					    			(c.isCardEnabled)
 							    		? <Card
+							    				container={ c }
 													ingredient={ c.currentIngredient }
 													ingredients={ ingredients }
 													key={ c.currentIngredient.ingredientID }
 													isEditMode={ (currentView === 'new') ? true : false }
+													onIngredientClick={ this.reassignTarget }
 													refresh={ this.getIngredientList }
 												/>
 											: null
@@ -591,12 +651,20 @@ class Index extends Component {
 	}
 
 	render() {
-		const { status } = this.state;
+		const { currentGroup, currentView, status } = this.state;
+		const ingredients = clone(this.state.ingredients); // TODO do i need this?
 
 		return (
 			<article id="ingredients">
 				<header>
-					<h1>Ingredients</h1>
+					<Search
+						data={ ingredients }
+						group={ currentGroup } // used onChange
+						pageHeader="Ingredients"
+						route="ingredients"
+						updateView={ this.updateView }
+						view={ currentView }
+					/>
 				</header>
 				<section>
 					{ this.renderFilters() }

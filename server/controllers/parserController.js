@@ -213,7 +213,7 @@ parseIngredientLine = (line, recipeID) => {
 
 		// log separators
 		if (parsed.ingredients.hasOwnProperty('separator')) {
-			console.log(parsed.ingredients);
+			//console.log(parsed.ingredients);
 			// let's log a bunch of these for review
 			let separators = [];
 
@@ -254,7 +254,7 @@ parseIngredientLine = (line, recipeID) => {
 
 	    // if we found a match, update this ingredient's references
 	    if (existing && existing.length === 1) {
-	    	//console.log(`updating: ${existing[0].name}`.cyan);
+	    	console.log(`updating: ${existing[0].name}`.cyan);
 	    	existing = existing[0];
 
 	    	// update reference

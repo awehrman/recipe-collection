@@ -2,27 +2,29 @@ const fs = require('fs');
 
 const DB_PATH = (process.env.NODE_ENV === 'test') ? 'tests/data' : 'data';
 
-exports.loadCategories = () => {
-	// this is purely to avoid a circular dependency
-	// TODO this is probably a code smell so look into better patterns
-	const Category = require('../models/categoryModel');
+exports.findCategory = (key = null, value = null) => {
+	let categories = this.loadCategories();
 
-	let categories = [];
-	const converted = [];
+	// possible keys to filter search by
+	const searchExpressions = {
+		// lookup by categoryID
+		categoryID: () => categories.filter(i => i.categoryID === value),
 
-	// load categories from flat file
-	try {
-		categories = JSON.parse(fs.readFileSync(`${DB_PATH}/categories.json`, 'utf8'));
-	} catch (ex) {
-		throw new Error('Error reading categories.json');
+		// lookup by evernoteGUID
+		evernoteGUID: () => categories.filter(i => i.evernoteGUID === value),
+
+		// lookup by name
+		name: () => categories.filter(i => i.name === value),
+	};
+
+	if (key !== null && value !== null) {
+		categories = searchExpressions[key]();
 	}
 
-	for (let cat of categories) {
-		// convert 'encoded' ingredient to Ingredient object
-		converted.push(new Category(cat));
+	if (categories.length === 1) {
+		return categories[0];
 	}
-
-	return converted;
+	return null;
 };
 
 exports.findCategories = (key = null, value = null) => {
@@ -46,4 +48,27 @@ exports.findCategories = (key = null, value = null) => {
 	}
 
 	return categories;
+};
+
+exports.loadCategories = () => {
+	// this is purely to avoid a circular dependency
+	// TODO this is probably a code smell so look into better patterns
+	const Category = require('../models/categoryModel');
+
+	let categories = [];
+	const converted = [];
+
+	// load categories from flat file
+	try {
+		categories = JSON.parse(fs.readFileSync(`${DB_PATH}/categories.json`, 'utf8'));
+	} catch (ex) {
+		throw new Error('Error reading categories.json');
+	}
+
+	for (let cat of categories) {
+		// convert 'encoded' ingredient to Ingredient object
+		converted.push(new Category(cat));
+	}
+
+	return converted;
 };

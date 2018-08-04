@@ -1,18 +1,24 @@
-import React from 'react';
+import React, { Component } from 'react';
 
-const Input = (props) => (
-	<input
-		autoFocus={ props.autoFocus }
-		className={ props.className }
-		onBlur={ props.onBlur }
-		onChange={ props.onChange }
-		onClick={ props.onClick }
-		onFocus={ props.onFocus }
-		onKeyDown={ props.onKeyDown }
-		placeholder={ props.placeholder }
-		type={ props.type }
-		value={ props.value }
-	/>
-);
+class Input extends Component {
+	render() {
+		const { autoFocus, className, id, placeholder, type, value } = this.props;
+		return (
+			<input
+				autoFocus={ autoFocus }
+				className={ className }
+				id={ id }
+				onBlur={ this.props.onBlur }
+				onChange={ this.props.onChange }
+				onClick={ this.props.onClick }
+				onFocus={ this.props.onFocus }
+				onKeyDown={ this.props.onKeyDown }
+				placeholder={ placeholder }
+				type={ type }
+				value={ value }
+			/>
+		);
+	}
+}
 
 export default Input;

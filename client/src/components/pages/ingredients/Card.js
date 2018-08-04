@@ -36,6 +36,7 @@ class Card extends Component {
 
 		this.onButtonClick = this.onButtonClick.bind(this);
 		this.onCheckboxChange = this.onCheckboxChange.bind(this);
+		this.onIngredientClick = this.onIngredientClick.bind(this);
 		this.onNameChange = this.onNameChange.bind(this);
 		this.onSuggestPlural = this.onSuggestPlural.bind(this);
 		this.saveIngredient = this.saveIngredient.bind(this);
@@ -132,6 +133,14 @@ class Card extends Component {
   	});
   }
 
+  onIngredientClick(e, ingredient) {
+  	e.preventDefault();
+  	let { container } = this.props;
+  	const ingredients = clone(this.props.ingredients);
+  	ingredient = ingredients.find(i => i.ingredientID === ingredient[1]);
+  	this.props.onIngredientClick(e, container, ingredient);
+  }
+
   onNameChange(e, fieldType) {
   	e.preventDefault();
 
@@ -198,7 +207,6 @@ class Card extends Component {
   }
 
   saveIngredient(parent = null, error = null) {
-  	console.warn('saveIngredient');
   	const ingredient = clone(this.state.ingredient);
   	ingredient.isValidated = true;
 
@@ -208,7 +216,6 @@ class Card extends Component {
 	    error
 	  })
 	  .then(res => {
-	  	console.log(res.data);
 	  	const status = res.data.status;
 	    NotificationManager.success('', `${status}.`, 3000);
 			this.setState({
@@ -225,7 +232,6 @@ class Card extends Component {
 			}, this.props.refresh(res.data.ingredient));
 	  })
 	  .catch(err => {
-	    console.log(err);
 	    NotificationManager.error('', `An error occurred while attempting to save "${ingredient.name}.`, 30000);
 	  });
   }
@@ -431,6 +437,7 @@ class Card extends Component {
 
 	render() {
 		const { isEditMode, isModalEnabled, warnings } = this.state;
+		const { container } = this.props;
 		const ingredient = clone(this.state.ingredient);
 		const ingredients = clone(this.props.ingredients);
 		const modal = clone(this.state.modal);
@@ -451,6 +458,7 @@ class Card extends Component {
   							ingredient={ ingredient }
   							ingredients={ ingredients }
   							modal={ modal }
+  							onCancel={ this.onButtonClick }
   							saveIngredient={ this.saveIngredient }
   						/>
   					: null
@@ -530,24 +538,28 @@ class Card extends Component {
 					{/* Related Ingredients */}
 					<List
 						code={ "rel" }
+						container={ container }
 						currentIngredient={ ingredient }
 						ingredients={ ingredients }
 						isEditMode={ isEditMode }
 						key={ "rel" }
 						label={ "Related Ingredients" }
 						list={ (ingredient && ingredient.relatedIngredients) ? ingredient.relatedIngredients : [] }
+						onClick={ this.onIngredientClick }
 						updateList={ this.updateList }
 					/>
 
 					{/* Substitutes */}
 					<List
 						code={ "sub" }
+						container={ container }
 						currentIngredient={ ingredient }
 						ingredients={ ingredients }
 						isEditMode={ isEditMode }
 						key={ "sub" }
 						label={ "Substitutes" }
 						list={ (ingredient && ingredient.substitutes) ? ingredient.substitutes : [] }
+						onClick={ this.onIngredientClick }
 						updateList={ this.updateList }
 					/>
   			</div>

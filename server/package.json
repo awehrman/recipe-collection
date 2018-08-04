@@ -6,7 +6,8 @@
   "author": "Alexandra Wehrman",
   "license": "MIT",
   "scripts": {
-    "start": "NODE_ENV=dev nodemon ./bin/www",
+    "start": "NODE_ENV=dev node ./bin/www",
+    "start-reload": "NODE_ENV=dev nodemon ./bin/www",
     "test": "NODE_ENV=test mocha \"./tests/**/*.spec.js\""
   },
   "dependencies": {

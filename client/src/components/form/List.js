@@ -22,6 +22,7 @@ class List extends Component {
     this.onBlur = this.onBlur.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onClick = this.onClick.bind(this);
+    this.onIngredientClick = this.onIngredientClick.bind(this);
     this.onKeyDown = this.onKeyDown.bind(this);
     this.onSelect = this.onSelect.bind(this);
   }
@@ -120,6 +121,11 @@ class List extends Component {
   	}
   }
 
+  onIngredientClick(e, ingredient) {
+  	e.preventDefault();
+  	this.props.onClick(e, ingredient);
+  }
+
 	renderListItem(i, index) {
   	const { code } = this.props;
 
@@ -128,7 +134,7 @@ class List extends Component {
   			<li key={ `${code}_${index}` }>
 	  			<Button
 	  				className="list"
-	  				/* TODO link to other card */
+	  				onClick={ e => this.onIngredientClick(e, i) }
 		  			label={ i.name || i[0] || i }
 	  			/>
 	  		</li>

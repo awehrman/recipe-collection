@@ -1,78 +1,115 @@
 @import './index.scss';
 
-header {
-	box-sizing: border-box;
-	background: $headerBackground;
-	margin: 0;
-	display: flex;
-	align-items: center;
-	padding: 40px;
-	height: 160px;
+.canvas {
+	position: relative;
+	overflow-x: hidden;
+	width: 100%;
+	height: 100%;
 
-	h1 {
-		margin: 0;
-		font-weight: 200;
-		font-size: 2em;
-		color: $headerText;
-	}
-}
+	.wrapper {
+		position: relative;
+		width: 100%;
+		height: 100%;
+		top: 40px;
+		left: 0;
+		transition: .2s ease-out;
 
-section {
-	margin: 20px 40px;
+		/*----------  Navigation  ----------*/
+		nav {
+			background: $menuBackground;
+			position: fixed;
+			top: 0;
+			width: 100%;
 
-	h2 {
-		font-size: 1.2em;
+			ul {
+				display: none;
+			}
 
-	}
-}
+			&.expanded {
+				ul {
+					display: block;
+				}
+			}
+			// see Navigation.scss for the remainder of the nav styles
+		}
 
-.notification-enter {
-  visibility: hidden;
-  transform: translate3d(0, 10px, 0);
-}
 
-.notification-enter.notification-enter-active {
-  visibility: visible;
-  transform: translate3d(0, 0, 0);
-  transition: all 1s linear;
-}
+		/*----------  Page Article  ----------*/
+		article {
+			min-height: 100%;
+			margin-left: 0;
 
-.notification-leave {
-  visibility: visible;
-  //transform: translate3d(0, 0, 0);
-}
+			header {
+				background: $headerBackground;
+				margin: 0;
+				display: flex;
+				align-items: center;
+				padding: 40px;
+				height: 100px;
 
-.notification-leave.notification-leave-active {
-  visibility: hidden;
-  //transform: translate3d(0, 100%, 0);
-  transition: all .4s linear;
-}
+				h1 {
+					margin: 0;
+					font-weight: 200;
+					font-size: 2em;
+					color: $headerText;
+				}
+			}
 
-.notification-container {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	z-index: 900;
+			section {
+				padding: 20px 40px;
 
-	.notification {
-		padding: 10px;
+				h1 {
+					margin: 1em 0;
+					font-weight: 200;
+					font-size: 1.4em;
+				}
 
-		h4 {
-			font-size: .8em;
-			font-weight: 400;
-			margin: 0;
-			padding: 0;
+				h2 {
+					margin: 1em 0;
+					font-weight: 200;
+					font-size: 1.2em;
+				}
+			}
 		}
 	}
+}
 
-	.notification-success {
-		border-left: 4px mediumseagreen solid;
-		background: beige;
-	}
+@media (min-width: $bp_tablet) {
+	.canvas {
+		.wrapper {
+			top: 0;
 
-	.notification-error {
-		border-left: 4px tomato solid;
-		background: mistyrose;
+			&.expanded {
+				left: $menuOffset;
+			}
+
+			/*----------  Navigation  ----------*/
+			nav {
+				width: $menuWidth;
+				background: $menuBackground;
+				left: -$menuOffset;
+				bottom: 0;
+				transition: .2s ease-out;
+
+				ul {
+					display: block;
+				}
+
+				&.expanded {
+					left: 0 !important;
+				}
+				// see Navigation.scss for the remainder of the nav styles
+			}
+
+
+			/*----------  Page Article  ----------*/
+			article {
+				margin-left: 40px;
+
+				header {
+					height: 140px;
+				}
+			}
+		}
 	}
 }

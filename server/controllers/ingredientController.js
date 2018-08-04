@@ -374,12 +374,11 @@ exports.updateIngredient = (updated) => {
 
 	// plural
 	if (updated.plural !== current.plural) {
+		current.plural = updated.plural;
 
 		// check if this value is used on any other ingredients
 		existing = this.findIngredient('exact', updated.plural);
 		
-		current.plural = updated.plural;
-
 		if (existing && !mergeList.find(i => i.ingredientID === existing.ingredientID)) {
 			mergeList.push(existing);
 		}
@@ -539,7 +538,6 @@ exports.updateIngredient = (updated) => {
 };
 
 exports.validate = (value) => {
-	// TODO clean up
 	try {
 		value = value.encodeIngredient();
 	} catch (ex) {}

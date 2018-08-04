@@ -23,7 +23,7 @@
 			margin: 0 4px;
 
 			input {
-				color: dodgerblue;
+				color: $highlight;
 				font-weight: 700;
 
 				&::placeholder {
@@ -35,7 +35,7 @@
 
 				&:focus {
 			    + .input-highlight {
-			      border-top: 2px solid dodgerblue;
+			      border-top: 2px solid $highlight;
 			    }
 			  }
 			}
@@ -50,7 +50,7 @@
 			top: -1000px;
 			left: 0;
 			background: transparent;
-			color: dodgerblue;
+			color: $highlight;
 			font-weight: 700;
 			font-size: 1em;
 			text-transform: lowercase;
@@ -64,7 +64,7 @@
 		select {
 			border: 0;
 			background: transparent;
-			color: dodgerblue;
+			color: $highlight;
 			font-weight: 700;
 			font-size: 1em;
 			text-transform: lowercase;
@@ -97,7 +97,7 @@
 
 				a:hover, a:focus, a.active {
 					cursor: pointer;
-					color: dodgerblue;
+					color: $highlight;
 					outline: 0;
 				}
 			}
@@ -191,7 +191,7 @@
 
 		button.save {
 			border: 0;
-			background: dodgerblue;
+			background: $highlight;
 			color: white;
 			border-radius: 3px;
 			padding: 5px 10px;

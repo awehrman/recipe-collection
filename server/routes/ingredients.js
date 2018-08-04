@@ -24,7 +24,7 @@ router.get('/list', (req, res, next) => {
 			
 			plural: i.plural,
 			alternateNames: i.alternateNames,
-			parsingExpression: i.parsingExpressions,
+			parsingExpressions: i.parsingExpressions,
 			
 			isValidated: i.isValidated,
 			properties: i.properties,

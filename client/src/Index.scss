@@ -1,9 +1,38 @@
 @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700');
 
+/*----------  Variables  ----------*/
+
+$lighterGrey: rgba(144, 148, 151, 1);
+
+$red: rgba(255, 99, 72, 1);
+$green: rgba(120, 224, 143, 1);
+$orange: rgba(255, 159, 67, 1);
+$highlight: rgba(147, 180, 249, 1);
+
+//$menuBackground: rgba(76, 87, 120, 1);
+$menuBackground: #435382;
+$menuText: #c7d7f9;
+$menuWidth: 200px;
+$menuOffset: 160px;
+
+$headerBackground: rgba(248, 248, 248, 1);
+$headerText: rgba(144, 148, 151, 1);
+
+$bodyText: rgba(34, 34, 34, 1);
+
+$bp_tablet: 768px;
+$bp_desktop_small: 1024px;
+$bp_desktop_large: 1300px;
+
+
+/*----------  Reset / Globals  ----------*/
+
 * {
 	-webkit-font-smoothing: antialiased;
   box-sizing: border-box;
 }
+
+html, #root { height: 100%; }
 
 body {
   margin: 0;
@@ -11,9 +40,6 @@ body {
 	font-family: "Source Sans Pro", Verdana, sans-serif;
 	font-weight: 400;
 	font-size: 100%;
+	height: 100%;
+	color: $bodyText;
 }
-
-$headerBackground: rgba(248, 248, 248, 1);
-$headerText: rgba(144, 148, 151, 1);
-
-$lighterGrey: rgba(144, 148, 151, 1);

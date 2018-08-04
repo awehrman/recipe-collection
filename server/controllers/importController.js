@@ -85,7 +85,6 @@ importNote = async (store, filename, note) => {
 		rp.source = note.source;
 		// rename the image path to use our recipeID
 		rp.image = note.imagePath.replace(note.evernoteGUID, rp.recipeID);
-
 		// save the initial recipe data so when we add ingredients they'll have a valid recipeID reference
 		rp.saveRecipe();
 
@@ -136,10 +135,11 @@ importNote = async (store, filename, note) => {
 		})
 		.catch(err => {
 			console.log(err);
-
-			// TODO
-			// think through how this should be handled
+			// TODO think through how this should be handled
 		});
+
+
+
 	} else {
 		// if we do already have this recipe in imported, just remove the related files from stage
 		// remove current image
@@ -180,10 +180,9 @@ importNotes = (callback) => {
 
 lookupMetadata = async (store, note) => {
 	// lookup category
-	//console.log(note.category);
-	// TODO i'm still getting duplicates here
-	let cat = categoryController.findCategories('evernoteGUID', note.category);
-	if (cat && cat.length === 0) {
+	let cat = categoryController.findCategory('evernoteGUID', note.category);
+
+	if (!cat) {
 		// then look it up
 		cat = await findNotebook(store, note.category)
 			.then(evernoteCategory => {
@@ -192,17 +191,21 @@ lookupMetadata = async (store, note) => {
 					const newCat = new Category();
 					newCat.name = evernoteCategory.name;
 					newCat.evernoteGUID = evernoteCategory.guid;
-					newCat.saveCategory();
-					console.log(`create category "${evernoteCategory.name}"`.yellow);
-					return newCat;
+
+					let existingCat = categoryController.findCategory('evernoteGUID', note.category);
+					if (!existingCat) {
+						newCat.saveCategory();
+						console.log(`created category "${evernoteCategory.name}"`.cyan);
+						return newCat;
+					} else {
+						return existingCat;
+					}
 				}
 				return null;
 			})
 			.catch(err => {
 				console.log(err);
 			});
-	} else if (cat && cat.length === 1) {
-		cat = cat[0];
 	}
 
 	const categories = new Map();
@@ -225,8 +228,14 @@ lookupMetadata = async (store, note) => {
 							const newTag = new Tag();
 							newTag.name = evernoteTag.name;
 							newTag.evernoteGUID = evernoteTag.guid;
-							newTag.saveTag();
-							return newTag;
+							existingTag = tagController.findTag('evernoteGUID', tag);
+							if (!existingTag) {
+								newTag.saveTag();
+								console.log(`created tag "${evernoteTag.name}"`.cyan);
+								return newTag;
+							} else {
+								return existingTag;
+							}
 						}
 						return null;
 					})
@@ -387,10 +396,9 @@ findNotes = async (store, next) => {
     		throw err;
     	}
 
-    	// TODO filter out any notes in the recipesToSort notebook
+    	// filter out any pending notes
     	const RECIPES_TO_SORT = "f4deaa34-0e7e-4d1a-9ebf-d6c0b04900ed";
     	results.notes = results.notes.filter(n => n.notebookGuid !== RECIPES_TO_SORT);
-    	console.log(results.notes.length);
 
     	// return the metadata
     	return results.notes;

@@ -14,7 +14,7 @@
 	button.add {
 		display: inline-block;
 		border: 0;
-		color: dodgerblue;
+		color: $highlight;
 		text-decoration: underline;
 		padding: 0;
 		margin: 0 0 0 6px;
@@ -44,12 +44,12 @@
 
 			button {
 				font-size: 1em;
-				color: dodgerblue;
+				color: $highlight;
 				line-height: 1.6;
 				font-weight: 400;
 				padding: 4px 0 0;
 				border: 0;
-				border-bottom: 1px solid dodgerblue;
+				border-bottom: 1px solid $highlight;
 				cursor: pointer;
 
 				&:focus {
@@ -62,7 +62,7 @@
 	input {
 		margin-top: 6px;
 		border: 0;
-		border-bottom: 1px solid dodgerblue;
+		border-bottom: 1px solid $highlight;
 		padding-bottom: 4px;
 		width: 180px;
 	}
@@ -90,7 +90,7 @@
 
 			a:hover, a:focus, a.active {
 				cursor: pointer;
-				color: dodgerblue;
+				color: $highlight;
 				outline: 0;
 			}
 		}

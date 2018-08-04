@@ -1,3 +1,5 @@
+@import '../../../App.scss';
+
 form.card {
 	display: flex;
 	flex-wrap: wrap;
@@ -11,7 +13,6 @@ form.card {
 	}
 
 	.top {
-		//border: 2px solid indigo;
 		flex-basis: 100%;
 		display: flex;
 		flex-wrap: wrap;
@@ -21,7 +22,7 @@ form.card {
 			flex-basis: auto;
 
 			.stylizedContainer.name {
-				color: dodgerblue !important;
+				color: $highlight !important;
 				font-size: 20px;
 
 				input:focus {
@@ -112,7 +113,7 @@ form.card {
 			    font-family: "Font Awesome 5 Pro";
 			    content: "\f00c";
 			    font-weight: 900;
-			    color: dodgerblue;
+			    color: $highlight;
 			  }
 			}
 		}
@@ -146,7 +147,7 @@ form.card {
 
 				li {
 					font-size: .8em;
-					color: #222;
+					color: $bodyText;
 					line-height: 1.6;
 				}
 			}
@@ -181,7 +182,7 @@ form.card {
 		button.edit {
 			order: 60;
 			margin-top: 16px;
-			color: dodgerblue;
+			color: $highlight;
 			display: flex;
 			justify-content: flex-end;
 			flex-basis: 100%;
@@ -202,15 +203,15 @@ form.card {
 			}
 
 			button.merge {
-				color: goldenrod;
+				color: $highlight;
 			}
 
 			button.parent {
-				color: dodgerblue;
+				color: $orange;
 			}
 
 			button.parsingError {
-				color: tomato;
+				color: $red;
 			}
 		}
 
@@ -225,20 +226,20 @@ form.card {
 				flex-basis: 100%;
 				text-align: right;
 				font-size: .875em;
-				color: tomato;
+				color: $red;
 				list-style-type: none;
 				margin: 0;
 				padding: 0;
 			}
 
 			button.cancel {
-				color: #222;
+				color: $bodyText;
 				font-weight: 400;
 				margin-right: 20px;
 			}
 
 			button.save {
-				color: mediumspringgreen;
+				color: $green;
 			}
 		}
 	}

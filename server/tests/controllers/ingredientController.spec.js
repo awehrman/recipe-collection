@@ -68,7 +68,7 @@ const restoreTestDatabases = () => {
 	}
 };
 
-describe('Ingredient Controller ============================================='.magenta, function () {
+describe.only('Ingredient Controller ============================================='.magenta, function () {
 	it('should initialize test data', function() {
 		const databases = [ 'equipment', 'errors', 'ingredients', 'recipes' ];
 
@@ -88,14 +88,13 @@ describe('Ingredient Controller ============================================='.m
 		}
 	});
 
-	describe('Ingredient Methods ============================================='.magenta, function () {
+	describe.skip('Ingredient Methods ============================================='.magenta, function () {
 		it('[saveIngredient] should update the ingredient based on its ingredient, parent, and error values', function() {
-
 		});
 	});
 
 	describe('Ingredient Methods ============================================='.magenta, function () {
-		it('[findIngredient] should return a matching Ingredient object or null', function() {
+		it.skip('[findIngredient] should return a matching Ingredient object or null', function() {
 			// no matches should return null
 			let ing = ingredientController.findIngredient('name', 'apple');
 			expect(ing).to.be.null;			
@@ -109,7 +108,7 @@ describe('Ingredient Controller ============================================='.m
 			expect(ing.name).to.equal('potato');
 		});
 
-		it('[findIngredients] should return an array of ingredients matching the search key and value', function() {
+		it.skip('[findIngredients] should return an array of ingredients matching the search key and value', function() {
 			let ingredients = [];
 
 			// should return all ingredients
@@ -194,7 +193,7 @@ describe('Ingredient Controller ============================================='.m
 			ingredients = [];
 		});
 
-		it('[loadErrors] should return an array of ingredient errors', function() {
+		it.skip('[loadErrors] should return an array of ingredient errors', function() {
 			const errors = ingredientController.loadErrors();
 
 			for (let ing of errors) {
@@ -202,14 +201,14 @@ describe('Ingredient Controller ============================================='.m
 			}
 		});
 
-		it('[loadIngredients] should return an array of Ingredient objects', function() {
+		it.skip('[loadIngredients] should return an array of Ingredient objects', function() {
 			const ingredients = ingredientController.loadIngredients();
 			for (let ing of ingredients) {
 				expect(typeof ing === 'object').to.be.true;
 			}
 		});
 
-		it('[saveError] should save an ingredient error', function() {
+		it.skip('[saveError] should save an ingredient error', function() {
 			// [ 'parsing', 'data', 'semantic', 'instruction', 'equipment' ]
 			let errors = ingredientController.loadErrors();
 			let count = errors.length;
@@ -433,7 +432,7 @@ describe('Ingredient Controller ============================================='.m
 			// ex: 6 wt oz tomato puree - add 'wt oz' to unit 
 		});
 
-		it('[updateIngredient] should throw errors for bad input', function() {
+		it.skip('[updateIngredient] should throw errors for bad input', function() {
 			let ing, alt;
 
 			// # passing an invalid ing param should through an error
@@ -539,9 +538,7 @@ describe('Ingredient Controller ============================================='.m
 			expect(ing.isValidated).to.equal(true);
 		});
 
-		// TODO clean up
-		// TODO add more instances where the same value is applied on different fields
-		it('[updateIngredient] name updates', function() {
+		it.skip('[updateIngredient] name updates', function() {
 			// updating an ingredient with a plural value...
 
 			// ... not in use elsewhere
@@ -669,7 +666,7 @@ describe('Ingredient Controller ============================================='.m
 			expect(ing.references.size).to.equal(2);
 		});
 
-		it('[updateIngredient] plural updates', function() {
+		it.skip('[updateIngredient] plural updates', function() {
 			restoreTestDatabases();
 			let ing, alt;
 
@@ -772,7 +769,7 @@ describe('Ingredient Controller ============================================='.m
 			expect(ing.plural).to.equal('scallion');
 		});
 
-		it('[updateIngredient] alternate name updates', function() {
+		it.skip('[updateIngredient] alternate name updates', function() {
 			// updating an ingredient with an alternate name value...
 
 			let ing, alt;
@@ -863,24 +860,24 @@ describe('Ingredient Controller ============================================='.m
 			expect(ing.relatedIngredients.has('escarole')).to.be.true;
 
 			// ... in use as a 'substitute' value on another ingredient
+			restoreTestDatabases();
+			ing = new Ingredient('chicken stock');
+			ing.saveIngredient();
+
+			alt = new Ingredient('vegetable stock');
+			alt.addSubstitute('chicken stock');
+			alt.saveIngredient();
+			
+			// ing: chicken stock ==> chicken broth
+			// alt: veg stock -> sub: chicken stock ===> chicken broth
+
+			ing.name = 'chicken broth';
+			ing = ingredientController.updateIngredient(ing);
+			expect(ing.name).to.equal('chicken broth');
+
+			alt = ingredientController.findIngredient('name', 'vegetable stock');
+			expect(alt.substitutes.has('chicken broth'));
 		});
 
-		it.skip('[updateIngredient] parsing expression updates', function() {
-			// updating an ingredient with an parsing expression value...
-
-			// ... not in use elsewhere
-
-			// ... in use as a 'name' value on another ingredient
-
-			// ... in use as a 'plural' value on another ingredient
-
-			// ... in use as an 'alternate name' value on another ingredient
-
-			// ... in use as a 'parsing expression' value on another ingredient
-
-			// ... in use as a 'related ingredient' value on another ingredient
-
-			// ... in use as a 'substitute' value on another ingredient
-		});
 	});
 });
