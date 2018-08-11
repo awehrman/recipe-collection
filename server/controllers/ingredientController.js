@@ -10,6 +10,10 @@ const DB_PATH = (process.env.NODE_ENV === 'test') ? 'tests/data' : 'data';
 ====================================*/
 
 exports.saveIngredient = (req, res, next) => {
+	// this is purely to avoid a circular dependency
+	// TODO this is probably a code smell so look into better patterns
+	const Ingredient = require('../models/ingredientModel');
+
 	let { ingredient, parent, error } = req.body;
 	let status = '';
 
@@ -30,16 +34,32 @@ exports.saveIngredient = (req, res, next) => {
 	if (!error && parent) {
 		// handle relationships
 		console.log('handle parent'.magenta);
+		try {
+			// lookup parent ingredient
+			let parentName = parent;
+			let ingName = ingredient.name;
+			parent = this.findIngredient('name', parentName);
+
+			if (!parent) {
+				parent = new Ingredient(parentName);
+			}
+
+			// load ingredient
+			ingredient = new Ingredient(ingredient);
+
+			// merge ingredient records
+			ingredient = this.mergeIngredients(parent, ingredient);
+			ingredient = ingredient.encodeIngredient();
+			status = `Merged ingredient ${ingredient.name} and ${ingName}`;
+		} catch (err) {
+			status = err;
+		}
+		
 	}
 
 	// handle ingredient updates
 	if (!error && !parent) {
 		try {
-			// this is purely to avoid a circular dependency
-			// TODO this is probably a code smell so look into better patterns
-			const Ingredient = require('../models/ingredientModel');
-
-			
 			ingredient = new Ingredient(ingredient);
 			ingredient = this.updateIngredient(ingredient);
 			ingredient = ingredient.encodeIngredient();
@@ -51,7 +71,7 @@ exports.saveIngredient = (req, res, next) => {
 
 	console.log(`${status}`.green);
 	console.log(ingredient);
-	res.json({ status, ingredient: ingredient, parent, error });
+	res.json({ status, ingredient: ingredient, error });
 };
 
 /*=====  End of Web Requests  ======*/
@@ -75,7 +95,9 @@ exports.findIngredient = (key = null, value = null) => {
 			i.name === value
 			|| i.plural === value
 			|| i.alternateNames.has(value)
-			|| i.parsingExpressions.has(value)),
+			|| i.name.replace(/-|\s/g,"") === value.replace(/-|\s/g,"")
+			|| i.plural.replace(/-|\s/g,"") === value.replace(/-|\s/g,"")
+			|| i.alternateNames.has(value.replace(/-|\s/g,""))),
 	};
 
 	if (key !== null && value !== null) {
@@ -103,15 +125,13 @@ exports.findIngredients = (key = null, value = null) => {
 		exact: () => ingredients.filter(i =>
 			i.name === value
 			|| i.plural === value
-			|| i.alternateNames.has(value)
-			|| i.parsingExpressions.has(value)),
+			|| i.alternateNames.has(value)),
 
 		// lookup by any partial mathces on all fields
 		partial: () => ingredients.filter(i =>
 			i.name.includes(value)
 			|| (i.plural && i.plural.includes(value))
-			|| [ ...i.alternateNames ].find(n => n.includes(value))
-			|| [ ...i.parsingExpressions ].find(n => n.includes(value))),
+			|| [ ...i.alternateNames ].find(n => n.includes(value))),
 
 		// lookup all ingredients connected by the name or ingredientID provided
 		related: () => ingredients.filter(i => {
@@ -325,6 +345,49 @@ exports.saveError = (error, ingredient) => {
 	});
 };
 
+exports.mergeIngredients = (parent, ingredient) => {
+	// handle any prior updates to the ingredient
+	ingredient = this.updateIngredient(ingredient);
+
+	parent.addAlternateName(ingredient.name, false);
+
+	if (ingredient.plural) {
+		parent.addAlternateName(ingredient.plural, false);
+	}
+
+	parent.properties = ingredient.properties;
+	
+	if (ingredient.alternateNames.size > 0) {
+		ingredient.alternateNames.forEach(item => {
+			parent.addAlternateName(item, false);
+		});
+	}
+
+	if (ingredient.relatedIngredients.size > 0) {
+		for (let [name, ingredientID] of ingredient.relatedIngredients) {
+		  parent.addRelatedIngredient(name, ingredientID);
+		}
+	}
+
+	if (ingredient.substitutes.size > 0) {
+		for (let [name, ingredientID] of ingredient.substitutes) {
+		  parent.addSubstitute(name, ingredientID);
+		}
+	}
+
+	if (ingredient.references.size > 0) {
+		for (let [line, recipeID] of ingredient.references) {
+		  parent.addReference(line, recipeID);
+		}
+	}
+
+	parent.saveIngredient();
+
+	ingredient.removeIngredient();
+
+	return parent;
+};
+
 exports.updateIngredient = (updated) => {
 	if (!updated) {
 		throw new Error('No ingredient to update');
@@ -409,27 +472,6 @@ exports.updateIngredient = (updated) => {
 		}
 	}
 
-	// parsing expressions
-	current.parsingExpressions = new Set();
-	if (updated.parsingExpressions.size > 0) {
-		iterator = updated.parsingExpressions.entries();
-		for (it = 0; it < updated.parsingExpressions.size; it++) {
-			next = iterator.next().value[0];
-			try {
-				// accept it if it passes validation
-				current.addParsingExpression(next, false);
-			} catch (ex) {
-				console.log(ex);
-			}
-
-			existing = this.findIngredient('exact', next);
-
-			if (existing && (existing.ingredientID !== current.ingredientID)) {
-				mergeList.push(existing);
-			}
-		}
-	}
-
 	// related ingredients
 	current.relatedIngredients = updated.relatedIngredients;
 
@@ -447,12 +489,12 @@ exports.updateIngredient = (updated) => {
 		}
 
 		//name
-		if ((i.name !== current.name) && (i.name !== current.plural) && !current.alternateNames.has(i.name) && !current.parsingExpressions.has(i.name)) {
+		if ((i.name !== current.name) && (i.name !== current.plural) && !current.alternateNames.has(i.name)) {
 			current.addAlternateName(i.name, false);
 		}
 
 		//plural
-		if (i.plural && (i.plural !== current.name) && (i.plural !== current.plural) && !current.alternateNames.has(i.plural) && !current.parsingExpressions.has(i.plural)) {
+		if (i.plural && (i.plural !== current.name) && (i.plural !== current.plural) && !current.alternateNames.has(i.plural)) {
 			current.addAlternateName(i.plural, false);
 		}
 		
@@ -466,19 +508,8 @@ exports.updateIngredient = (updated) => {
 			const altIt = i.alternateNames.entries();
 			for (let s = 0; s < i.alternateNames.size; s++) {
 				let altName = altIt.next().value[0];
-				if ((altName !== current.name) && (altName !== current.plural) && !current.alternateNames.has(altName) && !current.parsingExpressions.has(altName)) {
+				if ((altName !== current.name) && (altName !== current.plural) && !current.alternateNames.has(altName)) {
 					current.addAlternateName(altName, false);
-				}
-			}
-		}
-
-		//parsingExpressions
-		if (i.parsingExpressions.size > 0) {
-			const expIt = i.parsingExpressions.entries();
-			for (let s = 0; s < i.parsingExpressions.size; s++) {
-				let parExp = expIt.next().value[0];
-				if ((parExp !== current.name) && (parExp !== current.plural) && !current.alternateNames.has(parExp) && !current.parsingExpressions.has(parExp)) {
-					current.addParsingExpression(parExp, false);
 				}
 			}
 		}
@@ -552,7 +583,6 @@ exports.validate = (value) => {
 		'plural',
 		'properties',
 		'alternateNames',
-		'parsingExpressions',
 		'relatedIngredients',
 		'substitutes',
 		'references',

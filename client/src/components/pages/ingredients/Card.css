@@ -32,7 +32,7 @@ body {
     /*----------  Navigation  ----------*/
     /*----------  Page Article  ----------*/ }
     .canvas .wrapper nav {
-      background: #435382;
+      background: #2b3d5a;
       position: fixed;
       top: 0;
       width: 100%; }
@@ -75,7 +75,7 @@ body {
       left: 160px; }
     .canvas .wrapper nav {
       width: 200px;
-      background: #435382;
+      background: #2b3d5a;
       left: -160px;
       bottom: 0;
       transition: .2s ease-out; }
@@ -90,20 +90,22 @@ body {
 
 form.card {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-content: flex-start; }
+  flex-direction: column;
+  flex-flow: column !important;
+  justify-content: center;
+  align-content: flex-start;
+  position: relative; }
   form.card .field label {
     font-size: 1em; }
   form.card .top {
-    flex-basis: 100%;
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between; }
+    justify-content: space-between;
+    flex: 1 0 auto; }
     form.card .top .field.stacked {
       flex-basis: auto; }
       form.card .top .field.stacked .stylizedContainer.name {
-        color: #93b4f9 !important;
+        color: #80aef5 !important;
         font-size: 20px; }
         form.card .top .field.stacked .stylizedContainer.name input:focus + .input-highlight {
           border-top: 2px solid dodgeblue; }
@@ -165,7 +167,10 @@ form.card {
           font-family: "Font Awesome 5 Pro";
           content: "\f00c";
           font-weight: 900;
-          color: #93b4f9; }
+          color: #80aef5; }
+  form.card .middle {
+    display: flex;
+    flex-basis: 100%; }
   form.card .left {
     margin-top: 10px;
     flex-basis: 100%; }
@@ -174,9 +179,12 @@ form.card {
   form.card .right {
     margin-top: 10px;
     flex-basis: 100%; }
+    form.card .right .field.references.edit, form.card .right .field.related.edit {
+      max-height: 140px;
+      height: unset; }
     form.card .right .field.references, form.card .right .field.related {
       overflow-y: scroll;
-      max-height: 125px; }
+      height: 90%; }
       form.card .right .field.references label, form.card .right .field.related label {
         font-weight: 600;
         margin-bottom: 10px; }
@@ -189,10 +197,30 @@ form.card {
           line-height: 1.6; }
     form.card .right .field.related {
       margin-top: 10px; }
+      form.card .right .field.related ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0 !important;
+        margin-bottom: 4px; }
+        form.card .right .field.related ul li {
+          font-size: .8em;
+          color: #222;
+          line-height: 1.6; }
+          form.card .right .field.related ul li button {
+            font-size: 1em;
+            color: #80aef5;
+            line-height: 1.6;
+            font-weight: 400;
+            padding: 4px 0 0;
+            border: 0;
+            border-bottom: 1px solid #80aef5;
+            cursor: pointer; }
+            form.card .right .field.related ul li button:focus {
+              outline: 0; }
   form.card .bottom {
     display: flex;
     flex-wrap: wrap;
-    flex-basis: 100%; }
+    flex: 1 0 auto; }
     form.card .bottom button {
       background: white;
       padding: 0;
@@ -208,7 +236,7 @@ form.card {
     form.card .bottom button.edit {
       order: 60;
       margin-top: 16px;
-      color: #93b4f9;
+      color: #80aef5;
       display: flex;
       justify-content: flex-end;
       flex-basis: 100%; }
@@ -221,7 +249,7 @@ form.card {
       form.card .bottom .left button {
         margin-bottom: 10px; }
       form.card .bottom .left button.merge {
-        color: #93b4f9; }
+        color: #80aef5; }
       form.card .bottom .left button.parent {
         color: #ff9f43; }
       form.card .bottom .left button.parsingError {
@@ -243,12 +271,27 @@ form.card {
       form.card .bottom .right button.cancel {
         color: #222222;
         font-weight: 400;
-        margin-right: 20px; }
+        margin-right: 20px;
+        font-size: .875em;
+        padding-bottom: 6px; }
       form.card .bottom .right button.save {
-        color: #78e08f; }
+        border: 0;
+        background: #78e08f;
+        color: white;
+        border-radius: 3px;
+        padding: 5px 10px;
+        font-size: .875em;
+        cursor: pointer; }
 
 @media (min-width: 600px) {
   form.card .left {
     flex-basis: 50%; }
   form.card .right {
     flex-basis: 50%; } }
+
+@media (min-width: 600px) {
+  form.card .bottom {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px; } }

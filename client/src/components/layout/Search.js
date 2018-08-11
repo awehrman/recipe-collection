@@ -18,7 +18,7 @@ class Search extends Component {
 			isSearchDisplayed: false,
 			searchValue: '',
 			searchFields: {
-				ingredients: [ 'name', 'plural', 'alternateNames', 'parsingExpressions' ],
+				ingredients: [ 'name', 'plural', 'alternateNames' ],
 				recipes: [ 'title', 'ingredients' ]
 			},
 		};

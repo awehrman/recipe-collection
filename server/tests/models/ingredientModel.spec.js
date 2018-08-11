@@ -15,16 +15,14 @@ const recipeController = require('../../controllers/recipeController');
 /**
 
 	TODO:
-	- consider swapping parsing expressions for associated descriptors found in references
-	- adjust alternate names and parsing expressions to receive an object with singular/plural values
+	- consider associated descriptors found in references
+	- adjust alternate names to receive an object with singular/plural values
 	- more type checking on passing an encoded ingredient into the constructor when fields are missing
 	- should only create a new Ingredient when the name is not used on any other ingredients
 	- additional tests for:
 		- references (convert to map)
 	- when a name is updated to be a name referenced on the ingredient's relatedIngredients or substitutes sets,
 		we need to trigger a merger with those records, come back to how this needs to be handled internally
-	- should alternateNames/parsingExprsesions be WeakSets? And related, substitutes, references WeakMaps?
-		is this any down-side there? I'd like to run some heap dumps to really walk through this
 
  */
 
@@ -77,7 +75,6 @@ describe('Ingredient Class ============================================='.magent
 			});
 
 			expect(ing.alternateNames).to.be.empty;
-			expect(ing.parsingExpressions).to.be.empty;
 			expect(ing.relatedIngredients).to.be.empty;
 			expect(ing.substitutes).to.be.empty;
 			expect(ing.references).to.be.empty;
@@ -102,7 +99,6 @@ describe('Ingredient Class ============================================='.magent
 			     soy: false,
 			     gluten: true },
 			  alternateNames: [ 'all-purpose flour' ],
-			  parsingExpressions: [ 'flour for dusting' ],
 			  relatedIngredients: [ [ 'bread flour', '0eef4ae2-3f35-11e8-9692-3d22a379ab33' ] ],
 			  substitutes: [],
 			  references: [],
@@ -128,7 +124,6 @@ describe('Ingredient Class ============================================='.magent
 			});
 
 			expect(decoded.alternateNames.has('all-purpose flour')).to.be.true;
-			expect(decoded.parsingExpressions.has('flour for dusting')).to.be.true;
 			expect(decoded.relatedIngredients.has('bread flour')).to.be.true;
 			expect(decoded.substitutes).to.be.empty;
 			expect(decoded.references).to.be.empty;
@@ -255,10 +250,6 @@ describe('Ingredient Class ============================================='.magent
 			expect(initialDate).to.not.equal(ing.dateUpdated);
 			initialDate = ing.dateUpdated;
 
-			ing.parsingExpressions = new Set(['small fingerling potato']);
-			expect(initialDate).to.not.equal(ing.dateUpdated);
-			initialDate = ing.dateUpdated;
-
 			const related = new Map();
 			related.set('yukon gold potato', '3aeb6dfc-a232-4d8b-a70b-7d13b1b9afd5');
 			ing.relatedIngredients = related;
@@ -288,7 +279,6 @@ describe('Ingredient Class ============================================='.magent
 
 			ing.plural = 'potatoes';
 			ing.alternateNames = new Set(['spuds']);
-			ing.parsingExpressions = new Set(['small potatoes']);
 
 			// if 'name' gets updated to a value associated with a related or substitute, then this needs to trigger a merge
 			const related = new Map();
@@ -316,16 +306,6 @@ describe('Ingredient Class ============================================='.magent
 			expect(ing.alternateNames.has('potato')).to.be.true;
 			expect(ing.alternateNames.has('potatoes')).to.be.true;
 			expect(ing.alternateNames.size).to.equal(2); // { 'potato', 'potatoes' }
-
-			// name: spuds => small potatoes
-			// needs to remove 'small potatoes' from parsing expressions
-			ing.name = 'small potatoes';
-			expect(ing.name).to.equal('small potatoes');
-			expect(ing.parsingExpressions).to.be.empty;
-			expect(ing.alternateNames.has('potato')).to.be.true;
-			expect(ing.alternateNames.has('potatoes')).to.be.true;
-			expect(ing.alternateNames.has('spuds')).to.be.true;
-			expect(ing.alternateNames.size).to.equal(3); // { 'potato', 'potatoes', 'spuds' }
 
 			// name: potato => yukon gold potato
 			// TODO ??? this signals a merger... come back to this
@@ -357,7 +337,6 @@ describe('Ingredient Class ============================================='.magent
 
 			ing.plural = 'potatoes';
 			ing.alternateNames = new Set(['spuds']);
-			ing.parsingExpressions = new Set(['small potatoes']);
 
 			const related = new Map();
 			related.set('yukon gold potato', '3aeb6dfc-a232-4d8b-a70b-7d13b1b9afd5');
@@ -382,14 +361,6 @@ describe('Ingredient Class ============================================='.magent
 			expect(ing.plural).to.equal('spuds');
 			expect(ing.alternateNames.has('potatoes')).to.be.true;
 			expect(ing.alternateNames.size).to.equal(1);
-
-			// plural: spuds => small potatoes
-			// needs to remove 'small potatoes' from parsing expressions, and re-add spuds to alt names
-			ing.plural = 'small potatoes';
-			expect(ing.parsingExpressions).to.be.empty;
-			expect(ing.alternateNames.has('potatoes')).to.be.true;
-			expect(ing.alternateNames.has('spuds')).to.be.true;
-			expect(ing.alternateNames.size).to.equal(2);
 
 			expect(() => {
 				ing.plural = undefined;
@@ -532,101 +503,12 @@ describe('Ingredient Class ============================================='.magent
 			expect(ing.alternateNames.size).to.equal(1);
 			expect(ing.plural).to.be.null;
 
-			// if the value is the same as an instance within parsing expressions
-			// remove the parse exp
-			// add it ot the alt name
-			ing.parsingExpressions = new Set(['small potatoes']);
-			expect(ing.parsingExpressions.has('small potatoes')).to.be.true;
-			expect(ing.parsingExpressions.size).to.equal(1);
-
-			ing.alternateNames = new Set(['small potatoes']);
-			expect(ing.plural).to.be.null;
-			expect(ing.alternateNames.has('small potatoes')).to.be.true;
-			expect(ing.alternateNames.size).to.equal(1);
-			expect(ing.parsingExpressions.has('small potatoes')).to.be.false;
-			expect(ing.parsingExpressions.size).to.equal(0);
 
 			// if the value is already in the alt names
 			// it should de-duplicate
 			ing.alternateNames = new Set(['potatoes', 'potatoes']);
 			expect(ing.alternateNames.has('potatoes')).to.be.true;
 			expect(ing.alternateNames.size).to.equal(1);
-		});
-
-		it('[parsingExpressions] should update with a valid Set containing string values', function() {
-			const ing = new Ingredient('potato');
-
-			// ignore any entries that match our extisting name
-			ing.alternateNames = new Set(['potato']);
-			expect(ing.alternateNames.size).to.be.equal(0);
-			expect(ing.alternateNames.has('potato')).to.be.false;
-
-			// if the value is the same as the plural
-			// remove the plural
-			// add it to alt name
-			ing.plural = 'potatoes';
-			ing.parsingExpressions = new Set(['potatoes']);
-			expect(ing.parsingExpressions.has('potatoes')).to.be.true;
-			expect(ing.parsingExpressions.size).to.equal(1);
-			expect(ing.plural).to.be.null;
-
-			// if the value is the same as an instance within parsing expressions
-			// remove the parse exp
-			// add it ot the alt name
-			ing.alternateNames = new Set(['spuds']);
-			expect(ing.alternateNames.has('spuds')).to.be.true;
-			expect(ing.alternateNames.size).to.equal(1);
-
-			ing.parsingExpressions = new Set(['spuds']);
-			expect(ing.plural).to.be.null;
-			expect(ing.parsingExpressions.has('spuds')).to.be.true;
-			expect(ing.parsingExpressions.size).to.equal(1);
-			expect(ing.alternateNames.has('spuds')).to.be.false;
-			expect(ing.alternateNames.size).to.equal(0);
-
-			// if the value is already in the alt names
-			// it should de-duplicate
-			ing.parsingExpressions = new Set(['potatoes', 'potatoes']);
-			expect(ing.parsingExpressions.has('potatoes')).to.be.true;
-			expect(ing.parsingExpressions.size).to.equal(1);
-
-			// TODO come back to handling relatedIngredient matches
-			// TODO come back to handling substitute matches
-
-			ing.parsingExpressions = new Set([ undefined ]);
-			expect(ing.parsingExpressions.size).to.equal(0);
-			ing.parsingExpressions = new Set([ '' ]);
-			expect(ing.parsingExpressions.size).to.equal(0);
-			ing.parsingExpressions = new Set([ NaN ]);
-			expect(ing.parsingExpressions.size).to.equal(0);
-			ing.parsingExpressions = new Set([ null ]);
-			expect(ing.parsingExpressions.size).to.equal(0);
-			ing.parsingExpressions = new Set([ 123 ]);
-			expect(ing.parsingExpressions.size).to.equal(0);
-			ing.parsingExpressions = new Set([ { name: 'small potatoes' } ]);
-			expect(ing.parsingExpressions.size).to.equal(0);
-
-			expect(() => {
-				ing.parsingExpressions = undefined;
-			}).to.throw('Invalid parsingExpressions parameter for Ingredient');
-			expect(() => {
-				ing.parsingExpressions = '';
-			}).to.throw('Invalid parsingExpressions parameter for Ingredient');
-			expect(() => {
-				ing.parsingExpressions = NaN;
-			}).to.throw('Invalid parsingExpressions parameter for Ingredient');
-			expect(() => {
-				ing.parsingExpressions = null;
-			}).to.throw('Invalid parsingExpressions parameter for Ingredient');
-			expect(() => {
-				ing.parsingExpressions = 123;
-			}).to.throw('Invalid parsingExpressions parameter for Ingredient');
-			expect(() => {
-				ing.parsingExpressions = { name: 'spud' };
-			}).to.throw('Invalid parsingExpressions parameter for Ingredient');
-			expect(() => {
-				ing.parsingExpressions = 'spud';
-			}).to.throw('Invalid parsingExpressions parameter for Ingredient');
 		});
 
 		it('[relatedIngredients] should update with a valid Map containing name/id pairs', function() {
@@ -742,7 +624,6 @@ describe('Ingredient Class ============================================='.magent
 			let yam = ingredientController.findIngredient('name', 'yam');
 			yam.plural = 'yams';
 			yam.alternateNames = new Set([ 'sweet potato' ]);
-			yam.parsingExpressions = new Set([ 'diced yams' ]);
 			yam.saveIngredient();
 
 			yam = ingredientController.findIngredient('name', 'yam');
@@ -982,7 +863,6 @@ describe('Ingredient Class ============================================='.magent
 			let stock = ingredientController.findIngredients('name', 'chicken stock')[0];
 			stock.plural = 'chicken stocks';
 			stock.alternateNames = new Set([ 'chicken wing stock' ]);
-			stock.parsingExpressions = new Set([ 'can of chicken stock' ]);
 			stock.saveIngredient();
 
 			// if we pass in an ingredientID that doesn't exist in our database
@@ -1022,7 +902,7 @@ describe('Ingredient Class ============================================='.magent
 			refreshArrays();
 			// expect it to put chicken stock in our array
 			expect(ing.substitutes.size).to.equal(1);
-			expect(keys.includes('chicken stock')).to.be.true; // make sure we save the name field
+			expect(keys.includes('can of chicken stock')).to.be.true; // make sure we save the name field
 			expect(values[0]).to.be.not.null;
 			// expect to only have a single chicken stock in our database
 			stock = ingredientController.findIngredients('exact', 'chicken stock');
@@ -1243,7 +1123,6 @@ describe('Ingredient Class ============================================='.magent
 			expect(obj.hasOwnProperty('plural')).to.be.true;
 			expect(obj.hasOwnProperty('properties')).to.be.true;
 			expect(obj.hasOwnProperty('alternateNames')).to.be.true;
-			expect(obj.hasOwnProperty('parsingExpressions')).to.be.true;
 			expect(obj.hasOwnProperty('relatedIngredients')).to.be.true;
 			expect(obj.hasOwnProperty('substitutes')).to.be.true;
 			expect(obj.hasOwnProperty('references')).to.be.true;
@@ -1256,7 +1135,6 @@ describe('Ingredient Class ============================================='.magent
 
 			expect(typeof encoded).to.be.equal('object');
 			expect(Array.isArray(encoded.alternateNames)).to.be.true;
-			expect(Array.isArray(encoded.parsingExpressions)).to.be.true;
 			expect(Array.isArray(encoded.relatedIngredients)).to.be.true;
 			expect(Array.isArray(encoded.substitutes)).to.be.true;
 			expect(Array.isArray(encoded.references)).to.be.true;
@@ -1372,9 +1250,6 @@ describe('Ingredient Class ============================================='.magent
 			// don't allow alternate names matching an existing ingredient's alternate name
 			expect(() => ing.addAlternateName('sweet potato')).to.throw('Alternate name is already in use');
 
-			// don't allow alternate names matching an existing ingredient's parsing expression
-			expect(() => ing.addAlternateName('diced yams')).to.throw('Alternate name is already in use');
-
 			// allow any other valid, unused string
 			ing.addAlternateName('starchy potato');
 			expect(ing.alternateNames.size).to.equal(1);
@@ -1394,11 +1269,6 @@ describe('Ingredient Class ============================================='.magent
 			expect(ing.plural).to.be.null;
 			expect(ing.alternateNames.has('new potatoes')).to.be.true;
 
-			// if matching an existing parsing expression, should remove the parsing expression and accept as alt name
-			ing.parsingExpressions = new Set(['diced potato']);
-			ing.addAlternateName('diced potato');
-			expect(ing.parsingExpressions.size).to.be.equal(0);
-			expect(ing.alternateNames.has('diced potato')).to.be.true;
 		});
 
 		it('[removeAlternateName] should remove a given alternate name from the set', function() {
@@ -1415,70 +1285,6 @@ describe('Ingredient Class ============================================='.magent
 			ing.removeAlternateName('new potatoes');
 			expect(ing.alternateNames.size).to.equal(0);
 			expect(ing.alternateNames.has('new potatoes')).to.be.false;
-		});
-
-		it('[addParsingExpression] should add a new parsing expression to the set', function() {
-			const ing = new Ingredient('apple');
-
-			// don't allow non-sense
-			expect(() => ing.addParsingExpression()).to.throw('Invalid parsingExpressions parameter for Ingredient');
-			expect(() => ing.addParsingExpression('')).to.throw('Invalid parsingExpressions parameter for Ingredient');
-			expect(() => ing.addParsingExpression(NaN)).to.throw('Invalid parsingExpressions parameter for Ingredient');
-			expect(() => ing.addParsingExpression(null)).to.throw('Invalid parsingExpressions parameter for Ingredient');
-			expect(() => ing.addParsingExpression(123)).to.throw('Invalid parsingExpressions parameter for Ingredient');
-
-			// don't allow parsing expressions matching an existing ingredient
-			expect(() => ing.addParsingExpression('yam')).to.throw('Parsing expression value is already in use');
-
-			// don't allow parsing expressions matching an existing ingredient's plural name
-			expect(() => ing.addParsingExpression('yams')).to.throw('Parsing expression value is already in use');
-
-			// don't allow parsing expressions matching an existing ingredient's alternate name
-			expect(() => ing.addParsingExpression('sweet potato')).to.throw('Parsing expression value is already in use');
-
-			// don't allow parsing expressions matching an existing ingredient's parsing expression
-			expect(() => ing.addParsingExpression('diced yams')).to.throw('Parsing expression value is already in use');
-
-			// allow any other valid, unused string
-			ing.addParsingExpression('diced apples');
-			expect(ing.parsingExpressions.size).to.equal(1);
-			expect(ing.parsingExpressions.has('diced apples')).to.be.true;
-
-			// if matching an existing parsing expression, de-duplicate
-			ing.addParsingExpression('diced apples');
-			expect(ing.parsingExpressions.size).to.be.equal(1);
-			expect(ing.parsingExpressions.has('diced apples')).to.be.true;
-
-			// don't allow any strings matching the current name of the un-saved ingredient
-			expect(() => ing.addParsingExpression('apple')).to.throw('Cannot assign current Ingredient name to parsingExpressions');
-
-			// if matching the existing plural name, should remove the plural and accept as alt name
-			ing.plural = 'apples';
-			ing.addParsingExpression('apples');
-			expect(ing.plural).to.be.null;
-			expect(ing.parsingExpressions.has('apples')).to.be.true;
-
-			// if matching an existing alternate name, should remove the alternate name and accept as parsing expression
-			ing.alternateNames = new Set([ 'sagwa' ]);
-			ing.addParsingExpression('sagwa');
-			expect(ing.alternateNames.size).to.be.equal(0);
-			expect(ing.parsingExpressions.has('sagwa')).to.be.true;
-		});
-
-		it('[removeParsingExpression] should remove a given parsing expression from the set', function() {
-			const ing = new Ingredient('potato');
-			ing.parsingExpressions = new Set([ 'diced potatoes' ]);
-			expect(ing.parsingExpressions.has('diced potatoes')).to.be.true;
-			expect(ing.parsingExpressions.size).to.equal(1);
-
-			// don't do anything if we don't find a match
-			ing.removeParsingExpression('non-existing potato');
-			expect(ing.parsingExpressions.size).to.equal(1);
-
-			// remove any matching names
-			ing.removeParsingExpression('diced potatoes');
-			expect(ing.parsingExpressions.size).to.equal(0);
-			expect(ing.parsingExpressions.has('diced potatoes')).to.be.false;
 		});
 
 		it('[addRelatedIngredient] should add a valid related ingredient to the map', function() {

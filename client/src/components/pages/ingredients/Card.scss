@@ -2,9 +2,11 @@
 
 form.card {
 	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-between;
+	flex-direction: column;
+	flex-flow: column !important;
+	justify-content: center;//space-between;
 	align-content: flex-start;
+	position: relative;
 
 	.field {
 		label {
@@ -13,10 +15,10 @@ form.card {
 	}
 
 	.top {
-		flex-basis: 100%;
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: space-between;
+		flex: 1 0 auto;
 
 		.field.stacked {
 			flex-basis: auto;
@@ -119,6 +121,11 @@ form.card {
 		}
 	}
 
+	.middle {
+		display: flex;
+		flex-basis: 100%;		
+	}
+
 	.left {
 		margin-top: 10px;
 		flex-basis: 100%;
@@ -132,9 +139,14 @@ form.card {
 		margin-top: 10px;
 		flex-basis: 100%;
 
+		.field.references.edit, .field.related.edit {
+			max-height: 140px;
+			height: unset;
+		}
+
 		.field.references, .field.related {
 			overflow-y: scroll;
-			max-height: 125px;
+			height: 90%; // round-down so any cut-off text doesn't look dumb
 
 			label {
 				font-weight: 600;
@@ -155,13 +167,42 @@ form.card {
 
 		.field.related {
 			margin-top: 10px;
+			//max-height: 125px;
+
+			ul {
+				list-style-type: none;
+				margin: 0;
+				padding: 0 !important;
+				margin-bottom: 4px;
+
+				li {
+					font-size: .8em;
+					color: #222;
+					line-height: 1.6;
+
+					button {
+						font-size: 1em;
+						color: $highlight;
+						line-height: 1.6;
+						font-weight: 400;
+						padding: 4px 0 0;
+						border: 0;
+						border-bottom: 1px solid $highlight;
+						cursor: pointer;
+
+						&:focus {
+							outline: 0;
+						}
+					}
+				}
+			}
 		}
 	}
 
 	.bottom {
 		display: flex;
 		flex-wrap: wrap;
-		flex-basis: 100%;
+		flex: 1 0 auto;
 
 		button {
 			background: white;
@@ -236,10 +277,18 @@ form.card {
 				color: $bodyText;
 				font-weight: 400;
 				margin-right: 20px;
+				font-size: .875em;
+				padding-bottom: 6px;
 			}
 
 			button.save {
-				color: $green;
+				border: 0;
+				background: $green;
+				color: white;
+				border-radius: 3px;
+				padding: 5px 10px;
+				font-size: .875em;
+				cursor: pointer;
 			}
 		}
 	}
@@ -254,6 +303,17 @@ form.card {
 
 		.right {
 			flex-basis: 50%;
+		}
+	}
+}
+
+@media (min-width: 600px) {
+	form.card {
+		.bottom {
+			position: absolute;
+			bottom: 20px;
+			left: 20px;
+			right: 20px;
 		}
 	}
 }

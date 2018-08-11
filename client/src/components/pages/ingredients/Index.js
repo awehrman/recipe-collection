@@ -43,7 +43,7 @@ class Index extends Component {
 		this._source = axios.CancelToken.source();
 		this.getIngredientList = this.getIngredientList.bind(this);
 		this.onIngredientClick = this.onIngredientClick.bind(this);
-		this.reassignTarget = this.reassignTarget.bind(this);
+		this.findListItemTarget = this.findListItemTarget.bind(this);
 		this.updateView = this.updateView.bind(this);
 	}
 
@@ -75,14 +75,12 @@ class Index extends Component {
 	  }
   }
 
-  // TODO rename
-  // it's goign to update the view if necessary to use the correct ing target
-  reassignTarget(e, container, ingredient) {
+  findListItemTarget(e, container, ingredient) {
   	e.preventDefault();
   	e.stopPropagation();
 		let { currentView } = this.state;
 		let target = e.target;
-  	
+
   	// if we didn't click on an ingredient from the container list, then update our target to the item in the container's list
   	if (!target || !target.classList.contains('offset')) {
   		target = this.containerIngredientRefs[container.label + ingredient.ingredientID + "_ing"];
@@ -96,17 +94,13 @@ class Index extends Component {
 
   	target = (!target) ? e.target : target;
 
-  	console.log(target);
-
   	const cb = (target, e, container, ingredient) => {
-
 			this.renderIngredients(container);
 
-			if (!target || !target.classList.contains('offset')) {
+			if (!target || (target.classList && !target.classList.contains('offset'))) {
 				target = this.containerIngredientRefs[container.label + ingredient.ingredientID + "_ing"];
 				target = (target) ? target.childNodes[0] : null;
 			}
-			console.warn(target);
 
 			// update the URL
 			this.props.history.push(`/ingredients/all`);
@@ -116,7 +110,7 @@ class Index extends Component {
 			}
 		};
 
-  	this.updateView('all', ingredient, [], "", cb(target, e, container, ingredient));
+  	this.updateView(currentView, ingredient, [], "", cb(target, e, container, ingredient));
   }
 
   onIngredientClick(e, container, ingredient, target = null) {
@@ -156,9 +150,35 @@ class Index extends Component {
   	this.setState({
   		containers
   	}, () => {
-  		console.log(target);
-  		target.scrollIntoView();
+  		this.scrollToListItem(container, ingredient, target);
   	});
+  }
+
+  scrollToListItem(container, ingredient, target) {
+  	const ingredients = clone(this.state.ingredients);
+  	const hasSymbols = container.ingredients.map(i => i.name.charAt(0)).filter(char => !char.match(/[a-z]/i)).length > 0;
+  	let letters = container.ingredients.map(i => i.name.charAt(0)).filter((char, index, self) => self.indexOf(char) === index && char.match(/[a-z]/i));
+  	if (hasSymbols) {
+  		letters.unshift('@');
+  	}
+  	const HEADER_HEIGHT = 44;
+
+  	if (container && ingredient && target) {
+	  	// find the position of the ingredient in the list
+			const index = container.ingredients.findIndex(i => i.ingredientID === ingredient.ingredientID);
+			const letterIndex = letters.findIndex(l => l === ingredient.name.charAt(0)) + 1;
+
+			// determine offset
+  		let offset = (container.ingredients && (container.ingredients.length > 100) && (ingredients.length <= 500))
+  			? (HEADER_HEIGHT * letterIndex)		// if we have subheader's in our container
+  			: 0;	// if we just have a list of ingredients
+  		offset -= 24;
+  		const yPosition = (index * target.clientHeight) + offset;
+
+			// and scroll to that position times the height of the list item itself
+			target.parentNode.scrollTo(0, yPosition);
+			target.parentNode.parentNode.scrollIntoView();
+		}
   }
 
 	getIngredientList(currentIngredientID = null) {
@@ -334,7 +354,7 @@ class Index extends Component {
 							label: "0 References",
 							count: containerIngredients.length,
 							ingredients: containerIngredients,
-							isExpanded: true, // TODO
+							isExpanded: false,
 							isCardEnabled:  currentIngredient ? true : false,
 							currentIngredient: currentIngredient ? nextCurrent : null
 						};
@@ -353,7 +373,7 @@ class Index extends Component {
 							label: "1 Reference",
 							count: containerIngredients.length,
 							ingredients: containerIngredients,
-							isExpanded: true, // TODO
+							isExpanded: false,
 							isCardEnabled:  currentIngredient ? true : false,
 							currentIngredient: currentIngredient ? nextCurrent : null
 						};
@@ -378,11 +398,11 @@ class Index extends Component {
 						label: `${rangeStart}-${rangeEnd} References`,
 						count: containerIngredients.length,
 						ingredients: containerIngredients,
-						isExpanded: true, // TODO
+						isExpanded: false,
 						isCardEnabled:  currentIngredient ? true : false,
 						currentIngredient: currentIngredient ? nextCurrent : null
 					};
-  			}).filter(c => c);
+  			}).filter(c => c.ingredients.length > 0);
 
   			break;
   		case 'relationship':
@@ -400,7 +420,7 @@ class Index extends Component {
 						label: `Child Ingredients`,
 						count: childIngredients.length,
 						ingredients: childIngredients,
-						isExpanded: true, // TODO
+						isExpanded: true,
 						isCardEnabled:  currentIngredient ? true : false,
 						currentIngredient: currentIngredient ? nextCurrent : null
 					});
@@ -415,7 +435,7 @@ class Index extends Component {
 						label: `Parent Ingredients`,
 						count: parentIngredients.length,
 						ingredients: parentIngredients,
-						isExpanded: true, // TODO
+						isExpanded: true,
 						isCardEnabled:  currentIngredient ? true : false,
 						currentIngredient: currentIngredient ? nextCurrent : null
 					});
@@ -461,7 +481,7 @@ class Index extends Component {
 							label: char,
 							count: containerIngredients.length,
 							ingredients: containerIngredients,
-							isExpanded: (index === 0) ? true : false, // TODO
+							isExpanded: true,
 							isCardEnabled: currentIngredient ? true : false,
 							currentIngredient: currentIngredient ? nextCurrent : null
 						};
@@ -557,12 +577,9 @@ class Index extends Component {
   		})
   	}
 
-  	console.warn('re-rendering');
   	return ingredientList.map(i =>
   		<li key={ i.key } className={ i.className } onClick={ i.onClick } ref={ el => this.containerIngredientRefs[container.label + i.key] = el }>
-  			<div className="offset">
-  				{ i.name }
-  			</div>
+  			{ i.name }
   		</li>
   	);
 	}
@@ -626,7 +643,7 @@ class Index extends Component {
 													ingredients={ ingredients }
 													key={ c.currentIngredient.ingredientID }
 													isEditMode={ (currentView === 'new') ? true : false }
-													onIngredientClick={ this.reassignTarget }
+													onIngredientClick={ this.findListItemTarget }
 													refresh={ this.getIngredientList }
 												/>
 											: null

@@ -259,6 +259,7 @@ lookupMetadata = async (store, note) => {
 };
 
 processImageContent = async (store, note) => {
+	// TODO try/catch for non-existent image
 	// minify image data
 	const optimizedImage = await imagemin.buffer(note.resources[0].data.body, {
     plugins: [

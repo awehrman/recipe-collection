@@ -32,7 +32,7 @@ body {
     /*----------  Navigation  ----------*/
     /*----------  Page Article  ----------*/ }
     .canvas .wrapper nav {
-      background: #435382;
+      background: #2b3d5a;
       position: fixed;
       top: 0;
       width: 100%; }
@@ -75,7 +75,7 @@ body {
       left: 160px; }
     .canvas .wrapper nav {
       width: 200px;
-      background: #435382;
+      background: #2b3d5a;
       left: -160px;
       bottom: 0;
       transition: .2s ease-out; }
@@ -99,7 +99,7 @@ section .filters {
       margin-right: 20px;
       color: #222; }
       section .filters .left a + .new {
-        color: #93b4f9; }
+        color: #80aef5; }
     section .filters .left a.active {
       font-weight: 600; }
   section .filters .right {
@@ -141,7 +141,9 @@ section .view ul.containers {
       border-bottom: 1px solid #ddd;
       display: flex;
       justify-content: space-between;
-      cursor: pointer; }
+      cursor: pointer;
+      background: white;
+      z-index: 500; }
       section .view ul.containers li.container .line .count {
         color: #909497;
         text-align: right; }
@@ -161,18 +163,18 @@ section .view ul.containers {
       padding: 0; }
       section .view ul.containers li.container ul.ingredients.expanded li.ingredient, section .view ul.containers li.container ul.ingredients.expanded li.header {
         padding: 0 10px; }
+      section .view ul.containers li.container ul.ingredients.expanded li.ingredient:last-of-type {
+        margin-bottom: 476px; }
     section .view ul.containers li.container ul.ingredients {
       flex-basis: 100%;
       margin: 0;
       list-style-type: none;
-      line-height: 1.4; }
+      line-height: 1.4;
+      padding: 10px; }
       section .view ul.containers li.container ul.ingredients li.ingredient {
         cursor: pointer; }
-        section .view ul.containers li.container ul.ingredients li.ingredient .offset {
-          padding-top: 24px;
-          margin-top: -24px; }
         section .view ul.containers li.container ul.ingredients li.ingredient:hover {
-          color: #93b4f9; }
+          color: #80aef5; }
       section .view ul.containers li.container ul.ingredients .child {
         font-style: italic; }
       section .view ul.containers li.container ul.ingredients .active {

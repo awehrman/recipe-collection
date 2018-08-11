@@ -20,7 +20,6 @@ const _plural = new WeakMap();
 const _properties = new WeakMap();
 
 const _alternateNames = new WeakMap();
-const _parsingExpressions = new WeakMap();
 const _relatedIngredients = new WeakMap();
 const _substitutes = new WeakMap();
 const _references = new WeakMap();
@@ -56,7 +55,6 @@ class Ingredient {
 				});
 
 				_alternateNames.set(this, new Set());
-				_parsingExpressions.set(this, new Set());
 
 				_relatedIngredients.set(this, new Map());
 				_substitutes.set(this, new Map());
@@ -86,7 +84,6 @@ class Ingredient {
 				}, value.properties));
 
 				_alternateNames.set(this, new Set([ ...value.alternateNames ]));
-				_parsingExpressions.set(this, new Set([ ...value.parsingExpressions ]));
 
 				// translate our 2D arrays back into a Maps
 				const relatedIngredients = new Map();
@@ -192,18 +189,10 @@ class Ingredient {
 				_alternateNames.get(this).add(name);
 			}
 
-			// handle parsing expressions matching instance
-			if (_parsingExpressions.get(this).has(value)) {
-				_parsingExpressions.get(this).delete(value);
-				_alternateNames.get(this).add(name);
-			}
-
-			// TODO add tests
 			if (_relatedIngredients.get(this).has(value)) {
 				_relatedIngredients.get(this).delete(value);
 			}
 
-			// TODO add tests
 			if (_substitutes.get(this).has(value)) {
 				_substitutes.get(this).delete(value);
 			}
@@ -231,12 +220,6 @@ class Ingredient {
 			// handle alt names matching instance
 			if (_alternateNames.get(this).has(value)) {
 				_alternateNames.get(this).delete(value);
-				_alternateNames.get(this).add(plural);
-			}
-
-			// handle parsing expressions matching instance
-			if (_parsingExpressions.get(this).has(value)) {
-				_parsingExpressions.get(this).delete(value);
 				_alternateNames.get(this).add(plural);
 			}
 
@@ -294,34 +277,6 @@ class Ingredient {
 			return _alternateNames.get(this);
 		}
 		throw new Error('Invalid alternateNames parameter for Ingredient');
-	}
-
-	/*----------  parsingExpressions  ----------*/
-	get parsingExpressions() {
-		return _parsingExpressions.get(this);
-	}
-
-	set parsingExpressions(value) {
-		if (value && (value instanceof Set)) {
-			// clear out the prior set of parsing expressions since we're going to replace it wholesale
-			// if you just want to append new values use addParsingExpression instead
-			_parsingExpressions.set(this, new Set());
-
-			// for each item in our set
-			for (let item of value) {
-				try {
-					// accept it if it passes validation
-					this.addParsingExpression(item);
-				} catch (ex) {
-					// or remove it from the set
-					value.delete(item);
-				}
-			}
-
-			_dateUpdated.set(this, moment());
-			return _parsingExpressions.get(this);
-		}
-		throw new Error('Invalid parsingExpressions parameter for Ingredient');
 	}
 
 	/*----------  relatedIngredients  ----------*/
@@ -438,7 +393,6 @@ class Ingredient {
 			properties: _properties.get(this),
 
 			alternateNames: _alternateNames.get(this),
-			parsingExpressions: _parsingExpressions.get(this),
 			relatedIngredients: _relatedIngredients.get(this),
 			substitutes: _substitutes.get(this),
 			references: _references.get(this),
@@ -460,7 +414,6 @@ class Ingredient {
 
 			// translate Sets and Maps to Arrays
 			alternateNames: [ ..._alternateNames.get(this) ],
-			parsingExpressions: [ ..._parsingExpressions.get(this) ],
 			relatedIngredients: [ ..._relatedIngredients.get(this) ],
 			substitutes: [ ..._substitutes.get(this) ],
 			references: [ ..._references.get(this) ],
@@ -577,12 +530,6 @@ class Ingredient {
 				return _alternateNames.get(this);
 			}
 
-			// check if this value equals any of our current parsing expression values
-			if (_parsingExpressions.get(this).has(value)) {
-				// if so, we'll still accept this value, but we'll clear out that specific parsing expression value
-				_parsingExpressions.get(this).delete(value);
-			}
-
 			// if we pass all other validation, accept the alternate name
 			return _alternateNames.get(this).add(value);
 		}
@@ -592,51 +539,6 @@ class Ingredient {
 	removeAlternateName(value) {
 		if (_alternateNames.get(this).has(value)) {
 			_alternateNames.get(this).delete(value);
-		}
-	}
-
-	addParsingExpression(value, isValidate = true) {
-		if (value && typeof value === 'string' && value.length > 0) {
-			if (isValidate) {
-				// check that this value isn't used on any other ingredients
-				const existingIngredient = ingredientController.findIngredients('exact', value);
-				if (existingIngredient && existingIngredient.length > 0) {
-					throw new Error('Parsing expression value is already in use');
-				}
-			}
-
-			// check that this value dosen't not equal our current name
-			if (value === _name.get(this)) {
-				throw new Error('Cannot assign current Ingredient name to parsingExpressions');
-			}
-
-			// check if this value equals our current plural value
-			if (value === _plural.get(this)) {
-				// if so, we'll still accept this value, but we're remove the plural value
-				_plural.set(this, null);
-			}
-
-			// check if this value equals any of our current parsing expression values
-			if (_parsingExpressions.get(this).has(value)) {
-				// then don't do anything and get out of here
-				return _parsingExpressions.get(this);
-			}
-
-			// check if this value equals any of our current alternate names
-			if (_alternateNames.get(this).has(value)) {
-				// if so, we'll still accept this value, but we'll clear out that specific alternate name
-				_alternateNames.get(this).delete(value);
-			}
-
-			// if we pass all other validation, accept the alternate name
-			return _parsingExpressions.get(this).add(value);
-		}
-		throw new Error('Invalid parsingExpressions parameter for Ingredient');
-	}
-
-	removeParsingExpression(value) {
-		if (_parsingExpressions.get(this).has(value)) {
-			_parsingExpressions.get(this).delete(value);
 		}
 	}
 

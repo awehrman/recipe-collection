@@ -97,9 +97,6 @@ class Card extends Component {
 
 		  	this.saveIngredient(null, error);
 		  	break;
-		 	case "merge":
-		 		// TODO
-		 		break;
   		case "modal":
   			this.toggleModal(subtype);
 		  	break;
@@ -166,7 +163,6 @@ class Card extends Component {
 	  			(i.hasOwnProperty('name') && i.name === updatedName.trim()) // on name
 	  			|| (i.hasOwnProperty('plural') && i.plural === updatedName.trim()) // on plural
 	  			|| (i.hasOwnProperty('alternateNames') && i.alternateNames.find(n => n === updatedName.trim())) // on any alternative names
-	  			|| (i.hasOwnProperty('parsingExpressions') && i.parsingExpressions.find(n => n === updatedName.trim())) // on any parsing expressions
 		  	)
   		));
 
@@ -259,7 +255,13 @@ class Card extends Component {
 				};
 				break;
 			case "merge":
-				// TODO
+				modal.label = 'Merge';
+				modal.title = 'Merge Ingredient With';
+				modal.type = 'merge';
+				modal.values = {
+					associated: [],
+					type: null 
+				};
 				break;
 			case "parent":
 				// TODO
@@ -289,9 +291,6 @@ class Card extends Component {
   			// the back-end will fill in the most up-to-date ID for usre
   			ingredient.relatedIngredients.push([ value, null ]);
   			break
-  		case 'exp':
-  			ingredient.parsingExpressions.push(value);
-  			break;
   		case 'sub':
   			// the back-end will fill in the most up-to-date ID for us
   			ingredient.substitutes.push([ value, null ]);
@@ -355,9 +354,11 @@ class Card extends Component {
 	}
 
 	renderReferences(ingredient) {
+		const { isEditMode } = this.state;
+
 		if (ingredient && ingredient.hasOwnProperty('references') && ingredient.references.length > 0) {
   		return (
-  			<div className="field references">
+  			<div className={ `field references ${ (isEditMode) ? ' edit' : ''}` }>
 					<label>{ `${(ingredient && ingredient.references) ? ingredient.references.length : 0} Reference${(ingredient && (ingredient.references.length === 1)) ? '' : 's' }`}</label>
 					<ul>
 					{
@@ -380,10 +381,10 @@ class Card extends Component {
   		const excluded = ['a', 'from', 'the', 'you', 'be', 'for', 'with', 'plus']; // TODO expand
 
 	  	const populateRelated = (i, related) => {
-				if (!related.find(ing => ing.name.includes(i))) {
+				if (!related.find(ing => ing.name.includes(i[1]))) {
 					// yeah... idk if this is even the west weight...
 					// TODO research this a bit more
-					related.push({ name: i, score: levenshtein.get(name, i) });
+					related.push({ name: i[1], score: levenshtein.get(name, i[1]), ingredientID: i[0] });
 				}
 			};
 
@@ -396,9 +397,8 @@ class Card extends Component {
 	  				.filter(i => (i.name && i.name.indexOf(word) > -1)
 	  					|| (i.plural && i.plural.indexOf(word) > -1)
 	  					|| (i.alternateNames && i.alternateNames.find(n => n.indexOf(word) > -1))
-	  					|| (i.parsingExpressions && i.parsingExpressions.find(n => n.indexOf(word) > -1))
 	  					)
-	  				.map(i => i.name)
+	  				.map(i => [ i.ingredientID, i.name ])
 	  				// eslint-disable-next-line
 	  				.map(i => populateRelated(i, related));
 	  		}
@@ -413,7 +413,15 @@ class Card extends Component {
 			  		<label>Suggested Relations</label>
 						<ul>
 							{
-								related.map((ing, index) => <li key={ index + '_rel_' + ing.name }>{ ing.name } - { ing.score }</li>)
+								related.map((ing, index) => 
+									<li key={ index + '_rel_' + ing.name }>
+										<Button
+						  				className="list"
+						  				onClick={ e => this.onIngredientClick(e, [ ing.name, ing.ingredientID ]) }
+							  			label={ ing.name }
+						  			/>
+										&nbsp; ({ ing.score })
+									</li>)
 							}
 						</ul>
 					</div>
@@ -444,7 +452,6 @@ class Card extends Component {
 
   	const isColumnCollapsed = !isEditMode && ingredient
 	  	&& (ingredient.hasOwnProperty('alternateNames') && ingredient.alternateNames.length === 0)
-	  	&& (ingredient.hasOwnProperty('parsingExpressions') && ingredient.parsingExpressions.length === 0)
 			&& (ingredient.hasOwnProperty('relatedIngredients') && ingredient.relatedIngredients.length === 0)
 	  	&& (ingredient.hasOwnProperty('substitutes') && ingredient.substitutes.length === 0);
   	const properties = (ingredient && ingredient.properties) ? Object.entries(ingredient.properties).map(i => i[0]) : [];
@@ -509,69 +516,59 @@ class Card extends Component {
 					</div>
   			</div>
 
-  			{/* Left Card Elements */}
-  			<div className={ `left ${(isColumnCollapsed) ? 'collapse' : ''}` }>
-  				{/* Alternate Names */}
-					<List
-						code={ "alt" }
-						currentIngredient={ ingredient }
-						ingredients={ ingredients }
-						isEditMode={ isEditMode }
-						key={ "alt" }
-						label={ "Alternate Names" }
-						list={ (ingredient && ingredient.alternateNames) ? ingredient.alternateNames : [] }
-						updateList={ this.updateList }
-					/>
+  			<div className="middle">
+	  			{/* Left Card Elements */}
+	  			<div className={ `left ${(isColumnCollapsed) ? 'collapse' : ''}` }>
+	  				{/* Alternate Names */}
+						<List
+							code={ "alt" }
+							currentIngredient={ ingredient }
+							ingredients={ ingredients }
+							isEditMode={ isEditMode }
+							key={ "alt" }
+							label={ "Alternate Names" }
+							list={ (ingredient && ingredient.alternateNames) ? ingredient.alternateNames : [] }
+							updateList={ this.updateList }
+						/>
 
-					{/* Parsing Expressions */}
-					<List
-						code={ "exp" }
-						currentIngredient={ ingredient }
-						ingredients={ ingredients }
-						isEditMode={ isEditMode }
-						key={ "exp" }
-						label={ "Parsing Expressions" }
-						list={ (ingredient && ingredient.parsingExpressions) ? ingredient.parsingExpressions : [] }
-						updateList={ this.updateList }
-					/>
+						{/* Related Ingredients */}
+						<List
+							code={ "rel" }
+							container={ container }
+							currentIngredient={ ingredient }
+							ingredients={ ingredients }
+							isEditMode={ isEditMode }
+							key={ "rel" }
+							label={ "Related Ingredients" }
+							list={ (ingredient && ingredient.relatedIngredients) ? ingredient.relatedIngredients : [] }
+							onClick={ this.onIngredientClick }
+							updateList={ this.updateList }
+						/>
 
-					{/* Related Ingredients */}
-					<List
-						code={ "rel" }
-						container={ container }
-						currentIngredient={ ingredient }
-						ingredients={ ingredients }
-						isEditMode={ isEditMode }
-						key={ "rel" }
-						label={ "Related Ingredients" }
-						list={ (ingredient && ingredient.relatedIngredients) ? ingredient.relatedIngredients : [] }
-						onClick={ this.onIngredientClick }
-						updateList={ this.updateList }
-					/>
+						{/* Substitutes */}
+						<List
+							code={ "sub" }
+							container={ container }
+							currentIngredient={ ingredient }
+							ingredients={ ingredients }
+							isEditMode={ isEditMode }
+							key={ "sub" }
+							label={ "Substitutes" }
+							list={ (ingredient && ingredient.substitutes) ? ingredient.substitutes : [] }
+							onClick={ this.onIngredientClick }
+							updateList={ this.updateList }
+						/>
+	  			</div>
 
-					{/* Substitutes */}
-					<List
-						code={ "sub" }
-						container={ container }
-						currentIngredient={ ingredient }
-						ingredients={ ingredients }
-						isEditMode={ isEditMode }
-						key={ "sub" }
-						label={ "Substitutes" }
-						list={ (ingredient && ingredient.substitutes) ? ingredient.substitutes : [] }
-						onClick={ this.onIngredientClick }
-						updateList={ this.updateList }
-					/>
-  			</div>
+					{/* Right Card Elements */}
+	  			<div className="right">
+	  				{/* References */}
+	  				{ this.renderReferences(ingredient) }
 
-				{/* Right Card Elements */}
-  			<div className="right">
-  				{/* References */}
-  				{ this.renderReferences(ingredient) }
-
-					{/* Possible Relations */}
-					{ this.renderSuggestions(ingredient, isEditMode) }
-  			</div>
+						{/* Possible Relations */}
+						{ this.renderSuggestions(ingredient, isEditMode) }
+	  			</div>
+	  		</div>
 
   			{/* Bottom Card Elements */}
   			<div className="bottom">

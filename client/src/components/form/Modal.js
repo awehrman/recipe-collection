@@ -14,7 +14,7 @@ class Modal extends Component {
 
     this.state = {
     	associated: [],
-    	type: 'data',
+    	type: 'semantic',
     	warning: null
     };
 
@@ -52,6 +52,15 @@ class Modal extends Component {
 			  	this.props.saveIngredient(null, error);
 		  	}
 		  	break;
+		  case 'merge':
+		  	if (!associated) {
+		  		this.setState({
+		  			warning: 'Must provide an ingredient to merge with'
+		  		});
+		  	} else {
+			  	this.props.saveIngredient(associated[0]);
+		  	}
+		  	break;
 		  default:
 		  	break;
   	}
@@ -67,30 +76,33 @@ class Modal extends Component {
   }
 
   renderContent() {
+  	const associated = clone(this.state.associated);
   	const ingredient = clone(this.props.ingredient);
   	const ingredients = clone(this.props.ingredients);
 
   	switch (this.props.modal.type) {
   		case 'error':
-  			const associated = clone(this.state.associated);
+  			
 		  	const { type } = this.state;
   			const errors = [
-  				{ code: 'data', label: 'Bad Input' },
-  				{ code: 'equipment', label: 'Equipment Item' },
-  				{ code: 'instruction', label: 'Instruction Line' },
   				{ code: 'semantic', label: 'Incorrectly Parsed' },
+  				{ code: 'data', label: 'Bad Input Data' },
+  				{ code: 'equipment', label: 'Equipment' },
+  				{ code: 'instruction', label: 'Instruction Line' },
   			];
 
 		  	return (
-		  		<React.Fragment>
-		  			Flag <strong>{ ingredient.name }</strong> as a
+		  		<div className="content">
+		  			Flag <strong>"{ ingredient.name }"</strong> as
+		  			{ (type === 'equipment') ? ' a piece of ' : null }
+		  			{ (type === 'instruction') ? ' an ' : null }
 		  			<Select
 							fieldName={ 'errorType' }
 							options={ errors }
 							onChange={ this.onErrorSelect }
 						/>
 						{/* if this is a standard parsing error, allow to associate it with one or more ingredients */
-							(type === 'semantic')
+							(type === 'semantic' || type === 'data')
 								? <List
 										code={ "err" }
 										currentIngredient={ ingredient }
@@ -103,7 +115,23 @@ class Modal extends Component {
 									/>
 								: null
 						}
-		  		</React.Fragment>
+		  		</div>
+		  	);
+		  case 'merge':
+		  	return (
+		  		<React.Fragment>
+						<span>Merge <strong>{ ingredient.name }</strong> with the</span>
+						<List
+							code={ "merge" }
+							currentIngredient={ ingredient }
+							ingredients={ ingredients }
+							isEditMode={ true }
+							key={ "alt" }
+							label={ "Merge Ingredient" }
+							list={ associated }
+							updateList={ this.updateList }
+						/>
+					</React.Fragment>
 		  	);
 		  default:
 		  	return null;
@@ -129,20 +157,22 @@ class Modal extends Component {
   		<div className="modal">
   			<h1>{ modal.title }</h1>
   			{ this.renderContent() }
-				{ this.renderWarnings() }
+  			<div className="controls">
+					{ this.renderWarnings() }
 
-				<Button
-	  			className="cancel"
-	  			onClick={ e => this.onCancel(e) }
-	  			label="Cancel"
-	  		/>
-	  		
-	  		<Button
-	  			className="save"
-	  			onClick={ e => this.onSave(e) }
-	  			label={ modal.label }
-	  		/>
-  		</div>
+					<Button
+		  			className="cancel"
+		  			onClick={ e => this.onCancel(e) }
+		  			label="Cancel"
+		  		/>
+		  		
+		  		<Button
+		  			className="save"
+		  			onClick={ e => this.onSave(e) }
+		  			label={ modal.label }
+		  		/>
+	  		</div>
+	  	</div>
   	);
   }
 }

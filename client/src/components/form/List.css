@@ -32,7 +32,7 @@ body {
     /*----------  Navigation  ----------*/
     /*----------  Page Article  ----------*/ }
     .canvas .wrapper nav {
-      background: #435382;
+      background: #2b3d5a;
       position: fixed;
       top: 0;
       width: 100%; }
@@ -75,7 +75,7 @@ body {
       left: 160px; }
     .canvas .wrapper nav {
       width: 200px;
-      background: #435382;
+      background: #2b3d5a;
       left: -160px;
       bottom: 0;
       transition: .2s ease-out; }
@@ -99,7 +99,7 @@ body {
   .field.list button.add {
     display: inline-block;
     border: 0;
-    color: #93b4f9;
+    color: #80aef5;
     text-decoration: underline;
     padding: 0;
     margin: 0 0 0 6px;
@@ -121,19 +121,19 @@ body {
       line-height: 1.6; }
       .field.list ul.list li button {
         font-size: 1em;
-        color: #93b4f9;
+        color: #80aef5;
         line-height: 1.6;
         font-weight: 400;
         padding: 4px 0 0;
         border: 0;
-        border-bottom: 1px solid #93b4f9;
+        border-bottom: 1px solid #80aef5;
         cursor: pointer; }
         .field.list ul.list li button:focus {
           outline: 0; }
   .field.list input {
     margin-top: 6px;
     border: 0;
-    border-bottom: 1px solid #93b4f9;
+    border-bottom: 1px solid #80aef5;
     padding-bottom: 4px;
     width: 180px; }
   .field.list input:focus {
@@ -152,5 +152,5 @@ body {
         color: #222; }
       .field.list ul.suggestions li a:hover, .field.list ul.suggestions li a:focus, .field.list ul.suggestions li a.active {
         cursor: pointer;
-        color: #93b4f9;
+        color: #80aef5;
         outline: 0; }

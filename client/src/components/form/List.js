@@ -33,7 +33,7 @@ class List extends Component {
 		let { suggestions } = this.state;
  		let matches = [];
 
- 		// TODO should we also check on plural, alt and parsing expressions
+ 		// TODO should we also check on plural and alternate names
  		// when we're filtering on ingredients?
 
  		// lookup suggestion
