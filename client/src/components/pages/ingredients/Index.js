@@ -226,6 +226,8 @@ class Index extends Component {
 		let pagerLabels = [ ...this.state.pagerLabels ];
 		let containers = [];
 		let nextCurrent;
+		let currentContainers = clone(this.state.containers);
+		let currentContainer;
 		currentIngredient = (currentIngredient) ? clone(currentIngredient) : null;
 
 		// use the existing view if we didn't pass a new one
@@ -300,9 +302,12 @@ class Index extends Component {
 						});
   				}
 
-  				// check if this container has our active ingredient
-  				if (currentIngredient) {
+  				currentContainer = currentContainers.find(c => c.label.toLowerCase() === label);
+
+  				// check if this currentContainer has our active ingredient
+  				if (currentIngredient && currentContainer) {
   					nextCurrent = getNextIngredient(containerIngredients, currentIngredient.name);
+  					//console.warn(nextCurrent);
   				}
 
 					if (containerIngredients.length > 0) {
@@ -311,8 +316,8 @@ class Index extends Component {
 							count: containerIngredients.length,
 							ingredients: containerIngredients,
 							isExpanded: true, // TODO
-							isCardEnabled:  currentIngredient ? true : false,
-							currentIngredient: currentIngredient ? nextCurrent : null
+							isCardEnabled:  (nextCurrent) ? true : false,
+							currentIngredient: (currentIngredient && nextCurrent) ? nextCurrent : null
 						};
 					} return null;
 				}).filter(c => c);
@@ -345,9 +350,12 @@ class Index extends Component {
   				if (index === 0 && containsNoReferences) {
   					containerIngredients = viewIngredients.filter(i => i.referenceCount === 0);
 
-  					// check if this container has our active ingredient
-	  				if (currentIngredient) {
+  					currentContainer = currentContainers.find(c => c.label === "0 References");
+
+	  				// check if this currentContainer has our active ingredient
+	  				if (currentIngredient && currentContainer) {
 	  					nextCurrent = getNextIngredient(containerIngredients, currentIngredient.name);
+	  					//console.warn(nextCurrent);
 	  				}
 
   					return {
@@ -355,8 +363,8 @@ class Index extends Component {
 							count: containerIngredients.length,
 							ingredients: containerIngredients,
 							isExpanded: false,
-							isCardEnabled:  currentIngredient ? true : false,
-							currentIngredient: currentIngredient ? nextCurrent : null
+							isCardEnabled:  (nextCurrent) ? true : false,
+							currentIngredient: (currentIngredient && nextCurrent) ? nextCurrent : null
 						};
   				}
 
@@ -364,9 +372,12 @@ class Index extends Component {
   				if ((index === 0 && !containsNoReferences) || (index === 1 && containsNoReferences)) {
   					containerIngredients = viewIngredients.filter(i => i.referenceCount === 1);
 
-  					// check if this container has our active ingredient
-	  				if (currentIngredient) {
+  					currentContainer = currentContainers.find(c => c.label.toLowerCase() === "1 Reference");
+
+	  				// check if this currentContainer has our active ingredient
+	  				if (currentIngredient && currentContainer) {
 	  					nextCurrent = getNextIngredient(containerIngredients, currentIngredient.name);
+	  					//console.warn(nextCurrent);
 	  				}
 
   					return {
@@ -374,8 +385,8 @@ class Index extends Component {
 							count: containerIngredients.length,
 							ingredients: containerIngredients,
 							isExpanded: false,
-							isCardEnabled:  currentIngredient ? true : false,
-							currentIngredient: currentIngredient ? nextCurrent : null
+							isCardEnabled:  (nextCurrent) ? true : false,
+							currentIngredient: (currentIngredient && nextCurrent) ? nextCurrent : null
 						};
   				}
 
@@ -389,9 +400,12 @@ class Index extends Component {
 
 	  			containerIngredients = viewIngredients.filter(i => i.referenceCount >= rangeStart && i.referenceCount <= rangeEnd);
 
-	  			// check if this container has our active ingredient
-  				if (currentIngredient) {
+	  			currentContainer = currentContainers.find(c => c.label.toLowerCase() === `${rangeStart}-${rangeEnd} References`);
+
+  				// check if this currentContainer has our active ingredient
+  				if (currentIngredient && currentContainer) {
   					nextCurrent = getNextIngredient(containerIngredients, currentIngredient.name);
+  					//console.warn(nextCurrent);
   				}
 
   				return {
@@ -399,8 +413,8 @@ class Index extends Component {
 						count: containerIngredients.length,
 						ingredients: containerIngredients,
 						isExpanded: false,
-						isCardEnabled:  currentIngredient ? true : false,
-						currentIngredient: currentIngredient ? nextCurrent : null
+						isCardEnabled:  (nextCurrent) ? true : false,
+						currentIngredient: (currentIngredient && nextCurrent) ? nextCurrent : null
 					};
   			}).filter(c => c.ingredients.length > 0);
 
@@ -410,9 +424,12 @@ class Index extends Component {
   			const childIngredients = viewIngredients.filter(i => i.parentIngredientID);
 
 
+				currentContainer = currentContainers.find(c => c.label.toLowerCase() === `Child Ingredients`);
+
 				// check if this container has our active ingredient
-				if (currentIngredient) {
+				if (currentIngredient && currentContainer) {
 					nextCurrent = getNextIngredient(childIngredients, currentIngredient.name);
+					//console.warn(nextCurrent);
 				}
 
   			if (childIngredients.length > 0) {
@@ -421,13 +438,17 @@ class Index extends Component {
 						count: childIngredients.length,
 						ingredients: childIngredients,
 						isExpanded: true,
-						isCardEnabled:  currentIngredient ? true : false,
-						currentIngredient: currentIngredient ? nextCurrent : null
+						isCardEnabled:  (nextCurrent) ? true : false,
+						currentIngredient: (currentIngredient && nextCurrent) ? nextCurrent : null
 					});
 				}
 
-				if (currentIngredient) {
+				currentContainer = currentContainers.find(c => c.label.toLowerCase() === `Parent Ingredients`);
+
+				// check if this container has our active ingredient
+				if (currentIngredient && currentContainer) {
 					nextCurrent = getNextIngredient(parentIngredients, currentIngredient.name);
+					//console.warn(nextCurrent);
 				}
 
   			if (parentIngredients.length > 0) {
@@ -436,26 +457,29 @@ class Index extends Component {
 						count: parentIngredients.length,
 						ingredients: parentIngredients,
 						isExpanded: true,
-						isCardEnabled:  currentIngredient ? true : false,
+						isCardEnabled:  (nextCurrent) ? true : false,
 						currentIngredient: currentIngredient ? nextCurrent : null
 					});
 				}
 
   			break;
   		default: // name
-				// check if this container has our active ingredient
-				if (currentIngredient) {
-					nextCurrent = getNextIngredient(viewIngredients, currentIngredient.name);
-				}
-
   			// if we have less than 500 ingredients, display them in a single container
   			if (viewIngredients.length <= 500) {
+  				currentContainer = currentContainers.find(c => c.label.toLowerCase() === (currentView === 'search') ? `Search Results` : `${currentView.charAt(0).toUpperCase() + currentView.slice(1)} Ingredients`);
+					
+					// check if this currentContainer has our active ingredient
+					if (currentIngredient && currentContainer) {
+						nextCurrent = getNextIngredient(viewIngredients, currentIngredient.name);
+						//console.warn(nextCurrent);
+					}
+
 	  			containers.push({
 						label: (currentView === 'search') ? `Search Results` : `${currentView.charAt(0).toUpperCase() + currentView.slice(1)} Ingredients`,
 						count: viewIngredients.length,
 						ingredients: viewIngredients,
 						isExpanded: true, // TODO
-						isCardEnabled:  currentIngredient ? true : false,
+						isCardEnabled:  (nextCurrent) ? true : false,
 						currentIngredient: currentIngredient ? nextCurrent : null
 					});
 	  		} else {
@@ -477,13 +501,26 @@ class Index extends Component {
 	  					containerIngredients = viewIngredients.filter(i => i.name.charAt(0) === char);
 						}
 
+						currentContainer = currentContainers.find(c => c.label.toLowerCase() === char);
+						
+						// check if this currentContainer has our active ingredient
+						if (currentIngredient && currentContainer) {
+
+							nextCurrent = getNextIngredient(containerIngredients, currentIngredient.name);
+							if (char === 'b') {
+								console.log(currentIngredient);
+								console.log(currentContainer);
+								console.warn(nextCurrent);
+							}
+						}
+
 	  				return {
 							label: char,
 							count: containerIngredients.length,
 							ingredients: containerIngredients,
 							isExpanded: true,
-							isCardEnabled: currentIngredient ? true : false,
-							currentIngredient: currentIngredient ? nextCurrent : null
+							isCardEnabled: (nextCurrent) ? true : false,
+							currentIngredient: (currentIngredient && nextCurrent) ? nextCurrent : null
 						};
 	  			});
 
@@ -500,6 +537,7 @@ class Index extends Component {
 		}, cb);
 	}
 
+	// TODO adjust height calculations based on wrapping ing names
 	renderIngredients(container) {
 		const ingredients = clone(this.state.ingredients);
 		const { currentView } = this.state;
@@ -641,7 +679,7 @@ class Index extends Component {
 							    				container={ c }
 													ingredient={ c.currentIngredient }
 													ingredients={ ingredients }
-													key={ c.currentIngredient.ingredientID }
+													key={ (c.currentIngredient && c.currentIngredient.ingredientID) ? c.currentIngredient.ingredientID : Math.random() }
 													isEditMode={ (currentView === 'new') ? true : false }
 													onIngredientClick={ this.findListItemTarget }
 													refresh={ this.getIngredientList }

@@ -195,7 +195,7 @@ class List extends Component {
 											<li key={ i + index }>
 												{/* i've run into ordering issues with using onClick here instead of onMouseDown
 												    and the onBlur event usually tramples it */}
-												<a onMouseDown={ e => this.onSelect(e) } id={ i } className={ (currentSuggestion === index) ? 'active' : '' }>
+												<a href="#" onMouseDown={ e => this.onSelect(e) } id={ i } className={ (currentSuggestion === index) ? 'active' : '' }>
 													{ i }
 												</a>
 											</li>)

@@ -7,7 +7,7 @@ const categoryController = require('../controllers/categoryController');
 
 const DB_PATH = (process.env.NODE_ENV === 'test') ? 'tests/data' : 'data';
 
-/*----------  Private Recipe Variables  ----------*/
+/*----------  Private Class Variables  ----------*/
 
 const _categoryID = new WeakMap();
 const _dateCreated = new WeakMap();

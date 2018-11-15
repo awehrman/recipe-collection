@@ -4,25 +4,19 @@
       ...
     ☐ adapt to BEM style naming convention on stylesheets
       ...
-    ☐ revisit all color values used
-      ...
     ☐ consider rewriting front-end with immuntable.js or similar
       ...
 
   # form
     ☐ consider pulling Suggestions into their own component from List
-    ☐ [List - onChange] should this also match on alternate names, parsing expressions, and plural values?
+    ☐ [List - onChange] should this also match on alternate names and plural values?
     ☐ [List] - handle onClick to other ingredient card
-    ☐ [Modal] - notification on error save is still coming back in the error state even though the api call is successful
-    ☐ [Modal] - hook up ingredient merge
     ☐ [Modal] - hook up relationship addition
-    ☐ [Modal] - clean up your stylesheets here
     ☐ [StylizedInput] - look at extremely long values
 
   # layout
-    ☐ [Navigation] cleanup menu styles
-    ☐ [Search] add search component
-        ...
+    ☐ [Search] switch search icon to 'close' and hook up clear click when input exists
+    ☐ [Search] generalize for recipes route
 
   # dashboard
     ☐ add error viewer to see error instances between types
@@ -33,6 +27,8 @@
       ...
     ☐ real-time import status
       ...
+    
+
 
   # ingredients
     # card
@@ -68,26 +64,24 @@
         ...
 
     # import
-      ☐ duplicate categories and tags are sneaking into a given import session
       ☐ take another pass at smarter error handling whenever you get to those test cases
       ☐ real-time importer status updates to view or front-end
         ...
       ☐ consider pulling down all tags and categories once if these are empty
       ☐ importer tests
+      ☐ better error handing for lack of image on note (occurs primarily with unsorted notes)
+      ☐ set a timer to re-try the category lookups, tag lookups, and tagging the note as 'imported' in evernote
 
     # ingredient
       ☐ write equipment error instances
       ☐ for data, equipment, or instruction errors, tag those evernote notes with an 'attention' tag so i can go manually clean those notes up
       ☐ saveIngredient handle relationship updates
-      ☐ saveIngredient handle ingredient updates
       ☐ keep looking into other ways to load IngredientModel without circular constructor issues
       ☐ pass manual line parse?
-      ☐ updateIngredient tests
-      ☐ saveIngredient tests
 
     # parser
       ☐ dynamically populate keyword match lists in grammar
-      ☐ exclude any prior matching error instances on new ingredients
+      ☐ exclude any prior matching error instances on new ingredients (careful on this; the parser might successfully parse instruction lines and those shouldn't get auto-flagged as equipment)
 
       ☐ import pluralization exception list (ex: 'molasess', 'chilies')
       ☐ conjunction lookup exception: "red and green bell peppers" => "red bell peppers" and "green bell peppers"
@@ -109,6 +103,5 @@
 
   # lib
    ☐ 'and/or' conjunctions
-   ☐ cleanup keyword lists and allow spaces and dashes in variations with other keywords so that these don't have to be setup seaparately ('well' and 'drained' should give you all combinations of 'well-drained', 'welldrained', 'well drained')
-
+   ☐ add 'th', 'or so', 'ish' after amounts (or maybe even just unicode/fraction values)
 

@@ -1,0 +1,610 @@
+// NOTE!
+// This has a restricted keyword database for testing speed sanity
+// see the full keyword lists in server/lib/ingredientLineParser.pegjs
+
+start =
+  START_VARIABLE
+
+/*==================================
+=            Base Rules            =
+==================================*/
+_ "Whitespace" =
+	[ \t\n\r\x20] { return ' '; }
+
+dashes "Dashes" =
+	[-_~] { return '-'; }
+	/ [‐‑‒–—] { return '-'; } // unicode options
+
+slashes "Slashes" =
+	[/\⁄|] { return '\/'; }
+
+quotes "Quotes" =
+	["'`´‘’“”] { return '\''; }
+
+letter "Letter" =
+ [a-z]i
+ // accept any other character that isn't vital to another rule
+ / !digit
+ 	 !dashes
+ 	 !_
+ 	 !slashes
+ 	 ![,.;:~*!?]
+ 	 !containerIndicator
+ 	 !symbolSeparator
+ 	 char:.
+		{ return char; }
+
+digit "Digit" =
+  [0-9]
+  // unicode sub and superscripts
+  / '⁰' { return 0; }
+  / '¹' { return 1; }
+  / '⁴' { return 4; }
+  / '⁵' { return 5; }
+  / '⁶' { return 6; }
+  / '⁷' { return 7; }
+  / '⁸' { return 8; }
+  / '⁹' { return 0; }
+  / '₀' { return 0; }
+  / '₁' { return 1; }
+  / '₂' { return 2; }
+  / '₃' { return 3; }
+  / '₄' { return 4; }
+  / '₅' { return 5; }
+  / '₆' { return 6; }
+  / '₇' { return 7; }
+  / '₈' { return 8; }
+  / '₉' { return 9; }
+
+unicodeAmount "Unicode Amount" =
+	'½' { return '1/2'; } / '⅓' { return '1/3'; } / '⅔' { return '2/3'; } / '¼' { return '1/4'; } / '¾' { return '3/4'; } / '⅕' { return '1/5'; } / '⅖' { return '2/5'; } / '⅗' { return '3/5'; } / '⅘' { return '4/5'; } / '⅙' { return '1/6'; } / '⅚' { return '5/6'; } / '⅛' { return '1/8'; } / '⅜' { return '3/8'; } / '⅝' { return '5/8'; } / '⅞' { return '7/8'; }
+
+fraction "Fraction" =
+	numerator:digit+ _* slashes+ _* denominator:digit+
+		{ return numerator + '/' + denominator; }
+
+float "Float" =
+	// i think its a british thing to use commas; i see a lot of 1,5 kg
+	head:$(digit)* [.,] tail:$(digit)+
+		{ return head + '.' + tail; }
+
+
+/*----------  Indicators & Separators  ----------*/
+separator "Separator" =
+	symbolSeparator
+	/ sep:wordSeparator
+		{ return sep.toLowerCase(); }
+	/// 'plus'i / 'to'i / 'x'i / 'x' / '×' / '+'
+
+symbolSeparator "Ingredient Separator" =
+  [&+] { return 'and'; }
+  / [/] { return 'or'; } // 'x'i / 'x' / '×' / '+'
+
+wordSeparator "Word Separator" =
+  sep:'and'i
+  	{ return sep.toLowerCase(); }
+  / sep:'or'i
+  	{ return sep.toLowerCase(); } // TOOD plus?, to?
+
+containerIndicator "Container Indicators" =
+  '(' { return '('; }
+  / '{' { return '('; }
+  / '[' { return '('; }
+  / ')' { return ')'; }
+  / '}' { return ')'; }
+  / ']' { return ')'; }
+
+
+/*----------  Keywords  ----------*/
+amountKeyword "Amount Keyword" =
+	"half a dozen"i / "seventeen"i / "thirteen"i / "quarter-"i / "quarter "i / "numerous"i / "nineteen"i / "fourteen"i / "eighteen"i / "sixteen"i / "several"i / "seventy"i / "quarter"i / "hundred"i / "fifteen"i / "amounts"i / "twenty"i / "twelve"i / "thirty"i / "single"i / "ninety"i / "eleven"i / "eighty"i / "couple"i / "amount"i / "three"i / "third"i / "sixty"i / "sixth"i / "seven"i / "forty"i / "fifty"i / "eight"i / "dozen"i / "ten-"i / "ten "i / "some"i / "nine"i / "half"i / "four"i / "five"i / "two"i / "ten"i / "six"i / "one"i / "lot"i
+
+// feel free to expand this as needed for tests, i'm just throwing a few in
+descriptorKeyword "Descriptor Keyword" =
+	"generously"i /
+	"boneless"i /
+	"roughly"i /
+	"roasted"i /
+	"heaping"i /
+	"freshly"i /
+	"sliced"i /
+	"sauted"i /
+	"needed"i /
+	"minced"i /
+	"liquid"i /
+	"crispy"i /
+	"style"i /
+	"small"i /
+	"crisp"i /
+	"torn"i /
+	"approximately"i / "combination"i / "additional"i / "optional"i / "without"i / "another"i / "enough"i / "either"i / "before"i / "around"i / "approx"i / "worth"i / "their"i / "other"i / "or-so"i / "or so"i / "minus"i / "equal"i / "about"i / "your"i / "with"i / "then"i / "that"i / "than"i / "such"i / "plus"i / "over"i / "orso"i / "more"i / "like"i / "less"i / "just"i / "into"i / "i.e."i / "high"i / "from"i / "each"i / "e.g."i / "you"i / "use"i / "too"i / "the"i / "see"i / "per"i / "out"i / "not"i / "low"i / "for"i / "few"i / "but"i / "all"i / "up"i / "to"i / "so"i / "on"i / "of"i / "no"i / "my"i / "in"i / "if"i / "ie"i / "eg"i / "ea"i / "at"i / "as"i / "an"i / "i"i / "a"i / "~"
+
+
+unitKeyword "Unit Keyword" =
+	"handful"i / "bunches"i / "bunch"i / "knob"i / "pot"i / "dl"i
+
+ingredientKeyword "Ingredient Keyword" =
+	"potato"i
+
+/*----------  Containers  ----------*/
+// these could be expanded to parse out their innards, but i'm just not feeling it
+containers "Containers" =
+	head:container tail:$(_* container)*
+	{
+		return head.concat(tail);
+	}
+
+container "Container" =
+	opening:containerIndicator txt:$(containerSymbol)* closing:containerIndicator
+	{
+		return opening + txt.trim().toLowerCase() + closing;
+	}
+
+containerSymbol "Container Symbol" = 
+	!containerIndicator char:. { return char; }
+
+/*=====  End of Base Rules  ======*/
+
+
+/*=======================================
+=            Ingredient Lines            =
+=======================================*/
+ingredientLines "Ingredient Lines" =
+	ingredientLine _+ wordSeparator _+ wordSeparator
+	/ ingredientLine
+
+ingredientLine "Ingredient Line" =
+	$('+' _*)?
+	qty:quantityExpressions?
+	ing:ingredientExpression
+	com:commentExpression?
+		{
+			return {// WEHRMAN, TODO, you need to safely concat these amount values together
+				amounts: (ing.filler[2] && ing.filler[2].amounts && ing.filler[2].amounts.value) ? ing.filler[2].amounts.values : qty.amounts, // { values: [1, 2/3], separator: 'and' }
+				unitDescriptor: qty.unitDescriptor, // "large"
+				units: qty.units, // { values: [in, cup], separator: 'and' }
+				amountUnitSeparator: qty.separator || null, //"plus"
+				ingDescriptor: ing.ingDescriptor, // "freshly ground"
+				ingredients: ing.ingredients, // { values: [ 'black pepper', 'salt' ], separator: 'and', descriptors: 'washed' }
+				comments: com, // ", for serving"
+				// filler text is any ignored punctuation or keywords
+				// found in and around the interesting bits
+				// these include any containerized expressions
+				filler: [
+					qty.filler[0], // pre-amount
+					qty.filler[1], // pre-unitDescriptor
+					qty.filler[2], // pre-unit
+					ing.filler[0], // pre-ingDescriptor
+					ing.filler[1], // pre-ing
+
+					// TODO finish putting these in the correct place 
+					// optional secondary qty expression
+					ing.filler[2], // TRY qty { amounts: [object], unitDescriptor: null, units: null, fillter: [Array]}
+				]
+			};
+		}
+
+/*=====  End of Ingredient Line  ======*/
+
+
+
+/*============================================
+=            Quantity Expressions            =
+============================================*/
+quantityExpressions "Quantity Expressions" =
+	head:quantityExpression _+ sep:quantitySeparator _+ tail:quantityExpression
+		{
+			var headAmount = (head.amounts) ? head.amounts.values : [];
+			var tailAmount = (tail.amounts) ? tail.amounts.values : [];
+
+			var headUnit = (head.units) ? head.units.values : [];
+			var tailUnit = (tail.units) ? tail.units.values : [];
+
+			var amounts = (head.amounts || tail.amounts) ? { values: [ ...headAmount, ...tailAmount ] } : null;
+			var unitDescriptor = (head.unitDescriptor || tail.unitDescriptor) ? { values: [ (head.unitDescriptor) ? head.unitDescriptor.values : null, (tail.unitDescriptor) ? tail.unitDescriptor.values : null ] } : null;
+			var units = (head.units || tail.units) ? { values: [ ...headUnit, ...tailUnit ] } : null;
+
+			var headFiller = [ head.filler0 || null, head.filler1 || null, head.filler2 || null ];
+			var tailFiller = [ tail.filler0 || null, tail.filler1 || null, tail.filler2 || null ];
+			
+			return {
+				amounts: amounts, // { values: [1, 2/3], separator: 'and' }
+				unitDescriptor: unitDescriptor, // "large"
+				units: units, // { values: [in, cup], separator: 'and' }
+				filler: [ headFiller, tailFiller ],
+				separator: sep
+			};
+		}
+		/ quantityExpression
+
+quantityExpression "Quantity Expression" =
+  filler0:fillerExpression*
+  _*
+  amounts:amounts?
+  _*
+  filler1:fillerExpression*
+  _*
+  unitDesc:descriptors?
+  _*
+  filler2:fillerExpression*
+  _*
+  units:units? // prev unitExpression
+  	{
+  		return {
+  			amounts: amounts, // { values: [1, 2/3], separator: 'and' }
+	  		unitDescriptor: unitDesc, // "large"
+	  		units: units, // { values: [in, cup], separator: 'and' }
+	  		filler: [ filler0, filler1, filler2 ]
+  		};
+  	}
+
+
+/*----------  Amounts  ----------*/
+amounts "Amounts" =
+	// 1 2-3
+	first:amount _+ second:amount _* sep:dashes+ _* third:amount
+		{ return { values: [ first, second, third ], separator: sep }; }
+	// 1 to 1 1/4
+  	/ first:amount _* dashes* _* sep0:amountSeparator _* dashes* _*  second:amount _* sep1:dashes? _* third:amount
+		{ return { values: [ first, second, third ], separator: [ sep0, sep1 ].filter(s => s) }; }
+	// 1 3 1/4
+  	/ first:amount _* dashes* _*  second:amount _* sep1:dashes? _* third:amount
+		{ return { values: [ first, second, third ] }; }
+  // 1 - to - 2
+	/ first:amount _* dashes* _* sep:amountSeparator _* dashes* _* second:amount
+		{ return { values: [ first, second ], separator: sep.toLowerCase() }; }
+	// 1x pack salmon
+	/ first:amount _* dashes* _* sep:amountSeparator _+ dashes*
+		{ return { values: [ first ], separator: sep.toLowerCase() }; }
+	// 1 - 2
+	/ first:amount _* sep:dashes* _* second:amount
+		{ return { values: [ first, second ], separator: sep }; }
+	// one
+	/ first:amount
+		{ return { values: [ first ]}; }
+
+amount "Amount" =
+	word:$(amountKeyword _+) { return word.toLowerCase(); }
+	/ unicodeAmount
+	/ fraction
+	/ float
+	/ $(digit)+
+
+
+/*----------  Descriptors  ----------*/
+descriptors "Descriptors" =
+	// cold and fresh
+	head:descriptor _+ sep:wordSeparator _+ tail:descriptor
+		{
+			return {
+				values: [ head, tail ].map(d => d.toLowerCase()),
+				separator: sep
+			}
+		}
+	// cold & fresh
+	/ head:descriptor _* sep:symbolSeparator _* tail:descriptor
+		{
+			return {
+					values: [ head, tail ].map(d => d.toLowerCase()),
+					separator: sep
+			}
+		}
+	// freshly-ground
+	/* deprecated
+	!ingredientKeyword head:descriptor _* sep:dashes _* tail:descriptor
+		{
+			return {
+				values: [ head, tail ].map(d => d.toLowerCase()),
+				separator: sep
+			}
+		}
+		*/
+      // roughly chopped
+  // do i really need the !ingredientKeyword here?
+  / !ingredientKeyword head:descriptor tail:$(','? _+ fillerExpression? _* descriptor)*
+		{
+			return {
+				values: [ head ].concat(tail.map(t => t[4])),
+        filler: tail.map(t => t[2])
+			}
+		}
+	// fresh
+	/ !ingredientKeyword desc:descriptor
+		{ return { values: desc.toLowerCase() }; }
+
+descriptor "Descriptor" =
+	head:descriptorKeyword _* dashes+ _* tail:descriptorKeyword
+		{ return head + '-' + tail; }
+  / descriptorKeyword
+
+  // TODO should this also include filler?
+
+
+/*----------  Units  ----------*/
+// deprecated
+//unitExpression "Unit Expression" =
+  // units require an ending space to differentiate them from ingredients
+  //unit:units { return unit; }
+
+units "Units" =
+	// inch knob
+	first:unit _+ second:$(dashes? _* unitKeyword _+) // don't be too generic here otherwise it will screw with the ingredient match
+		{
+			return { values: [ first, second ].map(u => u.toLowerCase().trim()) };
+		}
+	/ unit:unit _+
+		{
+			return { values: [ unit.toLowerCase().trim() ] };
+		}
+
+unit "Unit" =
+ 	//always needs a following space
+	dash:dashes? _* unit:unitKeyword { return (dash) ? dash + unit : unit; }
+  / dash:dashes? _* unit:fluidOunce { return (dash) ? dash + unit : unit; }
+  / dash:dashes? _* unit:gallon { return (dash) ? dash + unit : unit; }
+  // careful on ordering these
+  // 'lb' needs to come before 'l'
+  // 'gm' needs to come before 'm'
+  // 'ml' needs to come before 'm'
+  / dash:dashes? _* unit:pound { return (dash) ? dash + unit : unit; }
+  / dash:dashes? _* unit:gram { return (dash) ? dash + unit : unit; }
+  / dash:dashes? _* unit:liter { return (dash) ? dash + unit : unit; }
+  / dash:dashes? _* unit:meter { return (dash) ? dash + unit : unit; }
+  / dash:dashes? _* unit:cup { return (dash) ? dash + unit : unit; }
+  / dash:dashes? _* unit:inch { return (dash) ? dash + unit : unit; }
+  / dash:dashes? _* unit:ounce { return (dash) ? dash + unit : unit; }
+  / dash:dashes? _* unit:pint { return (dash) ? dash + unit : unit; }
+  / dash:dashes? _* unit:quart { return (dash) ? dash + unit : unit; }
+  / dash:dashes? _* unit:spoons { return (dash) ? dash + unit : unit; }
+
+
+/*----------  Volumes  ----------*/
+volume "Volume" =
+  fluidOunce
+  / cup
+  / pint
+  / quart
+  / gallon
+  / liter
+  / spoons
+
+fluidOunce "Fluid Ounce" =
+  $('fluid'i _* dashes* _* ounce) { return 'fl oz'; }
+  / $('fl'i '.'? _* dashes* _* ounce'.'?) { return 'fl oz'; }
+
+cup "Cup" =
+  $('cup'i 's'i?) { return 'c'; }
+  / $('c'i '.'?) { return 'c'; }
+
+pint "Pint" =
+  $('pint'i 's'i?) { return 'pt'; }
+  / $('pt'i '.'?) { return 'pt'; }
+
+quart "Quart" =
+  $('quart'i 's'i?) { return 'qt'; }
+  / $('qt'i 's'i? '.'?) { return 'qt'; }
+
+gallon "Gallon" =
+  $('gallon'i 's'i?) { return 'gal'; }
+  / $('gal'i 's'i? '.'?) { return 'gal'; }
+
+liter "Liter" =
+  $('milliliter'i 's'i?) { return 'ml'; }
+  / $('millilitre'i 's'i?) { return 'ml'; }
+  / $('centiliter'i 's'i?) { return 'ml'; }
+  / $('centilitre'i 's'i?) { return 'ml'; }
+  / $('liter'i 's'i?) { return 'l'; }
+  / $('litre'i 's'i?) { return 'l'; }
+  / $('ltr'i 's'i?) { return 'l'; }
+  / $('cl'i 's'i? '.'?) { return 'cl'; }
+  / $('ml'i 's'i? '.'?) { return 'ml'; }
+  / $('lt'i 's'i? '.'?) { return 'l'; }
+  / $('l'i 's'i? '.'?) { return 'l'; }
+
+spoons "Tablespoon/Teaspoon" =
+  $('tablespoon'i 's'i? 'ful'i?) { return 'tbsp'; }
+  / $('teaspoon'i 's'i?'ful'i?) { return 'tsp'; }
+  / $('tblsp'i 's'i? '.'?) { return 'tbsp'; }
+  / $('tbsp'i 's'i? '.'?) { return 'tbsp'; }
+  / $('tpsp'i 's'i? '.'?) { return 'tbsp'; }
+  / $('tsbp'i 's'i? '.'?) { return 'tbsp'; }
+  / $('tlb'i 's'i? '.'?) { return 'tbsp'; }
+  / $('tbl'i 's'i? '.'?) { return 'tbsp'; }
+  / $('tsp'i 's'i? '.'?) { return 'tsp'; }
+  / $('tb'i 's'i? '.'?) { return 'tbsp'; }
+  / $('T' 's'i? '.'?) { return 'tbsp'; }
+  / $('t' 's'i? '.'?) { return 'tsp'; }
+
+/*----------  Weights  ----------*/
+weight "Weight" =
+  ounce
+  / pound
+  / gram
+
+ounce "Ounce" =
+  $('wt'i '.'? _+ 'ounce'i 's'i?) { return 'oz'; }
+  / $('wt'i '.'? _+ 'oz'i 's'i? '.'?) { return 'oz'; }
+  / $('ounce'i 's'i?) { return 'oz'; }
+  / $('oz'i 's'i? '.'?) { return 'oz'; }
+
+pound "Pound" =
+  $('pounds'i) { return 'lbs'; }
+  / $('pound'i) { return 'lb'; }
+  / $('lbs'i '.'?) { return 'lbs'; }
+  / $('lb'i '.'?) { return 'lb'; }
+
+gram "Gram" =
+  $('milligram'i 's'i?) { return 'mg'; }
+  / $('kilogram'i 's'i?) { return 'kg'; }
+  / $('kilo'i 's'i?) { return 'kg'; }
+  / $('gram'i 's'i?) { return 'g'; }
+  / $('mg'i 's'i? '.'?) { return 'mg'; }
+  / $('kg'i 's'i? '.'?) { return 'kg'; }
+  / $('gm'i 's'i? '.'?) { return 'g'; }
+  / $('gr'i 's'i? '.'?) { return 'g'; }
+  / $('g'i 's'i? '.'?) { return 'g'; }
+  / $('㎏' 's'i? '.'?) { return 'kg'; }
+
+/*----------  Lengths  ----------*/
+length "Length" =
+  meter
+  / inch
+  / foot
+
+foot "Foot" =
+	$('feet'i) { return 'ft'; }
+	/ $('foot'i) { return 'ft'; }
+	/ $('ft'i) { return 'ft'; }
+  / $(['`´‘’]) { return 'ft'; }
+
+meter "Meter" =
+  $('millimeter'i 's'i?) { return 'mm'; }
+  / $('centimeter'i 's'i?) { return 'cm'; }
+  / $('meter'i 's'i?) { return 'm'; }
+  / $('mm'i 's'i? '.'?) { return 'mm'; }
+  / $('cm'i 's'i? '.'?) { return 'cm'; }
+  / $('m'i 's'i? '.'?) { return 'm'; }
+
+inch "Inch" =
+  $('inch'i 'es'i?) { return 'in'; }
+  / $('in'i 's'i? '.'?) { return 'in'; }
+  / $(["“”]) { return 'in'; }
+
+/*=====  End of Quantity Expressions  ======*/
+
+
+
+/*==============================================
+=            Ingredient Expressions            =
+==============================================*/
+ingredientExpression "Ingredient Expression" =
+	//TRY
+	$('+' _*)?
+	qty:quantityExpressions?	// this really only kicks in when you have head-heavy descriptors (Finely grated zest of 3 lemons")
+	//TRY
+	filler0:fillerExpression*
+  _*
+  ingDesc:descriptors?
+  _*
+  filler1:fillerExpression*
+  _*
+  ingredients:ingredients
+  {
+  	return {
+  		ingDescriptor: ingDesc, // "freshly ground"
+  		ingredients: ingredients, // { values: [ 'black pepper', 'salt' ], separator: 'and', descriptors: 'washed' }
+  		filler: [ filler0, filler1, qty ]
+  	};
+  }
+
+ingredientListEnding "Ingredient List Ending" = 
+  ',' _* sep:separator? _* ing:ingredient
+  	{
+  		return {
+  			separator: sep,
+  			ingredient: ing
+  		};
+  	}
+
+
+ingredients "Ingredients" =
+	// banana, apple, pear(, and? pear)
+	/*head:ingredient tail:ingredientListEnding*
+		{
+    	var tailIngredient = tail.map(i => i.ingredient);
+    	var tailSeparator = tail.pop().separator;
+            
+			return {
+				values: [ head ].concat(tailIngredient).map(i => i.toLowerCase()),
+				separator: (tailSeparator) ? ', ' + tailSeparator : ','
+			};
+		}
+	// apple and fresh peach
+	/ 
+    */
+    head:multiWordIngredient _+ sep:wordSeparator _+ filler:fillerExpression? _* desc:descriptors? _* tail:multiWordIngredient
+			{
+				return {
+					values: [ head, tail ].map(i => i.toLowerCase()),
+	        descriptors: desc,
+					separator: sep,
+	        filler: filler
+				};
+			}
+	
+    / head:multiWordIngredient _* sep:ingSeparator _* filler:fillerExpression? _* desc:descriptors? _* tail:multiWordIngredient
+			{
+				return {
+					values: [ head, tail ].map(i => i.toLowerCase()),
+					descriptors: desc,
+					separator: sep,
+	        filler: filler
+				};
+			}
+    / ing:multiWordIngredient
+	    {
+				return {
+					values: [ ing.toLowerCase() ],
+				};
+			}
+
+
+// this parses 'blackberries – thawed'
+multiWordIngredient "Multi Word Ingredient" =
+	//lemon-lime
+	head:ingredient tail:$(_+ ingredient)+
+    {
+			return [ head + tail ].map(i => i.toLowerCase())[0];
+		}
+    // lemon lime
+	/ head:ingredient _+ tail:ingredient
+    {
+			return head.toLowerCase() + ' ' + tail.toLowerCase();
+		}
+		// lemon
+	/ ing:ingredient
+		{
+			return ing.toLowerCase();
+		}
+
+ingredient "Ingredient" =
+	// parmigiano-reggiano
+	head:ingredientWord !_ dashes+ !_ tail:ingredientWord
+		{
+			return [ head + '-' + tail ].map(i => i.toLowerCase().trim())[0];
+		}
+	// apple
+	/ ingredientWord
+
+excluded "Excluded" = 
+  ingSeparator / fillerKeyword / descriptors / $(amount _* unit) / amount / unit / dashes
+
+// unit's are allowed to start with a dash and that messes with the ingredientWord
+excludedWords "Excluded Words" =
+  fillerKeyword / descriptors / $(amount _* unit) / amount / wordSeparator
+
+ingredientWord "Ingredient Word" =
+	head:ingredientKeyword tail:$(letter)+
+		{ return head + tail }
+	/ !excludedWords ing:$(letter)+
+		{ return ing; }
+	/ ing:$(excludedWords $(letter)+)
+		{ return ing; }
+		// TODO add in quotes that return a consistent formatting !excluded ing:$(letter)+ quotes !excluded ing:$(letter)+
+
+
+/*=====  End of Ingredient Expressions  ======*/
+
+/*===========================================
+=            Comment Expressions            =
+===========================================*/
+commentExpression "Comment Expression" =
+  comment:$(comment*)
+  	{ return comment; }
+
+
+comment "Comment" =
+	// match any characters
+	char:. { return char; }
+
+/*=====  End of Comment Expressions  ======*/

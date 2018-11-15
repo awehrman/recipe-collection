@@ -84,7 +84,11 @@ importNote = async (store, filename, note) => {
 		rp.title = note.title;
 		rp.source = note.source;
 		// rename the image path to use our recipeID
-		rp.image = note.imagePath.replace(note.evernoteGUID, rp.recipeID);
+		try {
+			rp.image = note.imagePath.replace(note.evernoteGUID, rp.recipeID);
+		} catch (err) {
+			rp.image = "/images/default.png";
+		}
 		// save the initial recipe data so when we add ingredients they'll have a valid recipeID reference
 		rp.saveRecipe();
 
@@ -99,8 +103,9 @@ importNote = async (store, filename, note) => {
 
 			results[0].ingredientLines.forEach(line => {
 				// trim down our ingredient info for the parsed lines
-				if (line.hasOwnProperty('ingredients') && line.ingredients.length > 0) {
-					line.ingredients = line.ingredients.map(ing => {
+				/*
+				if (line.hasOwnProperty('values') && line.values.length > 0) {
+					line.values = line.values.map(v => {
 						return {
 							ingredientID: ing.ingredientID,
 							name: ing.name,
@@ -109,6 +114,7 @@ importNote = async (store, filename, note) => {
 						};
 					})
 				}
+				*/
 				rp.addIngredientLine(line);
 			});
 
@@ -124,10 +130,14 @@ importNote = async (store, filename, note) => {
 			// cleanup staging files
 
 			// move image to public/images
-			fs.rename(`${STAGE_PATH}${note.imagePath}`, `public${rp.image}`, (err) => {
-			  if (err) throw err;
-			});
-
+			try {
+				fs.rename(`${STAGE_PATH}${note.imagePath}`, `public${rp.image}`, (err) => {
+				  if (err) throw err;
+				});
+			} catch (err) {
+				console.log('! no associated image to move'.red);
+			}
+			
 			// remove current note
 			fs.unlink(`${STAGE_PATH}/${rp.evernoteGUID}.json`, (err) => {
 			  if (err) throw err;
@@ -261,19 +271,21 @@ lookupMetadata = async (store, note) => {
 processImageContent = async (store, note) => {
 	// TODO try/catch for non-existent image
 	// minify image data
-	const optimizedImage = await imagemin.buffer(note.resources[0].data.body, {
-    plugins: [
-      imageminJpegtran(),
-      imageminPngquant( { quality: '75-80' } )
-    ]
-	}).catch(err => {
-		console.log(err);
-	});
+	try {
+		const optimizedImage = await imagemin.buffer(note.resources[0].data.body, {
+	    plugins: [
+	      imageminJpegtran(),
+	      imageminPngquant( { quality: '75-80' } )
+	    ]
+		}).catch(err => {
+			console.log(err);
+		});
 
-	// save it out from the note
-  await fs.writeFile(`${STAGE_PATH}/images/${note.guid}.${note.resources[0].mime.split('/')[1]}`, optimizedImage, 'binary', (err) => {
-    if (err) console.log(err);
-  });
+		// save it out from the note
+	  await fs.writeFile(`${STAGE_PATH}/images/${note.guid}.${note.resources[0].mime.split('/')[1]}`, optimizedImage, 'binary', (err) => {
+	    if (err) console.log(err);
+	  });
+	} catch {}
 
   return note;
 };
@@ -283,7 +295,7 @@ writeNoteContent = async (store, note) => {
 		category: note.notebookGuid,
 		content: note.content,
 		evernoteGUID: note.guid,
-		imagePath: `/images/${note.guid}.${note.resources[0].mime.split('/')[1]}`,
+		imagePath: (note.resources) ? `/images/${note.guid}.${note.resources[0].mime.split('/')[1]}` : '',
 		source: note.attributes.sourceURL,
 		tags: note.tagGuids,
 		title: note.title
@@ -380,7 +392,7 @@ findNotes = async (store, next) => {
     includeUpdated: false,
     includeDeleted: false,
     includeUpdateSequenceNum: false,
-    includeNotebookGuid: false,
+    includeNotebookGuid: true,
     includeTagGuids: true, // <-- might want this for debugging purposes
     includeAttributes: true, // <-- we need this for the source URL
     includeLargestResourceMime: false,
@@ -399,7 +411,42 @@ findNotes = async (store, next) => {
 
     	// filter out any pending notes
     	const RECIPES_TO_SORT = "f4deaa34-0e7e-4d1a-9ebf-d6c0b04900ed";
-    	results.notes = results.notes.filter(n => n.notebookGuid !== RECIPES_TO_SORT);
+    	let notesToDelete = [];
+    	results.notes = results.notes.filter(n => {
+    		if (n.notebookGuid !== RECIPES_TO_SORT) {
+    			return true;
+    		} else {
+    			notesToDelete.push({ guid: n.notebookGuid }); //TODO, imageFormat: n.resources[0].mime.split('/')[1]
+    			return false;
+    		}
+    	});
+
+
+    	if (notesToDelete.length > 0) {
+    		console.log(notesToDelete.length);
+    		// delete any unsorted notes from stage
+    		try {
+	    		notesToDelete.forEach(note => {
+		    		fs.unlink(`${STAGE_PATH}/${note.guid}.json`, (err) => {
+						  if (err) { console.log(err); }
+						  console.log(`! pending note "${note.guid}" was removed`.red);
+						});
+		    	});
+
+		    		// remove any pending associated images
+						/*
+						try {
+							fs.unlink(`${STAGE_PATH}/images/${note.imageFormat}.json`, (err) => {
+							  if (err) throw err;
+							  console.log(`! pending image "${note.guid}" was removed`.red);
+							});
+						} catch (err) {
+							console.log('! no image to remove'.red);
+						}
+						
+					});*/
+				} catch {}
+    	}
 
     	// return the metadata
     	return results.notes;
@@ -457,10 +504,14 @@ findTag = async (store, tagName, tagGUID = null) => {
 	  });
 };
 
+// TODO is this clearing out existing tags?
 tagNote = async (store, note, tag) => {
 	// add tag to note
+	//console.log('tagNote going in has:'.magenta);
+	//console.log(note.tagGuids);
 	note.tagGuids = (!note.tagGuids) ? [ tag.guid ] : note.tagGuids.push(tag.guid);
-
+	//console.log('tagNote post:'.red);
+	//console.log(note.tagGuids);
 	// from the evernote docs:
 	// With the exception of the note's title and guid, fields that are not being changed
 	// do not need to be set. If the content is not being modified, note.content should be

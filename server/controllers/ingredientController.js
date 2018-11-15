@@ -80,6 +80,10 @@ exports.saveIngredient = (req, res, next) => {
 /*----------  Ingredient Methods  ----------*/
 
 exports.findIngredient = (key = null, value = null) => {
+	if (key === 'exact') {
+		value = value.replace(/[-‐‑‒–—"'`´‘’“”]|\s/g, "");
+	}
+
 	let ingredients = this.loadIngredients();
 
 	// possible keys to filter search by
@@ -91,13 +95,21 @@ exports.findIngredient = (key = null, value = null) => {
 		name: () => ingredients.filter(i => i.name === value),
 
 		// lookup by any exact matches on all fields
-		exact: () => ingredients.filter(i =>
-			i.name === value
-			|| i.plural === value
-			|| i.alternateNames.has(value)
-			|| i.name.replace(/-|\s/g,"") === value.replace(/-|\s/g,"")
-			|| i.plural.replace(/-|\s/g,"") === value.replace(/-|\s/g,"")
-			|| i.alternateNames.has(value.replace(/-|\s/g,""))),
+		exact: () => ingredients.filter(i => {
+			let name = i.name.replace(/[-‐‑‒–—"'`´‘’“”]|\s/g, "");
+			let plural = (i.plural) ? i.plural.replace(/[-‐‑‒–—"'`´‘’“”]|\s/g, "") : null;
+			let altNames = new Set();
+
+			for (let alt of i.alternateNames) {
+				altNames.add(alt.replace(/[-‐‑‒–—"'`´‘’“”]|\s/g, ""));
+			}
+			
+			return (
+				name === value
+				|| plural === value
+				|| altNames.has(value)
+			)
+		}),
 	};
 
 	if (key !== null && value !== null) {
@@ -107,10 +119,16 @@ exports.findIngredient = (key = null, value = null) => {
 	if (ingredients.length === 1) {
 		return ingredients[0];
 	}
+
 	return null;
 };
 
 exports.findIngredients = (key = null, value = null) => {
+	// [-‐‑‒–—"'`´‘’“”]
+	if (key === 'exact') {
+		value = value.replace(/[-‐‑‒–—"'`´‘’“”]|\s/g, "");
+	}
+
 	let ingredients = this.loadIngredients();
 
 	// possible keys to filter search by
@@ -122,10 +140,21 @@ exports.findIngredients = (key = null, value = null) => {
 		name: () => ingredients.filter(i => i.name === value),
 
 		// lookup by any exact matches on all fields
-		exact: () => ingredients.filter(i =>
-			i.name === value
-			|| i.plural === value
-			|| i.alternateNames.has(value)),
+		exact: () => ingredients.filter(i => {
+			let name = i.name.replace(/[-‐‑‒–—"'`´‘’“”]|\s/g, "");
+			let plural = (i.plural) ? i.plural.replace(/[-‐‑‒–—"'`´‘’“”]|\s/g, "") : null;
+			let altNames = new Set();
+
+			for (let alt of i.alternateNames) {
+				altNames.add(alt.replace(/[-‐‑‒–—"'`´‘’“”]|\s/g, ""));
+			}
+			
+			return (
+				name === value
+				|| plural === value
+				|| altNames.has(value)
+			)
+		}),
 
 		// lookup by any partial mathces on all fields
 		partial: () => ingredients.filter(i =>

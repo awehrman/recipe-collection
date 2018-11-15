@@ -44,12 +44,14 @@ class Card extends Component {
 	}
 
 	componentWillReceiveProps(props) {
+		console.log('componentWillReceiveProps');
 		this.setState({
 			ingredient: clone(props.ingredient)
 		}, this.getIngredient(props.ingredient.ingredientID));
   }
 
   componentDidMount() {
+  	console.warn('componentDidMount');
   	this.setState({
 			ingredient: clone(this.props.ingredient)
 		}, this.getIngredient(this.props.ingredient.ingredientID));
@@ -409,7 +411,7 @@ class Card extends Component {
 
 	  	if (related.length > 0) {
 		  	return (
-		  		<div className="field related">
+		  		<div className={ `field related ${ (isEditMode) ? ' edit' : ''}` }>
 			  		<label>Suggested Relations</label>
 						<ul>
 							{

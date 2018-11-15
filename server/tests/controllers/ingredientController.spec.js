@@ -87,7 +87,7 @@ describe('Ingredient Controller ============================================='.m
 		}
 	});
 
-	describe('Ingredient Methods ============================================='.magenta, function () {
+	describe.skip('Ingredient Methods ============================================='.magenta, function () {
 		it('[saveIngredient] should update the ingredient based on its ingredient, parent, and error values', function() {
 		});
 	});

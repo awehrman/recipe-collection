@@ -164,120 +164,106 @@ parseHTML = (content) => {
 	return [ ingredients, instructions ];
 };
 
+lookupIngredient = (recipeID, name, ref) => {
+	//console.log('lookupIngredient'.yellow);
+	let plural = null;
+
+	// TODO there's got to be a better place to do this
+	pluralize.addUncountableRule('molasses');
+
+  // determine if this parsed as a singular or plural value
+  if (pluralize.singular(name) !== name) {
+  	plural = name;
+  	name = pluralize.singular(name);
+  }
+
+  // check if this is an existing ingredient
+  let existing = ingredientController.findIngredients('exact', name);
+
+  // if we didn't find this under the adjusted singular value, try looking it up by the original plural value
+  if (plural && existing && existing.length === 0) {
+  	existing = ingredientController.findIngredients('exact', plural);
+  }
+
+	return updateIngredientReferences(recipeID, existing, name, ref, plural);
+};
+
+updateIngredientReferences = (recipeID, existing, name, ref, plural) => {
+	//console.log('updateIngredientReferences'.yellow);
+	// if we found a match, update this ingredient's references
+  if (existing && existing.length === 1) {
+  	console.log(`updating: ${existing[0].name}`.cyan);
+  	existing = existing[0];
+
+  	// update reference
+  	existing.addReference(ref, recipeID);
+  	existing.saveIngredient();
+
+  	return existing.encodeIngredient();
+  	//console.log(existing.getIngredient());
+	} else if (existing && existing.length === 0) {
+		console.log(`creating: ${name}`.green);
+		// if this is a new ingredient, then add it
+		const newIng = new Ingredient(name);
+		newIng.plural = plural ? plural : null;
+		newIng.addReference(ref, recipeID);
+		newIng.saveIngredient();
+		//console.log(newIng.getIngredient());
+
+		return newIng.encodeIngredient();
+	} else {
+		// if we found multiple matches, then something's gone horribly awry!
+		throw new Error(`Multiple matches found for ingredient "${name}"`);
+	}
+};
+
 parseIngredientLine = (line, recipeID) => {
-	let parsedIng;
+	let parsedIng, ingredients;
 
 	try {
 		parsed = Parser.parse(line.reference);
 
 		// line: "~1 heaping cup (100 g) freshly-cut apples, washed"
 		/* should result in an object that looks like:
+			/* should result in an object that looks like:
 			{
-			   "amounts": { "values": [ "1" ] },
-			   "unitDescriptor": { "values": [ "heaping" ], "filler": [] },
-			   "units": { "values": [ "cup" ] },
-			   "amountUnitSeparator": null,
-			   "ingDescriptor": { "values": [ "freshly-cut" ], "filler": [] },
-			   "ingredients": { "values": [ "apples" ] },
-			   "comments": ", washed",
-			   "filler": [
-			      [ "~" ],
-			      [],
-			      [],
-			      [ "(100 g)" ],
-			      []
+			   "rule": "#1_ingredientLine",
+			   "type": "line",
+			   "values": [
+						{
+							"rule": "#1_ingredientLine >> #2_quantities >> #2_quantityExpression >> #3_amounts >> #2_amountExpression >> #2_amount",
+							"type": "amount",
+			   			"value": "1"
+						},
+			      {
+			         "rule": "#1_ingredientLine >> #3_ingredients >> #1_ingredientExpression >> #2_ingredient",
+			         "type": "ingredient",
+			         "value": "apples"
+			      }
 			   ]
 			}
 		*/
 
 		line.isParsed = true;
-		line.amounts = parsed.amounts;
-		line.unitDescriptor = parsed.unitDescriptor;
-		line.units = parsed.units;
-		line.amountUnitSeparator = parsed.amountUnitSeparator;
-		line.ingDescriptor = parsed.ingDescriptor;
-		line.comments = parsed.comments;
-		line.filler = parsed.filler;
 
-		// TODO
-		// if ingredients come in with separators, we need to do a multi-part lookup
-		
-		// ex: black and white sesame seeds
-		
-		// this is going to parse into 'black' and 'white sesame seeds'
-		// but we'd ideally like this to look for 'black sesame seeds' and 'white sesame seeds'
-		// 
+		line.values = parsed.values.map((v, index) => {
+			if (v.type === 'ingredient') {
+				//console.log('INGREDIENT'.magenta);
+				try {
+					let ing = lookupIngredient(recipeID, v.value, line.reference);
+					v.ingredientID = ing.ingredientID;
+					v.name = ing.name;
+					v.properties = ing.properties; // TODO look at
+					v.isValidated = ing.isValidated;
+				} catch (err) {
+					console.log(`${err}`.red);
+				}
+		  }
 
-		// TODO filter out known error values
-		// [ 'data', 'semantic', 'instruction', 'equipment' ]
-
-		// log separators
-		if (parsed.ingredients.hasOwnProperty('separator')) {
-			//console.log(parsed.ingredients);
-			// let's log a bunch of these for review
-			let separators = [];
-
-			try {
-				separators = JSON.parse(fs.readFileSync(`data/separators.json`, 'utf8'));
-			} catch (ex) {
-				throw new Error('Error reading separators.json');
-			}
-
-			separators.push(line.reference);
-
-			// save separators
-			fs.writeFileSync(`data/separators.json`, JSON.stringify(separators, null, 2), 'utf-8', (err) => {
-				if (err) throw new Error(`An error occurred while writing separator data`);
-			});
-		}
-
-		// for each ingredient identified, update it in our database
-		line.ingredients = parsed.ingredients.values.map((ing, index) => {
-			let plural = null;
-
-			// TODO there's got to be a better place to do this
-			pluralize.addUncountableRule('molasses');
-
-	    // determine if this parsed as a singular or plural value
-	    if (pluralize.singular(ing) !== ing) {
-	    	plural = ing;
-	    	ing = pluralize.singular(ing);
-	    }
-
-	    // check if this is an existing ingredient
-	    let existing = ingredientController.findIngredients('exact', ing);
-
-	    // if we didn't find this under the adjusted singular value, try looking it up by the original plural value
-	    if (plural && existing && existing.length === 0) {
-	    	existing = ingredientController.findIngredients('exact', plural);
-	    }
-
-	    // if we found a match, update this ingredient's references
-	    if (existing && existing.length === 1) {
-	    	console.log(`updating: ${existing[0].name}`.cyan);
-	    	existing = existing[0];
-
-	    	// update reference
-	    	existing.addReference(line.reference, recipeID);
-	    	existing.saveIngredient();
-
-	    	return existing.encodeIngredient();
-	    	//console.log(existing.getIngredient());
-			} else if (existing && existing.length === 0) {
-				console.log(`creating: ${ing}`.green);
-				// if this is a new ingredient, then add it
-				const newIng = new Ingredient(ing);
-				newIng.plural = plural ? plural : null;
-				newIng.addReference(line.reference, recipeID);
-				newIng.saveIngredient();
-				//console.log(newIng.getIngredient());
-
-				return newIng.encodeIngredient();
-			} else {
-				// if we found multiple matches, then something's gone horribly awry!
-    		throw new Error(`Multiple matches found for ingredient "${ing}"`);
-			}
+	    return v;
 		});
+
+
 
 	} catch (err) {
 		console.log(`failed to parse: ${line.reference}`.red);

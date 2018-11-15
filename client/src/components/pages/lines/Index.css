@@ -1,0 +1,26 @@
+article#lines li {
+  padding-bottom: 4px; }
+
+article#lines .amount {
+  color: deepskyblue; }
+
+article#lines .unit {
+  color: goldenrod; }
+
+article#lines .descriptor {
+  color: mediumslateblue; }
+
+article#lines .ingredient {
+  color: white;
+  padding: 0 4px;
+  background: mediumseagreen;
+  display: inline-block; }
+
+article#lines .comment {
+  color: grey; }
+
+article#lines .error {
+  color: orangered; }
+
+article#lines .separator {
+  color: orange; }

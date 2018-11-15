@@ -81,6 +81,12 @@ class Navigation extends Component {
 			    		<span>Recipes</span>
 			    	</Link>
 			    </li>
+			    <li>
+			    	<Link to="/lines" onClick={ this.props.onMenuToggle }>
+			    		<span className="svg"><FontAwesomeIcon icon={ faFolderOpen } /></span>
+			    		<span>Lines</span>
+			    	</Link>
+			    </li>
 			  </ul>
 			</nav>
 		);

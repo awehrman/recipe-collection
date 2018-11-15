@@ -6,6 +6,7 @@ import Dashboard from './components/pages/dashboard/Index';
 import Import from './components/pages/import/Index';
 import Ingredients from './components/pages/ingredients/Index';
 import Recipes from './components/pages/recipes/Index';
+import Lines from './components/pages/lines/Index';
 
 import './App.css';
 
@@ -42,6 +43,7 @@ class App extends Component {
 		      	<Route path="/import" component={ Import }/>
 					  <Route path="/ingredients" component={ Ingredients } />
 					  <Route path="/recipes" component={ Recipes }/>
+					  <Route path="/lines" component={ Lines }/>
 			    </div>
 			  </div>
 		   </Router>

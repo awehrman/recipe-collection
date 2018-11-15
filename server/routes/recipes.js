@@ -16,7 +16,7 @@ router.get('/count', (req, res, next) => {
 router.get('/ingredientLines', (req, res, next) => {
 	const recipes = recipeController.loadRecipes(true);
 
-	let lines = recipes.map(rp => rp.ingredientLines.map(l => { return { reference: l.reference, isParsed: l.isParsed } }));
+	let lines = recipes.map(rp => rp.ingredientLines);
   lines = [].concat(...lines);
   res.json({ ingredientLines: lines });
 });
