@@ -13,7 +13,6 @@ class Import extends Component {
 			<ImportStyles>
 				<Header pageHeader="Import" />
 				<section>
-					
 				</section>
 			</ImportStyles>
 		);		

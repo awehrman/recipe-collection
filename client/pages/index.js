@@ -13,7 +13,6 @@ class Index extends Component {
 			<DashboardStyles>
 				<Header pageHeader="Dashboard" />
 				<section>
-					
 				</section>
 			</DashboardStyles>
 		);		

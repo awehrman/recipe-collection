@@ -17,14 +17,20 @@ const NavStyles = styled.nav`
 	position: fixed;
 	top: 0;
 	width: 100%;
+	z-index: 500; /* we want this higher than the nprogess bar*/
 
 	.menu-icon {
 		color: ${ props => props.theme.menuColor };
 		cursor: pointer;
 		display: block;
-		margin: 0px auto;
 		padding: 10px;
-		text-align: center;
+		text-align: left;
+		margin-left: 10px;
+
+		svg {
+			/* this helps the FOUT issue but there's still a bit of movement on reload */
+			height: 16px;
+		}
 		
 		&:hover {
 			color: ${ props => lighten(0.1, props.theme.menuColor) };
@@ -72,6 +78,8 @@ const NavStyles = styled.nav`
 			position: relative;
 			left: 80px;
 			width: 40px;
+			text-align: center;
+			margin: 0 auto;	
 		}
 	}
 `;

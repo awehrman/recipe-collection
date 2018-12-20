@@ -1,5 +1,7 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import styled, { ThemeProvider, injectGlobal } from 'styled-components';
+import Router from 'next/router';
+import NProgress from 'nprogress';
 
 import Meta from '../components/Meta';
 import Nav from '../components/Nav';
@@ -26,6 +28,17 @@ const theme = {
 	tablet: '768px',
 	desktop_small: '1024px',
 	desktop_large: '1300px',
+
+	mobileCardHeight: '500px',
+	desktopCardHeight: '500px',
+
+	mobileListHeight: '200px',
+	desktopListHeight: '200px',
+
+	altGreen: '#73C6B6',
+	greenBackground: '#E8F8F5',
+
+	fontFamily: '"Source Sans Pro", Verdana, sans-serif'
 };
 
 injectGlobal`
@@ -49,6 +62,11 @@ injectGlobal`
 		font-size: 100%;
 		color: ${ props => props.theme.bodyText };
 		height: 100%;
+	}
+
+	h2 {
+		font-size: 1em;
+		font-weight: 600;
 	}
 `;
 
@@ -75,8 +93,26 @@ const Wrapper = styled.div`
 	@media (min-width: ${ props => props.theme.tablet }) {
 		top: 0;
 		left: ${ props => props.theme.expaned ? props.theme.menuOffset: props.theme.minMenuWidth };
+	
+		section {
+			margin-right: 40px;
+		}
+
 	}
 `;
+
+Router.onRouteChangeStart = () => {
+	NProgress.start();
+}
+
+Router.onRouteChangeComplete = () => {
+	NProgress.done();
+}
+
+Router.onRouteChangeError = () => {
+	NProgress.done();
+}
+
 
 class Page extends Component {
 	constructor(props) {
@@ -97,7 +133,6 @@ class Page extends Component {
 
 	render() {
 		const { isNavExpanded } = this.state;
-		console.log(this.props.children);
 
 		return (
 			<ThemeProvider theme={ theme }>

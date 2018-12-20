@@ -1,0 +1,79 @@
+# import * from './generated/prisma.graphql'
+
+type Mutation {
+	createCategory(evernoteGUID: String, name: String!): Category!
+	# TODO deleteCategory
+	# TODO updateCategory
+
+	createIngredient( parentID: ID,
+										parentName: String,
+										name: String!,
+										plural: String,
+										properties: PropertyCreateInput,
+										alternateNames: [ String ],
+										relatedIngredients: [ ID ],
+										substitutes: [ ID ],
+										references: [ ID ],
+										isValidated: Boolean
+									): Ingredient!
+	# TODO deleteIngredient
+	# TODO updateIngredient
+	
+	createRecipe( evernoteGUID: String,
+								image: String,
+								source: String,
+								title: String!,
+								categories: [ ID! ],
+								tags: [ ID! ]
+							): Recipe!
+	# TODO deleteRecipe
+	updateRecipe( id: ID!,
+								evernoteGUID: String,
+								image: String,
+								source: String,
+								title: String,
+								categoryConnections: [ ID! ],
+								categoryDisconnections: [ ID! ],
+								tagConnections: [ ID! ],
+								tagDisconnections: [ ID! ],
+								ingredientConnections: [ ID! ],
+								ingredientDisconnections: [ ID! ],
+								instructionConnections: [ ID! ],
+								instructionDisconnections: [ ID! ]
+							): Recipe!
+	
+	createRecipeInstruction(blockIndex: Int!, reference: String!): RecipeInstruction!
+	# TODO deleteRecipeInstruction
+	# TODO updateRecipeInstruction
+
+	# TODO createRecipeIngredient
+	# TODO deleteRecipeIngredient
+	# TODO updateRecipeIngredient
+
+	createTag(evernoteGUID: String, name: String!): Tag!
+	# TODO deleteTag
+	# TODO updateTag
+}
+
+type Query {
+	categories: [ Category! ]!
+	containers(view: String, group: String): [ Container ]!
+	counts: Counts!
+	ingredient(where: IngredientWhereUniqueInput!): Ingredient
+	ingredients: [ Ingredient! ]!
+	recipe(where: RecipeWhereUniqueInput!): Recipe
+	recipes: [ Recipe! ]!
+	tags: [ Tag! ]!
+}
+
+type Counts {
+	ingredients: Int,
+	newIngredients: Int
+}
+
+type Container {
+	id: ID!
+	ingredients: [ Ingredient ]!
+	label: String!
+	message: String
+}

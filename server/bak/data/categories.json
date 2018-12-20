@@ -1,0 +1,1076 @@
+[
+  {
+    "categoryID": "efcf0580-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:22.968Z",
+    "evernoteGUID": "75eb2991-7f47-470a-bf00-f0ee6541aee1",
+    "name": "Rice & Grains Meat"
+  },
+  {
+    "categoryID": "efd2fd20-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:22.994Z",
+    "evernoteGUID": "d53022b9-805f-4656-8837-e335f6d4dbf8",
+    "name": "Poultry Curry"
+  },
+  {
+    "categoryID": "efd8f090-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:23.033Z",
+    "evernoteGUID": "ecaaf118-ae74-4e71-8630-560a20c056d5",
+    "name": "Stuffed Lamb"
+  },
+  {
+    "categoryID": "efe1ca30-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:23.091Z",
+    "evernoteGUID": "d4080b2d-f0a8-4c30-ad50-5540969e9298",
+    "name": "Chicken and Dumplings"
+  },
+  {
+    "categoryID": "efeaf1f0-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:23.151Z",
+    "evernoteGUID": "9bdd10c1-9194-419f-ab0c-93243167438b",
+    "name": "Quiche"
+  },
+  {
+    "categoryID": "efeec280-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:23.176Z",
+    "evernoteGUID": "2ce8603c-1bc3-468a-b440-d2a96c9f5823",
+    "name": "Croquettes"
+  },
+  {
+    "categoryID": "eff26c00-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:23.200Z",
+    "evernoteGUID": "48726a37-916d-4524-8706-6d2dba24929c",
+    "name": "Noodle Soups"
+  },
+  {
+    "categoryID": "eff5ee70-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:23.223Z",
+    "evernoteGUID": "eef7f9dc-c06b-450c-a9e3-63d10507baad",
+    "name": "Risotto"
+  },
+  {
+    "categoryID": "eff970e0-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:23.246Z",
+    "evernoteGUID": "a1410962-554d-4c62-8e23-88522a8b77ee",
+    "name": "Pizza"
+  },
+  {
+    "categoryID": "f0011200-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:23.296Z",
+    "evernoteGUID": "7134f5d9-5556-4100-a56a-8aa9771adb28",
+    "name": "Turkey"
+  },
+  {
+    "categoryID": "f005ccf0-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:23.327Z",
+    "evernoteGUID": "d3bf5315-ba92-423a-b15a-7adf76e4fa73",
+    "name": "Dumplings"
+  },
+  {
+    "categoryID": "f00b2420-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:23.362Z",
+    "evernoteGUID": "8eb025af-5aca-4e4a-bd15-bc2c2c6b4553",
+    "name": "Chili"
+  },
+  {
+    "categoryID": "f0102d30-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:23.395Z",
+    "evernoteGUID": "1efe52f0-5268-4aba-8620-7e1f05fb169e",
+    "name": "Duck"
+  },
+  {
+    "categoryID": "f0166ec0-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:23.436Z",
+    "evernoteGUID": "2752e3c3-d068-4117-94a3-fa566de37573",
+    "name": "Vegetarian Mains"
+  },
+  {
+    "categoryID": "f01bed00-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:23.472Z",
+    "evernoteGUID": "14763ce1-b59e-43b9-a789-b4915513db6e",
+    "name": "Sauces, et al"
+  },
+  {
+    "categoryID": "f023dc40-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:23.524Z",
+    "evernoteGUID": "4c0df0b9-1291-4b51-9156-ab7ef8ca1b21",
+    "name": "Kebabs"
+  },
+  {
+    "categoryID": "f03a7180-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:23.672Z",
+    "evernoteGUID": "9d028610-9f26-42ad-b439-a052078472b4",
+    "name": "Pasta"
+  },
+  {
+    "categoryID": "f04ebcd0-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:23.805Z",
+    "evernoteGUID": "36673d56-288e-4a21-b551-e3835db2f6bc",
+    "name": "Biscuits"
+  },
+  {
+    "categoryID": "f0546220-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:23.842Z",
+    "evernoteGUID": "61859a20-ed24-4a7e-94f4-0a3761e13428",
+    "name": "Chicken"
+  },
+  {
+    "categoryID": "f06922a0-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:23.978Z",
+    "evernoteGUID": "223e4af0-cae7-4b74-82da-0806e2976f9d",
+    "name": "Stuffing"
+  },
+  {
+    "categoryID": "f0797650-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:24.085Z",
+    "evernoteGUID": "6c7ebdfc-0306-4741-96b2-6b073ad8e15c",
+    "name": "Poultry Stir-Fry"
+  },
+  {
+    "categoryID": "f0922e70-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:24.247Z",
+    "evernoteGUID": "0b69748f-2384-4e88-83f5-2b4e0e94279b",
+    "name": "Toastie"
+  },
+  {
+    "categoryID": "f09c4090-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:24.313Z",
+    "evernoteGUID": "53adf963-add0-4067-8df3-d54087a4c927",
+    "name": "Dosa"
+  },
+  {
+    "categoryID": "f0a5dd80-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:24.376Z",
+    "evernoteGUID": "62a9e3f7-e9d4-4983-9821-07698c7f2d4d",
+    "name": "Empanadas & Hand Pies"
+  },
+  {
+    "categoryID": "f0bbd680-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:24.520Z",
+    "evernoteGUID": "3e98fecd-05a4-4291-bb6e-8fc1d06f0a3c",
+    "name": "Cakes"
+  },
+  {
+    "categoryID": "f0c80b80-c9ac-11e8-8e6c-278d98e3b4f0",
+    "dateCreated": "2018-10-06T21:15:24.600Z",
+    "evernoteGUID": "93377054-50a7-46e7-bb71-bf3a976fc7d2",
+    "name": "Fried Chicken"
+  },
+  {
+    "categoryID": "8b057190-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:56.809Z",
+    "evernoteGUID": "2267a809-903d-42c0-aef3-2f0b607a32d1",
+    "name": "Fish & Seafood Curry"
+  },
+  {
+    "categoryID": "8b0c4f60-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:56.854Z",
+    "evernoteGUID": "0a9ddad2-c2fd-446c-94c8-8bc88c314bb8",
+    "name": "Roast Chicken"
+  },
+  {
+    "categoryID": "8b141790-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:56.905Z",
+    "evernoteGUID": "66fca5b1-977f-4f9f-98fa-558ec4e0cf47",
+    "name": "Salsa & Guacamole"
+  },
+  {
+    "categoryID": "8b30a040-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:57.092Z",
+    "evernoteGUID": "fdf47ab7-8edd-4f1e-9f8f-424ea60506bc",
+    "name": "Sandwiches"
+  },
+  {
+    "categoryID": "8b3a8b50-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:57.157Z",
+    "evernoteGUID": "1ab04892-e870-4701-a316-6fb5b0979cea",
+    "name": "Gnocchi"
+  },
+  {
+    "categoryID": "8b427a90-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:57.209Z",
+    "evernoteGUID": "09df0127-1c8d-4e78-8142-f040a4f03d2b",
+    "name": "Khachapuri"
+  },
+  {
+    "categoryID": "8b49cd90-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:57.257Z",
+    "evernoteGUID": "320f7680-3c76-4cf6-a4bd-c4a8c3ebe5f8",
+    "name": "Soup Dumplings"
+  },
+  {
+    "categoryID": "8b520af0-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:57.311Z",
+    "evernoteGUID": "61b3bb4f-21e5-44e7-aed5-0f2b593815f8",
+    "name": "Desserts"
+  },
+  {
+    "categoryID": "8b5a4850-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:57.365Z",
+    "evernoteGUID": "c9d40e43-03e8-4f64-9486-4049de82e990",
+    "name": "Shrimp & Prawns"
+  },
+  {
+    "categoryID": "8b645a70-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:57.431Z",
+    "evernoteGUID": "befa1689-180b-4c71-a2b5-f58a086c0b4a",
+    "name": "Stuffed Chicken Breast"
+  },
+  {
+    "categoryID": "8b708f70-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:57.511Z",
+    "evernoteGUID": "e4bb8ccd-7f24-4426-b4b4-e001da555935",
+    "name": "Crepes"
+  },
+  {
+    "categoryID": "8b78f3e0-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:57.566Z",
+    "evernoteGUID": "36dc52ea-5745-4106-901e-8baa3d6e7ee4",
+    "name": "Ramen"
+  },
+  {
+    "categoryID": "8b81cd80-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:57.624Z",
+    "evernoteGUID": "0af3c303-9092-4da6-b0ed-c9d30007ef7b",
+    "name": "Noodles"
+  },
+  {
+    "categoryID": "8b929660-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:57.734Z",
+    "evernoteGUID": "7dd922cf-47b1-4960-be6e-0294fd718c4f",
+    "name": "Pozole"
+  },
+  {
+    "categoryID": "8b9be530-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:57.795Z",
+    "evernoteGUID": "1d637a07-4521-430a-ac97-05f29ea764f8",
+    "name": "Scallops"
+  },
+  {
+    "categoryID": "8ba53400-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:57.856Z",
+    "evernoteGUID": "5cab5dc8-7f8b-4749-876f-4984ae5179b5",
+    "name": "Meatballs"
+  },
+  {
+    "categoryID": "8bafe260-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:57.926Z",
+    "evernoteGUID": "a604335f-3e99-48f0-a3b5-2eaebc664bb4",
+    "name": "Meat Pies"
+  },
+  {
+    "categoryID": "8bbe3a40-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:58.020Z",
+    "evernoteGUID": "3808bb05-5e55-44e0-9f52-79f2b2b42c9f",
+    "name": "Beef Tacos"
+  },
+  {
+    "categoryID": "8be54a40-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:58.276Z",
+    "evernoteGUID": "963baa89-c487-40e0-af4c-1351b94771fc",
+    "name": "Pork Roast"
+  },
+  {
+    "categoryID": "8bef8370-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:58.343Z",
+    "evernoteGUID": "2557c62d-d4c0-44c6-a21d-e7827cd7c834",
+    "name": "Stuffed Shells"
+  },
+  {
+    "categoryID": "8bfaf520-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:58.418Z",
+    "evernoteGUID": "d9c06472-e270-4f96-abcd-15fe7bc1ac0e",
+    "name": "BBQ Sauce"
+  },
+  {
+    "categoryID": "8c0aac90-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:58.521Z",
+    "evernoteGUID": "e0c66ac0-207f-44ba-9808-e09ed2116977",
+    "name": "Chicago Style Pizza"
+  },
+  {
+    "categoryID": "8c161e40-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:58.596Z",
+    "evernoteGUID": "1b486157-80ea-453e-a772-d6961b7170fc",
+    "name": "Banh Xeo"
+  },
+  {
+    "categoryID": "8c21b700-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:58.672Z",
+    "evernoteGUID": "898566d3-074d-492c-bb1e-ac07ab6e0f3d",
+    "name": "Polenta"
+  },
+  {
+    "categoryID": "8c2d4fc0-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:58.748Z",
+    "evernoteGUID": "9f58e128-a72b-4d3e-a2a3-77d43c0e3a86",
+    "name": "Rice & Grains"
+  },
+  {
+    "categoryID": "8c390f90-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:58.825Z",
+    "evernoteGUID": "39c45d26-8bf2-4f49-9324-1c9069de094a",
+    "name": "Lamb Curry"
+  },
+  {
+    "categoryID": "8c45b9c0-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:58.908Z",
+    "evernoteGUID": "5ec345a3-1f89-4922-8d16-9223278cd8c2",
+    "name": "Frittatas"
+  },
+  {
+    "categoryID": "8c64da80-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:59.112Z",
+    "evernoteGUID": "ed1c7350-aa73-4811-9167-4744ad888747",
+    "name": "Appetiziers (Vegetarian)"
+  },
+  {
+    "categoryID": "8c7db9b0-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:59.275Z",
+    "evernoteGUID": "951a7add-da5b-49cd-b422-9df162b50b3a",
+    "name": "Short Pasta"
+  },
+  {
+    "categoryID": "8c9dc4d0-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:59.485Z",
+    "evernoteGUID": "744ebd93-be55-4a59-a763-d7d513d7058b",
+    "name": "Arepas"
+  },
+  {
+    "categoryID": "8cab8070-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:59.575Z",
+    "evernoteGUID": "4a37452d-56fc-4443-a345-9883abbf1a08",
+    "name": "Breakfast"
+  },
+  {
+    "categoryID": "8cbb10d0-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:59.677Z",
+    "evernoteGUID": "6ba6cffa-7ec6-4f94-8a59-b1684e73c720",
+    "name": "Wraps"
+  },
+  {
+    "categoryID": "8cc87e50-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:59.765Z",
+    "evernoteGUID": "ccea7a4c-d869-4d84-ba51-568392fe17dd",
+    "name": "Fish Tacos"
+  },
+  {
+    "categoryID": "8ce63f80-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:50:59.960Z",
+    "evernoteGUID": "c75e1628-3ce8-4d34-99ae-e5b11c50b287",
+    "name": "Steak"
+  },
+  {
+    "categoryID": "8cf5f6f0-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:51:00.063Z",
+    "evernoteGUID": "3748beba-0d6b-4415-9d15-b928073686fd",
+    "name": "Bass"
+  },
+  {
+    "categoryID": "8d1e1860-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:51:00.326Z",
+    "evernoteGUID": "629f21e8-2236-4884-a97b-18f1d1908ea4",
+    "name": "Fish"
+  },
+  {
+    "categoryID": "8d4e5020-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:51:00.643Z",
+    "evernoteGUID": "7975b451-6f3d-4c3f-b503-0db36b46137e",
+    "name": "Toastie (Vegetarian)"
+  },
+  {
+    "categoryID": "8d7b5390-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:51:00.937Z",
+    "evernoteGUID": "174f5bfb-2102-4c0c-ad27-b2332b68da85",
+    "name": "Fish & Seafood Pasta"
+  },
+  {
+    "categoryID": "8d8bf560-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:51:01.046Z",
+    "evernoteGUID": "1be354fa-8fc4-4583-9a31-8e9e50ca648f",
+    "name": "Rice & Grains Poultry"
+  },
+  {
+    "categoryID": "8db2b740-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:51:01.300Z",
+    "evernoteGUID": "9d341436-1e41-4912-b0ba-0179eec774bb",
+    "name": "Eggs"
+  },
+  {
+    "categoryID": "8dc61830-ca59-11e8-a78e-5f490969577a",
+    "dateCreated": "2018-10-07T17:51:01.427Z",
+    "evernoteGUID": "f5e9c7e4-326c-4430-987b-f6732412199d",
+    "name": "Pork Belly"
+  },
+  {
+    "categoryID": "7b39c620-cb31-11e8-b123-a7e5aac14354",
+    "dateCreated": "2018-10-08T19:36:41.602Z",
+    "evernoteGUID": "eb3240a3-e9a8-419a-a710-1ffe993c9715",
+    "name": "Tarts"
+  },
+  {
+    "categoryID": "7b42ede0-cb31-11e8-b123-a7e5aac14354",
+    "dateCreated": "2018-10-08T19:36:41.662Z",
+    "evernoteGUID": "a394895d-58fa-4de7-b1df-28c94079f60e",
+    "name": "Fritters"
+  },
+  {
+    "categoryID": "7b4ba070-cb31-11e8-b123-a7e5aac14354",
+    "dateCreated": "2018-10-08T19:36:41.719Z",
+    "evernoteGUID": "bc1f73ce-4449-4630-b520-2925b0db4088",
+    "name": "Dips & Spreads"
+  },
+  {
+    "categoryID": "7b545300-cb31-11e8-b123-a7e5aac14354",
+    "dateCreated": "2018-10-08T19:36:41.776Z",
+    "evernoteGUID": "39b5b5f1-e841-4e51-8caf-2cdf5034a2e7",
+    "name": "Meat Salads"
+  },
+  {
+    "categoryID": "7b5d0590-cb31-11e8-b123-a7e5aac14354",
+    "dateCreated": "2018-10-08T19:36:41.833Z",
+    "evernoteGUID": "0f562aec-fbe6-4ada-b142-c9cad07d680c",
+    "name": "Noodles (Vegetarian)"
+  },
+  {
+    "categoryID": "7b67b3f0-cb31-11e8-b123-a7e5aac14354",
+    "dateCreated": "2018-10-08T19:36:41.903Z",
+    "evernoteGUID": "c8406eab-d1e2-4e70-bcf1-a8e0ec54be19",
+    "name": "Ice Cream & Gelatin"
+  },
+  {
+    "categoryID": "7b74d350-cb31-11e8-b123-a7e5aac14354",
+    "dateCreated": "2018-10-08T19:36:41.989Z",
+    "evernoteGUID": "0d1e3bb0-22e7-4dd4-a39d-9c04a3c2c1cc",
+    "name": "Lamb Roast"
+  },
+  {
+    "categoryID": "7b7f81b0-cb31-11e8-b123-a7e5aac14354",
+    "dateCreated": "2018-10-08T19:36:42.059Z",
+    "evernoteGUID": "a46f300e-c184-47f2-b3ac-34e159cd3c33",
+    "name": "Laksa"
+  },
+  {
+    "categoryID": "7b8a7e30-cb31-11e8-b123-a7e5aac14354",
+    "dateCreated": "2018-10-08T19:36:42.131Z",
+    "evernoteGUID": "88e49517-6382-4b91-9e8b-add6d980b19f",
+    "name": "Chicken Soup"
+  },
+  {
+    "categoryID": "7b972860-cb31-11e8-b123-a7e5aac14354",
+    "dateCreated": "2018-10-08T19:36:42.214Z",
+    "evernoteGUID": "4c1aa5a2-5887-450f-80b8-6256de705a3a",
+    "name": "Sides (Vegetarian)"
+  },
+  {
+    "categoryID": "7ba447c0-cb31-11e8-b123-a7e5aac14354",
+    "dateCreated": "2018-10-08T19:36:42.300Z",
+    "evernoteGUID": "d2a9a886-48f1-471b-bd58-a0a192a273c2",
+    "name": "Cured Fish"
+  },
+  {
+    "categoryID": "7bb20360-cb31-11e8-b123-a7e5aac14354",
+    "dateCreated": "2018-10-08T19:36:42.390Z",
+    "evernoteGUID": "26b83e3e-1332-4a85-b106-e3806f179887",
+    "name": "Breakfast Breads"
+  },
+  {
+    "categoryID": "7bc627a0-cb31-11e8-b123-a7e5aac14354",
+    "dateCreated": "2018-10-08T19:36:42.522Z",
+    "evernoteGUID": "848f1b4a-33a4-4543-8b97-18f72b3fbd89",
+    "name": "Jam"
+  },
+  {
+    "categoryID": "7bd36e10-cb31-11e8-b123-a7e5aac14354",
+    "dateCreated": "2018-10-08T19:36:42.609Z",
+    "evernoteGUID": "2215545e-4373-4473-b53c-95dc38baefed",
+    "name": "Cheesecake"
+  },
+  {
+    "categoryID": "7bdf54f0-cb31-11e8-b123-a7e5aac14354",
+    "dateCreated": "2018-10-08T19:36:42.687Z",
+    "evernoteGUID": "16ad4dd7-76b1-4126-954c-d04a67e0757d",
+    "name": "Arancini"
+  },
+  {
+    "categoryID": "7beac6a0-cb31-11e8-b123-a7e5aac14354",
+    "dateCreated": "2018-10-08T19:36:42.762Z",
+    "evernoteGUID": "c3d2024c-14f8-41e4-a236-8857341220b7",
+    "name": "Sides"
+  },
+  {
+    "categoryID": "7bf7bef0-cb31-11e8-b123-a7e5aac14354",
+    "dateCreated": "2018-10-08T19:36:42.847Z",
+    "evernoteGUID": "bbe41c99-1f94-499d-9b2d-94b64a435e85",
+    "name": "Sandwich Fish & Seafood"
+  },
+  {
+    "categoryID": "cb030c40-ce45-11e8-a147-655b2eb25ecb",
+    "dateCreated": "2018-10-12T17:39:38.884Z",
+    "evernoteGUID": "6e80acc0-8cfd-44c8-91ef-ce6d21c80bbc",
+    "name": "Flatbreads"
+  },
+  {
+    "categoryID": "cb2fe8a0-ce45-11e8-a147-655b2eb25ecb",
+    "dateCreated": "2018-10-12T17:39:39.178Z",
+    "evernoteGUID": "1c876a20-1ed5-4857-8e92-74a201894d1e",
+    "name": "Salmon"
+  },
+  {
+    "categoryID": "cb4d5bb0-ce45-11e8-a147-655b2eb25ecb",
+    "dateCreated": "2018-10-12T17:39:39.371Z",
+    "evernoteGUID": "439629e8-1605-476d-8807-4f92816a767a",
+    "name": "Ravioli"
+  },
+  {
+    "categoryID": "cb6a5990-ce45-11e8-a147-655b2eb25ecb",
+    "dateCreated": "2018-10-12T17:39:39.561Z",
+    "evernoteGUID": "2360721f-3a0c-456a-b51c-b09885c31054",
+    "name": "Short Ribs"
+  },
+  {
+    "categoryID": "cb90a640-ce45-11e8-a147-655b2eb25ecb",
+    "dateCreated": "2018-10-12T17:39:39.812Z",
+    "evernoteGUID": "486d3645-2750-4469-b7df-4eb8eb46817a",
+    "name": "Burgers"
+  },
+  {
+    "categoryID": "cbaeb590-ce45-11e8-a147-655b2eb25ecb",
+    "dateCreated": "2018-10-12T17:39:40.009Z",
+    "evernoteGUID": "79e7bc45-e491-4cac-8d8b-d405be076452",
+    "name": "Quesadillas"
+  },
+  {
+    "categoryID": "cbd2df60-ce45-11e8-a147-655b2eb25ecb",
+    "dateCreated": "2018-10-12T17:39:40.246Z",
+    "evernoteGUID": "99c9e594-5856-47c3-8499-0a55476958c6",
+    "name": "Tostadas"
+  },
+  {
+    "categoryID": "cbf5a9a0-ce45-11e8-a147-655b2eb25ecb",
+    "dateCreated": "2018-10-12T17:39:40.474Z",
+    "evernoteGUID": "3eaab1ce-527c-471e-b570-9e02f7da0c29",
+    "name": "Sandwiches (Vegetarian)"
+  },
+  {
+    "categoryID": "cc1ce0b0-ce45-11e8-a147-655b2eb25ecb",
+    "dateCreated": "2018-10-12T17:39:40.732Z",
+    "evernoteGUID": "c02a8560-3e21-481e-bda4-01bea5c49b32",
+    "name": "Baked Pasta"
+  },
+  {
+    "categoryID": "cc3fd200-ce45-11e8-a147-655b2eb25ecb",
+    "dateCreated": "2018-10-12T17:39:40.960Z",
+    "evernoteGUID": "98a40dd1-6536-464e-aa9d-cbc61084bc86",
+    "name": "Snacks"
+  },
+  {
+    "categoryID": "cc6693e0-ce45-11e8-a147-655b2eb25ecb",
+    "dateCreated": "2018-10-12T17:39:41.214Z",
+    "evernoteGUID": "ddf9db44-82d0-411a-a36c-e093bb2e6671",
+    "name": "Okonomiyaki"
+  },
+  {
+    "categoryID": "cc8d55c0-ce45-11e8-a147-655b2eb25ecb",
+    "dateCreated": "2018-10-12T17:39:41.468Z",
+    "evernoteGUID": "8138d351-0295-4b7a-9d01-a0b07fb39e0e",
+    "name": "Sushi"
+  },
+  {
+    "categoryID": "ccac2860-ce45-11e8-a147-655b2eb25ecb",
+    "dateCreated": "2018-10-12T17:39:41.670Z",
+    "evernoteGUID": "9b8db74f-feb4-4136-8aa1-912d77f76998",
+    "name": "Vegetable Tarts"
+  },
+  {
+    "categoryID": "f3deb9a0-ce47-11e8-aa08-ffdac651b501",
+    "dateCreated": "2018-10-12T17:55:06.426Z",
+    "evernoteGUID": "381fd5c1-15f4-4d60-971d-8686c59afb8b",
+    "name": "Pancakes"
+  },
+  {
+    "categoryID": "f3e85690-ce47-11e8-aa08-ffdac651b501",
+    "dateCreated": "2018-10-12T17:55:06.489Z",
+    "evernoteGUID": "55950147-27c5-4e3a-a724-329802c274ea",
+    "name": "Pies"
+  },
+  {
+    "categoryID": "f3f15740-ce47-11e8-aa08-ffdac651b501",
+    "dateCreated": "2018-10-12T17:55:06.548Z",
+    "evernoteGUID": "9f2f737b-017c-4db8-841c-66f1d5e6cdc9",
+    "name": "Loaves"
+  },
+  {
+    "categoryID": "f40af9c0-ce47-11e8-aa08-ffdac651b501",
+    "dateCreated": "2018-10-12T17:55:06.716Z",
+    "evernoteGUID": "c0aae6db-2f40-4b15-bc36-8910ac2dc43b",
+    "name": "Rice Paper Rolls"
+  },
+  {
+    "categoryID": "f414bdc0-ce47-11e8-aa08-ffdac651b501",
+    "dateCreated": "2018-10-12T17:55:06.780Z",
+    "evernoteGUID": "d9bc67d7-02e2-46f5-b644-30e2cfebeae2",
+    "name": "Cookies"
+  },
+  {
+    "categoryID": "f41ea8d0-ce47-11e8-aa08-ffdac651b501",
+    "dateCreated": "2018-10-12T17:55:06.845Z",
+    "evernoteGUID": "75e8d711-4858-4886-b237-21b17c8c955a",
+    "name": "Pizza Dough"
+  },
+  {
+    "categoryID": "f427f7a0-ce47-11e8-aa08-ffdac651b501",
+    "dateCreated": "2018-10-12T17:55:06.906Z",
+    "evernoteGUID": "039131a1-9038-40c6-a9f7-d30e1801bb29",
+    "name": "Beef Curry"
+  },
+  {
+    "categoryID": "f43209c0-ce47-11e8-aa08-ffdac651b501",
+    "dateCreated": "2018-10-12T17:55:06.972Z",
+    "evernoteGUID": "3010b294-51ee-4696-9082-9b82fc54eefa",
+    "name": "Pickles"
+  },
+  {
+    "categoryID": "f43cb820-ce47-11e8-aa08-ffdac651b501",
+    "dateCreated": "2018-10-12T17:55:07.042Z",
+    "evernoteGUID": "f7e9a09f-f4f9-426e-995b-a122d0a5ade4",
+    "name": "Vegetable Salads"
+  },
+  {
+    "categoryID": "96353470-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:42.679Z",
+    "evernoteGUID": "26b095bf-fe3f-4db1-be44-533822f34e3d",
+    "name": "Beef"
+  },
+  {
+    "categoryID": "9644ebe0-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:42.782Z",
+    "evernoteGUID": "7dc9707f-69f5-4191-8465-eb5a1688b945",
+    "name": "Steamed Buns"
+  },
+  {
+    "categoryID": "9653e000-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:42.880Z",
+    "evernoteGUID": "0f14fa40-1d25-462b-a061-d01d3250bb29",
+    "name": "Soup"
+  },
+  {
+    "categoryID": "96628600-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:42.976Z",
+    "evernoteGUID": "baf94ce4-f5c3-47b7-a3c4-8ef82875bb29",
+    "name": "Condiments"
+  },
+  {
+    "categoryID": "96717a20-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:43.074Z",
+    "evernoteGUID": "b1b2ee1b-6008-42fb-847a-f8a04713f839",
+    "name": "Snapper"
+  },
+  {
+    "categoryID": "9687c140-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:43.220Z",
+    "evernoteGUID": "9641edcf-2557-4a3b-be77-7d56a40b1b44",
+    "name": "Mac & Cheese"
+  },
+  {
+    "categoryID": "969751a0-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:43.322Z",
+    "evernoteGUID": "42dca281-6818-4259-9f68-cbeb3102bfe0",
+    "name": "Pork Curry"
+  },
+  {
+    "categoryID": "96a92bf0-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:43.439Z",
+    "evernoteGUID": "0bffe9f6-d88c-47c8-860e-93ee50904786",
+    "name": "Lamb Chops"
+  },
+  {
+    "categoryID": "96ba9110-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:43.553Z",
+    "evernoteGUID": "14bb9dff-15e4-431b-a9be-7ad51d56b29f",
+    "name": "Beans"
+  },
+  {
+    "categoryID": "96cb0bd0-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:43.661Z",
+    "evernoteGUID": "1162e02b-88b9-4054-8aa9-c41a51421f0d",
+    "name": "Vegetable Curry"
+  },
+  {
+    "categoryID": "96e26460-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:43.814Z",
+    "evernoteGUID": "8c7afcc7-0656-4daa-acc0-68fd617d7c60",
+    "name": "Pork Ribs"
+  },
+  {
+    "categoryID": "96f30630-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:43.923Z",
+    "evernoteGUID": "84827c38-2bc5-44c1-86b5-e718dc1918e9",
+    "name": "Lamb Shanks"
+  },
+  {
+    "categoryID": "9702e4b0-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:44.027Z",
+    "evernoteGUID": "4fbc7852-8146-40e9-8931-95d125039575",
+    "name": "Enchiladas"
+  },
+  {
+    "categoryID": "97131150-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:44.133Z",
+    "evernoteGUID": "c1a1cc79-1a0c-43c8-bfd8-f40408e16bf4",
+    "name": "Soups (Vegetarian)"
+  },
+  {
+    "categoryID": "973677d0-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:44.365Z",
+    "evernoteGUID": "b45b99de-ba66-4c99-99d7-2a89c91b4137",
+    "name": "Zongzi"
+  },
+  {
+    "categoryID": "9746a470-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:44.471Z",
+    "evernoteGUID": "c9daf661-f739-43a7-bec0-5fd57e72e712",
+    "name": "Cocktails"
+  },
+  {
+    "categoryID": "97587ec0-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:44.588Z",
+    "evernoteGUID": "57ff27c1-2b90-4bf7-af83-ef60eaa44205",
+    "name": "Waffles"
+  },
+  {
+    "categoryID": "97b089d0-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:45.165Z",
+    "evernoteGUID": "bf056199-65af-4392-87a6-901fe91a13e7",
+    "name": "Chilled Soups"
+  },
+  {
+    "categoryID": "97f274d0-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:45.597Z",
+    "evernoteGUID": "a3781433-8fd5-4edf-820b-73fe8d5953c6",
+    "name": "Muffins"
+  },
+  {
+    "categoryID": "981ba7b0-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:45.867Z",
+    "evernoteGUID": "0daac9b8-11fc-4352-a29a-ac73ed5a1425",
+    "name": "Macarons"
+  },
+  {
+    "categoryID": "982ee190-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:45.993Z",
+    "evernoteGUID": "469a4aa9-2f9d-4c6b-8ffc-48a23f93717c",
+    "name": "Chicken Wings"
+  },
+  {
+    "categoryID": "9841a640-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:46.116Z",
+    "evernoteGUID": "f6728de8-d639-4973-ae71-a725b63528ad",
+    "name": "Crumbed Pork"
+  },
+  {
+    "categoryID": "986b0030-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:46.387Z",
+    "evernoteGUID": "3267632f-6da6-436d-a3f8-9c040671b5b2",
+    "name": "Tamales"
+  },
+  {
+    "categoryID": "987f4b80-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:46.520Z",
+    "evernoteGUID": "10babfca-24db-4b57-9333-a8b8d252da2f",
+    "name": "Vegetable Tacos"
+  },
+  {
+    "categoryID": "98943310-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:46.657Z",
+    "evernoteGUID": "64e79d1d-facc-44b7-941b-77ba5a60d9d1",
+    "name": "Fish & Seafood Noodles"
+  },
+  {
+    "categoryID": "98a71ed0-ce68-11e8-b689-ffd2248baed8",
+    "dateCreated": "2018-10-12T21:48:46.781Z",
+    "evernoteGUID": "50df0c20-d256-433c-8496-9ea45e62683e",
+    "name": "Chutney"
+  },
+  {
+    "categoryID": "9bc36e60-cf36-11e8-b168-c108f59d4e79",
+    "dateCreated": "2018-10-13T22:23:28.326Z",
+    "evernoteGUID": "67f0c129-3ccd-4af1-b67e-70bd49b31e28",
+    "name": "Halibut"
+  },
+  {
+    "categoryID": "9bec5320-cf36-11e8-b168-c108f59d4e79",
+    "dateCreated": "2018-10-13T22:23:28.594Z",
+    "evernoteGUID": "9973fa61-1ca3-410a-8755-529ff40dace0",
+    "name": "Pudding & Brulee"
+  },
+  {
+    "categoryID": "9c1efbe0-cf36-11e8-b168-c108f59d4e79",
+    "dateCreated": "2018-10-13T22:23:28.926Z",
+    "evernoteGUID": "5c6ad0f9-9f2b-485a-b643-d706bcd901b5",
+    "name": "Rolls & Breadsticks"
+  },
+  {
+    "categoryID": "9c48f210-cf36-11e8-b168-c108f59d4e79",
+    "dateCreated": "2018-10-13T22:23:29.201Z",
+    "evernoteGUID": "4c605ecf-2007-4d59-bf45-e4d5324a1f44",
+    "name": "Nachos"
+  },
+  {
+    "categoryID": "9c7224f0-cf36-11e8-b168-c108f59d4e79",
+    "dateCreated": "2018-10-13T22:23:29.471Z",
+    "evernoteGUID": "d3bd962f-1fe4-4821-b192-61777f6f23fc",
+    "name": "Hushpuppies"
+  },
+  {
+    "categoryID": "9c9c1b20-cf36-11e8-b168-c108f59d4e79",
+    "dateCreated": "2018-10-13T22:23:29.746Z",
+    "evernoteGUID": "9af98f2d-15f8-43cd-8783-cd9cb8830b5c",
+    "name": "Brisket"
+  },
+  {
+    "categoryID": "9cda3590-cf36-11e8-b168-c108f59d4e79",
+    "dateCreated": "2018-10-13T22:23:30.153Z",
+    "evernoteGUID": "56b1a7a9-b14c-4093-aefa-6ace3fd09157",
+    "name": "Mole"
+  },
+  {
+    "categoryID": "9d027e10-cf36-11e8-b168-c108f59d4e79",
+    "dateCreated": "2018-10-13T22:23:30.417Z",
+    "evernoteGUID": "a99c638f-d3db-42a2-8cb9-0c01826e102c",
+    "name": "Cupcakes"
+  },
+  {
+    "categoryID": "9d2ee540-cf36-11e8-b168-c108f59d4e79",
+    "dateCreated": "2018-10-13T22:23:30.708Z",
+    "evernoteGUID": "4ae03908-9453-41bd-b883-259daf318ec9",
+    "name": "Chicken Adobo"
+  },
+  {
+    "categoryID": "9d5d2130-cf36-11e8-b168-c108f59d4e79",
+    "dateCreated": "2018-10-13T22:23:31.011Z",
+    "evernoteGUID": "a03fa742-c495-4b97-bfbd-6c9c614ef157",
+    "name": "Gumbo"
+  },
+  {
+    "categoryID": "9d865410-cf36-11e8-b168-c108f59d4e79",
+    "dateCreated": "2018-10-13T22:23:31.281Z",
+    "evernoteGUID": "5db5a832-0331-4fbe-9805-092f686bb3ad",
+    "name": "Buns"
+  },
+  {
+    "categoryID": "2ccc8b30-cf3c-11e8-b168-c108f59d4e79",
+    "dateCreated": "2018-10-13T23:03:19.139Z",
+    "evernoteGUID": "a89c36f1-598e-4d04-a722-5280bd9273f8",
+    "name": "Donburi"
+  },
+  {
+    "categoryID": "2d02dd70-cf3c-11e8-b168-c108f59d4e79",
+    "dateCreated": "2018-10-13T23:03:19.495Z",
+    "evernoteGUID": "5b3b4bc6-fce0-4446-b615-a2b3b5367aa8",
+    "name": "Stocks and Broths"
+  },
+  {
+    "categoryID": "2d3908a0-cf3c-11e8-b168-c108f59d4e79",
+    "dateCreated": "2018-10-13T23:03:19.850Z",
+    "evernoteGUID": "805e8862-e65b-4beb-94a6-42114601be09",
+    "name": "Meatball Sandwiches"
+  },
+  {
+    "categoryID": "2d717dc0-cf3c-11e8-b168-c108f59d4e79",
+    "dateCreated": "2018-10-13T23:03:20.220Z",
+    "evernoteGUID": "4e28ff2c-99cc-4492-ba59-df5362366f4b",
+    "name": "Tofu"
+  },
+  {
+    "categoryID": "2da781e0-cf3c-11e8-b168-c108f59d4e79",
+    "dateCreated": "2018-10-13T23:03:20.574Z",
+    "evernoteGUID": "76d2ce6e-28db-4d36-a973-3b7633e5177e",
+    "name": "Popsicles"
+  },
+  {
+    "categoryID": "2dde9770-cf3c-11e8-b168-c108f59d4e79",
+    "dateCreated": "2018-10-13T23:03:20.935Z",
+    "evernoteGUID": "2e3cb2ec-a9d3-44d2-bc1f-4ae9412c343c",
+    "name": "Appetizers"
+  },
+  {
+    "categoryID": "2e1537d0-cf3c-11e8-b168-c108f59d4e79",
+    "dateCreated": "2018-10-13T23:03:21.293Z",
+    "evernoteGUID": "9db2e040-a652-42f5-848f-a11a1ee1de51",
+    "name": "Biryani"
+  },
+  {
+    "categoryID": "b0ffc1f0-cfe2-11e8-9a3f-4fda80a39a33",
+    "dateCreated": "2018-10-14T18:55:17.391Z",
+    "evernoteGUID": "802f7d38-eebd-49bb-bf66-619eb4943d86",
+    "name": "Poke"
+  },
+  {
+    "categoryID": "b171bda0-cfe2-11e8-9a3f-4fda80a39a33",
+    "dateCreated": "2018-10-14T18:55:18.138Z",
+    "evernoteGUID": "6ac67152-0313-4d59-9c25-2fcd9d0800c0",
+    "name": "Veggie Burgers"
+  },
+  {
+    "categoryID": "b1ce5c90-cfe2-11e8-9a3f-4fda80a39a33",
+    "dateCreated": "2018-10-14T18:55:18.745Z",
+    "evernoteGUID": "dc03b48b-b9d3-4c56-ad12-72671d7421af",
+    "name": "Cannoli"
+  },
+  {
+    "categoryID": "b230a0d0-cfe2-11e8-9a3f-4fda80a39a33",
+    "dateCreated": "2018-10-14T18:55:19.389Z",
+    "evernoteGUID": "bcec09a7-a2ae-4c5f-9f44-cfe94f9d4f92",
+    "name": "Thin Crust Pizza"
+  },
+  {
+    "categoryID": "b2946bb0-cfe2-11e8-9a3f-4fda80a39a33",
+    "dateCreated": "2018-10-14T18:55:20.043Z",
+    "evernoteGUID": "39d47bbd-5493-4238-acba-ec35ee39dbc8",
+    "name": "Dal"
+  },
+  {
+    "categoryID": "ed5ec980-cfe6-11e8-b087-9d04fa2ffda3",
+    "dateCreated": "2018-10-14T19:25:36.664Z",
+    "evernoteGUID": "fbaaed54-eb93-4f6e-8b22-06f8fdf29529",
+    "name": "Pasta (Vegetarian)"
+  },
+  {
+    "categoryID": "edce0610-cfe6-11e8-b087-9d04fa2ffda3",
+    "dateCreated": "2018-10-14T19:25:37.393Z",
+    "evernoteGUID": "0f92bf07-0dce-4a36-9bac-4c7dfae6c5ff",
+    "name": "Breakfast Tacos"
+  },
+  {
+    "categoryID": "ee5844b0-cfe6-11e8-b087-9d04fa2ffda3",
+    "dateCreated": "2018-10-14T19:25:38.299Z",
+    "evernoteGUID": "1a99224d-f336-47d9-91ec-4497a1d1aec6",
+    "name": "Tomato Soup"
+  },
+  {
+    "categoryID": "eee78c60-cfe6-11e8-b087-9d04fa2ffda3",
+    "dateCreated": "2018-10-14T19:25:39.238Z",
+    "evernoteGUID": "b1e7865a-0ef1-4aed-9c1c-5b22649fbb9d",
+    "name": "Pork"
+  },
+  {
+    "categoryID": "ef5e4300-cfe6-11e8-b087-9d04fa2ffda3",
+    "dateCreated": "2018-10-14T19:25:40.016Z",
+    "evernoteGUID": "ef67f03e-7d8f-481f-bdb5-37fa20fab1aa",
+    "name": "Rice & Grains Fish"
+  },
+  {
+    "categoryID": "efd26190-cfe6-11e8-b087-9d04fa2ffda3",
+    "dateCreated": "2018-10-14T19:25:40.777Z",
+    "evernoteGUID": "c59f4b20-c4b9-4f76-9116-6d9c337c5d07",
+    "name": "Crostini"
+  },
+  {
+    "categoryID": "f0465910-cfe6-11e8-b087-9d04fa2ffda3",
+    "dateCreated": "2018-10-14T19:25:41.537Z",
+    "evernoteGUID": "c37f6bbe-82d4-43ce-88eb-97bc72f3acd6",
+    "name": "Breakfast Sandwich"
+  },
+  {
+    "categoryID": "f0b56e90-cfe6-11e8-b087-9d04fa2ffda3",
+    "dateCreated": "2018-10-14T19:25:42.265Z",
+    "evernoteGUID": "c4f3ea0e-7cfd-4c3b-8b16-057a28082fe4",
+    "name": "Oxtails"
+  },
+  {
+    "categoryID": "f1b24520-cfe6-11e8-b087-9d04fa2ffda3",
+    "dateCreated": "2018-10-14T19:25:43.922Z",
+    "evernoteGUID": "c39aedd9-8d1f-43eb-a918-783f3cd28cc9",
+    "name": "Cold Noodle Soups"
+  },
+  {
+    "categoryID": "f233f840-cfe6-11e8-b087-9d04fa2ffda3",
+    "dateCreated": "2018-10-14T19:25:44.773Z",
+    "evernoteGUID": "4a382cdd-b872-42e2-a932-b8c698e522c3",
+    "name": "Torta"
+  },
+  {
+    "categoryID": "f2ade330-cfe6-11e8-b087-9d04fa2ffda3",
+    "dateCreated": "2018-10-14T19:25:45.571Z",
+    "evernoteGUID": "aab4066b-72b9-460f-a3d7-0ac5d58cea7f",
+    "name": "Savory Pancakes"
+  },
+  {
+    "categoryID": "f39f4810-cfe6-11e8-b087-9d04fa2ffda3",
+    "dateCreated": "2018-10-14T19:25:47.153Z",
+    "evernoteGUID": "6c84a7f7-e1a3-4387-8ff7-671fa1335c8e",
+    "name": "Stuffed Flatbreads"
+  },
+  {
+    "categoryID": "f4164cd0-cfe6-11e8-b087-9d04fa2ffda3",
+    "dateCreated": "2018-10-14T19:25:47.934Z",
+    "evernoteGUID": "0440614f-6a1f-47ad-bfcd-e90f403f82e8",
+    "name": "Pho"
+  },
+  {
+    "categoryID": "f4905ed0-cfe6-11e8-b087-9d04fa2ffda3",
+    "dateCreated": "2018-10-14T19:25:48.733Z",
+    "evernoteGUID": "f7031db5-3fb1-4c64-9106-f465bdd07297",
+    "name": "Beef Stir-Fry"
+  },
+  {
+    "categoryID": "f504f290-cfe6-11e8-b087-9d04fa2ffda3",
+    "dateCreated": "2018-10-14T19:25:49.497Z",
+    "evernoteGUID": "b192e717-7373-4ec8-a847-c8280fb3d15e",
+    "name": "Burgers Fish"
+  },
+  {
+    "categoryID": "4cafa4b0-d62a-11e8-b0a3-3f44f486108a",
+    "dateCreated": "2018-10-22T18:42:59.835Z",
+    "evernoteGUID": "6876506c-e5d9-41f3-ac27-576c0512566a",
+    "name": "Momos"
+  },
+  {
+    "categoryID": "4cc32cb0-d62a-11e8-b0a3-3f44f486108a",
+    "dateCreated": "2018-10-22T18:42:59.963Z",
+    "evernoteGUID": "96d0cc87-4d47-4437-a19c-04663ed1fd6f",
+    "name": "Grilled Chicken"
+  },
+  {
+    "categoryID": "4cd57c30-d62a-11e8-b0a3-3f44f486108a",
+    "dateCreated": "2018-10-22T18:43:00.083Z",
+    "evernoteGUID": "a5c5387b-5a14-4fd5-a89b-474fe7218de1",
+    "name": "Ham"
+  },
+  {
+    "categoryID": "4cfe39e0-d62a-11e8-b0a3-3f44f486108a",
+    "dateCreated": "2018-10-22T18:43:00.351Z",
+    "evernoteGUID": "e67747d3-1508-4605-a5be-acbd88bad36c",
+    "name": "Lahmacun"
+  },
+  {
+    "categoryID": "4d3b42e0-d62a-11e8-b0a3-3f44f486108a",
+    "dateCreated": "2018-10-22T18:43:00.750Z",
+    "evernoteGUID": "07a5d24e-8ea9-4fbf-8c36-269eee7d2837",
+    "name": "Pork Chops"
+  },
+  {
+    "categoryID": "4d4fb540-d62a-11e8-b0a3-3f44f486108a",
+    "dateCreated": "2018-10-22T18:43:00.884Z",
+    "evernoteGUID": "cfd81c64-8f56-43f5-8f42-c1116b1ea16d",
+    "name": "Samosas"
+  },
+  {
+    "categoryID": "4d64c3e0-d62a-11e8-b0a3-3f44f486108a",
+    "dateCreated": "2018-10-22T18:43:01.022Z",
+    "evernoteGUID": "ccc86bde-f87b-44be-b5d5-1cd8c4edc47f",
+    "name": "Salad Dressings"
+  },
+  {
+    "categoryID": "4d8da8a0-d62a-11e8-b0a3-3f44f486108a",
+    "dateCreated": "2018-10-22T18:43:01.290Z",
+    "evernoteGUID": "674b2402-b057-4a66-8669-81d27f202f14",
+    "name": "Layer Cakes"
+  },
+  {
+    "categoryID": "4dcb74f0-d62a-11e8-b0a3-3f44f486108a",
+    "dateCreated": "2018-10-22T18:43:01.695Z",
+    "evernoteGUID": "a9a37bf1-d2c0-4ead-b0d8-81f8f65acbb2",
+    "name": "Cornbread"
+  }
+]

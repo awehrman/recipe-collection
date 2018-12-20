@@ -1,0 +1,76 @@
+type User {
+  id: ID! @unique
+  name: String!
+}
+
+# TODO should name, plural and each individual altNames be flagged as @unique?
+
+type Ingredient {
+	id: ID! @unique
+	parent: Ingredient @relation(name: "ParentIngredient")
+	name: String!
+	plural: String
+	properties: Property! @relation(name: "Properties")
+	alternateNames: [ String! ]!
+	relatedIngredients: [ Ingredient! ]! @relation(name: "RelatedIngredients")
+	substitutes: [ Ingredient! ]! @relation(name: "SubstituteIngredients")
+	references: [ Recipe! ]! @relation(name: "RecipeReference")
+	isValidated: Boolean! @default(value: "false")
+}
+
+type Property {
+	id: ID! @unique
+	meat: Boolean! @default(value: "false")
+	poultry: Boolean! @default(value: "false")
+	fish: Boolean! @default(value: "false")
+	dairy: Boolean! @default(value: "false")
+	soy: Boolean! @default(value: "false")
+	gluten: Boolean! @default(value: "false")
+}
+
+type Recipe {
+	id: ID! @unique
+	evernoteGUID: String
+	title: String!
+	source: String
+	image: String
+	categories: [ Category! ]! @relation(name: "RecipeCategories")
+	tags: [ Tag! ]! @relation(name: "RecipeTags")
+	ingredients: [ RecipeIngredient! ]! @relation(name: "RecipeIngredients")
+	instructions: [ RecipeInstruction! ]! @relation(name: "RecipeInstructions")
+}
+
+type Category {
+	id: ID! @unique
+	evernoteGUID: String
+	name: String! @unique
+}
+
+type Tag {
+	id: ID! @unique
+	evernoteGUID: String
+	name: String! @unique
+}
+
+type RecipeIngredient {
+	id: ID! @unique
+	blockIndex: Int!
+	lineIndex: Int!
+	reference: String!
+	isParsed: Boolean! @default(value: "false")
+	parsed: [ ParsedSegment! ]
+}
+
+type RecipeInstruction {
+	id: ID! @unique
+	blockIndex: Int!
+	reference: String!
+}
+
+type ParsedSegment {
+	id: ID! @unique
+	rule: String!
+	type: String!
+	value: String!
+	ingredient: Ingredient
+}
