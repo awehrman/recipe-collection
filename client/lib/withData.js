@@ -3,7 +3,7 @@ import ApolloClient from 'apollo-boost';
 import gql from 'graphql-tag';
 import { endpoint } from '../config';
 
-import { LOCAL_INGREDIENTS_QUERY, POPULATE_CONTAINERS_QUERY } from '../pages/ingredients';
+import { LOCAL_INGREDIENTS_QUERY } from '../pages/ingredients';
 
 export const typeDefs = `
   type Container {
@@ -16,13 +16,13 @@ export const typeDefs = `
     isCardEnabled: Boolean!
   }
 
-  type Config {
+  type IngredientConfig {
   	currentView: String,
 		currentGroup: String
   }
 
   type Mutation {
-  	updateConfig(view: String, group: String, isCreateEnabled: Boolean): Config
+  	updateIngredientConfig(view: String, group: String, isCreateEnabled: Boolean): IngredientConfig
     updateContainer(container: Container, ingredientID: ID): Container
   }
 
@@ -48,7 +48,7 @@ function createClient({ headers }) {
     	typeDefs,
     	resolvers: {
     		Mutation: {
-    			updateConfig(_, { view, group, isCreateEnabled }, { cache }) {
+    			updateIngredientConfig(_, { view, group, isCreateEnabled }, { cache }) {
     				let { currentView, currentGroup } = cache.readQuery({
     					query: LOCAL_INGREDIENTS_QUERY
     				});

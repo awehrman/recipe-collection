@@ -16,6 +16,9 @@ type Ingredient {
 	substitutes: [ Ingredient! ]! @relation(name: "SubstituteIngredients")
 	references: [ Recipe! ]! @relation(name: "RecipeReference")
 	isValidated: Boolean! @default(value: "false")
+	# if this ingredient is something that could in and of itself be considered a recipe
+	# then we'll flag this as recipe searchable
+ 	isComposedIngredient: Boolean! @default(value: "false")
 }
 
 type Property {

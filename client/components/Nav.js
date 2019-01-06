@@ -85,13 +85,6 @@ const NavStyles = styled.nav`
 `;
 
 class Nav extends Component {
-	constructor(props) {
-    super(props);
-
-    this.onMouseOver = this.onMouseOver.bind(this);
-    this.onMouseLeave = this.onMouseLeave.bind(this);
-  }
-
 	componentDidMount() {
 		this.navigation.addEventListener('mouseover', this.onMouseOver);
 		this.navigation.addEventListener('mouseleave', this.onMouseLeave);
@@ -102,7 +95,7 @@ class Nav extends Component {
 		this.navigation.removeEventListener('mouseleave', this.onMouseLeave);
 	}
 
-	onMouseOver(e) {
+	onMouseOver = (e) => {
 		// withTheme() gives us access to the theme props here
 		let { tablet } = this.props.theme;
 		// drop whatever units we're using (px, rem, etc.)
@@ -118,7 +111,7 @@ class Nav extends Component {
 		}
 	}
 
-	onMouseLeave() {
+	onMouseLeave = () => {
 		// withTheme() gives us access to the theme props here
 		let { tablet } = this.props.theme;
 		// drop whatever units we're using (px, rem, etc.)

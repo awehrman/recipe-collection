@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlus from '@fortawesome/fontawesome-pro-solid/faPlus';
 import faTimes from '@fortawesome/fontawesome-pro-solid/faTimes';
 
@@ -9,36 +10,29 @@ import Button from './Button';
 import Input from './Input';
 
 const ListStyles = styled.fieldset`
-	border: 0 !important;
-	padding: 0 !important;
-
-	label {
-		display: inline-block !important;
-	}
-
-	button.delete {
-		cursor: pointer;
-		background: white;
-		margin-left: 10px;
-		padding: 10px 20px;
-		display: inline-block;
-		color: tomato !important;
-		border: 0 !important;
-	}
-
+	border: 0;
+	padding: 0;
+	
 	button.add {
 		display: inline-block;
 		border: 0;
 		color: ${ props => props.theme.altGreen };
 		text-decoration: underline;
 		padding: 0;
-		margin: 0 0 0 6px;
+		margin: 0 !important;
+		position: relative;
+		top: 2px;
+		left: 8px;
 		background: transparent;
 		cursor: pointer;
 
-		svg {
-			font-size: 10px;
-			margin-bottom: 2px;
+		.fa-plus {
+			margin: 0;
+			font-size: 14px;
+		}
+
+		&:focus {
+			outline: ${ props => props.theme.altGreen } auto 3px;
 		}
 	}
 
@@ -46,164 +40,173 @@ const ListStyles = styled.fieldset`
 		border-bottom: 0 !important;
 	}
 
+	button.delete {
+		cursor: pointer;
+		display: inline-block;
+		color: tomato !important;
+		border: 0 !important;
+		background: transparent;
+		height: 12px;
+		padding: 0 8px!important;
+		margin: 0 !important;
+		display: none;
+
+		&:hover {
+		  display: inline-block;
+		}
+	}
+
 	ul.list {
 		list-style-type: none;
 		margin: 0;
-		padding: 0 !important;
-		margin-bottom: 4px;
+		padding: 4px 0 10px;
 
 		li {
-			font-size: .8em;
+			font-size: 14px;
 			color: #222;
-			line-height: 1.6;
+			padding-top: 2px;
+
+			span {
+				color: #222;
+				font-weight: 400;
+
+				&:hover {
+					cursor: default;
+				}
+
+				&:hover + button.delete {
+				  display: inline-block;
+				}
+			}
 
 			button {
 				font-size: 1em;
 				color: ${ props => props.theme.highlight };
-				line-height: 1.6;
 				font-weight: 400;
-				padding: 4px 0 0;
+				padding: 4px;
 				border: 0;
 				border-bottom: 1px solid ${ props => props.theme.highlight };
-				cursor: pointer;
+				margin: 0;
 
 				&:focus {
 					outline: 0;
 				}
 			}
 		}
+
+		& + fieldset {
+			position: relative;
+			top: -8px;
+		}
+	}
+
+	fieldset {
 	}
 `;
 
 class List extends Component {
-	constructor(props) {
-    super(props);
+  state = {
+  	showInput: false,
+  	value: ''
+  };
 
-    this.state = {
-    	showInput: false,
-    	value: ''
-    };
-
-    this.addToList = this.addToList.bind(this);
-    this.onBlur = this.onBlur.bind(this);
-    this.onChange = this.onChange.bind(this);
-    this.onDeleteClick = this.onDeleteClick.bind(this);
-    this.onSelectSuggestion = this.onSelectSuggestion.bind(this);
-  }
-
-	onAddToListClick(e) {
-		e.preventDefault();
-
+	onAddButtonClick = (e) => {
   	this.setState({
   		showInput: true
   	});
 	}
 
-  onBlur(e) {
-  	// re-hide the input if we click away
+  onBlur = (e) => {
+  	// hide the input element if we move focus off this element
   	if (!e.relatedTarget) {
   		this.setState({
 	  		showInput: false,
 	  		value: ''
-	  	});
+	  	}, this.props.onValidation(this.props.name, ''));
   	}
   }
 
-  onChange(e) {
+  onChange = (e) => {
+  	const { value } = e.target;
+  	const { name } = this.props;
+
   	this.setState({
-  		value: e.target.value
-  	});
+  		value
+  	}, this.props.onValidation(name, value));
   }
 
-  addToList(list, item) {
+  onListChange = (item, listName, removeListItem = false) => {
+  	const { defaultValue } = this.props;
+
   	this.setState({
   		showInput: false,
     	value: ''
-  	}, this.props.onListChange(list, item));
-  }
-
-  onListItemClick(e, item) {
-  	e.preventDefault();
-  	this.props.onListItemClick(item);
-  }
-
-  onDeleteClick(e, list, item) {
-  	e.preventDefault();
-  	this.props.onListChange(list, item, true)
-  }
-
-  onSelectSuggestion(listName, suggestion) {
-		this.setState({
-  		showInput: false,
-  		value: ''
-	  }, this.props.onListChange(listName, suggestion));
+  	}, this.props.onListChange(item, listName, removeListItem, defaultValue));
   }
 
   render() {
-  	const { allowDelete, isEditMode, label, list, loading, name, placeholder, showSuggestions, suggestionPool, type } = this.props;
+  	const { className, isEditMode, isRemoveable, isSuggestionEnabled, label, list, listType, loading,
+  					name, placeholder, suggestionPool, warning } = this.props;
   	const { showInput, value } = this.state;
 
   	return (
-			<ListStyles disabled={ loading } aria-busy={ loading }>
+			<ListStyles disabled={ loading } className={ className } aria-busy={ loading }>
 				{/* List Label */}
 				<label htmlFor={ name }>{ label }</label>
 
-				{/* Add to List Button (+) */
+				{/* Add to List Button (+) */}
+				{
 					(isEditMode)
-						? <Button
-								className="add"
-								icon={ <FontAwesomeIcon icon={ faPlus } /> }
-								type="button"
-								onClick={ e => this.onAddToListClick(e) }
-							/>
-						: null 
+						? <Button className="add"
+											icon={ <FontAwesomeIcon icon={ faPlus } /> }
+											onClick={ e => this.onAddButtonClick(e) }
+										/>
+						: null
 				}
 
 				{/* List Items */}
 				<ul className="list">
 					{
 						list.map(i => (
-							<React.Fragment key={ i.id || i }>
+							<li key={ i.id || i }>
 								{
-									(type === 'link')
+									(listType === 'link')
 										? <Button
 												className="list"
-												onClick={ e => this.onListItemClick(e, i) }
+												onClick={e => this.props.onListItemClick(e, i) }
 												label={ i.name || i }
 											/>
 										: <span>{ i.name || i }</span>
 								}
 								{
-									(allowDelete)
+									(isEditMode && isRemoveable)
 										? <Button
 												className="delete"
-												onClick={ e => this.onDeleteClick(e, name, i) }
+												onClick={ () => this.onListChange(i, name, true) }
 												icon={ <FontAwesomeIcon icon={ faTimes } /> }
 											/>
 										: null
 								}
-							</React.Fragment>
+							</li>
 						))
 
 					}
 				</ul>
 
-				{/* New List Item Input look into value assignment here*/
+				{/* New List Item Input look into value assignment here */
 					(showInput)
 						? <Input
-								addToList={ this.addToList }
-								autoFocus={ true }
+								isLabelDisplayed={ false }
+		  					isSuggestionEnabled={ isSuggestionEnabled }
+								name={ name }
+								loading={ loading }
 								onBlur={ this.onBlur }
 								onChange={ this.onChange }
-								onKeyDown={ this.onKeyDown }
-								name={ name }
-								required={ false }
-		  					placeholder={ placeholder }
-		  					showLabel={ false }
-		  					showSuggestions={ showSuggestions }
-		  					onSelectSuggestion={ this.onSelectSuggestion }
-		  					suggestionPool={ suggestionPool }
+								onSubmit={ this.onListChange }
+								placeholder={ placeholder }
+								suggestionPool={ suggestionPool }
 		  					value={ value }
+		  					warning={ warning }
 							/>
 						: null
 				}
@@ -211,5 +214,37 @@ class List extends Component {
 		);
 	}
 }
+
+List.defaultProps = {
+	isEditMode: true,
+	isRemoveable: true,
+	isSuggestionEnabled: false,
+	loading: false,
+	onListItemClick: () => {},
+	onValidation: () => {},
+	suppressWarnings: false,
+	warning: ''
+};
+
+List.propTypes = {
+	className: PropTypes.string,
+	defaultValue: PropTypes.array,
+	isEditMode: PropTypes.bool,
+	isRemoveable: PropTypes.bool,
+	isSuggestionEnabled: PropTypes.bool,
+	label: PropTypes.string,
+	list: PropTypes.array.isRequired,
+	listType: PropTypes.string,
+	loading: PropTypes.bool,
+	name: PropTypes.string,
+	onListChange: PropTypes.func,
+	onListItemClick: PropTypes.func,
+	onValidation: PropTypes.func,
+	placeholder: PropTypes.string,
+	suggestionPool: PropTypes.array,
+	suppressWarnings: PropTypes.bool,
+	value: PropTypes.string,
+	warning: PropTypes.string
+};
 
 export default List;

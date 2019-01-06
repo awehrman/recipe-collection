@@ -3,21 +3,19 @@ import { Query, Mutation } from 'react-apollo';
 import { adopt } from 'react-adopt';
 import gql from 'graphql-tag';
 import Link from 'next/link';
-import Router from 'next/router'
 import styled from 'styled-components';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
 // TODO there's a pretty bad case of FOUT in next
 import faPlus from '@fortawesome/fontawesome-pro-regular/faPlus';
 
 import getNextIngredientGroup from '../lib/util';
+import Button from '../components/form/Button';
+import CreateIngredient from '../components/ingredients/CreateIngredient';
 import ErrorMessage from '../components/ErrorMessage';
 import Header from '../components/Header';
 import IngredientsContainer from '../components/ingredients/IngredientsContainer';
-import CreateIngredient from '../components/ingredients/CreateIngredient';
-
-// TODO - not sure where this check goes, but need to look for any query params on load to assign the correct view
-// not sure if this is supposed to go into getInitialProps or if i can still use an old school react lifecycle method
 
 /*----------  Queries & Mutations  ----------*/
 
@@ -38,12 +36,14 @@ const INGREDIENT_COUNTS_QUERY = gql`
   }
 `;
 
-// TODO may need to add in plural, altNames, and property values here
+// TODO may need to add in property values here
 const ALL_INGREDIENTS_QUERY = gql`
   query ALL_INGREDIENTS_QUERY {
   	ingredients {
   		id
   		name
+  		plural
+  		alternateNames
   	}
   }
 `;
@@ -78,8 +78,8 @@ const POPULATE_CONTAINERS_QUERY = gql`
 `;
 
 const LOCAL_INGREDIENTS_MUTATION = gql`
-  mutation updateConfig($view: String, $group: String, $isCreateEnabled: Boolean) {
-    updateConfig(view: $view, group: $group, isCreateEnabled: $isCreateEnabled) @client
+  mutation updateIngredientConfig($view: String, $group: String, $isCreateEnabled: Boolean) {
+    updateIngredientConfig(view: $view, group: $group, isCreateEnabled: $isCreateEnabled) @client
   }
 `;
 
@@ -102,7 +102,17 @@ const Composed = adopt({
 /*----------  Local Styles  ----------*/
 
 const IngredientsPageStyles = styled.article`
-	// TODO
+	// TODO oh boy oh boy this got messed up
+	/*
+	.slide-enter {
+    height: 0px;
+	}
+
+	.slide-enter.slide-enter-active {
+    height: 1000px;
+    -webkit-transition: height .5s ease;
+	}
+	*/
 `;
 
 const Containers = styled.div`
@@ -152,22 +162,26 @@ const Filters = styled.div`
 `;
 
 const AddNewIngredient = styled.div`
-	//border-top: 1px solid #ddd;
 	background: ${ props => props.theme.greenBackground };
-	padding: 16px;
-	padding-left: 40px;
+	padding: 16px 40px 6px;
 	position: fixed;
 	bottom: 0;
 	left: 0px;
 	right: 0px;
+	//box-shadow: 0 0 10px 0 rgba(50, 50, 50, .15) inset;
+  max-height: 60%;
+  overflow-y: scroll;
 
-	span {
+	button {
 		cursor: pointer;
-		text-decoration: none;
+		border: 0;
+		background: transparent;
 		color: ${ props => props.theme.altGreen };
 		font-size: 16px;
 		font-weight: 600;
-		
+		margin: 0 0 10px;
+		padding: 0;
+
 		.fa-plus {
 			height: 18px;
 			margin-right: 10px;
@@ -184,27 +198,47 @@ const AddNewIngredient = styled.div`
 class Ingredients extends Component {
 	state = {};
 
-	toggleContainer = (e, container, updateContainersMutation) => {
+	toggleContainer = (e, container, updateContainer) => {
+		console.warn('ING - toggleContainer');
 		e.preventDefault();
 		container.isExpanded = !container.isExpanded;
-		updateContainersMutation({ variables: { container: container } });
+		updateContainer({ variables: { container: container } });
 	}
 
-	toggleIngredient = (e, container, updateContainersMutation) => {
-		// TODO if we're closing out of an opened card; we need to adjust the link query
+	toggleIngredient = (e, container, updateContainer) => {
+		console.warn('ING - toggleIngredient');
+		e.preventDefault();
+		
 		const ingredientID = e.target.id;
-		container.isCardEnabled = !container.isCardEnabled;
-		updateContainersMutation({ variables: { container, ingredientID } });
+		// TODO if we're closing out of an opened card; we need to adjust the link query
+		
+		// if we've clicked on the same item that's already open, close the card
+  	if (container.isCardEnabled && (container.currentIngredientID === ingredientID)) {
+  		container.currentIngredientID = null;
+  		container.isCardEnabled = false;
+  	} else {
+  		// otherwise open that card that was clicked on
+  		container.currentIngredientID = ingredientID;
+  		container.isCardEnabled = true;
+  	}
+
+  	console.log(container);
+
+		updateContainer({ variables: { container, ingredientID } });
 	}
 
-	refreshContainers = (e, populateContainers, ingredientCounts) => {
+	refreshContainers = (e, localState, populateContainers, ingredientCounts) => {
+		console.warn('ING - refreshContainers');
+		localState.refetch();
 		populateContainers.refetch();
 		ingredientCounts.refetch();
 	}
 
 	render() {
+		const { group, view } = this.props.query;
+
 		return (
-			<Composed queryView={ this.props.query.view } queryGroup={ this.props.query.group }>
+			<Composed queryView={ view } queryGroup={ group }>
     		{
     			({ localState, populateContainers, ingredientCounts, updateLocal, updateContainer, getIngredients }) => {
     				let { currentGroup, currentView, isCreateEnabled } = localState.data;
@@ -218,7 +252,6 @@ class Ingredients extends Component {
     				currentView = this.props.query.view  || currentView;
 
     				// TODO expand loading and error messages for all queries/mutations
-
     				currentGroup = currentGroup || 'name';
     				currentView = currentView || 'all';
 
@@ -258,11 +291,13 @@ class Ingredients extends Component {
 
 									<Containers>
 										{
-											containers && containers.map(c =>
+											containers && containers.filter(c => c.ingredients.length > 0).map(c =>
 													<IngredientsContainer 
 														key={ c.label } 
 														className={ (!c.isExpanded) ? 'hidden' : '' }
 														container={ c }
+														currentView={ currentView }
+														ingredients={ ingredients }
 														onContainerClick={ e => this.toggleContainer(e, c, updateContainer) }
 														onIngredientClick={ e => this.toggleIngredient(e, c, updateContainer) }
 													/>
@@ -271,19 +306,25 @@ class Ingredients extends Component {
 									</Containers>
 									
 									<AddNewIngredient>
-										<span onClick={ e => updateLocal({ variables: { isCreateEnabled: !isCreateEnabled } }) }>
-											<FontAwesomeIcon icon={ faPlus } /> Add Ingredient
-										</span>
-										{
-											(isCreateEnabled)
-												? <CreateIngredient
-														ingredientCounts={ ingredientCounts }
-														ingredients={ ingredients }
-														populateContainers={ populateContainers }
-														refreshContainers={ this.refreshContainers }
-													/>
-												: null
-										}
+										<ReactCSSTransitionGroup transitionName="slide" transitionEnterTimeout={ 500 } transitionLeaveTimeout={ 300 }>
+											<Button
+												icon={ <FontAwesomeIcon icon={ faPlus } /> }
+												label="Add Ingredient"
+												onClick={ e => updateLocal({ variables: { isCreateEnabled: !isCreateEnabled } }) }
+											/>
+
+											{
+												(isCreateEnabled)
+													? <CreateIngredient
+															ingredientCounts={ ingredientCounts }
+															ingredients={ ingredients }
+															localState={ localState }
+															populateContainers={ populateContainers }
+															refreshContainers={ this.refreshContainers }
+														/>
+													: null
+											}
+										</ReactCSSTransitionGroup>
 									</AddNewIngredient>
 								</section>
 							</IngredientsPageStyles>

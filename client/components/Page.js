@@ -35,6 +35,8 @@ const theme = {
 	mobileListHeight: '200px',
 	desktopListHeight: '200px',
 
+	desktopCardWidth: '880px',
+
 	altGreen: '#73C6B6',
 	greenBackground: '#E8F8F5',
 
@@ -115,15 +117,11 @@ Router.onRouteChangeError = () => {
 
 
 class Page extends Component {
-	constructor(props) {
-		super(props);
+	state = {
+		isNavExpanded: false
+	};
 
-		this.state = {
-			isNavExpanded: false
-		};
-	}
-
-	toggleNav(e) {
+	toggleNav = (e) => {
 		const { isNavExpanded } = this.state;
 
 		this.setState({

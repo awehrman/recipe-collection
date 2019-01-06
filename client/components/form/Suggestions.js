@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const SuggestionStyles = styled.ul`
-	position: absolute;
+	position: relative;
   list-style-type: none;
   margin: 0;
   padding: 0;
-  height: 20px;
   overflow-y: hidden;
-  margin-bottom: 20px;
 
 	a {
 		color: ${ props => props.theme.altGreen };
@@ -26,8 +25,6 @@ const SuggestionStyles = styled.ul`
 		font-weight: 600;
 	}
 `;
-
-// TODO tab thru suggestions
 
 class Suggestions extends Component {
   render() {
@@ -50,6 +47,14 @@ class Suggestions extends Component {
   }
 }
 
-// TODO add PropTypes
+Suggestions.defaultProps = {
+	suggestions: []
+};
+
+Suggestions.propTypes = {
+	currentSuggestion: PropTypes.number,
+	suggestions: PropTypes.array.isRequired,
+	value: PropTypes.string,
+};
 
 export default Suggestions;

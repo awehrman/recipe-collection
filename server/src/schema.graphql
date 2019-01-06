@@ -14,7 +14,8 @@ type Mutation {
 										relatedIngredients: [ ID ],
 										substitutes: [ ID ],
 										references: [ ID ],
-										isValidated: Boolean
+										isValidated: Boolean,
+										isComposedIngredient: Boolean
 									): Ingredient!
 	# TODO deleteIngredient
 	# TODO updateIngredient

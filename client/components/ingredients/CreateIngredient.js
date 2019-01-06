@@ -1,33 +1,15 @@
 import { Component } from 'react';
-import Link from 'next/link';
 import { Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
-import styled from 'styled-components';
 import pluralize from 'pluralize';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
 
 import Button from '../form/Button';
 import CheckboxGroup from '../form/CheckboxGroup';
 import ErrorMessage from '../ErrorMessage';
 import Input from '../form/Input';
 import List from '../form/List';
-
-/*
-	TODO
-		- confirm parent submission success
-		- alternateNames
-		- relatedIngredients
-		- substitutes
-		- references
-
-		- additional form validation needed
-			- label name as required
-			- warning if existing names are used and if will trigger merge
-			- warning if parent ingredient is new
-		- tabbing thru fields no longer registers
-		- focus styling on plural field is broken
-		- add success/error messaging
-		- close this component once createIngredient is called
-*/
 
 const CREATE_INGREDIENT_MUTATION = gql`
   mutation CREATE_INGREDIENT_MUTATION(
@@ -41,6 +23,7 @@ const CREATE_INGREDIENT_MUTATION = gql`
 		$substitutes: [ ID ]!
 		$references: [ ID ]!
 		$isValidated: Boolean!
+		$isComposedIngredient: Boolean!
   ) {
     createIngredient(
       name: $name
@@ -53,6 +36,7 @@ const CREATE_INGREDIENT_MUTATION = gql`
       substitutes: $substitutes
       references: $references
       isValidated: $isValidated
+      isComposedIngredient: $isComposedIngredient
     ) {
     	id
       name
@@ -61,19 +45,25 @@ const CREATE_INGREDIENT_MUTATION = gql`
 `;
 
 const IngredientForm = styled.form`
-	margin: 20px 0;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	flex-flow: column !important;
 
 	fieldset {
-		border: 0;
-		border-bottom: 2px solid #ccc;
-		max-width: 400px;
+		position: relative;
+		margin: 0 0 26px;
+		flex-basis: 100%;
 
 		label {
-			display: block;
 			font-size: .875em;
-			padding-bottom: 4px;
-			font-weight: 600;
+	  	font-weight: 600;
+	  	color: #222;
 		}
+	}
+
+	.properties > .checkbox > label::after {
+		top: 1px;
 	}
 
 	button {
@@ -86,162 +76,168 @@ const IngredientForm = styled.form`
 		font-weight: 600;
 		font-size: 1.025em;
 		cursor: pointer;
-		margin-top: 20px;
-	}
 
-	/* TODO adjust */
-	.properties, .isValidated {
-		border: 0;
-		padding-left: 0;
-		padding-right: 0;
-		color: #222;
-
-		.checkbox {
-			display: inline-block;
-
-			& label {
-		    position: relative;
-		    padding-left: 20px;
-		    margin-right: 16px;
-		    font-weight: 400;
-		    cursor: pointer;
-		  }
-
-		  & label::before {
-		    display: block;
-		    position: absolute;
-		    top: 5px;
-		    left: 0;
-		    width: 11px;
-		    height: 11px;
-		    border-radius: 3px;
-		    background-color: white;
-		    border: 1px solid #bbb;
-		    content: '';
-		  }
-		}
-
-		.checkbox:last-of-type {
-			& label {
-		    padding-right: 0;
-		    margin-right: 0;
-		  }
-		}
-
-		input[type='checkbox'] {
-			border: 1px solid green;
-		  position: absolute;
-		  top: 0;
-		  left: 0;
-		  width: 0;
-		  height: 0;
-		  opacity: 0;
-		  pointer-events: none;
-		  display: none; /* prevent the page from moving on click */
-
-		  &:checked + label::after {
-		    display: block;
-		    position: absolute;
-		    top: 2px;
-		    left: 1px;
-		    font-family: "Font Awesome 5 Pro";
-		    content: "\f00c";
-		    font-weight: 900;
-		    color: ${ props => props.theme.altGreen };
-		  }
+		&:disabled {
+		  background: #ddd;
+		  cursor: not-allowed;
 		}
 	}
 `;
 
 class CreateIngredient extends Component {
-	constructor(props) {
-		super(props);
+	state = {
+		name: '',
+		plural: '',
+		parentID: null,
+		parentName: '',
+		properties: {
+			meat: false,
+		  poultry: false,
+		  fish: false,
+		  dairy: false,
+		  soy: false,
+		  gluten: false
+		},
+		alternateNames: [],
+		relatedIngredients: [],
+		substitutes: [],
+		references: [],
+		isValidated: false,
+		isComposedIngredient: false,
 
-		this.state = {
+		warnings: {
 			name: '',
 			plural: '',
-			parentID: null,
-			parentName: '',
-			properties: {
-				meat: false,
-			  poultry: false,
-			  fish: false,
-			  dairy: false,
-			  soy: false,
-			  gluten: false
-			},
-			alternateNames: [],
-			relatedIngredients: [],
-			substitutes: [],
-			references: [],
-			isValidated: false
-		};
+			alternateNames: '', // TODO
+		}
+	};
 
-		this.onCheckboxChange = this.onCheckboxChange.bind(this);
-		this.onValidatedChange = this.onValidatedChange.bind(this);
-		this.onSuggestPlural = this.onSuggestPlural.bind(this);
-		this.onSelectParent = this.onSelectParent.bind(this);
-	}
+ 	// TODO strip out warnings from state
+	createIngredient = async (e, mutation) => {
+		e.preventDefault();
 
-	handleChange = (e) => {
-		const { name, value } = e.target;
+		// ensure that we don't have any warnings that prevent this from being created
+		const warnings = { ...this.state.warnings };
+		let isValid = true;
 
-		this.setState({
-			[name]: value
-		});
-	}
-
-	handleListChange = (list, item, toRemove = false) => {
-		let currentList = [ ...this.state[list] ];
-		const index = currentList.indexOf(item);
-
-		if (toRemove && index > -1) {
-			currentList.splice(index, 1);
-		} else if (index === -1) {
-			currentList.push(item);
+		for (let [ key, value ] of Object.entries(warnings)) {
+			if (value) {
+				isValid = false;
+			}
 		}
 
-		this.setState({
-			[list]: currentList 
-		});
+		if (isValid) {
+			// clean up complex list structures so that we're only feeding an array of IDs
+			let relatedIngredients = [ ...this.state.relatedIngredients ];
+			relatedIngredients = relatedIngredients.map(r => r.id);
+
+			let substitutes = [ ...this.state.substitutes ];
+			substitutes = substitutes.map(r => r.id);
+
+			let references = [ ...this.state.references ];
+			references = references.map(r => r.id);
+
+			// override the complex lists on the mutation
+			const res = await mutation({ variables: { relatedIngredients, substitutes, references }});
+			console.log(res);
+
+			this.setState({
+				name: '',
+				plural: '',
+				parentID: null,
+				parentName: '',
+				properties: {
+					meat: false,
+				  poultry: false,
+				  fish: false,
+				  dairy: false,
+				  soy: false,
+				  gluten: false
+				},
+				alternateNames: [],
+				relatedIngredients: [],
+				substitutes: [],
+				references: [],
+				isValidated: false,
+				isComposedIngredient: false,
+
+				warnings: {
+					name: '',
+					plural: '',
+					alternateNames: '', // TODO
+				}
+			}, this.props.refreshContainers(e, this.props.localState, this.props.populateContainers, this.props.ingredientCounts));
+		}
 	}
 
-	onCheckboxChange(e) {
+	// TODO something is going on here when the IngredientCard is enabled
+	onCheckboxChange = (e, fieldName) => {
 		let properties = { ...this.state.properties };
+		let { isValidated, isComposedIngredient } = this.state;
 
-  	Object.entries(properties).forEach(([key, value]) => {
-  		if (key === e.target.value) {
-  			properties[key] = !value;
-  		}
-  	});
+		if (fieldName === 'properties') {
+	  	Object.entries(properties).forEach(([key, value]) => {
+	  		if (key === e.target.value) {
+	  			properties[key] = !value;
+	  		}
+	  	});
+	  } else if (fieldName === 'isValidated') {
+	  	isValidated = !isValidated;
+	  } else if (fieldName === 'isComposedIngredient') {
+	  	isComposedIngredient = !isComposedIngredient;
+	  }
 
   	this.setState({
+  		isComposedIngredient,
+  		isValidated,
   		properties
   	});
   }
 
-  onValidatedChange(e) {
-  	let { isValidated } = this.state;
-  	isValidated = !isValidated;
-
-  	this.setState({
-  		isValidated
-  	});
+  onCheckboxKeyDown = (e, fieldName) => {
+  	// prevent form submission when checking checkboxes with the return key
+  	if (e.key === 'Enter') {
+  		e.preventDefault();
+  		this.onCheckboxChange(e, fieldName);
+  	}
   }
 
-  onSuggestPlural(e) {
-  	e.preventDefault();
+	onInputChange = (e) => {
+		const { name, value } = e.target;
 
-  	const { name } = this.state;
-  	const plural = (name) ? pluralize(name) : '';
+		this.setState({
+			[name]: value,
+		}, this.onValidation(name, value));
+	}
 
-  	this.setState({
-  		plural
-  	});
+	onListChange = (value, listName, toRemove = false) => {
+		// determine if this entry is valid
+		const warning = this.validate(value);
+
+		if (!warning) {
+			let currentList = [ ...this.state[listName] ];
+			const index = currentList.indexOf(value);
+
+			if (toRemove && index > -1) {
+				currentList.splice(index, 1);
+			} else if (index === -1) {
+				currentList.push(value);
+			}
+
+			this.setState({
+				[listName]: currentList 
+			});
+		} else {
+			// clear out validation if we hit return on an invalid value
+			this.onValidation(listName, '');
+		}
+	}
+
+  // TODO
+  onListItemClick = (e, item) => {
   }
 
-  onSelectParent(e, suggestion) {
-  	e.preventDefault();
+  onSelectParent = (suggestion) => {
   	const parentID = suggestion.id;
   	const parentName = suggestion.name;
 
@@ -250,125 +246,140 @@ class CreateIngredient extends Component {
   		parentName
   	});
   }
- 
-	createIngredient = async (e, mutation) => {
-		e.preventDefault();
 
-		// clean up complex list structures so that we're only feeding an array of IDs
-		let relatedIngredients = [ ...this.state.relatedIngredients ];
-		relatedIngredients = relatedIngredients.map(r => r.id);
+  onSuggestPlural = (e) => {
+  	e.preventDefault();
 
-		let substitutes = [ ...this.state.substitutes ];
-		substitutes = substitutes.map(r => r.id);
+  	const { name } = this.state;
+  	const plural = (name) ? pluralize(name) : '';
 
-		let references = [ ...this.state.references ];
-		references = references.map(r => r.id);
+  	this.setState({
+  		plural
+  	}, this.onValidation('plural', plural));
+  }
 
-		// override the complex lists on the mutation
-		const res = await mutation({ variables: { relatedIngredients, substitutes, references }});
-		console.log(res);
+  onValidation = (fieldName, value) => {
+  	let warnings = { ...this.state.warnings };
 
-		this.setState({
-			name: '',
-			plural: '',
-			parentID: null,
-			parentName: '',
-			properties: {
-				meat: false,
-			  poultry: false,
-			  fish: false,
-			  dairy: false,
-			  soy: false,
-			  gluten: false
-			},
-			alternateNames: [],
-			relatedIngredients: [],
-			substitutes: [],
-			references: [],
-			isValidated: false
-		}, this.props.refreshContainers(e, this.props.populateContainers, this.props.ingredientCounts));
-	}
+		if (warnings.hasOwnProperty(fieldName)) {
+			warnings[fieldName] = this.validate(value);
+
+			this.setState({
+				warnings
+			});
+		}
+  }
+
+  validate = (value) => {
+  	const { ingredients } = this.props;
+
+  	if (ingredients && value) {
+	  	const existing = ingredients.find(i => (i.name === value) || (i.plural === value) || (~i.alternateNames.indexOf(value)));
+			return (existing) ? `The ingredient ${ value } already exists!` : '';
+		}
+
+		return '';
+  }
 
 	render() {
-		const { alternateNames, isValidated, name, parentID, parentName, plural, properties, relatedIngredients, substitutes } = this.state;
+		const { alternateNames, isComposedIngredient, isValidated, name, parentID, parentName, plural, properties, relatedIngredients, substitutes, warnings } = this.state;
 		const { ingredients } = this.props;
+		let containsWarnings = false;
 
 		return (
 			<Mutation mutation={ CREATE_INGREDIENT_MUTATION } variables={ this.state }>
     		{
     			(createIngredient, { loading, error, data }) => {
-    				if (loading) return <p>Loading...</p>;
 						if (error) return <ErrorMessage error={ error } />;
+
+						// determine if we have any warnings
+						for (let [ key, value ] of Object.entries(warnings)) {
+							containsWarnings = (value) ? true : false;
+						}
 
 						return (
 							<IngredientForm onSubmit={ e => this.createIngredient(e, createIngredient) } autoComplete="off">
+								{/* Name */}
 			    			<Input
+			    				className="name"
+			  					isLabelDisplayed={ true }
+									isRequiredField={ true }
 									label={ "Name" }
 									name={ "name" }
-			  					onChange={ this.handleChange }
-									required={ true }
+			  					onChange={ this.onInputChange }
+			  					onValidation={ this.onValidation }
 			  					placeholder={ "fuji apple" }
-			  					showLabel={ true }
 			  					value={ name }
+			  					warning={ warnings["name"] }
 			    			/>
 
-								{/* TODO there's an issue with focus highlight on this field; may be suggestion related */}
+								{/* Plural */}
 			    			<Input
+			    				className="plural"
+			  					isLabelDisplayed={ true }
+			  					isPluralSuggestEnabled={ true }
 									label={ "Plural" }
 									name={ "plural" }
-			  					onChange={ this.handleChange }
-									required={ false }
-			  					placeholder={ "fuji apples" }
-			  					showLabel={ true }
-			  					suggestPlural={ true }
+			  					onChange={ this.onInputChange }
+			  					onValidation={ this.onValidation }
 			  					onSuggestPlural={ this.onSuggestPlural }
+			  					placeholder={ "fuji apples" }
 			  					value={ plural }
+			  					warning={ warnings["plural"] }
 			    			/>
 
-			    			<CheckboxGroup
-			    				className={ "properties" }
-			  					isEditMode={ true }
-			  					onChange={ this.onCheckboxChange }
-			  					options={ properties }
-			  					type={ "checkbox" }
-								/>
-
+								{/* Parent Ingredient */}
 								<Input
+									className="parent"
+			  					isLabelDisplayed={ true }
+			  					isSuggestionEnabled={ true }
 									label={ "Parent Ingredient" }
 									name={ "parentName" }
-			  					onChange={ this.handleChange }
-									required={ false }
+			  					onChange={ this.onInputChange }
+			  					onValidation={ this.onValidation }
+			  					onSubmit={ this.onSelectParent }
 			  					placeholder={ "apple" }
-			  					showLabel={ true }
-			  					value={ parentName }
-			  					showSuggestions={ true }
-			  					onSelectSuggestion={ this.onSelectParent }
 			  					suggestionPool={ ingredients }
+			  					value={ parentName }
 			    			/>
 
+								{/* Properties */}
+			    			<CheckboxGroup
+			  					checkboxes={ properties }
+			    				className={ "properties" }
+			    				name="properties"
+			  					onChange={ this.onCheckboxChange }
+			  					onKeyDown={ this.onCheckboxKeyDown }
+								/>
+
+								{/* Alternate Names */}
 			    			<List
 			    				allowDelete={ true }
-			    				isEditMode={ true }
+			    				className="altNames"
 									label={ "Alternate Names" }
 			  					list={ alternateNames }
 			  					loading={ false }
 									name={ "alternateNames" }
-			  					onListChange={ this.handleListChange }
+			  					onListChange={ this.onListChange }
+			  					onValidation={ this.onValidation }
 			  					placeholder={ "fuji" }
 									required={ false }
 			  					showLabel={ false }
 			  					showSuggestions={ false }
 			  					type={ "static" }
+			  					warning={ warnings["alternateNames"] }
 			    			/>
 
+								{/* Related Ingredients */}
 			    			<List
 			    				allowDelete={ true }
-			    				isEditMode={ true }
+			    				className="related"
+			    				isSuggestionEnabled={ true }
 									label={ "Related Ingredients" }
 			  					list={ relatedIngredients }
 			  					loading={ false }
 									name={ "relatedIngredients" }
-			  					onListChange={ this.handleListChange }
+			  					onListChange={ this.onListChange }
 			  					placeholder={ "red apple" }
 									required={ false }
 			  					showLabel={ false }
@@ -377,14 +388,16 @@ class CreateIngredient extends Component {
 			  					type={ "static" }
 			    			/>
 
+								{/* Substitutes */}
 			    			<List
 			    				allowDelete={ true }
-			    				isEditMode={ true }
+			    				className="substitutes"
+			    				isSuggestionEnabled={ true }
 									label={ "Substitutes" }
 			  					list={ substitutes }
 			  					loading={ false }
 									name={ "substitutes" }
-			  					onListChange={ this.handleListChange }
+			  					onListChange={ this.onListChange }
 			  					placeholder={ "red apple" }
 									required={ false }
 			  					showLabel={ false }
@@ -393,15 +406,26 @@ class CreateIngredient extends Component {
 			  					type={ "static" }
 			    			/>
 
+								{/* Is Validated */}
 								<CheckboxGroup
+			  					checkboxes={ { "Is Valid Ingredient?": isValidated } }
 			    				className={ "isValidated" }
-			  					isEditMode={ true }
-			  					onChange={ this.onValidatedChange }
-			  					options={ { "Is Valid Ingredient?": isValidated } }
-			  					type={ "checkbox" }
+			    				name="isValidated"
+			  					onChange={ this.onCheckboxChange }
+			  					onKeyDown={ this.onCheckboxKeyDown }
 								/>
 
-			    			<Button type="submit" label="Add Ingredient" />
+								{/* Is Composed Ingredient */}
+								<CheckboxGroup
+			  					checkboxes={ { "Is Composed Ingredient?": isComposedIngredient } }
+			    				className={ "isComposedIngredient" }
+			    				name="isComposedIngredient"
+			  					onChange={ this.onCheckboxChange }
+			  					onKeyDown={ this.onCheckboxKeyDown }
+								/>
+
+								{/* Add Button */}
+			    			<Button disabled={ containsWarnings } label="Add Ingredient" type="submit" />
 						</IngredientForm>
 						);
 					}
@@ -411,6 +435,17 @@ class CreateIngredient extends Component {
 	}
 }
 
-// TODO add PropTypes
+CreateIngredient.defaultProps = {
+	ingredients: [],
+	refreshContainers: () => {}
+};
+
+CreateIngredient.propTypes = {
+	ingredientCounts: PropTypes.object,
+	ingredients: PropTypes.array,
+	localState: PropTypes.object,
+	populateContainers: PropTypes.object,
+	refreshContainers: PropTypes.func,
+};
 
 export default CreateIngredient;

@@ -23,7 +23,7 @@ const Mutations = {
 		let { parentID, parentName,
 					name, plural, properties,
 					alternateNames, relatedIngredients, substitutes,
-					references, isValidated
+					references, isValidated, isComposedIngredient
 				} = args;
 
 		name = (name) ? name.toLowerCase() : '';
@@ -49,7 +49,7 @@ const Mutations = {
 		}
 
 		alternateNames = (alternateNames && alternateNames.length > 0)
-											? alternateNames.map(a => a.toLowercase())
+											? alternateNames.map(a => a.toLowerCase())
 											: [];
 
 		relatedIngredients = (relatedIngredients)
@@ -61,6 +61,7 @@ const Mutations = {
 			: [];
 
 		isValidated = isValidated || false;
+		isComposedIngredient = isComposedIngredient || false;
 
 		let ingredient = {
 			parent: parentRelation,
@@ -68,10 +69,11 @@ const Mutations = {
 			plural,
 			properties: { create: properties },
 			alternateNames: { set: alternateNames },
-			relatedIngredients,											// TODO
-			substitutes,														// TODO
-			references,															// TODO
-			isValidated
+			relatedIngredients,
+			substitutes,
+			references,
+			isValidated,
+			isComposedIngredient
 		};
 
 		console.log(ingredient);
