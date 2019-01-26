@@ -18,7 +18,22 @@ type Mutation {
 										isComposedIngredient: Boolean
 									): Ingredient!
 	# TODO deleteIngredient
-	# TODO updateIngredient
+	updateIngredient( id: ID!,
+										#parentID: ID,
+										#parentName: String,
+										name: String,
+										plural: String,
+										properties: PropertyUpdateOneRequiredInput,
+										propertyID: ID,
+										alternateNames: [ String ],
+										relatedIngredients_Connect: [ ID ],
+										relatedIngredients_Disconnect: [ ID ],
+										substitutes_Connect: [ ID ],
+										substitutes_Disconnect: [ ID ],
+										#references: [ ID ],
+										isValidated: Boolean,
+										isComposedIngredient: Boolean
+									): Ingredient!
 	
 	createRecipe( evernoteGUID: String,
 								image: String,
@@ -58,7 +73,7 @@ type Mutation {
 
 type Query {
 	categories: [ Category! ]!
-	containers(view: String, group: String): [ Container ]!
+	containers(view: String!, group: String!): [ Container ]!
 	counts: Counts!
 	ingredient(where: IngredientWhereUniqueInput!): Ingredient
 	ingredients: [ Ingredient! ]!

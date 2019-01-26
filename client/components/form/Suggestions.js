@@ -36,6 +36,7 @@ class Suggestions extends Component {
 				{
 					(value)
 						? suggestions.map((s, index) =>
+								// TODO i feel like there was a reason why i had to use onMouseDown here; but i'd really like to avoid this href="#" if possible because its litering the URL
 								<a href="#"  key={ s.id } onMouseDown={ e => this.props.onSelectSuggestion(e, s) } className={ (currentSuggestion === index) ? 'active' : '' }>
 									<li onClick={ e => this.props.onSelectSuggestion(e, s) }>{ s.name }</li>
 								</a>

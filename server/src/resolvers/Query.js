@@ -5,7 +5,10 @@ const Query = {
 	categories: forwardTo('db'),
 
 	async containers(parent, args, ctx, info) {
+		console.log('querying containers!'.green);
 		const { group, view } = args;
+		console.log({ group, view });
+
 		let containers = [];
 		let ingredients = await ctx.db.query.ingredients({},`{
 		  id

@@ -3,7 +3,7 @@ import ApolloClient from 'apollo-boost';
 import gql from 'graphql-tag';
 import { endpoint } from '../config';
 
-import { LOCAL_INGREDIENTS_QUERY } from '../pages/ingredients';
+//import { LOCAL_INGREDIENTS_QUERY, POPULATE_CONTAINERS_QUERY } from '../pages/ingredients';
 
 export const typeDefs = `
   type Container {
@@ -16,14 +16,8 @@ export const typeDefs = `
     isCardEnabled: Boolean!
   }
 
-  type IngredientConfig {
-  	currentView: String,
-		currentGroup: String
-  }
-
   type Mutation {
-  	updateIngredientConfig(view: String, group: String, isCreateEnabled: Boolean): IngredientConfig
-    updateContainer(container: Container, ingredientID: ID): Container
+    updateContainer(container: Container, group: String, ingredientID: ID, removeCurrentFromList: Boolean, view: String): Container
   }
 
   type Query {
@@ -48,35 +42,21 @@ function createClient({ headers }) {
     	typeDefs,
     	resolvers: {
     		Mutation: {
-    			updateIngredientConfig(_, { view, group, isCreateEnabled }, { cache }) {
-    				let { currentView, currentGroup } = cache.readQuery({
-    					query: LOCAL_INGREDIENTS_QUERY
-    				});
-    				
-    				const data = {
-    					data: {
-    						currentView: (view) ? view : currentView,
-    						currentGroup: (group) ? group : currentGroup,
-    						isCreateEnabled: isCreateEnabled || false
-    					}
-    				};
-
-    				cache.writeData(data);
-    				return data;
-    			},
     			updateContainer(_, variables, { cache, getCacheKey }) {
-    				const { container, ingredientID } = variables;
+    				const { container, group, ingredientID, removeCurrentFromList, view } = variables;
+
     				let ing;
 			      const fragmentId = getCacheKey({ id: container.id, __typename: "Container" });
 			      const fragment = gql`
 			        fragment isExpanded on Container {
-			        	id
-			          isExpanded
 			          currentIngredientID
+			        	id
 			          ingredients {
 			          	id
-			          	name
+									name
 			          }
+			          isCardEnabled
+			          isExpanded
 			        }
 			      `;
 			      
@@ -90,30 +70,33 @@ function createClient({ headers }) {
 			      	ing = ctn.ingredients.filter(i => i.id === ingredientID)[0];
 			      }
 
-			      cache.writeData({
+			      if (removeCurrentFromList && (view === 'new') && (container.currentIngredientID !== ingredientID)) {
+			      	ctn.ingredients = ctn.ingredients.filter(i => i.id !== container.currentIngredientID);
+			      }
+
+			      const data = {
+		          ...ctn,
+		          isExpanded: container.isExpanded,
+		          isCardEnabled: container.isCardEnabled,
+		          currentIngredientID: (ing) ? ing.id : null
+		        };
+
+			      cache.writeFragment({
 			        id: fragmentId,
-			        data: {
-			          ...ctn,
-			          isExpanded: container.isExpanded,
-			          isCardEnabled: container.isCardEnabled,
-			          currentIngredientID: (ing) ? ing.id : null
-			        }
+			        fragment,
+			        data
 			      });
 
-			      return null;
-    			}
+			      return data;
+    			},
     		},
     		Container: {
 			    isExpanded: () => true,
 			    isCardEnabled: () => false,
 			    currentIngredientID: () => null,
-			  }
+			  },
     	},
-    	// TODO move these into a Config object similar to Container
     	defaults: {
-  			currentView: 'all', // TODO i don't have access to this.props.query here do i?
-  			currentGroup: 'name',
-  			isCreateEnabled: false
     	}
     }
   });

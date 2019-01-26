@@ -95,6 +95,11 @@ const FieldSet = styled.fieldset`
 	  	top: 24px;
 	  }
 	}
+
+	.fa-magic.disabled, .fa-magic.disabled:hover {
+		cursor: default;
+		color: #ccc;
+	}
 `;
 
 const Warning = styled.div`
@@ -123,16 +128,25 @@ class Input extends Component {
 	}
 
 	onChange = (e) => {
+		// on input change, update our suggestion pool
 		let suggestions = [];
-		const { suggestionPool } = this.props;
+		const { defaultValue, excludedSuggestions, suggestionPool } = this.props;
 		const { value } = e.target;
 
 		if (value && suggestionPool) {
 			suggestions = suggestionPool.filter(i => (
-  			// find partial matches
+  			// return partial matches
   			(i.name.indexOf(value) > -1)
-  			// as long as its not an exact match
+  			// ... as long as they're not an exact match on our input
   			&& (i.name !== value)
+  			// ... and that aren't listed as an excludedSuggestion
+  			&& !Object.keys(excludedSuggestions).some(key =>
+  						// if our property is a string just look for an exact match
+  						(excludedSuggestions[key] === i.name)
+  						// otherwise search within the array
+  						|| ((typeof excludedSuggestions[key] === 'object') && (excludedSuggestions[key].findIndex(i => i === i.name) > -1))
+  						// TODO you might need to come back to this when dealing with merging...
+  					)
   		));
 
   		suggestions.sort((a, b) => a.length - b.length);
@@ -141,7 +155,7 @@ class Input extends Component {
 
 		this.setState({
 			suggestions,
-		}, this.props.onChange(e));
+		}, this.props.onChange(e, defaultValue));
 	}
 
 	onKeyDown = (e) => {
@@ -187,7 +201,9 @@ class Input extends Component {
 	}
 
 	onSelectSuggestion = (e, suggestion) => {
+		console.warn('Input - onSelectSuggestion');
 		const { name } = this.props;
+		console.log({ name, suggestion });
 
 		this.setState({
     	suggestions: [],
@@ -196,8 +212,8 @@ class Input extends Component {
 	}
 
   render() {
-  	const { className, isEditMode, isLabelDisplayed, isPluralSuggestEnabled, isRequiredField,
-  					isSuggestionEnabled, label, loading, name, placeholder, suppressWarnings, value, warning } = this.props;
+  	const { className, defaultValue, isEditMode, isLabelDisplayed, isPluralSuggestEnabled, isRequiredField,
+  					isSuggestionEnabled, label, loading, name, placeholder, suppressWarnings, tabIndex, value, warning } = this.props;
   	const { currentSuggestion, suggestions } = this.state;
 
     return (
@@ -206,7 +222,7 @@ class Input extends Component {
       	{ (isLabelDisplayed) ? <label htmlFor={ name }>{ label }</label> : null }
 				
 				{/* suggest plural icon */}
-        { (isPluralSuggestEnabled) ? <FontAwesomeIcon icon={ faMagic } onClick={ this.props.onSuggestPlural } /> : null }
+        { (isPluralSuggestEnabled) ? <FontAwesomeIcon className={ (!isEditMode) ? 'disabled' : '' } icon={ faMagic } onClick={ this.props.onSuggestPlural } /> : null }
 
 				{/* input element */}
         <input
@@ -220,8 +236,9 @@ class Input extends Component {
           ref={ this.textInput }
           required={ isRequiredField }
           spellCheck={ isEditMode }
+          tabIndex={ tabIndex }
           type="text"
-          value={ value || '' }
+          value={ (isEditMode && (value !== undefined)) ? value : defaultValue }
         />
 
 				{/* abs - stylistic fluff */}
@@ -249,6 +266,7 @@ class Input extends Component {
 }
 
 Input.defaultProps = {
+	excludedSuggestions: {},
 	isEditMode: true,
 	isLabelDisplayed: true,
 	isPluralSuggestEnabled: false,
@@ -258,18 +276,20 @@ Input.defaultProps = {
 	onListChange: () => {},
 	onSubmit: () => {},
 	onSuggestPlural: () => {},
-	onValidation: () => {},
 	suppressWarnings: false,
+	tabIndex: -1,
 	warning: ''
 };
 
 Input.propTypes = {
 	className: PropTypes.string,
+	excludedSuggestions: PropTypes.object,
 	isEditMode: PropTypes.bool,
 	isLabelDisplayed: PropTypes.bool,
 	isPluralSuggestEnabled: PropTypes.bool,
 	isRequiredField: PropTypes.bool,
 	isSuggestionEnabled: PropTypes.bool,
+	defaultValue: PropTypes.string,
 	label: PropTypes.string,
 	loading: PropTypes.bool,
 	name: PropTypes.string,
@@ -278,10 +298,10 @@ Input.propTypes = {
 	onListChange: PropTypes.func,						// after adding items to the list
 	onSubmit: PropTypes.func,								// for handling carriage returns (see List component)
 	onSuggestPlural: PropTypes.func,				// after suggesting a plural value
-	onValidation: PropTypes.func,						// passing validation back to parent
 	placeholder: PropTypes.string,
 	suggestionPool: PropTypes.array,
 	suppressWarnings: PropTypes.bool,
+	tabIndex: PropTypes.number,
 	value: PropTypes.string,
 	warning: PropTypes.string,
 };

@@ -60,6 +60,29 @@ const IngredientForm = styled.form`
 	  	font-weight: 600;
 	  	color: #222;
 		}
+
+		input:checked {
+			+ label::after { top: 2px; }
+		}
+	}
+
+	.create {
+		span.highlight, span.warning {
+		  top: 47px;
+		}
+	}
+
+	fieldset.plural {
+		height: 40px;
+
+		label {
+			display: block;
+			margin-bottom: 4px;
+		}
+
+		span.highlight, span.warning {
+		  top: 45px;
+		}
 	}
 
 	.properties > .checkbox > label::after {
@@ -85,32 +108,42 @@ const IngredientForm = styled.form`
 `;
 
 class CreateIngredient extends Component {
-	state = {
-		name: '',
-		plural: '',
-		parentID: null,
-		parentName: '',
-		properties: {
-			meat: false,
-		  poultry: false,
-		  fish: false,
-		  dairy: false,
-		  soy: false,
-		  gluten: false
-		},
-		alternateNames: [],
-		relatedIngredients: [],
-		substitutes: [],
-		references: [],
-		isValidated: false,
-		isComposedIngredient: false,
+	constructor(props) {
+    super(props);
 
-		warnings: {
+    this.state = {
 			name: '',
 			plural: '',
-			alternateNames: '', // TODO
-		}
-	};
+			parentID: null,
+			parentName: '',
+			properties: {
+				meat: false,
+			  poultry: false,
+			  fish: false,
+			  dairy: false,
+			  soy: false,
+			  gluten: false
+			},
+			alternateNames: [],
+			relatedIngredients: [],
+			substitutes: [],
+			references: [],
+			isValidated: false,
+			isComposedIngredient: false,
+
+			warnings: {
+				name: '',
+				plural: '',
+				alternateNames: '', // TODO
+			}
+		};
+
+    this.nameInput = React.createRef();
+  }
+
+  componentDidMount() {
+  	this.nameInput.current.textInput.current.focus();
+  }
 
  	// TODO strip out warnings from state
 	createIngredient = async (e, mutation) => {
@@ -139,7 +172,8 @@ class CreateIngredient extends Component {
 
 			// override the complex lists on the mutation
 			const res = await mutation({ variables: { relatedIngredients, substitutes, references }});
-			console.log(res);
+
+			this.nameInput.current.textInput.current.focus();
 
 			this.setState({
 				name: '',
@@ -170,8 +204,7 @@ class CreateIngredient extends Component {
 		}
 	}
 
-	// TODO something is going on here when the IngredientCard is enabled
-	onCheckboxChange = (e, fieldName) => {
+	onCreateCheckboxChange = (e, fieldName) => {
 		let properties = { ...this.state.properties };
 		let { isValidated, isComposedIngredient } = this.state;
 
@@ -194,11 +227,11 @@ class CreateIngredient extends Component {
   	});
   }
 
-  onCheckboxKeyDown = (e, fieldName) => {
+  onCreateCheckboxKeyDown = (e, fieldName) => {
   	// prevent form submission when checking checkboxes with the return key
   	if (e.key === 'Enter') {
   		e.preventDefault();
-  		this.onCheckboxChange(e, fieldName);
+  		this.onCreateCheckboxChange(e, fieldName);
   	}
   }
 
@@ -286,6 +319,8 @@ class CreateIngredient extends Component {
 		const { ingredients } = this.props;
 		let containsWarnings = false;
 
+		console.warn(`create ${ ingredients.length || 0 }`);
+
 		return (
 			<Mutation mutation={ CREATE_INGREDIENT_MUTATION } variables={ this.state }>
     		{
@@ -301,7 +336,7 @@ class CreateIngredient extends Component {
 							<IngredientForm onSubmit={ e => this.createIngredient(e, createIngredient) } autoComplete="off">
 								{/* Name */}
 			    			<Input
-			    				className="name"
+			    				className="create name"
 			  					isLabelDisplayed={ true }
 									isRequiredField={ true }
 									label={ "Name" }
@@ -309,13 +344,15 @@ class CreateIngredient extends Component {
 			  					onChange={ this.onInputChange }
 			  					onValidation={ this.onValidation }
 			  					placeholder={ "fuji apple" }
+			  					ref={ this.nameInput } 
 			  					value={ name }
+			  					tabIndex={ 1 }
 			  					warning={ warnings["name"] }
 			    			/>
 
 								{/* Plural */}
 			    			<Input
-			    				className="plural"
+			    				className="create plural"
 			  					isLabelDisplayed={ true }
 			  					isPluralSuggestEnabled={ true }
 									label={ "Plural" }
@@ -325,12 +362,13 @@ class CreateIngredient extends Component {
 			  					onSuggestPlural={ this.onSuggestPlural }
 			  					placeholder={ "fuji apples" }
 			  					value={ plural }
+			  					tabIndex={ 2 }
 			  					warning={ warnings["plural"] }
 			    			/>
 
 								{/* Parent Ingredient */}
 								<Input
-									className="parent"
+									className="create parent"
 			  					isLabelDisplayed={ true }
 			  					isSuggestionEnabled={ true }
 									label={ "Parent Ingredient" }
@@ -340,6 +378,7 @@ class CreateIngredient extends Component {
 			  					onSubmit={ this.onSelectParent }
 			  					placeholder={ "apple" }
 			  					suggestionPool={ ingredients }
+			  					tabIndex={ 3 }
 			  					value={ parentName }
 			    			/>
 
@@ -348,8 +387,9 @@ class CreateIngredient extends Component {
 			  					checkboxes={ properties }
 			    				className={ "properties" }
 			    				name="properties"
-			  					onChange={ this.onCheckboxChange }
-			  					onKeyDown={ this.onCheckboxKeyDown }
+			    				key={ `create_properties` }
+			  					onChange={ e => this.onCreateCheckboxChange(e, 'properties') }
+			  					onKeyDown={ e => this.onCreateCheckboxKeyDown(e, 'properties') }
 								/>
 
 								{/* Alternate Names */}
@@ -364,7 +404,6 @@ class CreateIngredient extends Component {
 			  					onValidation={ this.onValidation }
 			  					placeholder={ "fuji" }
 									required={ false }
-			  					showLabel={ false }
 			  					showSuggestions={ false }
 			  					type={ "static" }
 			  					warning={ warnings["alternateNames"] }
@@ -382,7 +421,6 @@ class CreateIngredient extends Component {
 			  					onListChange={ this.onListChange }
 			  					placeholder={ "red apple" }
 									required={ false }
-			  					showLabel={ false }
 			  					showSuggestions={ true }
 			  					suggestionPool={ ingredients }
 			  					type={ "static" }
@@ -400,7 +438,6 @@ class CreateIngredient extends Component {
 			  					onListChange={ this.onListChange }
 			  					placeholder={ "red apple" }
 									required={ false }
-			  					showLabel={ false }
 			  					showSuggestions={ true }
 			  					suggestionPool={ ingredients }
 			  					type={ "static" }
@@ -411,8 +448,9 @@ class CreateIngredient extends Component {
 			  					checkboxes={ { "Is Valid Ingredient?": isValidated } }
 			    				className={ "isValidated" }
 			    				name="isValidated"
-			  					onChange={ this.onCheckboxChange }
-			  					onKeyDown={ this.onCheckboxKeyDown }
+			    				key={ `create_isValidated` }
+			  					onChange={ e => this.onCreateCheckboxChange(e, 'isValidated') }
+			  					onKeyDown={ e => this.onCreateCheckboxKeyDown(e, 'isValidated') }
 								/>
 
 								{/* Is Composed Ingredient */}
@@ -420,8 +458,9 @@ class CreateIngredient extends Component {
 			  					checkboxes={ { "Is Composed Ingredient?": isComposedIngredient } }
 			    				className={ "isComposedIngredient" }
 			    				name="isComposedIngredient"
-			  					onChange={ this.onCheckboxChange }
-			  					onKeyDown={ this.onCheckboxKeyDown }
+			    				key={ `create_isComposed` }
+			  					onChange={ e => this.onCreateCheckboxChange(e, 'isComposedIngredient') }
+			  					onKeyDown={ e => this.onCreateCheckboxKeyDown(e, 'isComposedIngredient') }
 								/>
 
 								{/* Add Button */}

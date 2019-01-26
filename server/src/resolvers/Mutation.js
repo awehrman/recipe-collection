@@ -26,8 +26,8 @@ const Mutations = {
 					references, isValidated, isComposedIngredient
 				} = args;
 
-		name = (name) ? name.toLowerCase() : '';
-		plural = (plural) ? plural.toLowerCase() : '';
+		name = (name) ? name.trim().toLowerCase() : '';
+		plural = (plural) ? plural.trim().toLowerCase() : '';
 
 		if (!properties) {
 			properties = {
@@ -77,7 +77,7 @@ const Mutations = {
 		};
 
 		console.log(ingredient);
-
+		
 		ingredient = await ctx.db.mutation.createIngredient({
       data: {
       	...ingredient
@@ -89,7 +89,83 @@ const Mutations = {
 
 	// TODO deleteIngredient
 
-	// TODO updateIngredient
+	async updateIngredient(parent, args, ctx, info) {
+		console.log('updateIngredient'.cyan);
+		console.log('------------------------'.cyan);
+    console.log(args);
+
+    const updates = { ...args };
+    let properties = {};
+    delete updates.id;
+
+    if (updates.hasOwnProperty('name')) {
+    	console.log('...NAME'.yellow);
+    	updates.name = updates.name.trim().toLowerCase();
+    }
+
+    if (updates.hasOwnProperty('plural')) {
+    	console.log('...PLURAL'.yellow);
+    	updates.plural = updates.plural.trim().toLowerCase();
+    }
+
+    if (updates.hasOwnProperty('parentID') || updates.hasOwnProperty('parentName')) {
+    	console.log('...PARENT'.yellow);
+    	// TODO
+    }
+
+    // handle alternate names updates
+    if (updates.hasOwnProperty('alternateNames') && updates.alternateNames.length > 0) {
+    	updates.alternateNames = { set: [ ...updates.alternateNames || null ] };
+    } else if (updates.hasOwnProperty('alternateNames') && updates.alternateNames.length === 0) {
+    	updates.alternateNames = { set: [] };
+    }
+
+    const relatedIngredients = {
+	  	...(updates.relatedIngredients_Connect && { connect: updates.relatedIngredients_Connect.map(u => { return { id: u }; }) }),
+	  	...(updates.relatedIngredients_Disconnect && { disconnect: updates.relatedIngredients_Disconnect.map(u => { return { id: u }; }) })
+		};
+
+		if (updates.relatedIngredients_Connect) delete updates.relatedIngredients_Connect;
+		if (updates.relatedIngredients_Disconnect) delete updates.relatedIngredients_Disconnect;
+
+    const substitutes = {
+	  	...(updates.substitutes_Connect && { connect: updates.substitutes_Connect.map(u => { return { id: u }; }) }),
+	  	...(updates.substitutes_Disconnect && { disconnect: updates.substitutes_Disconnect.map(u => { return { id: u }; }) })
+		};
+
+		if (updates.substitutes_Connect) delete updates.substitutes_Connect;
+		if (updates.substitutes_Disconnect) delete updates.substitutes_Disconnect;
+
+    if (updates.hasOwnProperty('references')) {
+    	console.log('...REFERENCES'.yellow);
+    	// TODO
+    }
+
+
+		console.log('------------------------'.green);
+  	console.log({
+    	relatedIngredients,
+    	substitutes,
+    	properties,					// update properties
+    	...updates					// update any other changed ingredient fields
+    });
+
+	  // update the remainder of the fields
+	  return await ctx.db.mutation.updateIngredient(
+      {
+        data: {
+        	relatedIngredients,
+        	substitutes,
+        	properties,					// update properties
+        	...updates					// update any other changed ingredient fields
+        },
+        where: {
+          id: args.id
+        },
+      },
+      info
+    );
+	},
 
 
 	/*----------  Recipes  ----------*/

@@ -19,14 +19,6 @@ import IngredientsContainer from '../components/ingredients/IngredientsContainer
 
 /*----------  Queries & Mutations  ----------*/
 
-const LOCAL_INGREDIENTS_QUERY = gql`
-  query {
-  	currentView @client 
-  	currentGroup @client 
-  	isCreateEnabled @client
-  }
-`;
-
 const INGREDIENT_COUNTS_QUERY = gql`
   query INGREDIENT_COUNTS_QUERY {
   	counts {
@@ -77,24 +69,15 @@ const POPULATE_CONTAINERS_QUERY = gql`
 	}
 `;
 
-const LOCAL_INGREDIENTS_MUTATION = gql`
-  mutation updateIngredientConfig($view: String, $group: String, $isCreateEnabled: Boolean) {
-    updateIngredientConfig(view: $view, group: $group, isCreateEnabled: $isCreateEnabled) @client
-  }
-`;
-
 const UPDATE_CONTAINER_MUTATION = gql`
-  mutation updateContainer($container: Container, $ingredientID: ID) {
-    updateContainer(container: $container, ingredientID: $ingredientID) @client
+  mutation updateContainer($container: Container, $group: String, $ingredientID: ID, $removeCurrentFromList: Boolean, $view: String) {
+    updateContainer(container: $container, group: $group, ingredientID: $ingredientID, removeCurrentFromList: $removeCurrentFromList, view: $view) @client
   }
 `;
 
 const Composed = adopt({
-  localState: ({ render }) => <Query query={ LOCAL_INGREDIENTS_QUERY }>{ render }</Query>,
-  // use either the view/group from the url if we have it, or the defaults in cache
-  populateContainers: ({ queryView, queryGroup, localState, render }) => <Query query={ POPULATE_CONTAINERS_QUERY } variables={ { view: queryView || localState.data.currentView, group: queryGroup || localState.data.currentGroup} }>{ render }</Query>,
+  populateContainers: ({ view, group, render }) => <Query query={ POPULATE_CONTAINERS_QUERY } variables={ { view, group } }>{ render }</Query>,
   ingredientCounts: ({ render }) => <Query query={ INGREDIENT_COUNTS_QUERY }>{ render }</Query>,
-  updateLocal: ({ render }) => <Mutation mutation={ LOCAL_INGREDIENTS_MUTATION }>{ render }</Mutation>,
   updateContainer: ({ render }) => <Mutation mutation={ UPDATE_CONTAINER_MUTATION }>{ render }</Mutation>,
   getIngredients: ({ render }) => <Query query={ ALL_INGREDIENTS_QUERY }>{ render }</Query>
 });
@@ -117,6 +100,7 @@ const IngredientsPageStyles = styled.article`
 
 const Containers = styled.div`
 	margin: 20px 0;
+
 `;
 
 const Filters = styled.div`
@@ -196,22 +180,48 @@ const AddNewIngredient = styled.div`
 /*----------  Ingredients Component  ----------*/
 
 class Ingredients extends Component {
-	state = {};
+	state = {
+		group: 'name',
+		isCreateEnabled: false,
+		view: 'all'
+	};
+
+	componentDidMount = () => {
+		const { group, view } = this.state;
+
+		// update the view and group settings based on any provided query params
+		if (this.props.query.group || this.props.query.view) {
+			this.setState({
+				group: (this.props.query.group) ? this.props.query.group : group,
+				view: (this.props.query.view) ? this.props.query.view : view
+			});
+		}
+	}
 
 	toggleContainer = (e, container, updateContainer) => {
-		console.warn('ING - toggleContainer');
 		e.preventDefault();
+		const { group, view } = this.state;
+
 		container.isExpanded = !container.isExpanded;
-		updateContainer({ variables: { container: container } });
+
+		updateContainer({
+			variables: {
+				container,
+				group,
+				ingredientID: container.currentIngredientID,
+				removeCurrentFromList: false,
+				view
+			}
+		});
 	}
 
 	toggleIngredient = (e, container, updateContainer) => {
-		console.warn('ING - toggleIngredient');
 		e.preventDefault();
-		
+		e.persist(); // stop console warnings about synthetic events
+		const { group, view } = this.state;
 		const ingredientID = e.target.id;
 		// TODO if we're closing out of an opened card; we need to adjust the link query
-		
+
 		// if we've clicked on the same item that's already open, close the card
   	if (container.isCardEnabled && (container.currentIngredientID === ingredientID)) {
   		container.currentIngredientID = null;
@@ -222,38 +232,82 @@ class Ingredients extends Component {
   		container.isCardEnabled = true;
   	}
 
-  	console.log(container);
-
-		updateContainer({ variables: { container, ingredientID } });
+		updateContainer({
+			variables: {
+				container,
+				group,
+				ingredientID,
+				removeCurrentFromList: false,
+				view
+			}
+		}).then(res => this.scrollToListItem(e, res.data.updateContainer.currentIngredientID, res.data.updateContainer.ingredients));
 	}
 
-	refreshContainers = (e, localState, populateContainers, ingredientCounts) => {
-		console.warn('ING - refreshContainers');
-		localState.refetch();
-		populateContainers.refetch();
+	scrollToListItem(e, id, ingredients) {
+  	const hasSymbols = ingredients.map(i => i.name.charAt(0)).filter(char => !char.match(/[a-z]/i)).length > 0;
+  	let letters = ingredients.map(i => i.name.charAt(0)).filter((char, index, self) => self.indexOf(char) === index && char.match(/[a-z]/i));
+  	
+  	if (hasSymbols) {
+  		letters.unshift('@');
+  	}
+  	const HEADER_HEIGHT = 44;
+		
+  	if (id && ingredients) {
+	  	// find the position of the ingredient in the list
+			const index = ingredients.findIndex(i => i.id === id);
+			//const letterIndex = letters.findIndex(l => l === ingredient.name.charAt(0)) + 1;
+			const letterIndex = 1; // TODO
+
+			// determine offset
+  		let offset = (ingredients && (ingredients.length > 100) && (ingredients.length <= 500))
+  			? (HEADER_HEIGHT * letterIndex)		// if we have subheader's in our container
+  			: 0;	// if we just have a list of ingredients
+  		offset -= 24;
+  		const yPosition = (index * e.target.clientHeight) + offset;
+
+			// and scroll to that position times the height of the list item itself
+			e.target.parentNode.scrollTo(0, yPosition);
+			e.target.parentNode.scrollIntoView();
+		}
+  }
+
+	refreshContainers = (e, localState, populateContainers, ingredientCounts, container = null, updateContainer = null, nextIngredient = null) => {
+		const { group, view } = this.state;
+
+		if (container && updateContainer && nextIngredient) {
+			updateContainer({
+				variables: {
+					container,
+					group,
+					ingredientID: nextIngredient.id,
+					removeCurrentFromList: true,
+					view
+				}
+			});
+		} else {
+			populateContainers.refetch();
+		}
+
 		ingredientCounts.refetch();
 	}
 
+	updateView = (e, name, value) => {
+		this.setState({
+			[name]: value
+		});
+	}
+
 	render() {
-		const { group, view } = this.props.query;
+		const { group, view, isCreateEnabled } = this.state;
 
 		return (
-			<Composed queryView={ view } queryGroup={ group }>
+			<Composed view={ view } group={ group }>
     		{
-    			({ localState, populateContainers, ingredientCounts, updateLocal, updateContainer, getIngredients }) => {
-    				let { currentGroup, currentView, isCreateEnabled } = localState.data;
+    			({ populateContainers, ingredientCounts, updateContainer, getIngredients }) => {
     				const { containers } = populateContainers.data || {};
     				const { loading, error } = populateContainers.data || {};
     				const { counts } = ingredientCounts.data || {};
     				const { ingredients } = getIngredients.data || {};
-
-    				// use the query params in the url if we have them
-    				currentGroup = this.props.query.group || currentGroup;
-    				currentView = this.props.query.view  || currentView;
-
-    				// TODO expand loading and error messages for all queries/mutations
-    				currentGroup = currentGroup || 'name';
-    				currentView = currentView || 'all';
 
 						if (loading) return <p>Loading...</p>;
 						if (error) return <ErrorMessage error={ error } />;
@@ -265,14 +319,14 @@ class Ingredients extends Component {
 									<Filters>
 										{/* View Selection */}
 							  		<div className="left">
-							  			<Link href={{ pathname: '/ingredients', query: { view: 'all', group: currentGroup } }}>
-												<a className={ (currentView === 'all') ? 'active' : '' } onClick={ e => updateLocal({ variables: { view: 'all' } }) }>
+							  			<Link href={{ pathname: '/ingredients', query: { view: 'all', group } }}>
+												<a className={ (view === 'all') ? 'active' : '' } onClick={ e => this.updateView(e, 'view', 'all') }>
 													{ `View${'\xa0'}All${'\xa0'}${ (counts) ? counts.ingredients : 0 }` }
 												</a>
 											</Link> 
 
-											<Link href={{ pathname: '/ingredients', query: { view: 'new', group: currentGroup  } }}>
-												<a className={ (currentView === 'new') ? 'active' : '' } onClick={ e => updateLocal({ variables: { view: 'new' } }) }>
+											<Link href={{ pathname: '/ingredients', query: { view: 'new', group  } }}>
+												<a className={ (view === 'new') ? 'active' : '' } onClick={ e => this.updateView(e, 'view', 'new') }>
 													{ `Newly${'\xa0'}Imported${'\xa0'}${ (counts) ? counts.newIngredients : 0 }` }
 												</a>
 											</Link>            
@@ -282,8 +336,8 @@ class Ingredients extends Component {
 							  		<div className="right">
 											<div className="groupBy">
 												Group By
-												<Link href={{ pathname: '/ingredients', query: { view: currentView, group: getNextIngredientGroup(currentGroup) } }}>
-													<a onClick={ e => updateLocal({ variables: { view: currentView, group: getNextIngredientGroup(currentGroup) } }) }>{ currentGroup.charAt(0).toUpperCase() + currentGroup.substr(1) }</a>
+												<Link href={{ pathname: '/ingredients', query: { view, group: getNextIngredientGroup(group) } }}>
+													<a onClick={ e => this.updateView(e, 'group', getNextIngredientGroup(group)) }>{ group.charAt(0).toUpperCase() + group.substr(1) }</a>
 												</Link> 
 											</div>
 										</div>
@@ -291,15 +345,19 @@ class Ingredients extends Component {
 
 									<Containers>
 										{
-											containers && containers.filter(c => c.ingredients.length > 0).map(c =>
+											containers && containers/*.filter(c => c.ingredients.length > 0)*/.map(c =>
 													<IngredientsContainer 
-														key={ c.label } 
 														className={ (!c.isExpanded) ? 'hidden' : '' }
 														container={ c }
-														currentView={ currentView }
 														ingredients={ ingredients }
+														key={ c.label } 
 														onContainerClick={ e => this.toggleContainer(e, c, updateContainer) }
 														onIngredientClick={ e => this.toggleIngredient(e, c, updateContainer) }
+														ingredientCounts={ ingredientCounts }
+														populateContainers={ populateContainers }
+														refreshContainers={ this.refreshContainers }
+														updateContainer={ updateContainer }
+														view={ view }
 													/>
 												)
 										}
@@ -310,7 +368,7 @@ class Ingredients extends Component {
 											<Button
 												icon={ <FontAwesomeIcon icon={ faPlus } /> }
 												label="Add Ingredient"
-												onClick={ e => updateLocal({ variables: { isCreateEnabled: !isCreateEnabled } }) }
+												onClick={ e => this.updateView(e, 'isCreateEnabled', !isCreateEnabled) }
 											/>
 
 											{
@@ -318,7 +376,6 @@ class Ingredients extends Component {
 													? <CreateIngredient
 															ingredientCounts={ ingredientCounts }
 															ingredients={ ingredients }
-															localState={ localState }
 															populateContainers={ populateContainers }
 															refreshContainers={ this.refreshContainers }
 														/>
@@ -337,4 +394,4 @@ class Ingredients extends Component {
 }
 
 export default Ingredients;
-export { ALL_INGREDIENTS_QUERY, LOCAL_INGREDIENTS_QUERY, LOCAL_INGREDIENTS_MUTATION, POPULATE_CONTAINERS_QUERY };
+export { ALL_INGREDIENTS_QUERY, POPULATE_CONTAINERS_QUERY };

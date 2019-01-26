@@ -63,16 +63,30 @@ const Checkbox = styled.div`
 `;
 
 class CheckboxGroup extends Component {
+	onChange = (e, name) => {
+		console.warn('onChange');
+		const { isEditMode } = this.props;
+
+		if (isEditMode) {
+			console.log('passing change to parent...');
+			console.log(this.props);
+			this.props.onChange(e, name)
+		} else {
+			console.log('preventing default');
+			e => e.preventDefault();
+		} 
+	}
+
 	render() {
 		let keys = [], values = [];
 		const { checkboxes, className, isEditMode, loading, name, type } = this.props;
 
 		for (let [ key, value ] of Object.entries(checkboxes)) {
-			// strip out any prisma types
-			if (key !== '__typename') {
+			// strip out any prisma types and ids
+			if ((key !== '__typename')) {
 				keys.push(key);
+				values.push(value);
 			}
-			values.push(value);
 		}
 
 		return (
@@ -87,7 +101,7 @@ class CheckboxGroup extends Component {
 								  	type={ type }
 								  	id={ k }
 								  	checked={ values[i] }
-								  	onChange={ (isEditMode) ? e => this.props.onChange(e, name) : e => e.preventDefault() }
+								  	onChange={ this.onChange }
 								  	onKeyDown={ (isEditMode) ? e => this.props.onKeyDown(e, name) : e => e.preventDefault() }
 								  	value={ k }
 								  />

@@ -11,6 +11,10 @@ const ContainerStyles = styled.div`
 	flex-wrap: wrap;
 	border-bottom: 1px solid #ddd;
 
+	&:last-of-type {
+		margin-bottom: 40px;
+	}
+
 	&.hidden {
 		border-bottom: 0;
 	}
@@ -42,7 +46,10 @@ const IngredientsList = styled.ul`
 	list-style-type: none;
 	line-height: 1.4;
 	padding: 10px;
-
+	max-height: 500px;
+	overflow: scroll;
+	position: relative;
+	
 	.hidden {
 		display: none;
 	}
@@ -50,6 +57,7 @@ const IngredientsList = styled.ul`
 	li a {
 		text-decoration: none;
 		color: #222;
+		display: inline-block; /* need to give these links height for the scroll! */
 
 		&:hover {
 			color: ${ props => props.theme.highlight };
@@ -70,8 +78,6 @@ const IngredientsList = styled.ul`
 		&.expanded {
 			column-count: unset;
 			flex-basis: 25%;
-			height: $desktopListHeight;
-			overflow: scroll;
 		}
 	}
 
@@ -86,46 +92,61 @@ const IngredientsList = styled.ul`
 
 class IngredientsContainer extends Component {
 	render() {
-		const { className, currentView } = this.props;
-		const { currentIngredientID, ingredients, isCardEnabled, label, message } = this.props.container;
+		const { container, className, view } = this.props;
+		const { currentIngredientID, ingredients, isCardEnabled, isExpanded, label, message } = this.props.container;
 
 		return (
-			<ContainerStyles className={ className }>
+			<ContainerStyles className={ (ingredients && (ingredients.length === 0)) ? `hidden ${ className }` : className }>
 				{/* Container Message */}
   			<Message>
   				{ message }
   			</Message>
 
 				{/* Container Header */}
-  			<ContainerHeader onClick={ this.props.onContainerClick } className={ className }>
-  				{ label }
-  				<span className="count">{ ingredients.length }</span>
-  			</ContainerHeader>
+				{
+					(ingredients && ingredients.length > 0)
+		  			? <ContainerHeader onClick={ this.props.onContainerClick } className={ className }>
+			  				{ label }
+			  				<span className="count">{ ingredients.length }</span>
+			  			</ContainerHeader>
+			  		: null
+			  }
 
   			{/* Expanded Card */}
 				{
     			(isCardEnabled && currentIngredientID)
 		    		? <IngredientCard
+		    				container={ container }
 		    				currentIngredientID={ currentIngredientID }
-		    				currentView={ currentView }
+		    				view={ view }
 		    				ingredients={ this.props.ingredients /* make sure you're passing all ingredients and not just the containers */}
 		    				key={ currentIngredientID }
+		    				ingredientCounts={ this.props.ingredientCounts }
+								localState={ this.props.localState }
+								populateContainers={ this.props.populateContainers }
+								refreshContainers={ this.props.refreshContainers }
+								updateContainer={ this.props.updateContainer }
 		    			/>
 						: null
 				}
 
 				{/* Container Ingredients */}
-				<IngredientsList className={ (isCardEnabled) ? 'expanded' : '' }>
-					{/* TODO check against the current ingredient to see if we need to pass an id or clear it out */
-						ingredients.map(i =>
-							<li key={ `${ label }_${ i.id }` } className={ className }>
-					  		<Link href={ { pathname: '/ingredients', query: { id: i.id } } }>
-									<a onClick={ this.props.onIngredientClick } id={ i.id }>{ i.name }</a>
-								</Link>
-				  		</li>
-						)
+				{
+					(ingredients && ingredients.length > 0)
+						? <IngredientsList className={ (isCardEnabled) ? 'expanded' : '' }>
+							{/* TODO check against the current ingredient to see if we need to pass an id or clear it out */
+								ingredients.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
+									.map(i =>
+										<li key={ `${ label }_${ i.id }` } className={ className }>
+								  		<Link href={ { pathname: '/ingredients', query: { id: i.id } } }>
+												<a onClick={ this.props.onIngredientClick } id={ i.id }>{ i.name }</a>
+											</Link>
+							  		</li>
+									)
+							}
+						</IngredientsList>
+						: null
 					}
-				</IngredientsList>
 			</ContainerStyles>
 		);		
 	}
@@ -136,20 +157,26 @@ IngredientsContainer.defaultProps = {
 		currentIngredientID: null,
 		ingredients: [],
 		isCardEnabeld: false,
+		isExpanded: true,
 		label: "All Ingredients",
 		message: "Loading..."
 	},
-	currentView: 'all',
+	view: 'all',
 	onContainerClick: () => {},
-	onIngredientClick: () => {}
+	onIngredientClick: () => {},
+	updateContainer: () => {}
 };
 
 IngredientsContainer.propTypes = {
 	className: PropTypes.string,
 	container: PropTypes.object,
-	currentView: PropTypes.string,
+	view: PropTypes.string,
 	onContainerClick: PropTypes.func,
 	onIngredientClick: PropTypes.func,
+	localState: PropTypes.object,
+	populateContainers: PropTypes.object,
+	refreshContainers: PropTypes.func,
+	updateContainer: PropTypes.func
 };
 
 export default IngredientsContainer;
