@@ -18,6 +18,10 @@ const ContainerStyles = styled.div`
 	&.hidden {
 		border-bottom: 0;
 	}
+
+	ul.hidden {
+		display: none;
+	}
 `;
 
 const Message = styled.div`
@@ -46,12 +50,29 @@ const IngredientsList = styled.ul`
 	list-style-type: none;
 	line-height: 1.4;
 	padding: 10px;
-	max-height: 500px;
+	max-height: 450px;
 	overflow: scroll;
 	position: relative;
-	
-	.hidden {
-		display: none;
+
+	li .header {
+		font-size: 2em;
+		display: inline-block;
+		width: 100%;
+		font-weight: 600;
+	}
+
+	li.child a {
+		font-style: italic;
+	}
+
+	li.active a {
+		display: inline-block;
+		background: ${ props => props.theme.headerBackground };
+		width: 100%;
+	}
+
+	li.invalid a {
+		color: silver;
 	}
 
 	li a {
@@ -90,10 +111,86 @@ const IngredientsList = styled.ul`
 	}
 `;
 
+// TODO this doesn't need to be a class
 class IngredientsContainer extends Component {
 	render() {
-		const { container, className, view } = this.props;
-		const { currentIngredientID, ingredients, isCardEnabled, isExpanded, label, message } = this.props.container;
+		const { container, refreshView, view } = this.props;
+		let { className } = this.props;
+		const { ingredients, label, message, settings } = container;
+		const { currentIngredientID, isCardEnabled, isExpanded } = settings;
+		let ingredientsList = [];
+
+		// sort ingredients
+		ingredients.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+
+		// TODO move this into a function
+  	// if we have more than 100 ingredients in this container, we'll group these by letter
+  	if (ingredients && (ingredients.length > 100) && (ingredients.length <= 500)) {
+  		const hasSymbols = ingredients.map(i => i.name.charAt(0)).filter(char => !char.match(/[a-z]/i)).length > 0;
+  		const letters = ingredients.map(i => i.name.charAt(0)).filter((char, index, self) => self.indexOf(char) === index && char.match(/[a-z]/i));
+
+  		if (hasSymbols) {
+  			// push header symbol
+  			ingredientsList.unshift({
+  				id: '@_header',
+	  			name: '@',
+  				type: 'header',
+	  		});
+
+	  		// push all ingredients that start with a non-alphanumeric value
+	  		ingredientsList = ingredientsList.concat(
+	  											...ingredients
+														.filter(i => !i.name.charAt(0).match(/[a-z]/i))
+														.map(i => {
+															return {
+																id: i.id,
+												  			name: i.name,
+												  			isChild: i.parent,
+												  			isValid: i.isValidated,
+											  				type: 'ingredient',
+															};
+														})
+													);
+  		}
+
+  		// loop through the used letters and push their ingredient groups
+  		ingredientsList = ingredientsList.concat(...letters.map(char => {
+									  			let grouping = [];
+									  			// push header letter
+									  			grouping.push({
+									  				id: `${char}_header`,
+										  			name: char,
+									  				type: 'header',
+									  			});
+
+									  			// push ingredients under that letter group
+									  			grouping = grouping.concat(...ingredients.filter(i => i.name.charAt(0) === char)
+									  									.map(i => {
+									  										return {
+									  											id: i.id,
+																	  			name: i.name,
+																	  			isChild: i.parent,
+												  								isValid: i.isValidated,
+																  				type: 'ingredient',
+									  										}
+									  									})
+									  								);
+
+									  			return grouping;
+									  		}));
+  	} else {
+  		ingredientsList = ingredientsList.concat(
+  												...ingredients.map(i => {
+			  										return {
+			  											id: i.id,
+											  			name: i.name,
+											  			isChild: i.parent,
+						  								isValid: i.isValidated,
+										  				type: 'ingredient',
+			  										}
+									  			})
+  											);
+  	}
 
 		return (
 			<ContainerStyles className={ (ingredients && (ingredients.length === 0)) ? `hidden ${ className }` : className }>
@@ -114,18 +211,15 @@ class IngredientsContainer extends Component {
 
   			{/* Expanded Card */}
 				{
-    			(isCardEnabled && currentIngredientID)
+    			(isCardEnabled && (currentIngredientID !== null))
 		    		? <IngredientCard
 		    				container={ container }
 		    				currentIngredientID={ currentIngredientID }
-		    				view={ view }
-		    				ingredients={ this.props.ingredients /* make sure you're passing all ingredients and not just the containers */}
+		    				/* TODO double check */
+		    				ingredients={ [ ...this.props.ingredients ] /* make sure you're passing all ingredients and not just the containers */}
 		    				key={ currentIngredientID }
-		    				ingredientCounts={ this.props.ingredientCounts }
-								localState={ this.props.localState }
-								populateContainers={ this.props.populateContainers }
-								refreshContainers={ this.props.refreshContainers }
-								updateContainer={ this.props.updateContainer }
+		    				refreshView={ refreshView }
+		    				view={ view }
 		    			/>
 						: null
 				}
@@ -133,16 +227,34 @@ class IngredientsContainer extends Component {
 				{/* Container Ingredients */}
 				{
 					(ingredients && ingredients.length > 0)
-						? <IngredientsList className={ (isCardEnabled) ? 'expanded' : '' }>
-							{/* TODO check against the current ingredient to see if we need to pass an id or clear it out */
-								ingredients.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
-									.map(i =>
-										<li key={ `${ label }_${ i.id }` } className={ className }>
-								  		<Link href={ { pathname: '/ingredients', query: { id: i.id } } }>
-												<a onClick={ this.props.onIngredientClick } id={ i.id }>{ i.name }</a>
-											</Link>
+						? <IngredientsList className={ (isCardEnabled) ? `expanded ${ className }` : className }>
+							{
+								ingredientsList.map((i, index) => {
+									let href = { pathname: '/ingredients' };
+									// TODO there's still a bug where something is still holding onto the current id and its not adding to this into the url
+									if (!currentIngredientID || (currentIngredientID && (currentIngredientID !== i.id))) {
+										href.query = { id: i.id };
+									}
+
+									let ingClassName = i.type;
+									if (i.type !== 'header') {
+								  	ingClassName += (isCardEnabled && (currentIngredientID === i.id)) ? ' active ' : '';
+								  	ingClassName += (i.isChild) ? ' child' : '';
+								  	ingClassName += (!i.isValid && view !== 'new') ? ' invalid' : '';
+								  }
+
+									return (
+										<li key={ `${ index }_${ label }_${ i.id }` } className={ ingClassName }>
+											{
+												(i.type === 'header')
+												? <span className="header">{ i.name }</span>
+												: <Link href={ href }>
+														<a onClick={ this.props.onIngredientClick } id={ i.id }>{ i.name }</a>
+													</Link>
+											}
 							  		</li>
-									)
+							  	);
+								})
 							}
 						</IngredientsList>
 						: null
@@ -154,29 +266,29 @@ class IngredientsContainer extends Component {
 
 IngredientsContainer.defaultProps = {
 	container: {
-		currentIngredientID: null,
+		id: 0,
 		ingredients: [],
-		isCardEnabeld: false,
-		isExpanded: true,
 		label: "All Ingredients",
-		message: "Loading..."
+		message: "Loading...",
+		settings: {
+			currentIngredientID: null,
+			isCardEnabeld: false,
+			isExpanded: true,
+			typename: "__IngredientViewState"
+		}
 	},
-	view: 'all',
 	onContainerClick: () => {},
 	onIngredientClick: () => {},
-	updateContainer: () => {}
+	view: 'all',
 };
 
 IngredientsContainer.propTypes = {
 	className: PropTypes.string,
 	container: PropTypes.object,
-	view: PropTypes.string,
 	onContainerClick: PropTypes.func,
 	onIngredientClick: PropTypes.func,
-	localState: PropTypes.object,
-	populateContainers: PropTypes.object,
-	refreshContainers: PropTypes.func,
-	updateContainer: PropTypes.func
+	refreshView: PropTypes.func,
+	view: PropTypes.string,
 };
 
 export default IngredientsContainer;

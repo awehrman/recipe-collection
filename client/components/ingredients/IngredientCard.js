@@ -10,11 +10,15 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 import faEdit from '@fortawesome/fontawesome-pro-regular/faEdit';
+import faCodeMerge from '@fortawesome/fontawesome-pro-light/faCodeMerge';
+import faExclamation from '@fortawesome/fontawesome-pro-solid/faExclamation';
+import faPlus from '@fortawesome/fontawesome-pro-regular/faPlus';
 
 import Button from '../form/Button';
 import CheckboxGroup from '../form/CheckboxGroup';
 import Input from '../form/Input';
 import List from '../form/List';
+import Modal from '../form/Modal';
 
 const CURRENT_INGREDIENT_QUERY = gql`
   query CURRENT_INGREDIENT_QUERY($id: ID!) {
@@ -34,7 +38,9 @@ const CURRENT_INGREDIENT_QUERY = gql`
 				soy
 				gluten
 			}
-			alternateNames
+			alternateNames {
+				name
+			}
 			relatedIngredients {
 				id
 				name
@@ -45,7 +51,7 @@ const CURRENT_INGREDIENT_QUERY = gql`
 			}
 			references {
 				id
-				title
+				reference
 			}
 			isValidated
       isComposedIngredient
@@ -59,7 +65,8 @@ const UPDATE_INGREDIENT_MUTATION = gql`
     $name: String
     $plural: String
     $properties: PropertyUpdateDataInput
-		$alternateNames: [ String ]
+		$alternateNames_Create: [ String ]
+		$alternateNames_Delete: [ String ]
 		$relatedIngredients_Connect: [ ID ]
 		$relatedIngredients_Disconnect: [ ID ]
 		$substitutes_Connect: [ ID ]
@@ -74,7 +81,8 @@ const UPDATE_INGREDIENT_MUTATION = gql`
       properties: {
       	update: $properties
       }
-	    alternateNames: $alternateNames
+	    alternateNames_Create: $alternateNames_Create
+	    alternateNames_Delete: $alternateNames_Delete
 	    relatedIngredients_Connect: $relatedIngredients_Connect
 	    relatedIngredients_Disconnect: $relatedIngredients_Disconnect
 	    substitutes_Connect: $substitutes_Connect
@@ -83,13 +91,44 @@ const UPDATE_INGREDIENT_MUTATION = gql`
 	    isComposedIngredient: $isComposedIngredient
     ) {
       id
+			parent {
+				id
+				name
+			}
+			name
+			plural
+			properties {
+				meat
+				poultry
+				fish
+				dairy
+				soy
+				gluten
+			}
+			alternateNames {
+				name
+			}
+			relatedIngredients {
+				id
+				name
+			}
+			substitutes {
+				id
+				name
+			}
+			references {
+				id
+				reference
+			}
+			isValidated
+      isComposedIngredient
     }
   }
 `;
-// TODO do we need all these fields in the return?
 
+// TODO do we need all these fields in the return?
 const Composed = adopt({
-	getIngredient: ({ render, getIngredientVariables }) => <Query query={ CURRENT_INGREDIENT_QUERY } variables={ { id: getIngredientVariables } }>{ render }</Query>,
+	getIngredient: ({ render, id }) => <Query query={ CURRENT_INGREDIENT_QUERY } variables={ { id } }>{ render }</Query>,
 	updateIngredient: ({ render }) => <Mutation mutation={ UPDATE_INGREDIENT_MUTATION }>{ render }</Mutation>
 });
 
@@ -98,6 +137,8 @@ const CardStyles = styled.div`
 	padding: 20px;
 	border-bottom: 1px solid #ddd;
 	width: 100%;
+	display: flex;
+	position: relative;
 
 	&.hidden {
 		display: none;
@@ -114,6 +155,26 @@ const CardStyles = styled.div`
 `;
 
 const IngredientForm = styled.form`
+	flex-basis: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+
+	.bottom {
+		margin-top: auto; /* stick to the bottom of the card */
+
+		.warning {
+			color: tomato;
+			margin-bottom: 10px;
+			font-weight: 600;
+			font-size: 13px;
+		}
+
+		.right {
+			margin-top: auto;
+		}
+	}
+
 	button {
 		border: 0;
 		background: transparent;
@@ -161,6 +222,32 @@ const IngredientForm = styled.form`
 
 		&:hover {
 			background: ${ props => darken(0.1, props.theme.altGreen) };
+		}
+	}
+
+	button.merge {
+		color: ${ props => props.theme.highlight };
+	}
+
+	button.parent {
+		color: ${ props => props.theme.orange };
+	}
+
+	button.parsingError {
+		color: tomato;
+	}
+
+	.actions {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+
+		button {
+			margin-bottom: 6px;
+
+			svg {
+				margin-right: 10px;
+			}
 		}
 	}
 
@@ -223,6 +310,7 @@ const IngredientForm = styled.form`
 			.right {
 				flex: 1;
 				text-align: right;
+				flex-grow: 2;
 			}
 		}
 	}
@@ -233,17 +321,12 @@ const IngredientForm = styled.form`
 
 class IngredientCard extends Component {
 	initialState = {
-		loading: false,
-		pending: {
+		modal: {},
+		pending: {},
+		warnings: [],
 
-		},
-		warnings: {
-			name: '',
-			plural: '',
-			alternateNames: '',
-		},
-
-		isEditMode: false
+		isEditMode: false,
+		isModalEnabled: false
 	};
 
 	state = this.initialState;
@@ -275,9 +358,52 @@ class IngredientCard extends Component {
 		});
 	}
 
+	onToggleModal = (e, type) => {
+		e.preventDefault();
+		const { isModalEnabled } = this.state;
+		let modal = {};
+
+		switch(type) {
+			case "error":
+				modal.label = 'Save';
+				modal.title = 'Select an Error Type';
+				modal.type = 'error';
+				modal.values = {
+					associated: [],
+					type: null // [ 'data', 'semantic', 'instruction', 'equipment' ]
+				};
+				break;
+			case "merge":
+				modal.label = 'Merge';
+				modal.title = 'Merge Ingredient With';
+				modal.type = 'merge';
+				modal.values = {
+					associated: [],
+					type: null 
+				};
+				break;
+			case "parent":
+				modal.label = 'Assign';
+				modal.title = 'Assign Parent';
+				modal.type = 'parent';
+				modal.values = {
+					associated: [],
+					type: null 
+				};
+				break;
+			default:
+				break;	
+		}
+
+		this.setState({
+			isModalEnabled: !isModalEnabled,
+			modal
+		});
+	}
+
 	onCancelClick = (e) => {
 		e.preventDefault();
-		this.setState(this.initialState, () => { console.log(this.state); });
+		this.setState(this.initialState);
 	}
 
 	onCheckboxChange = (e, fieldName, defaultValue) => {
@@ -329,97 +455,91 @@ class IngredientCard extends Component {
   	}
   }
 
-	onInputChange = (e, defaultValue) => {
+	onInputChange = (e) => {
 		const { name, value } = e.target;
-		const pending = { ...this.state.pending };
+		const pending = { ...this.state.pending };	// TODO double check
+		const warnings = this.validate(value, name);
 
 		this.setState({
-			pending: { ...pending, ...{ [name]: value } }
-		}, this.onValidation(name, value, defaultValue));
+			pending: { ...pending, ...{ [name]: value } },
+			warnings
+		});
 	}
 
-	onListChange = (item, listName, listType, toRemove = false, defaultValue) => {
-		// determine if this entry is valid
-		const warning = this.validate(item);
-		const pending = { ...this.state.pending };
-		const connect = `${ listName }_Connect`, disconnect = `${ listName }_Disconnect`;
+	onListChange = (listItem, fieldName, removeListItem = false) => {
+		const pending = { ...this.state.pending };	// TODO double check
+		let mutationFieldName = '';
 
-		listName = (listType === 'link') ? `${ listName }_${ (toRemove) ? 'Disc' : 'C' }onnect` : listName;
-
-		if (toRemove || !warning) {
-			let currentList = [];
-
-			// if we don't have any prior modifications to this list, just use the default value
-			if (!pending.hasOwnProperty(listName) && !pending.hasOwnProperty(connect) && !pending.hasOwnProperty(disconnect)) {
-				currentList = [ ...defaultValue ];
-			} else {
-				currentList = pending.hasOwnProperty(listName) ? pending[listName] : [];
-			}
-
-			const index = (currentList) ? currentList.indexOf(item) : -1;
-
-			if (listType !== 'link' && toRemove && index > -1) {
-				// remove the item from the list (for simple lists such as alternateNames)
-				currentList.splice(index, 1);
-			} else if (index === -1) {
-				// add the item to the list
-				currentList.push(item);
-			}
-
-			this.setState({
-				pending: {  ...pending, ...{ [listName]: currentList } }
-			});
-			
+		if (fieldName === 'alternateNames') {
+			mutationFieldName = (!removeListItem) ? 'alternateNames_Create' : 'alternateNames_Delete';
 		} else {
-			// clear out validation if we hit return on an invalid item
-			this.onValidation(listName, '');
+			mutationFieldName = (!removeListItem) ? `${ fieldName }_Connect` : `${ fieldName }_Disconnect`;
 		}
+
+		let updatedList = (pending.hasOwnProperty(mutationFieldName)) ? [ ...pending[mutationFieldName] ] :[];
+		updatedList.push(listItem);
+
+		// if we're removing this item, we may need to also remove it from the opposing list
+		if (removeListItem) {
+			let opposingListName = [];
+			
+			if (fieldName === 'alternateNames') {
+				opposingListName = (!removeListItem) ? 'alternateNames_Delete' : 'alternateNames_Create';
+			} else {
+				opposingListName = (!removeListItem) ? `${ fieldName }_Disconnect` : `${ fieldName }_Connect`;
+			}
+
+			let opposingList = (pending.hasOwnProperty(opposingListName)) ? [ ...pending[opposingListName] ] :[];
+			
+			if (opposingList.indexOf(listItem) > -1) {
+				updatedList.splice(updatedList.indexOf(listItem), 1);
+			}
+		}
+
+		// re-validate the ingredient
+ 		const warnings = this.validate((removeListItem) ? null : listItem, fieldName);
+
+		this.setState({
+			pending: {  ...pending, ...{ [mutationFieldName]: updatedList } },
+			warnings
+		});
 	}
 
 	onSaveIngredient = async (e, mutation, query) => {
 		e.preventDefault();
 
 		// ensure that we don't have any warnings that prevent this from being created
-		const warnings = { ...this.state.warnings };
-		let isValid = true;
-
-		for (let [ key, value ] of Object.entries(warnings)) {
-			if (value) {
-				isValid = false;
-			}
-		}
+		const warnings = [ ...this.state.warnings ]; // TODO double check
+		let isValid = (warnings.filter(w => w.isPreventSave).length === 0) ? true : false;
 
 		if (isValid) {
-			const pending = { ...this.state.pending }; // TODO is this a deep enough copy?
+			const variables = { ...this.state.pending }; // TODO double check
 
-			// cleanup pending state values
-			pending.id = this.props.currentIngredientID;
-			pending.isValidated = true;		// approve ingredient updates to move the out of the 'new' view
+			// cleanup variables state values
+			variables.id = this.props.currentIngredientID;
+			variables.isValidated = true;		// approve ingredient updates to move the out of the 'new' view
 
-			if (pending.hasOwnProperty('properties') && pending.properties.hasOwnProperty('__typename')) {
-				delete pending.properties.__typename;
-			}
-
-			if (pending.hasOwnProperty('relatedIngredients_Connect')) {
-				pending.relatedIngredients_Connect = pending.relatedIngredients_Connect.map(i => i.id);
-			}
-
-			if (pending.hasOwnProperty('relatedIngredients_Disconnect')) {
-				pending.relatedIngredients_Disconnect = pending.relatedIngredients_Disconnect.map(i => i.id);
-			}
-
-			if (pending.hasOwnProperty('substitutes_Connect')) {
-				pending.substitutes_Connect = pending.substitutes_Connect.map(i => i.id);
-			}
-
-			if (pending.hasOwnProperty('substitutes_Disconnect')) {
-				pending.substitutes_Disconnect = pending.substitutes_Disconnect.map(i => i.id);
-			}
-
-			this.setState({
-				loading: true
-			}, await this.updateIngredient(e, pending, mutation, query));
+			// clean up properties typename
+			if (variables.hasOwnProperty('properties') && variables.properties.hasOwnProperty('__typename')) { delete variables.properties.__typename; }
 			
+			// clean up alt name update lists to only contain strings
+			if (variables.hasOwnProperty('alternateNames_Create')) { variables.alternateNames_Create = variables.alternateNames_Create.map(i => i.name); }
+			if (variables.hasOwnProperty('alternateNames_Delete')) { variables.alternateNames_Delete = variables.alternateNames_Delete.map(i => i.name); }
+			
+			// clean up related and substitute update lists to only contain ids
+			if (variables.hasOwnProperty('relatedIngredients_Connect')) { variables.relatedIngredients_Connect = variables.relatedIngredients_Connect.map(i => i.id); }
+			if (variables.hasOwnProperty('relatedIngredients_Disconnect')) { variables.relatedIngredients_Disconnect = variables.relatedIngredients_Disconnect.map(i => i.id); }
+			if (variables.hasOwnProperty('substitutes_Connect')) { variables.substitutes_Connect = variables.substitutes_Connect.map(i => i.id); }
+			if (variables.hasOwnProperty('substitutes_Disconnect')) { variables.substitutes_Disconnect = variables.substitutes_Disconnect.map(i => i.id); }
+			
+			await mutation({ variables })
+						.then(res => {
+							console.warn('response:');
+							console.warn(res.data.updateIngredient);
+
+							// clear out pending changes and refresh the view
+							this.setState(this.initialState, this.refreshCard(e));
+						});
 		}
 	}
 
@@ -431,74 +551,83 @@ class IngredientCard extends Component {
   	const plural = (name) ? pluralize(name) : '';
 
   	this.setState({
-  		pending: {  ...pending, ... { plural } }
-  	}, this.onValidation('plural', plural));
+  		pending: {  ...pending, ... { plural } } 
+  	}, () => this.validate(plural, 'plural'));
   }
 
   onSuggestedRelationClick = (e, item) => {
   	e.preventDefault();
   	const pending = { ...this.state.pending };
 
-  	// add to relatedIngredients
-  	let relatedIngredients = (pending.hasOwnProperty('relatedIngredients')) ? [ ...pending.relatedIngredients ] : [];
-  	relatedIngredients.push(item);
+  	let relatedIngredients_Connect = (pending.hasOwnProperty('relatedIngredients_Connect')) ? [ ...pending.relatedIngredients_Connect ] : [];
+  	relatedIngredients_Connect.push({ id: item.id, name: item.name });
 
   	this.setState({
-  		pending: {  ...pending, ...{ relatedIngredients } }
+  		pending: {  ...pending, ...{ relatedIngredients_Connect } }
   	});
-  }
-
-	onValidation = (fieldName, value, defaultValue) => {
-  	let warnings = { ...this.state.warnings };
-
-		if (warnings.hasOwnProperty(fieldName)) {
-			warnings[fieldName] = this.validate(value, defaultValue);
-
-			this.setState({
-				warnings
-			});
-		}
   }
 
   populateSuggestions(ingredient, ingredients, isEditMode) {
 	  let related = [];
-  	const { name, plural, alternateNames, relatedIngredients } = ingredient || '';
+  	const { id = null, name = '' , plural = '' } = ingredient;
+  	const alternateNames = (ingredient.hasOwnProperty('alternateNames')) ? [ ...ingredient.alternateNames ] : [];
+  	const relatedIngredients = (ingredient.hasOwnProperty('relatedIngredients')) ? [ ...ingredient.relatedIngredients ] : [];
+
   	// TODO this could be more sensible, but it's a short term solution for now
   	// in the future consider hooking this up to some of the vocab lists used in the PEG grammar
   	const excludedWords = [ 'a', 'from', 'the', 'you', 'be', 'for', 'with', 'plus' ];
 
-		if (ingredient && isEditMode && name) {
+		if (isEditMode) {
   		// split the name into individual words ('active dry yeast' => ['active', 'dry', 'yeast'])
-  		let keywordList = [ ...name.split(' '), ...plural.split(' '), ...alternateNames.map(n => n.split(' ')) ];
+  		//let keywordList = [ ...name.split(' '), ...plural.split(' '), ...alternateNames.map(n => n.split(' ')) ];
+  		const splitName = (name) ? [ ...name.toLowerCase().split(' ') ] : [],
+  					splitPlural = (plural) ? [ ...plural.toLowerCase().split(' ') ] : [],
+  					splitAlt = (alternateNames) ? [ ...alternateNames.map(n => n.name.toLowerCase().split(' ')) ] : [];
+
+  		let keywordList = [].concat(...[ ...splitName, ...splitPlural, ...splitAlt ]);
   		keywordList = [].concat(...keywordList).filter(k => k);
 
   		// and for each word in the ingredient's name, see if it's used an ingredient elsewhere
   		for (let w in keywordList) {
   			const word = keywordList[w]; // 'yeast'
 
-  			if (!excludedWords.includes(word)) {
+  			if (!~excludedWords.indexOf(word)) {
 	  			ingredients.filter(i =>
 	  				// don't return the current ingredient
-	  				(i.id !== ingredient.id)
+	  				(i.id !== id)
 	  				// or any ingredients already listed as related
-	  				&& !(relatedIngredients.find(r => r.id === i.id))
+	  				&& (relatedIngredients && !(relatedIngredients.find(r => r.id === i.id)))
 	  				// find any ingredients with a partial match on each ingredient word
 	  				&&
 	  					(
 	  						(i.name && i.name.indexOf(word) > -1)
 		  					|| (i.plural && i.plural.indexOf(word) > -1)
-		  					|| (i.alternateNames && i.alternateNames.find(n => n.indexOf(word) > -1))
+		  					|| (i.alternateNames && i.alternateNames.find(n => n.name.indexOf(word) > -1))
 		  				)
+	  				// TODO and it doesn't match any pending values on our ingredient that are going to trigger a merge with another ingredient
+	  				&& (
+	  					(i.name !== ingredient.name)
+	  					&& (i.name !== ingredient.plural)
+	  					&& (!~ingredient.alternateNames.findIndex(n => n.name === i.name))
+
+	  					&& (i.plural !== ingredient.name)
+	  					&& (i.plural !== ingredient.plural)
+	  					&& (!~ingredient.alternateNames.findIndex(n => n.name === i.plural))
+
+	  					&& (!~i.alternateNames.findIndex(n => (n.name === ingredient.name)))
+	  					&& (!~i.alternateNames.findIndex(n => (n.name === ingredient.plural)))
+	  					&& (!this.hasDuplicateEntries([ ...i.alternateNames, ...ingredient.alternateNames ], 'name'))
 	  				)
-	  				.map(i => [ i.id, i.name ])
-	  				// populate our related ingredients list with an associated weight of how close of a match this is
-	  				.forEach(i => {
-	  					if (!related.find(ing => ing.name.includes(i[1]))) {
-								// TODO this is a whole research topic and i'm not even convinced that this is the "best" weight to use
-								// but levenshtein is pretty familiar to me and it works JUST OKAY for the time being 
-								related.push({ name: i[1], score: levenshtein.get(name, i[1]), id: i[0] });
-							}
-	  				});
+  				)
+  				.map(i => [ i.id, i.name ])
+  				// populate our related ingredients list with an associated weight of how close of a match this is
+  				.forEach(i => {
+  					if (!related.find(ing => ing.name.includes(i[1]))) {
+							// TODO this is a whole research topic and i'm not even convinced that this is the "best" weight to use
+							// but levenshtein is pretty familiar to me and it works JUST OKAY for the time being 
+							related.push({ name: i[1], score: levenshtein.get(name, i[1]), id: i[0] });
+						}
+  				});
 	  		}
   		}
 
@@ -511,63 +640,200 @@ class IngredientCard extends Component {
 	}
 
 	refreshCard = (e) => {
-		const { container, view, localState, populateContainers, ingredientCounts, updateContainer } = this.props;
-		const { currentIngredientID, ingredients } = container;
+		const { container, view } = this.props;
+		const ingredients = [ ...container.ingredients ]; 	// TODO double check
 		let nextIngredient = null;
 
 		// if we're in the 'new' view and there's more ingredients left in our container, 
 		// then show the next ingredient in the list
 		if (view === 'new' && ingredients && (ingredients.length > 0)) {
-
-			const index = ingredients.findIndex(i => i.id === currentIngredientID);
+			const index = ingredients.findIndex(i => i.id === container.settings.currentIngredientID);
 
 			if ((index + 1) <= ingredients.length) {
-				nextIngredient = { ...ingredients[(index + 1)] };
+				nextIngredient = { ...ingredients[(index + 1)] };	 // TODO okay now use this!
 			}
 		}
 
-		// then update the parent view
-		// TODO this is a mess
-		this.props.refreshContainers(e, localState, populateContainers, ingredientCounts, container, updateContainer, nextIngredient);
+		this.props.refreshView(nextIngredient);
 	}
 
-	updateIngredient = async (e, variables, mutation, query) => {
-		await mutation({ variables })
-						.then(res => {
-							// refetch ingredient data
-							query.refetch();
+	validate = (value, fieldName = '') => {
+		console.warn('validate');
+		console.warn(value);
 
-							// clear out pending changes and refresh the view
-							this.setState(
-								this.initialState,
-								this.refreshCard(e)
-							);
+		const { currentIngredientID, ingredients } = this.props;
+		const pending = { ...this.state.pending }; // TODO do the usual checks
+  	const warnings = [];
+  	let excludedFields = [ fieldName ];
+
+  	// TODO ugh this is a mess, come back to this and clean this up
+		const testWarning = (inputValue, excludedFields = [], name) => {
+			if ((typeof inputValue === 'object') && inputValue.hasOwnProperty('name')) {
+				inputValue = inputValue.name;
+			}
+
+			inputValue = inputValue.toLowerCase();
+			let existing;
+			
+			let matchOnName = false, matchOnPlural = false, matchOnAltName = false;
+
+			// determine if this value is used elsewhere on this, or any other, ingredient
+			const isValueAlreadyUsed = ing => {
+				const isCurrentIng = (ing.id === currentIngredientID);
+
+				if (isCurrentIng) {
+					// apply pending updates
+					if ((fieldName !== 'name') && pending.hasOwnProperty('name')) {
+						// pending are prior changes that have happened
+						// we want to override the props idea of this ingredient with those changes
+						ing.name = pending.name;
+					}
+
+					if ((fieldName !== 'plural') && pending.hasOwnProperty('plural')) {
+						ing.plural = pending.plural;
+					}
+
+					if (pending.hasOwnProperty('alternateNames_Create') || pending.hasOwnProperty('alternateNames_Delete')) {
+						ing.alternateNames = this.populateListUpdates('alternateNames', ing.alternateNames);
+					}
+
+					// if we're currently editing this field, then don't validate against it
+					excludedFields.forEach(field => {
+						if (field !== 'alternateNames') {
+							ing[field] = '';
+						}
+						// TODO do we need to handle alt names specially here? or does this not apply
+					});
+
+				}
+
+				matchOnName = (ing.name && (ing.name !== '') && (ing.name.toLowerCase() === inputValue));
+				matchOnPlural = (ing.plural && (ing.plural !== '') && (ing.plural.toLowerCase() === inputValue));
+				matchOnAltName = (ing.alternateNames && ing.alternateNames.findIndex(n => n.name.toLowerCase() === inputValue) > -1);
+
+				//console.warn({ fieldName, ing, matchOnName, matchOnPlural, matchOnAltName });
+
+				if (matchOnName || matchOnPlural || matchOnAltName) {
+					existing = Object.assign({}, ing);
+					return true;
+				}
+				return false;
+			};
+
+			if (ingredients.some(isValueAlreadyUsed)) {
+				warnings.push({
+					fieldName: name,
+					message: (existing.id === currentIngredientID)
+										? `Warning! "${ inputValue }" is used on multiple fields on this ingredient!`
+										: `Attention! Assigning "${ inputValue }" to this ingredient will merge these records!`,
+					isPreventSave: (existing.id === currentIngredientID) ? true : false,
+					value: inputValue
+				});
+
+				if (existing.id === currentIngredientID) {
+					// if our validation failed on a field on this ingredient, check if we need to highlight those ingredients
+
+					if (matchOnName && (fieldName !== 'name')) {
+						warnings.push({
+							fieldName: 'name',
+							message: `Warning! "${ inputValue }" is used on multiple fields on this ingredient. Move this value into a single field in order to save changes.`,
+							isPreventSave: true,
+							value: inputValue
 						});
-	};
+					}
 
-	validate = (value, defaultValue = null) => {
-  	const { ingredients } = this.props;
+					if (matchOnPlural && (fieldName !== 'plural')) {
+						warnings.push({
+							fieldName: 'plural',
+							message: `Warning! "${ inputValue }" is used on multiple fields on this ingredient. Move this value into a single field in order to save changes.`,
+							isPreventSave: true,
+							value: inputValue
+						});
+					}
 
-  	if (ingredients && (value !== defaultValue)) {
-	  	const existing = ingredients.find(i =>
-	  		// don't throw warnings if we end up back at our original starting point
-	  		(i.name !== defaultValue)
-	  		&& (
-		  		(i.name === value)
-		  		|| (i.plural === value) 
-		  		|| (~i.alternateNames.indexOf(value))
-  			)
-	  	);
-			return (existing) ? `The ingredient ${ value } already exists!` : '';
+					if (matchOnAltName && (fieldName !== 'alternateNames')) {
+						warnings.push({
+							fieldName: 'alternateNames',
+							message: `Warning! "${ inputValue }" is used on multiple fields on this ingredient. Move this value into a single field in order to save changes.`,
+							isPreventSave: true,
+							value: inputValue
+						});
+					}
+				}
+			}
 		}
 
-		return '';
-  }
+		const hasDuplicateEntries = (array, fieldName) => {
+			array = array.map(w => w[fieldName]);
+			return array.some((value, index, array) => array.indexOf(value) !== array.lastIndexOf(value));
+		};
 
+		// if this value is used elsewhere, add an appropriate warning to the warnings list
+		if (value) {
+			testWarning(value, excludedFields, fieldName);
+		}
+
+		// re-validate the remainder of the validated pending update fields
+		if ((fieldName !== 'name') && pending.hasOwnProperty('name')) {
+			excludedFields.push('name');
+			testWarning(pending.name, excludedFields, 'name');
+		}
+
+		if ((fieldName !== 'plural') && pending.hasOwnProperty('plural')) {
+			excludedFields.push('plural');
+			testWarning(pending.plural, excludedFields, 'plural');
+		}
+
+		if ((fieldName !== 'alternateNames') && pending.hasOwnProperty('alternateNames_Create')) {
+			pending.alternateNames_Create.forEach(n => {
+
+				excludedFields.push('alternateNames'); // TODO or maybe alternateNames_Create?
+				testWarning(n, excludedFields, 'alternateNames');
+			})
+		}
+
+		if (hasDuplicateEntries([ ...warnings ], 'value')) {
+			warnings.push({
+				fieldName: 'multiple',
+				message: `Warning! "${ value.name || value }" is used on multiple fields on this ingredient. Move this value into a single field in order to save changes.`,
+				isPreventSave: true,
+				value
+			});
+		}
+
+ 		return warnings;
+ 	}
+
+ 	// this is responsible for setting state
+ 	onValidation = (value, name) => {
+		const warnings = this.validate(value, name);
+
+		this.setState({
+			warnings
+		});
+	}
+
+  // TODO DRY this up
   populateListUpdates = (listName, list) => {
   	const pending = { ...this.state.pending };
-  	let updates = [ ...list ];
+  	let updates = (list) ? [ ...list ] : []; 
 
+  	if (pending.hasOwnProperty(`${ listName }_Connect`)) {
+  		pending[`${ listName }_Connect`].forEach(c => {
+  			if (!~updates.indexOf(c)) {
+					updates.push(c);
+				}
+			});
+  	}
+
+  	if (pending.hasOwnProperty(`${ listName }_Create`)) {
+  		pending[`${ listName }_Create`].forEach(c => {
+  			if (!~updates.indexOf(c)) {
+					updates.push(c);
+				}
+			});
+  	}
+  	
   	if (pending.hasOwnProperty(`${ listName }_Disconnect`)) {
 			pending[`${ listName }_Disconnect`].forEach(d => {
 				const index = updates.findIndex(item => item.id === d.id);
@@ -575,28 +841,25 @@ class IngredientCard extends Component {
 			});
 		}
 
-  	if (pending.hasOwnProperty(`${ listName }_Connect`)) {
-  		pending[`${ listName }_Connect`].forEach(c => {
-  			// add the
-  			if (!~updates.indexOf(c)) {
-					updates.push(c);
-				}
+  	if (pending.hasOwnProperty(`${ listName }_Delete`)) {
+			pending[`${ listName }_Delete`].forEach(d => {
+				const index = updates.findIndex(item => item.name === d.name);
+				if (index !== -1) { updates.splice(index, 1); }
 			});
-  	}
+		}
 
 		return updates;
   }
 
-  // TODO re-populate form with results from updateIngredient
 	render() {
-		const { container, currentIngredientID, view, ingredients } = this.props;
-		const { isEditMode, warnings } = this.state;
+		const { container, currentIngredientID, ingredients, view } = this.props;
+		const { isEditMode, isModalEnabled, modal, warnings } = this.state;
 		const pending = { ...this.state.pending };
 		const excludedSuggestions = {};
 
 		return (
-			<CardStyles className={ (!container.isExpanded) ? 'hidden' : '' }>
-				<Composed getIngredientVariables={ currentIngredientID }>
+			<CardStyles className={ (!container.settings.isExpanded) ? 'hidden' : '' }>
+				<Composed id={ currentIngredientID }>
 					{
 						({ getIngredient, updateIngredient }) => {
 							const { data, error, loading } = getIngredient;
@@ -606,22 +869,35 @@ class IngredientCard extends Component {
 							const { name, plural, properties, alternateNames, relatedIngredients, substitutes,
 											id, isComposedIngredient, references } = data.ingredient || '';
 
+							// merge pending updates with saved data
+							const pendingRelatedIngredients = this.populateListUpdates('relatedIngredients', relatedIngredients),
+										pendingSubstitutes = this.populateListUpdates('substitutes', substitutes),
+										pendingAlternateNames = this.populateListUpdates('alternateNames', alternateNames);
+
 							// combined saved ingredient values with any pending updates
 							excludedSuggestions.id = data.ingredient.id;
 							excludedSuggestions.name = (pending.hasOwnProperty('name')) ? pending.name : name;
 							excludedSuggestions.plural = (pending.hasOwnProperty('plural')) ? pending.plural : plural;
-							excludedSuggestions.alternateNames = (pending.hasOwnProperty('alternateNames')) ? pending.alternateNames : alternateNames;
-							
+							//excludedSuggestions.alternateNames = (pending.hasOwnProperty('alternateNames')) ? [ ...pending.alternateNames ] : [ ...alternateNames ];
+							excludedSuggestions.alternateNames = pendingAlternateNames;
+
 							// add in relatedIngredients so we can keep these out of our related suggestions
-							// i don't think there's any reason we need to include substitutes into excludedSuggestions at this point
-							excludedSuggestions.relatedIngredients = (pending.hasOwnProperty('relatedIngredients')) ? pending.relatedIngredients : relatedIngredients;
-							
-							const pendingRelatedIngredients = this.populateListUpdates('relatedIngredients', relatedIngredients),
-										pendingSubstitutes = this.populateListUpdates('substitutes', substitutes),
-										suggestedRelations = this.populateSuggestions(excludedSuggestions, ingredients, isEditMode);
+							excludedSuggestions.relatedIngredients = pendingRelatedIngredients;
+
+							// build list of suggested related ingredients
+							const suggestedRelations = this.populateSuggestions(excludedSuggestions, ingredients, isEditMode);
 
 							return ( 
 								<IngredientForm onSubmit={ e => this.onSaveIngredient(e, updateIngredient, getIngredient) } autoComplete="off">
+									{
+										(isModalEnabled && modal)
+											? <Modal
+													label={ modal.label }
+													onCancel={ this.onToggleModal }
+													title={ modal.title }
+												/>
+											: null
+									}
 									<div className="top">
 										<div className="left">
 											{/* Name */}
@@ -636,7 +912,7 @@ class IngredientCard extends Component {
 						  					placeholder={ "name" }
 						  					suppressWarnings={ true }
 						  					value={ pending.name }
-						  					warning={ warnings["name"] }
+						  					warning={ warnings.filter(w => w.fieldName === "name")[0] }
 						    			/>
 
 						    			{/* Plural */}
@@ -648,12 +924,11 @@ class IngredientCard extends Component {
 						  					isPluralSuggestEnabled={ true }
 												name={ "plural" }
 						  					onChange={ this.onInputChange }
-						  					onValidation={ this.onValidation }
 						  					onSuggestPlural={ e => this.onSuggestPlural(e, name) }
 						  					placeholder={ "plural" }
 						  					suppressWarnings={ true }
 						  					value={ pending.plural }
-						  					warning={ warnings["plural"] } 
+						  					warning={ warnings.filter(w => w.fieldName === "plural")[0] }
 						    			/>
 						    		</div>
 
@@ -701,8 +976,8 @@ class IngredientCard extends Component {
 												required={ false }
 						  					showSuggestions={ false }
 						  					suppressWarnings={ true }
-						  					warning={ warnings["alternateNames"] } 
-						  					values={ pending.alternateNames }
+						  					warnings={ warnings.filter(w => w.fieldName === "alternateNames") } 
+						  					values={ pendingAlternateNames }
 						  					validate={ this.validate }
 						    			/>
 
@@ -784,35 +1059,36 @@ class IngredientCard extends Component {
 										  		/>
 										  	: <React.Fragment>
 										  			<div className="left">
-										  				{/* TODO
-										  				<Button
-												  			className="merge"
-												  			onClick={ e => e.preventDefault() }
-												  			label="Merge Ingredient"
-												  		/> */}
-												  		
-												  		{/* TODO
-												  		<Button
-												  			className="parent"
-												  			onClick={ e => e.preventDefault() }
-												  			label="Assign Parent"
-												  		/> */}
+										  				<div className="actions">
+											  				{/* TODO */}
+											  				<Button
+													  			className="merge"
+													  			icon={ <FontAwesomeIcon icon={ faCodeMerge } /> }
+													  			onClick={ e => this.onToggleModal(e, 'merge') }
+													  			label="Merge Ingredient"
+													  		/>
+													  		
+													  		{/* TODO */}
+													  		<Button
+													  			className="parent"
+													  			icon={ <FontAwesomeIcon icon={ faPlus } /> }
+													  			onClick={ e => this.onToggleModal(e, 'parent') }
+													  			label="Assign Parent"
+													  		/>
 
-												  		{/* TODO
-												  		<Button
-												  			className="parsingError"
-												  			onClick={ e => e.preventDefault() }
-												  			label="Parsing Error" 
-												  		/>*/}
+													  		{/* TODO */}
+													  		<Button
+													  			className="parsingError"
+													  			icon={ <FontAwesomeIcon icon={ faExclamation } /> }
+													  			onClick={ e => this.onToggleModal(e, 'error') }
+													  			label="Parsing Error" 
+													  		/>
+												  		</div>
 										  			</div>
 
 										  			<div className="right">
-										  			  {/* Validation Warnings */}
-															{/* TODO cleanup */
-																Object.entries(warnings).map(([ key, value ]) => (
-																	<div className="warning" key={ `warning_${ key }` }>{ value }</div>
-																))
-															}
+										  				{/* Warning Messages */}
+										  			  { [ ...new Set(warnings.map(w => w.message))].map((w, index) => <div className="warning" key={ `warning_${ index }` }>{ w }</div>) }
 
 										  				<Button
 												  			className="cancel"
@@ -841,12 +1117,16 @@ class IngredientCard extends Component {
 
 IngredientCard.defaultProps = {
 	container: {
-		currentIngredientID: null,
+		id: 0,
 		ingredients: [],
-		isCardEnabeld: false,
-		isExpanded: true,
 		label: "All Ingredients",
-		message: "Loading..."
+		message: "Loading...",
+		settings: {
+			currentIngredientID: null,
+			isCardEnabeld: false,
+			isExpanded: true,
+			typename: "__IngredientViewState"
+		}
 	},
 	view: 'all',
 	ingredients: [],
@@ -857,10 +1137,10 @@ IngredientCard.propTypes = {
 	currentIngredientID: PropTypes.string.isRequired,
 	view: PropTypes.string,
 	ingredients: PropTypes.array,
-	localState: PropTypes.object,
-	populateContainers: PropTypes.object,
-	refreshContainers: PropTypes.func,
-	updateContainer: PropTypes.func,
+	refreshView: PropTypes.func,
+	updateLocalCache: PropTypes.object
 };
 
 export default IngredientCard;
+export { CURRENT_INGREDIENT_QUERY };
+

@@ -1,5 +1,9 @@
 # source: https://us1.prisma.sh/recipe-collection/recipes/dev
-# timestamp: Wed Jan 02 2019 15:42:45 GMT-0600 (Central Standard Time)
+# timestamp: Fri Feb 22 2019 14:22:47 GMT-0600 (Central Standard Time)
+
+type AggregateAlternateName {
+  count: Int!
+}
 
 type AggregateCategory {
   count: Int!
@@ -35,6 +39,242 @@ type AggregateTag {
 
 type AggregateUser {
   count: Int!
+}
+
+type AlternateName {
+  name: String!
+}
+
+"""A connection to a list of items."""
+type AlternateNameConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [AlternateNameEdge]!
+  aggregate: AggregateAlternateName!
+}
+
+input AlternateNameCreateInput {
+  name: String!
+}
+
+input AlternateNameCreateManyInput {
+  create: [AlternateNameCreateInput!]
+  connect: [AlternateNameWhereUniqueInput!]
+}
+
+"""An edge in a connection."""
+type AlternateNameEdge {
+  """The item at the end of the edge."""
+  node: AlternateName!
+
+  """A cursor for use in pagination."""
+  cursor: String!
+}
+
+enum AlternateNameOrderByInput {
+  name_ASC
+  name_DESC
+  id_ASC
+  id_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type AlternateNamePreviousValues {
+  name: String!
+}
+
+input AlternateNameScalarWhereInput {
+  """Logical AND on all given filters."""
+  AND: [AlternateNameScalarWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [AlternateNameScalarWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [AlternateNameScalarWhereInput!]
+  name: String
+
+  """All values that are not equal to given value."""
+  name_not: String
+
+  """All values that are contained in given list."""
+  name_in: [String!]
+
+  """All values that are not contained in given list."""
+  name_not_in: [String!]
+
+  """All values less than the given value."""
+  name_lt: String
+
+  """All values less than or equal the given value."""
+  name_lte: String
+
+  """All values greater than the given value."""
+  name_gt: String
+
+  """All values greater than or equal the given value."""
+  name_gte: String
+
+  """All values containing the given string."""
+  name_contains: String
+
+  """All values not containing the given string."""
+  name_not_contains: String
+
+  """All values starting with the given string."""
+  name_starts_with: String
+
+  """All values not starting with the given string."""
+  name_not_starts_with: String
+
+  """All values ending with the given string."""
+  name_ends_with: String
+
+  """All values not ending with the given string."""
+  name_not_ends_with: String
+}
+
+type AlternateNameSubscriptionPayload {
+  mutation: MutationType!
+  node: AlternateName
+  updatedFields: [String!]
+  previousValues: AlternateNamePreviousValues
+}
+
+input AlternateNameSubscriptionWhereInput {
+  """Logical AND on all given filters."""
+  AND: [AlternateNameSubscriptionWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [AlternateNameSubscriptionWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [AlternateNameSubscriptionWhereInput!]
+
+  """
+  The subscription event gets dispatched when it's listed in mutation_in
+  """
+  mutation_in: [MutationType!]
+
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: AlternateNameWhereInput
+}
+
+input AlternateNameUpdateDataInput {
+  name: String
+}
+
+input AlternateNameUpdateInput {
+  name: String
+}
+
+input AlternateNameUpdateManyDataInput {
+  name: String
+}
+
+input AlternateNameUpdateManyInput {
+  create: [AlternateNameCreateInput!]
+  connect: [AlternateNameWhereUniqueInput!]
+  set: [AlternateNameWhereUniqueInput!]
+  disconnect: [AlternateNameWhereUniqueInput!]
+  delete: [AlternateNameWhereUniqueInput!]
+  update: [AlternateNameUpdateWithWhereUniqueNestedInput!]
+  updateMany: [AlternateNameUpdateManyWithWhereNestedInput!]
+  deleteMany: [AlternateNameScalarWhereInput!]
+  upsert: [AlternateNameUpsertWithWhereUniqueNestedInput!]
+}
+
+input AlternateNameUpdateManyMutationInput {
+  name: String
+}
+
+input AlternateNameUpdateManyWithWhereNestedInput {
+  where: AlternateNameScalarWhereInput!
+  data: AlternateNameUpdateManyDataInput!
+}
+
+input AlternateNameUpdateWithWhereUniqueNestedInput {
+  where: AlternateNameWhereUniqueInput!
+  data: AlternateNameUpdateDataInput!
+}
+
+input AlternateNameUpsertWithWhereUniqueNestedInput {
+  where: AlternateNameWhereUniqueInput!
+  update: AlternateNameUpdateDataInput!
+  create: AlternateNameCreateInput!
+}
+
+input AlternateNameWhereInput {
+  """Logical AND on all given filters."""
+  AND: [AlternateNameWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [AlternateNameWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [AlternateNameWhereInput!]
+  name: String
+
+  """All values that are not equal to given value."""
+  name_not: String
+
+  """All values that are contained in given list."""
+  name_in: [String!]
+
+  """All values that are not contained in given list."""
+  name_not_in: [String!]
+
+  """All values less than the given value."""
+  name_lt: String
+
+  """All values less than or equal the given value."""
+  name_lte: String
+
+  """All values greater than the given value."""
+  name_gt: String
+
+  """All values greater than or equal the given value."""
+  name_gte: String
+
+  """All values containing the given string."""
+  name_contains: String
+
+  """All values not containing the given string."""
+  name_not_contains: String
+
+  """All values starting with the given string."""
+  name_starts_with: String
+
+  """All values not starting with the given string."""
+  name_not_starts_with: String
+
+  """All values ending with the given string."""
+  name_ends_with: String
+
+  """All values not ending with the given string."""
+  name_not_ends_with: String
+}
+
+input AlternateNameWhereUniqueInput {
+  name: String
 }
 
 type BatchPayload {
@@ -284,6 +524,7 @@ input CategoryUpdateManyDataInput {
 input CategoryUpdateManyInput {
   create: [CategoryCreateInput!]
   connect: [CategoryWhereUniqueInput!]
+  set: [CategoryWhereUniqueInput!]
   disconnect: [CategoryWhereUniqueInput!]
   delete: [CategoryWhereUniqueInput!]
   update: [CategoryUpdateWithWhereUniqueNestedInput!]
@@ -455,10 +696,10 @@ type Ingredient implements Node {
   name: String!
   plural: String
   properties: Property!
-  alternateNames: [String!]!
+  alternateNames(where: AlternateNameWhereInput, orderBy: AlternateNameOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [AlternateName!]
   relatedIngredients(where: IngredientWhereInput, orderBy: IngredientOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Ingredient!]
   substitutes(where: IngredientWhereInput, orderBy: IngredientOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Ingredient!]
-  references(where: RecipeWhereInput, orderBy: RecipeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Recipe!]
+  references(where: RecipeIngredientWhereInput, orderBy: RecipeIngredientOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [RecipeIngredient!]
   isValidated: Boolean!
   isComposedIngredient: Boolean!
 }
@@ -473,21 +714,17 @@ type IngredientConnection {
   aggregate: AggregateIngredient!
 }
 
-input IngredientCreatealternateNamesInput {
-  set: [String!]
-}
-
 input IngredientCreateInput {
   name: String!
   plural: String
   isValidated: Boolean
   isComposedIngredient: Boolean
-  alternateNames: IngredientCreatealternateNamesInput
   parent: IngredientCreateOneInput
   properties: PropertyCreateOneInput!
+  alternateNames: AlternateNameCreateManyInput
   relatedIngredients: IngredientCreateManyInput
   substitutes: IngredientCreateManyInput
-  references: RecipeCreateManyInput
+  references: RecipeIngredientCreateManyInput
 }
 
 input IngredientCreateManyInput {
@@ -530,7 +767,6 @@ type IngredientPreviousValues {
   id: ID!
   name: String!
   plural: String
-  alternateNames: [String!]!
   isValidated: Boolean!
   isComposedIngredient: Boolean!
 }
@@ -713,21 +949,17 @@ input IngredientSubscriptionWhereInput {
   node: IngredientWhereInput
 }
 
-input IngredientUpdatealternateNamesInput {
-  set: [String!]
-}
-
 input IngredientUpdateDataInput {
   name: String
   plural: String
   isValidated: Boolean
   isComposedIngredient: Boolean
-  alternateNames: IngredientUpdatealternateNamesInput
   parent: IngredientUpdateOneInput
   properties: PropertyUpdateOneRequiredInput
+  alternateNames: AlternateNameUpdateManyInput
   relatedIngredients: IngredientUpdateManyInput
   substitutes: IngredientUpdateManyInput
-  references: RecipeUpdateManyInput
+  references: RecipeIngredientUpdateManyInput
 }
 
 input IngredientUpdateInput {
@@ -735,12 +967,12 @@ input IngredientUpdateInput {
   plural: String
   isValidated: Boolean
   isComposedIngredient: Boolean
-  alternateNames: IngredientUpdatealternateNamesInput
   parent: IngredientUpdateOneInput
   properties: PropertyUpdateOneRequiredInput
+  alternateNames: AlternateNameUpdateManyInput
   relatedIngredients: IngredientUpdateManyInput
   substitutes: IngredientUpdateManyInput
-  references: RecipeUpdateManyInput
+  references: RecipeIngredientUpdateManyInput
 }
 
 input IngredientUpdateManyDataInput {
@@ -748,12 +980,12 @@ input IngredientUpdateManyDataInput {
   plural: String
   isValidated: Boolean
   isComposedIngredient: Boolean
-  alternateNames: IngredientUpdatealternateNamesInput
 }
 
 input IngredientUpdateManyInput {
   create: [IngredientCreateInput!]
   connect: [IngredientWhereUniqueInput!]
+  set: [IngredientWhereUniqueInput!]
   disconnect: [IngredientWhereUniqueInput!]
   delete: [IngredientWhereUniqueInput!]
   update: [IngredientUpdateWithWhereUniqueNestedInput!]
@@ -767,7 +999,6 @@ input IngredientUpdateManyMutationInput {
   plural: String
   isValidated: Boolean
   isComposedIngredient: Boolean
-  alternateNames: IngredientUpdatealternateNamesInput
 }
 
 input IngredientUpdateManyWithWhereNestedInput {
@@ -939,19 +1170,24 @@ input IngredientWhereInput {
   isComposedIngredient_not: Boolean
   parent: IngredientWhereInput
   properties: PropertyWhereInput
+  alternateNames_every: AlternateNameWhereInput
+  alternateNames_some: AlternateNameWhereInput
+  alternateNames_none: AlternateNameWhereInput
   relatedIngredients_every: IngredientWhereInput
   relatedIngredients_some: IngredientWhereInput
   relatedIngredients_none: IngredientWhereInput
   substitutes_every: IngredientWhereInput
   substitutes_some: IngredientWhereInput
   substitutes_none: IngredientWhereInput
-  references_every: RecipeWhereInput
-  references_some: RecipeWhereInput
-  references_none: RecipeWhereInput
+  references_every: RecipeIngredientWhereInput
+  references_some: RecipeIngredientWhereInput
+  references_none: RecipeIngredientWhereInput
 }
 
 input IngredientWhereUniqueInput {
   id: ID
+  name: String
+  plural: String
 }
 
 """
@@ -962,59 +1198,65 @@ scalar Long
 
 type Mutation {
   createUser(data: UserCreateInput!): User!
-  createRecipeIngredient(data: RecipeIngredientCreateInput!): RecipeIngredient!
-  createProperty(data: PropertyCreateInput!): Property!
-  createCategory(data: CategoryCreateInput!): Category!
-  createTag(data: TagCreateInput!): Tag!
-  createParsedSegment(data: ParsedSegmentCreateInput!): ParsedSegment!
   createRecipe(data: RecipeCreateInput!): Recipe!
+  createCategory(data: CategoryCreateInput!): Category!
   createRecipeInstruction(data: RecipeInstructionCreateInput!): RecipeInstruction!
+  createTag(data: TagCreateInput!): Tag!
+  createProperty(data: PropertyCreateInput!): Property!
+  createParsedSegment(data: ParsedSegmentCreateInput!): ParsedSegment!
   createIngredient(data: IngredientCreateInput!): Ingredient!
+  createRecipeIngredient(data: RecipeIngredientCreateInput!): RecipeIngredient!
+  createAlternateName(data: AlternateNameCreateInput!): AlternateName!
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
-  updateRecipeIngredient(data: RecipeIngredientUpdateInput!, where: RecipeIngredientWhereUniqueInput!): RecipeIngredient
-  updateProperty(data: PropertyUpdateInput!, where: PropertyWhereUniqueInput!): Property
-  updateCategory(data: CategoryUpdateInput!, where: CategoryWhereUniqueInput!): Category
-  updateTag(data: TagUpdateInput!, where: TagWhereUniqueInput!): Tag
-  updateParsedSegment(data: ParsedSegmentUpdateInput!, where: ParsedSegmentWhereUniqueInput!): ParsedSegment
   updateRecipe(data: RecipeUpdateInput!, where: RecipeWhereUniqueInput!): Recipe
+  updateCategory(data: CategoryUpdateInput!, where: CategoryWhereUniqueInput!): Category
   updateRecipeInstruction(data: RecipeInstructionUpdateInput!, where: RecipeInstructionWhereUniqueInput!): RecipeInstruction
+  updateTag(data: TagUpdateInput!, where: TagWhereUniqueInput!): Tag
+  updateProperty(data: PropertyUpdateInput!, where: PropertyWhereUniqueInput!): Property
+  updateParsedSegment(data: ParsedSegmentUpdateInput!, where: ParsedSegmentWhereUniqueInput!): ParsedSegment
   updateIngredient(data: IngredientUpdateInput!, where: IngredientWhereUniqueInput!): Ingredient
+  updateRecipeIngredient(data: RecipeIngredientUpdateInput!, where: RecipeIngredientWhereUniqueInput!): RecipeIngredient
+  updateAlternateName(data: AlternateNameUpdateInput!, where: AlternateNameWhereUniqueInput!): AlternateName
   deleteUser(where: UserWhereUniqueInput!): User
-  deleteRecipeIngredient(where: RecipeIngredientWhereUniqueInput!): RecipeIngredient
-  deleteProperty(where: PropertyWhereUniqueInput!): Property
-  deleteCategory(where: CategoryWhereUniqueInput!): Category
-  deleteTag(where: TagWhereUniqueInput!): Tag
-  deleteParsedSegment(where: ParsedSegmentWhereUniqueInput!): ParsedSegment
   deleteRecipe(where: RecipeWhereUniqueInput!): Recipe
+  deleteCategory(where: CategoryWhereUniqueInput!): Category
   deleteRecipeInstruction(where: RecipeInstructionWhereUniqueInput!): RecipeInstruction
+  deleteTag(where: TagWhereUniqueInput!): Tag
+  deleteProperty(where: PropertyWhereUniqueInput!): Property
+  deleteParsedSegment(where: ParsedSegmentWhereUniqueInput!): ParsedSegment
   deleteIngredient(where: IngredientWhereUniqueInput!): Ingredient
+  deleteRecipeIngredient(where: RecipeIngredientWhereUniqueInput!): RecipeIngredient
+  deleteAlternateName(where: AlternateNameWhereUniqueInput!): AlternateName
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
-  upsertRecipeIngredient(where: RecipeIngredientWhereUniqueInput!, create: RecipeIngredientCreateInput!, update: RecipeIngredientUpdateInput!): RecipeIngredient!
-  upsertProperty(where: PropertyWhereUniqueInput!, create: PropertyCreateInput!, update: PropertyUpdateInput!): Property!
-  upsertCategory(where: CategoryWhereUniqueInput!, create: CategoryCreateInput!, update: CategoryUpdateInput!): Category!
-  upsertTag(where: TagWhereUniqueInput!, create: TagCreateInput!, update: TagUpdateInput!): Tag!
-  upsertParsedSegment(where: ParsedSegmentWhereUniqueInput!, create: ParsedSegmentCreateInput!, update: ParsedSegmentUpdateInput!): ParsedSegment!
   upsertRecipe(where: RecipeWhereUniqueInput!, create: RecipeCreateInput!, update: RecipeUpdateInput!): Recipe!
+  upsertCategory(where: CategoryWhereUniqueInput!, create: CategoryCreateInput!, update: CategoryUpdateInput!): Category!
   upsertRecipeInstruction(where: RecipeInstructionWhereUniqueInput!, create: RecipeInstructionCreateInput!, update: RecipeInstructionUpdateInput!): RecipeInstruction!
+  upsertTag(where: TagWhereUniqueInput!, create: TagCreateInput!, update: TagUpdateInput!): Tag!
+  upsertProperty(where: PropertyWhereUniqueInput!, create: PropertyCreateInput!, update: PropertyUpdateInput!): Property!
+  upsertParsedSegment(where: ParsedSegmentWhereUniqueInput!, create: ParsedSegmentCreateInput!, update: ParsedSegmentUpdateInput!): ParsedSegment!
   upsertIngredient(where: IngredientWhereUniqueInput!, create: IngredientCreateInput!, update: IngredientUpdateInput!): Ingredient!
+  upsertRecipeIngredient(where: RecipeIngredientWhereUniqueInput!, create: RecipeIngredientCreateInput!, update: RecipeIngredientUpdateInput!): RecipeIngredient!
+  upsertAlternateName(where: AlternateNameWhereUniqueInput!, create: AlternateNameCreateInput!, update: AlternateNameUpdateInput!): AlternateName!
   updateManyUsers(data: UserUpdateManyMutationInput!, where: UserWhereInput): BatchPayload!
-  updateManyRecipeIngredients(data: RecipeIngredientUpdateManyMutationInput!, where: RecipeIngredientWhereInput): BatchPayload!
-  updateManyProperties(data: PropertyUpdateManyMutationInput!, where: PropertyWhereInput): BatchPayload!
-  updateManyCategories(data: CategoryUpdateManyMutationInput!, where: CategoryWhereInput): BatchPayload!
-  updateManyTags(data: TagUpdateManyMutationInput!, where: TagWhereInput): BatchPayload!
-  updateManyParsedSegments(data: ParsedSegmentUpdateManyMutationInput!, where: ParsedSegmentWhereInput): BatchPayload!
   updateManyRecipes(data: RecipeUpdateManyMutationInput!, where: RecipeWhereInput): BatchPayload!
+  updateManyCategories(data: CategoryUpdateManyMutationInput!, where: CategoryWhereInput): BatchPayload!
   updateManyRecipeInstructions(data: RecipeInstructionUpdateManyMutationInput!, where: RecipeInstructionWhereInput): BatchPayload!
+  updateManyTags(data: TagUpdateManyMutationInput!, where: TagWhereInput): BatchPayload!
+  updateManyProperties(data: PropertyUpdateManyMutationInput!, where: PropertyWhereInput): BatchPayload!
+  updateManyParsedSegments(data: ParsedSegmentUpdateManyMutationInput!, where: ParsedSegmentWhereInput): BatchPayload!
   updateManyIngredients(data: IngredientUpdateManyMutationInput!, where: IngredientWhereInput): BatchPayload!
+  updateManyRecipeIngredients(data: RecipeIngredientUpdateManyMutationInput!, where: RecipeIngredientWhereInput): BatchPayload!
+  updateManyAlternateNames(data: AlternateNameUpdateManyMutationInput!, where: AlternateNameWhereInput): BatchPayload!
   deleteManyUsers(where: UserWhereInput): BatchPayload!
-  deleteManyRecipeIngredients(where: RecipeIngredientWhereInput): BatchPayload!
-  deleteManyProperties(where: PropertyWhereInput): BatchPayload!
-  deleteManyCategories(where: CategoryWhereInput): BatchPayload!
-  deleteManyTags(where: TagWhereInput): BatchPayload!
-  deleteManyParsedSegments(where: ParsedSegmentWhereInput): BatchPayload!
   deleteManyRecipes(where: RecipeWhereInput): BatchPayload!
+  deleteManyCategories(where: CategoryWhereInput): BatchPayload!
   deleteManyRecipeInstructions(where: RecipeInstructionWhereInput): BatchPayload!
+  deleteManyTags(where: TagWhereInput): BatchPayload!
+  deleteManyProperties(where: PropertyWhereInput): BatchPayload!
+  deleteManyParsedSegments(where: ParsedSegmentWhereInput): BatchPayload!
   deleteManyIngredients(where: IngredientWhereInput): BatchPayload!
+  deleteManyRecipeIngredients(where: RecipeIngredientWhereInput): BatchPayload!
+  deleteManyAlternateNames(where: AlternateNameWhereInput): BatchPayload!
 }
 
 enum MutationType {
@@ -1338,6 +1580,7 @@ input ParsedSegmentUpdateManyDataInput {
 input ParsedSegmentUpdateManyInput {
   create: [ParsedSegmentCreateInput!]
   connect: [ParsedSegmentWhereUniqueInput!]
+  set: [ParsedSegmentWhereUniqueInput!]
   disconnect: [ParsedSegmentWhereUniqueInput!]
   delete: [ParsedSegmentWhereUniqueInput!]
   update: [ParsedSegmentUpdateWithWhereUniqueNestedInput!]
@@ -1777,32 +2020,35 @@ input PropertyWhereUniqueInput {
 
 type Query {
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
-  recipeIngredients(where: RecipeIngredientWhereInput, orderBy: RecipeIngredientOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [RecipeIngredient]!
-  properties(where: PropertyWhereInput, orderBy: PropertyOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Property]!
-  categories(where: CategoryWhereInput, orderBy: CategoryOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Category]!
-  tags(where: TagWhereInput, orderBy: TagOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Tag]!
-  parsedSegments(where: ParsedSegmentWhereInput, orderBy: ParsedSegmentOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [ParsedSegment]!
   recipes(where: RecipeWhereInput, orderBy: RecipeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Recipe]!
+  categories(where: CategoryWhereInput, orderBy: CategoryOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Category]!
   recipeInstructions(where: RecipeInstructionWhereInput, orderBy: RecipeInstructionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [RecipeInstruction]!
+  tags(where: TagWhereInput, orderBy: TagOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Tag]!
+  properties(where: PropertyWhereInput, orderBy: PropertyOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Property]!
+  parsedSegments(where: ParsedSegmentWhereInput, orderBy: ParsedSegmentOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [ParsedSegment]!
   ingredients(where: IngredientWhereInput, orderBy: IngredientOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Ingredient]!
+  recipeIngredients(where: RecipeIngredientWhereInput, orderBy: RecipeIngredientOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [RecipeIngredient]!
+  alternateNames(where: AlternateNameWhereInput, orderBy: AlternateNameOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [AlternateName]!
   user(where: UserWhereUniqueInput!): User
-  recipeIngredient(where: RecipeIngredientWhereUniqueInput!): RecipeIngredient
-  property(where: PropertyWhereUniqueInput!): Property
-  category(where: CategoryWhereUniqueInput!): Category
-  tag(where: TagWhereUniqueInput!): Tag
-  parsedSegment(where: ParsedSegmentWhereUniqueInput!): ParsedSegment
   recipe(where: RecipeWhereUniqueInput!): Recipe
+  category(where: CategoryWhereUniqueInput!): Category
   recipeInstruction(where: RecipeInstructionWhereUniqueInput!): RecipeInstruction
+  tag(where: TagWhereUniqueInput!): Tag
+  property(where: PropertyWhereUniqueInput!): Property
+  parsedSegment(where: ParsedSegmentWhereUniqueInput!): ParsedSegment
   ingredient(where: IngredientWhereUniqueInput!): Ingredient
+  recipeIngredient(where: RecipeIngredientWhereUniqueInput!): RecipeIngredient
+  alternateName(where: AlternateNameWhereUniqueInput!): AlternateName
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
-  recipeIngredientsConnection(where: RecipeIngredientWhereInput, orderBy: RecipeIngredientOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): RecipeIngredientConnection!
-  propertiesConnection(where: PropertyWhereInput, orderBy: PropertyOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PropertyConnection!
-  categoriesConnection(where: CategoryWhereInput, orderBy: CategoryOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): CategoryConnection!
-  tagsConnection(where: TagWhereInput, orderBy: TagOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): TagConnection!
-  parsedSegmentsConnection(where: ParsedSegmentWhereInput, orderBy: ParsedSegmentOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ParsedSegmentConnection!
   recipesConnection(where: RecipeWhereInput, orderBy: RecipeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): RecipeConnection!
+  categoriesConnection(where: CategoryWhereInput, orderBy: CategoryOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): CategoryConnection!
   recipeInstructionsConnection(where: RecipeInstructionWhereInput, orderBy: RecipeInstructionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): RecipeInstructionConnection!
+  tagsConnection(where: TagWhereInput, orderBy: TagOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): TagConnection!
+  propertiesConnection(where: PropertyWhereInput, orderBy: PropertyOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PropertyConnection!
+  parsedSegmentsConnection(where: ParsedSegmentWhereInput, orderBy: ParsedSegmentOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ParsedSegmentConnection!
   ingredientsConnection(where: IngredientWhereInput, orderBy: IngredientOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): IngredientConnection!
+  recipeIngredientsConnection(where: RecipeIngredientWhereInput, orderBy: RecipeIngredientOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): RecipeIngredientConnection!
+  alternateNamesConnection(where: AlternateNameWhereInput, orderBy: AlternateNameOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): AlternateNameConnection!
 
   """Fetches an object given its ID"""
   node(
@@ -1842,11 +2088,6 @@ input RecipeCreateInput {
   tags: TagCreateManyInput
   ingredients: RecipeIngredientCreateManyInput
   instructions: RecipeInstructionCreateManyInput
-}
-
-input RecipeCreateManyInput {
-  create: [RecipeCreateInput!]
-  connect: [RecipeWhereUniqueInput!]
 }
 
 """An edge in a connection."""
@@ -2128,6 +2369,7 @@ input RecipeIngredientUpdateManyDataInput {
 input RecipeIngredientUpdateManyInput {
   create: [RecipeIngredientCreateInput!]
   connect: [RecipeIngredientWhereUniqueInput!]
+  set: [RecipeIngredientWhereUniqueInput!]
   disconnect: [RecipeIngredientWhereUniqueInput!]
   delete: [RecipeIngredientWhereUniqueInput!]
   update: [RecipeIngredientUpdateWithWhereUniqueNestedInput!]
@@ -2529,6 +2771,7 @@ input RecipeInstructionUpdateManyDataInput {
 input RecipeInstructionUpdateManyInput {
   create: [RecipeInstructionCreateInput!]
   connect: [RecipeInstructionWhereUniqueInput!]
+  set: [RecipeInstructionWhereUniqueInput!]
   disconnect: [RecipeInstructionWhereUniqueInput!]
   delete: [RecipeInstructionWhereUniqueInput!]
   update: [RecipeInstructionUpdateWithWhereUniqueNestedInput!]
@@ -2700,217 +2943,6 @@ type RecipePreviousValues {
   image: String
 }
 
-input RecipeScalarWhereInput {
-  """Logical AND on all given filters."""
-  AND: [RecipeScalarWhereInput!]
-
-  """Logical OR on all given filters."""
-  OR: [RecipeScalarWhereInput!]
-
-  """Logical NOT on all given filters combined by AND."""
-  NOT: [RecipeScalarWhereInput!]
-  id: ID
-
-  """All values that are not equal to given value."""
-  id_not: ID
-
-  """All values that are contained in given list."""
-  id_in: [ID!]
-
-  """All values that are not contained in given list."""
-  id_not_in: [ID!]
-
-  """All values less than the given value."""
-  id_lt: ID
-
-  """All values less than or equal the given value."""
-  id_lte: ID
-
-  """All values greater than the given value."""
-  id_gt: ID
-
-  """All values greater than or equal the given value."""
-  id_gte: ID
-
-  """All values containing the given string."""
-  id_contains: ID
-
-  """All values not containing the given string."""
-  id_not_contains: ID
-
-  """All values starting with the given string."""
-  id_starts_with: ID
-
-  """All values not starting with the given string."""
-  id_not_starts_with: ID
-
-  """All values ending with the given string."""
-  id_ends_with: ID
-
-  """All values not ending with the given string."""
-  id_not_ends_with: ID
-  evernoteGUID: String
-
-  """All values that are not equal to given value."""
-  evernoteGUID_not: String
-
-  """All values that are contained in given list."""
-  evernoteGUID_in: [String!]
-
-  """All values that are not contained in given list."""
-  evernoteGUID_not_in: [String!]
-
-  """All values less than the given value."""
-  evernoteGUID_lt: String
-
-  """All values less than or equal the given value."""
-  evernoteGUID_lte: String
-
-  """All values greater than the given value."""
-  evernoteGUID_gt: String
-
-  """All values greater than or equal the given value."""
-  evernoteGUID_gte: String
-
-  """All values containing the given string."""
-  evernoteGUID_contains: String
-
-  """All values not containing the given string."""
-  evernoteGUID_not_contains: String
-
-  """All values starting with the given string."""
-  evernoteGUID_starts_with: String
-
-  """All values not starting with the given string."""
-  evernoteGUID_not_starts_with: String
-
-  """All values ending with the given string."""
-  evernoteGUID_ends_with: String
-
-  """All values not ending with the given string."""
-  evernoteGUID_not_ends_with: String
-  title: String
-
-  """All values that are not equal to given value."""
-  title_not: String
-
-  """All values that are contained in given list."""
-  title_in: [String!]
-
-  """All values that are not contained in given list."""
-  title_not_in: [String!]
-
-  """All values less than the given value."""
-  title_lt: String
-
-  """All values less than or equal the given value."""
-  title_lte: String
-
-  """All values greater than the given value."""
-  title_gt: String
-
-  """All values greater than or equal the given value."""
-  title_gte: String
-
-  """All values containing the given string."""
-  title_contains: String
-
-  """All values not containing the given string."""
-  title_not_contains: String
-
-  """All values starting with the given string."""
-  title_starts_with: String
-
-  """All values not starting with the given string."""
-  title_not_starts_with: String
-
-  """All values ending with the given string."""
-  title_ends_with: String
-
-  """All values not ending with the given string."""
-  title_not_ends_with: String
-  source: String
-
-  """All values that are not equal to given value."""
-  source_not: String
-
-  """All values that are contained in given list."""
-  source_in: [String!]
-
-  """All values that are not contained in given list."""
-  source_not_in: [String!]
-
-  """All values less than the given value."""
-  source_lt: String
-
-  """All values less than or equal the given value."""
-  source_lte: String
-
-  """All values greater than the given value."""
-  source_gt: String
-
-  """All values greater than or equal the given value."""
-  source_gte: String
-
-  """All values containing the given string."""
-  source_contains: String
-
-  """All values not containing the given string."""
-  source_not_contains: String
-
-  """All values starting with the given string."""
-  source_starts_with: String
-
-  """All values not starting with the given string."""
-  source_not_starts_with: String
-
-  """All values ending with the given string."""
-  source_ends_with: String
-
-  """All values not ending with the given string."""
-  source_not_ends_with: String
-  image: String
-
-  """All values that are not equal to given value."""
-  image_not: String
-
-  """All values that are contained in given list."""
-  image_in: [String!]
-
-  """All values that are not contained in given list."""
-  image_not_in: [String!]
-
-  """All values less than the given value."""
-  image_lt: String
-
-  """All values less than or equal the given value."""
-  image_lte: String
-
-  """All values greater than the given value."""
-  image_gt: String
-
-  """All values greater than or equal the given value."""
-  image_gte: String
-
-  """All values containing the given string."""
-  image_contains: String
-
-  """All values not containing the given string."""
-  image_not_contains: String
-
-  """All values starting with the given string."""
-  image_starts_with: String
-
-  """All values not starting with the given string."""
-  image_not_starts_with: String
-
-  """All values ending with the given string."""
-  image_ends_with: String
-
-  """All values not ending with the given string."""
-  image_not_ends_with: String
-}
-
 type RecipeSubscriptionPayload {
   mutation: MutationType!
   node: Recipe
@@ -2950,17 +2982,6 @@ input RecipeSubscriptionWhereInput {
   node: RecipeWhereInput
 }
 
-input RecipeUpdateDataInput {
-  evernoteGUID: String
-  title: String
-  source: String
-  image: String
-  categories: CategoryUpdateManyInput
-  tags: TagUpdateManyInput
-  ingredients: RecipeIngredientUpdateManyInput
-  instructions: RecipeInstructionUpdateManyInput
-}
-
 input RecipeUpdateInput {
   evernoteGUID: String
   title: String
@@ -2972,45 +2993,11 @@ input RecipeUpdateInput {
   instructions: RecipeInstructionUpdateManyInput
 }
 
-input RecipeUpdateManyDataInput {
-  evernoteGUID: String
-  title: String
-  source: String
-  image: String
-}
-
-input RecipeUpdateManyInput {
-  create: [RecipeCreateInput!]
-  connect: [RecipeWhereUniqueInput!]
-  disconnect: [RecipeWhereUniqueInput!]
-  delete: [RecipeWhereUniqueInput!]
-  update: [RecipeUpdateWithWhereUniqueNestedInput!]
-  updateMany: [RecipeUpdateManyWithWhereNestedInput!]
-  deleteMany: [RecipeScalarWhereInput!]
-  upsert: [RecipeUpsertWithWhereUniqueNestedInput!]
-}
-
 input RecipeUpdateManyMutationInput {
   evernoteGUID: String
   title: String
   source: String
   image: String
-}
-
-input RecipeUpdateManyWithWhereNestedInput {
-  where: RecipeScalarWhereInput!
-  data: RecipeUpdateManyDataInput!
-}
-
-input RecipeUpdateWithWhereUniqueNestedInput {
-  where: RecipeWhereUniqueInput!
-  data: RecipeUpdateDataInput!
-}
-
-input RecipeUpsertWithWhereUniqueNestedInput {
-  where: RecipeWhereUniqueInput!
-  update: RecipeUpdateDataInput!
-  create: RecipeCreateInput!
 }
 
 input RecipeWhereInput {
@@ -3242,14 +3229,15 @@ input RecipeWhereUniqueInput {
 
 type Subscription {
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
-  recipeIngredient(where: RecipeIngredientSubscriptionWhereInput): RecipeIngredientSubscriptionPayload
-  property(where: PropertySubscriptionWhereInput): PropertySubscriptionPayload
-  category(where: CategorySubscriptionWhereInput): CategorySubscriptionPayload
-  tag(where: TagSubscriptionWhereInput): TagSubscriptionPayload
-  parsedSegment(where: ParsedSegmentSubscriptionWhereInput): ParsedSegmentSubscriptionPayload
   recipe(where: RecipeSubscriptionWhereInput): RecipeSubscriptionPayload
+  category(where: CategorySubscriptionWhereInput): CategorySubscriptionPayload
   recipeInstruction(where: RecipeInstructionSubscriptionWhereInput): RecipeInstructionSubscriptionPayload
+  tag(where: TagSubscriptionWhereInput): TagSubscriptionPayload
+  property(where: PropertySubscriptionWhereInput): PropertySubscriptionPayload
+  parsedSegment(where: ParsedSegmentSubscriptionWhereInput): ParsedSegmentSubscriptionPayload
   ingredient(where: IngredientSubscriptionWhereInput): IngredientSubscriptionPayload
+  recipeIngredient(where: RecipeIngredientSubscriptionWhereInput): RecipeIngredientSubscriptionPayload
+  alternateName(where: AlternateNameSubscriptionWhereInput): AlternateNameSubscriptionPayload
 }
 
 type Tag implements Node {
@@ -3494,6 +3482,7 @@ input TagUpdateManyDataInput {
 input TagUpdateManyInput {
   create: [TagCreateInput!]
   connect: [TagWhereUniqueInput!]
+  set: [TagWhereUniqueInput!]
   disconnect: [TagWhereUniqueInput!]
   delete: [TagWhereUniqueInput!]
   update: [TagUpdateWithWhereUniqueNestedInput!]

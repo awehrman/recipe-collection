@@ -130,7 +130,7 @@ class Input extends Component {
 	onChange = (e) => {
 		// on input change, update our suggestion pool
 		let suggestions = [];
-		const { defaultValue, excludedSuggestions, suggestionPool } = this.props;
+		const { excludedSuggestions, suggestionPool } = this.props;
 		const { value } = e.target;
 
 		if (value && suggestionPool) {
@@ -155,7 +155,7 @@ class Input extends Component {
 
 		this.setState({
 			suggestions,
-		}, this.props.onChange(e, defaultValue));
+		}, this.props.onChange(e));
 	}
 
 	onKeyDown = (e) => {
@@ -201,9 +201,7 @@ class Input extends Component {
 	}
 
 	onSelectSuggestion = (e, suggestion) => {
-		console.warn('Input - onSelectSuggestion');
 		const { name } = this.props;
-		console.log({ name, suggestion });
 
 		this.setState({
     	suggestions: [],
@@ -216,6 +214,9 @@ class Input extends Component {
   					isSuggestionEnabled, label, loading, name, placeholder, suppressWarnings, tabIndex, value, warning } = this.props;
   	const { currentSuggestion, suggestions } = this.state;
 
+  	let inputValue = (isEditMode && (value !== undefined)) ? value : defaultValue;
+  	inputValue = (!inputValue) ? '' : inputValue;
+
     return (
       <FieldSet aria-busy={ loading } className={ (isEditMode) ? `editable ${ className }` : className } disabled={ loading }>
       	{/* input label */}
@@ -226,8 +227,9 @@ class Input extends Component {
 
 				{/* input element */}
         <input
+        	aria-busy={ loading }
         	autoComplete="off"
-        	className={ (warning) ? 'warning' : '' } aria-busy={ loading }
+        	className={ (warning) ? 'warning' : '' }
           name={ name }
           onBlur={ this.props.onBlur }
         	onChange={ this.onChange }
@@ -238,7 +240,7 @@ class Input extends Component {
           spellCheck={ isEditMode }
           tabIndex={ tabIndex }
           type="text"
-          value={ (isEditMode && (value !== undefined)) ? value : defaultValue }
+          value={ inputValue }
         />
 
 				{/* abs - stylistic fluff */}
@@ -247,7 +249,7 @@ class Input extends Component {
         </span>
 
 				{/* validation warnings */}
-        { (!suppressWarnings && warning) ? <Warning>{ warning }</Warning> : null }
+        { (!suppressWarnings && warning) ? <Warning>{ warning.message }</Warning> : null }
 
 				{/* relative - suggested values */}
         {
@@ -278,7 +280,7 @@ Input.defaultProps = {
 	onSuggestPlural: () => {},
 	suppressWarnings: false,
 	tabIndex: -1,
-	warning: ''
+	warning: null
 };
 
 Input.propTypes = {
@@ -303,7 +305,7 @@ Input.propTypes = {
 	suppressWarnings: PropTypes.bool,
 	tabIndex: PropTypes.number,
 	value: PropTypes.string,
-	warning: PropTypes.string,
+	warning: PropTypes.object,
 };
 
 export default Input;

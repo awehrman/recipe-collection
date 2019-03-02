@@ -52,6 +52,10 @@ const ListStyles = styled.fieldset`
 			color: #222;
 			padding-top: 2px;
 
+			.warning {
+				color: tomato !important;
+			}
+
 			span {
 				color: #222;
 				font-weight: 400;
@@ -77,7 +81,6 @@ const ListStyles = styled.fieldset`
 				color: tomato !important;
 				border: 0 !important;
 				background: transparent;
-				height: 12px;
 				padding: 0 8px!important;
 				margin: 0 !important;
 				display: none;
@@ -138,12 +141,13 @@ class List extends Component {
 	}
 
   onBlur = (e) => {
+  	const { name } = this.props;
   	// hide the input element if we move focus off this element
   	if (!e.relatedTarget) {
   		this.setState({
 	  		showInput: false,
 	  		value: ''
-	  	}, this.props.onValidation(this.props.name, ''));
+	  	}, () => this.props.onValidation(null, name));
   	}
   }
 
@@ -153,61 +157,53 @@ class List extends Component {
 
   	this.setState({
   		value
-  	}, this.props.onValidation(name, value));
+  	}, () => this.props.onValidation(value, name));
   }
 
-  onListChange = (item, listName, removeListItem = false) => {
-  	console.warn('onListChange');
-  	console.log({ item, listName, removeListItem });
-  	const { type } = this.props;
-  	const defaultValues = [ ...this.props.defaultValues ];
-
+  onListChange = (listItem, fieldName, removeListItem = false) => {
+  	if (fieldName === 'alternateNames') {
+  		listItem = { name: listItem }; // TODO clean up the alt name input so that this happens automatically
+  	}
+  	
   	this.setState({
   		showInput: false,
     	value: ''
-  	}, this.props.onListChange(item, listName, type, removeListItem, defaultValues));
+  	}, this.props.onListChange(listItem, fieldName, removeListItem));
   }
 
   onSuggestPlural = (e, value) => {
   	e.preventDefault();
-  	const { defaultValues, name, type } = this.props;
+  	const { name, type } = this.props;
   	const plural = (value) ? pluralize(value) : null;
 
   	if (plural) {
-  		this.props.onListChange(plural, name, type, false, defaultValues);
+  		this.props.onListChange(plural, name, false);
   	}
   }
 
-  showPluralSuggest(value, list) {
-  	console.warn('showPluralSuggest');
-  	console.log({ value, list });
-  	let showPlural = false;
-  	let plural;
+  showPluralSuggest = (value, list) => {
+  	const { warnings } = this.props;
+  	let showPlural = (warnings.length > 0) ? true : false;
+  	let plural = null;
+
   	try {
   		plural = pluralize(value);
-  	} catch (ex) {
-  		console.log(ex);
-  	}
+  	} catch {}
 
-  	let warning = this.props.validate(value);
-  	showPlural = (warning === '') ? true : false;
-
-  	if (list.indexOf(plural) > 0) {
-  		showPlural = false;
-  	}
+  	showPlural = (list.indexOf(plural) > 0) ? false : showPlural;
 
   	return showPlural;
   }
 
   render() {
   	const { className, defaultValues, excludedSuggestions, isEditMode, isPluralSuggestEnabled, isRemoveable, isSuggestionEnabled,
-  					label, loading, name, placeholder, suggestionPool, suppressWarnings, type, warning, values } = this.props;
+  					label, loading, name, placeholder, suggestionPool, suppressWarnings, type, warnings, values } = this.props;
   	const { showInput, value } = this.state;
-
-  	console.warn('List - render');
 
   	let list = (isEditMode && (values !== undefined)) ? values : defaultValues;
   	list = list || [];
+
+  	const warningValues = warnings.map(w => w.value);
 
   	if (isEditMode || (!isEditMode && list.length > 0)) {
 	  	return (
@@ -233,9 +229,11 @@ class List extends Component {
 					{/* List Items */}
 					<ul className="list">
 						{
-							list.map(i => {
+							list.map((i, index) => {
+								const warningIndex = warningValues.findIndex(w => (w === i.name) || (w === i));
+								
 								return (
-									<li key={ i.id || i }>
+									<li key={ `${ type }_${ index }_${ i.id || i.name || i }` }>
 										{/* TODO we might want to switch link types to return a <Link> so that the URL updates; the suggestion is cool being a button */
 											(type === 'link' || type === 'suggestion')
 												? <Button
@@ -243,7 +241,7 @@ class List extends Component {
 														onClick={e => this.props.onListItemClick(e, i) }
 														label={ i.name || i }
 													/>
-												: <span>{ i.name || i }</span>
+												: <span className={ (warningIndex > -1) ? 'warning' : '' }>{ i.name || i }</span>
 										}
 
 										{
@@ -259,7 +257,7 @@ class List extends Component {
 											(isEditMode && isRemoveable)
 												? <Button
 														className="delete"
-														onClick={ () => this.onListChange(i, name, true) }
+														onClick={ () => this.onListChange(i.name, name, true) }
 														icon={ <FontAwesomeIcon icon={ faTimes } /> }
 													/>
 												: null
@@ -285,8 +283,8 @@ class List extends Component {
 									placeholder={ placeholder }
 									suggestionPool={ suggestionPool }
 									suppressWarnings={ suppressWarnings }
-			  					value={ value }
-			  					warning={ warning }
+			  					value={ value.name || value }
+			  					warning={ warnings.filter(w => w.fieldName === name)[0] }
 								/>
 							: null
 					}
@@ -309,7 +307,7 @@ List.defaultProps = {
 	onValidation: () => {},
 	suppressWarnings: false,
 	type: 'static',
-	warning: ''
+	warnings: []
 };
 
 List.propTypes = {
@@ -332,7 +330,7 @@ List.propTypes = {
 	suppressWarnings: PropTypes.bool,
 	type: PropTypes.string,
 	values: PropTypes.array,
-	warning: PropTypes.string
+	warnings: PropTypes.array
 };
 
 export default List;

@@ -18,7 +18,7 @@ const CREATE_INGREDIENT_MUTATION = gql`
 		$parentID: ID
 		$parentName: String
 		$properties: PropertyCreateInput!
-		$alternateNames: [ String ]!
+		$alternateNames: [ AlternateName! ]!
 		$relatedIngredients: [ ID ]!
 		$substitutes: [ ID ]!
 		$references: [ ID ]!
@@ -200,7 +200,10 @@ class CreateIngredient extends Component {
 					plural: '',
 					alternateNames: '', // TODO
 				}
-			}, this.props.refreshContainers(e, this.props.localState, this.props.populateContainers, this.props.ingredientCounts));
+			}, () => {
+				this.props.populateContainers.refetch();
+				this.props.ingredientCounts.refetch();
+			});
 		}
 	}
 
@@ -319,12 +322,10 @@ class CreateIngredient extends Component {
 		const { ingredients } = this.props;
 		let containsWarnings = false;
 
-		console.warn(`create ${ ingredients.length || 0 }`);
-
 		return (
 			<Mutation mutation={ CREATE_INGREDIENT_MUTATION } variables={ this.state }>
     		{
-    			(createIngredient, { loading, error, data }) => {
+    			(createIngredient, { loading, error }) => {
 						if (error) return <ErrorMessage error={ error } />;
 
 						// determine if we have any warnings
