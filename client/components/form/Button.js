@@ -1,18 +1,26 @@
+import React from 'react';
 import PropTypes from 'prop-types';
 
-const Button = (props) => (
-	<button className={ props.className }
-		 			disabled={ props.disabled }
-					onClick={ props.onClick }
-					type={ props.type }>
-		{ props.icon }
-		{ props.label }
+const Button = ({ className, disabled, onClick, type, icon, label }) => (
+	// eslint-disable-next-line react/button-has-type
+	<button
+		className={ className }
+		disabled={ disabled }
+		onClick={ onClick }
+		type={ type }
+	>
+		{ icon }
+		{ label }
 	</button>
 );
 
 Button.defaultProps = {
+	className: null,
 	disabled: false,
-	type: "button"
+	icon: null,												// ex: <FontAwesomeIcon icon={ faPlus } />
+	label: null,
+	onClick: e => e.preventDefault(),
+	type: 'button',
 };
 
 Button.propTypes = {
@@ -21,7 +29,7 @@ Button.propTypes = {
 	icon: PropTypes.element,					// ex: <FontAwesomeIcon icon={ faPlus } />
 	label: PropTypes.string,
 	onClick: PropTypes.func,
-	type: PropTypes.string,
+	type: PropTypes.arrayOf([ 'submit', 'button', 'reset' ]),
 };
 
 export default Button;

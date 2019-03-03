@@ -385,12 +385,13 @@ class CreateIngredient extends Component {
 
 								{/* Properties */}
 			    			<CheckboxGroup
-			  					checkboxes={ properties }
 			    				className={ "properties" }
 			    				name="properties"
 			    				key={ `create_properties` }
+			    				keys={ [ ...Object.keys(properties) ] }
 			  					onChange={ e => this.onCreateCheckboxChange(e, 'properties') }
 			  					onKeyDown={ e => this.onCreateCheckboxKeyDown(e, 'properties') }
+			  					values={ [ ...Object.values(properties) ] }
 								/>
 
 								{/* Alternate Names */}
@@ -446,22 +447,24 @@ class CreateIngredient extends Component {
 
 								{/* Is Validated */}
 								<CheckboxGroup
-			  					checkboxes={ { "Is Valid Ingredient?": isValidated } }
 			    				className={ "isValidated" }
 			    				name="isValidated"
 			    				key={ `create_isValidated` }
+			    				keys={ [ 'Is Validated?' ] }
 			  					onChange={ e => this.onCreateCheckboxChange(e, 'isValidated') }
 			  					onKeyDown={ e => this.onCreateCheckboxKeyDown(e, 'isValidated') }
+			  					values={ [ isValidated ] }
 								/>
 
 								{/* Is Composed Ingredient */}
 								<CheckboxGroup
-			  					checkboxes={ { "Is Composed Ingredient?": isComposedIngredient } }
 			    				className={ "isComposedIngredient" }
 			    				name="isComposedIngredient"
 			    				key={ `create_isComposed` }
+			    				keys={ [ 'Is Composed Ingredient?' ] }
 			  					onChange={ e => this.onCreateCheckboxChange(e, 'isComposedIngredient') }
 			  					onKeyDown={ e => this.onCreateCheckboxKeyDown(e, 'isComposedIngredient') }
+			  					values={ [ isComposedIngredient ] }
 								/>
 
 								{/* Add Button */}

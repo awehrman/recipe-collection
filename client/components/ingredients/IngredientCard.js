@@ -364,7 +364,7 @@ class IngredientCard extends Component {
 		let modal = {};
 
 		switch(type) {
-			case "error":
+			case 'error':
 				modal.label = 'Save';
 				modal.title = 'Select an Error Type';
 				modal.type = 'error';
@@ -373,7 +373,7 @@ class IngredientCard extends Component {
 					type: null // [ 'data', 'semantic', 'instruction', 'equipment' ]
 				};
 				break;
-			case "merge":
+			case 'merge':
 				modal.label = 'Merge';
 				modal.title = 'Merge Ingredient With';
 				modal.type = 'merge';
@@ -382,7 +382,7 @@ class IngredientCard extends Component {
 					type: null 
 				};
 				break;
-			case "parent":
+			case 'parent':
 				modal.label = 'Assign';
 				modal.title = 'Assign Parent';
 				modal.type = 'parent';
@@ -623,7 +623,7 @@ class IngredientCard extends Component {
   				// populate our related ingredients list with an associated weight of how close of a match this is
   				.forEach(i => {
   					if (!related.find(ing => ing.name.includes(i[1]))) {
-							// TODO this is a whole research topic and i'm not even convinced that this is the "best" weight to use
+							// TODO this is a whole research topic and i'm not even convinced that this is the 'best' weight to use
 							// but levenshtein is pretty familiar to me and it works JUST OKAY for the time being 
 							related.push({ name: i[1], score: levenshtein.get(name, i[1]), id: i[0] });
 						}
@@ -724,8 +724,8 @@ class IngredientCard extends Component {
 				warnings.push({
 					fieldName: name,
 					message: (existing.id === currentIngredientID)
-										? `Warning! "${ inputValue }" is used on multiple fields on this ingredient!`
-										: `Attention! Assigning "${ inputValue }" to this ingredient will merge these records!`,
+										? `Warning! '${ inputValue }' is used on multiple fields on this ingredient!`
+										: `Attention! Assigning '${ inputValue }' to this ingredient will merge these records!`,
 					isPreventSave: (existing.id === currentIngredientID) ? true : false,
 					value: inputValue
 				});
@@ -736,7 +736,7 @@ class IngredientCard extends Component {
 					if (matchOnName && (fieldName !== 'name')) {
 						warnings.push({
 							fieldName: 'name',
-							message: `Warning! "${ inputValue }" is used on multiple fields on this ingredient. Move this value into a single field in order to save changes.`,
+							message: `Warning! '${ inputValue }' is used on multiple fields on this ingredient. Move this value into a single field in order to save changes.`,
 							isPreventSave: true,
 							value: inputValue
 						});
@@ -745,7 +745,7 @@ class IngredientCard extends Component {
 					if (matchOnPlural && (fieldName !== 'plural')) {
 						warnings.push({
 							fieldName: 'plural',
-							message: `Warning! "${ inputValue }" is used on multiple fields on this ingredient. Move this value into a single field in order to save changes.`,
+							message: `Warning! '${ inputValue }' is used on multiple fields on this ingredient. Move this value into a single field in order to save changes.`,
 							isPreventSave: true,
 							value: inputValue
 						});
@@ -754,7 +754,7 @@ class IngredientCard extends Component {
 					if (matchOnAltName && (fieldName !== 'alternateNames')) {
 						warnings.push({
 							fieldName: 'alternateNames',
-							message: `Warning! "${ inputValue }" is used on multiple fields on this ingredient. Move this value into a single field in order to save changes.`,
+							message: `Warning! '${ inputValue }' is used on multiple fields on this ingredient. Move this value into a single field in order to save changes.`,
 							isPreventSave: true,
 							value: inputValue
 						});
@@ -795,7 +795,7 @@ class IngredientCard extends Component {
 		if (hasDuplicateEntries([ ...warnings ], 'value')) {
 			warnings.push({
 				fieldName: 'multiple',
-				message: `Warning! "${ value.name || value }" is used on multiple fields on this ingredient. Move this value into a single field in order to save changes.`,
+				message: `Warning! '${ value.name || value }' is used on multiple fields on this ingredient. Move this value into a single field in order to save changes.`,
 				isPreventSave: true,
 				value
 			});
@@ -887,8 +887,13 @@ class IngredientCard extends Component {
 							// build list of suggested related ingredients
 							const suggestedRelations = this.populateSuggestions(excludedSuggestions, ingredients, isEditMode);
 
+							let checkboxes = (isEditMode && pending.hasOwnProperty('properties')) ? pending.properties : properties;
+							if (checkboxes.hasOwnProperty('__typename')) {
+								delete checkboxes.__typename;
+							}
+
 							return ( 
-								<IngredientForm onSubmit={ e => this.onSaveIngredient(e, updateIngredient, getIngredient) } autoComplete="off">
+								<IngredientForm onSubmit={ e => this.onSaveIngredient(e, updateIngredient, getIngredient) } autoComplete='off'>
 									{
 										(isModalEnabled && modal)
 											? <Modal
@@ -898,208 +903,210 @@ class IngredientCard extends Component {
 												/>
 											: null
 									}
-									<div className="top">
-										<div className="left">
+									<div className='top'>
+										<div className='left'>
 											{/* Name */}
 						    			<Input
-						    				className="name"
+						    				className='name'
 												defaultValue={ name }
 						    				isEditMode={ isEditMode }
 						  					isLabelDisplayed={ false }
 												isRequiredField={ true }
-												name={ "name" }
+												name={ 'name' }
 						  					onChange={ this.onInputChange }
-						  					placeholder={ "name" }
+						  					placeholder={ 'name' }
 						  					suppressWarnings={ true }
 						  					value={ pending.name }
-						  					warning={ warnings.filter(w => w.fieldName === "name")[0] }
+						  					warning={ warnings.filter(w => w.fieldName === 'name')[0] }
 						    			/>
 
 						    			{/* Plural */}
 						    			<Input
-						    				className="plural"
+						    				className='plural'
 						    				defaultValue={ plural }
 						    				isEditMode={ isEditMode }
 						  					isLabelDisplayed={ false }
 						  					isPluralSuggestEnabled={ true }
-												name={ "plural" }
+												name={ 'plural' }
 						  					onChange={ this.onInputChange }
 						  					onSuggestPlural={ e => this.onSuggestPlural(e, name) }
-						  					placeholder={ "plural" }
+						  					placeholder={ 'plural' }
 						  					suppressWarnings={ true }
 						  					value={ pending.plural }
-						  					warning={ warnings.filter(w => w.fieldName === "plural")[0] }
+						  					warning={ warnings.filter(w => w.fieldName === 'plural')[0] }
 						    			/>
 						    		</div>
 
-										<div className="right">
+										<div className='right'>
 						    			{/* Properties */}
 						    			<CheckboxGroup
-						  					checkboxes={ (isEditMode && pending.hasOwnProperty('properties')) ? pending.properties : properties }
-						    				className={ "properties" }
+						    				className={ 'properties' }
 						    				isEditMode={ isEditMode }
 						    				key={ `card_properties_${ id }` }
-						    				name="properties"
+						    				keys={ [ ...Object.keys(checkboxes) ] }
+						    				name='properties'
 						  					onChange={ e => this.onCheckboxChange(e, 'properties', properties) }
 						  					onKeyDown={ e => this.onCheckboxKeyDown(e, 'properties', properties) }
+						  					values={ [ ...Object.values(checkboxes) ] }
 											/>
 
 						    			{/* Is Composed Ingredient */}
 											<CheckboxGroup
-						  					checkboxes={ { "Is Composed Ingredient?": (isEditMode && pending.hasOwnProperty('isComposedIngredient')) ? pending.isComposedIngredient : isComposedIngredient } }
-						    				className={ "isComposedIngredient" }
+						    				className={ 'isComposedIngredient' }
 						    				isEditMode={ isEditMode }
 						    				key={ `card_isComposed_${ id }` }
-						    				name="isComposedIngredient"
+						    				keys={ [ 'Is Composed Ingredient?' ] }
+						    				name='isComposedIngredient'
 						  					onChange={ e => this.onCheckboxChange(e, 'isComposedIngredient', isComposedIngredient) }
 						  					onKeyDown={ e => this.onCheckboxKeyDown(e, 'isComposedIngredient', isComposedIngredient) }
+						  					values={ [ (isEditMode && pending.hasOwnProperty('isComposedIngredient')) ? pending.isComposedIngredient : isComposedIngredient ] }
 											/>
 										</div>
 									</div>
 
-									<div className="middle">
-										<div className="left">
+									<div className='middle'>
+										<div className='left'>
 											{/* Alternate Names */}
 						    			<List
-						    				className="altNames"
+						    				className='altNames'
 						    				defaultValues={ alternateNames }
 						    				isEditMode={ isEditMode }
 						    				isPluralSuggestEnabled={ true }
 						    				isRemoveable={ true }
-												label={ "Alternate Names" }
+												label={ 'Alternate Names' }
 						  					loading={ false }
-												name={ "alternateNames" }
+												name={ 'alternateNames' }
 						  					onListChange={ this.onListChange }
 						  					onSuggestPlural={ this.onSuggestPlural }
 						  					onValidation={ this.onValidation }
-						  					placeholder={ "alternate name" }
+						  					placeholder={ 'alternate name' }
 												required={ false }
 						  					showSuggestions={ false }
 						  					suppressWarnings={ true }
-						  					warnings={ warnings.filter(w => w.fieldName === "alternateNames") } 
+						  					warnings={ warnings.filter(w => w.fieldName === 'alternateNames') } 
 						  					values={ pendingAlternateNames }
 						  					validate={ this.validate }
 						    			/>
 
 						    			{/* Related Ingredients */}
 						    			<List
-						    				className="related"
+						    				className='related'
 						    				defaultValues={ relatedIngredients }
 						    				excludedSuggestions={ excludedSuggestions }
 						    				isEditMode={ isEditMode }
 						    				isRemoveable={ true }
 						    				isSuggestionEnabled={ true }
-												label={ "Related Ingredients" }
+												label={ 'Related Ingredients' }
 						  					loading={ false }
-												name={ "relatedIngredients" }
+												name={ 'relatedIngredients' }
 						  					onListChange={ this.onListChange }
-						  					placeholder={ "related ingredient" }
+						  					placeholder={ 'related ingredient' }
 												required={ false }
 						  					showSuggestions={ true }
 						  					suggestionPool={ ingredients }
-						  					type={ "link" }
+						  					type={ 'link' }
 						  					values={ pendingRelatedIngredients }
 						    			/>
 
 											{/* Substitutes */}
 						    			<List
 						    				defaultValues={ substitutes }
-						    				className="substitutes"
+						    				className='substitutes'
 						    				excludedSuggestions={ excludedSuggestions }
 						    				isEditMode={ isEditMode }
 						    				isRemoveable={ true }
 						    				isSuggestionEnabled={ true }
-												label={ "Substitutes" }
+												label={ 'Substitutes' }
 						  					loading={ false }
-												name={ "substitutes" }
+												name={ 'substitutes' }
 						  					onListChange={ this.onListChange }
-						  					placeholder={ "substitute" }
+						  					placeholder={ 'substitute' }
 												required={ false }
 						  					showSuggestions={ true }
 						  					suggestionPool={ ingredients }
-						  					type={ "link" }
+						  					type={ 'link' }
 						  					values={ pendingSubstitutes }
 						    			/>
 										</div>
 
-										<div className="right">
+										<div className='right'>
 											{/* References */}
 											<List
-						    				className="references"
+						    				className='references'
 						  					defaultValues={ references }
 						    				isEditMode={ false }
-												label={ "References" }
+												label={ 'References' }
 						  					loading={ false }
-												name={ "references" }
-						  					type={ "link" }
+												name={ 'references' }
+						  					type={ 'link' }
 						    			/>
 
 						    			{/* Suggested Relations */}
 						    			<List
-						    				className="suggestedRelations"
+						    				className='suggestedRelations'
 						  					defaultValues={ suggestedRelations }
 						    				isEditMode={ false }
-												label={ "Suggestion Relations" }
+												label={ 'Suggestion Relations' }
 						  					loading={ false }
 						  					onListItemClick={ this.onSuggestedRelationClick }
-												name={ "suggestedRelations" }
-						  					type={ "suggestion" }
+												name={ 'suggestedRelations' }
+						  					type={ 'suggestion' }
 						    			/>
 										</div>
 									</div>
 
-									<div className="bottom">
+									<div className='bottom'>
 										{
 											(!isEditMode)
 												? <Button
-										  			className="edit"
+										  			className='edit'
 										  			icon={ <FontAwesomeIcon icon={ faEdit } /> }
-										  			label="Edit"
+										  			label='Edit'
 										  			onClick={ e => this.onToggleEditMode(e) }
 										  		/>
 										  	: <React.Fragment>
-										  			<div className="left">
-										  				<div className="actions">
+										  			<div className='left'>
+										  				<div className='actions'>
 											  				{/* TODO */}
 											  				<Button
-													  			className="merge"
+													  			className='merge'
 													  			icon={ <FontAwesomeIcon icon={ faCodeMerge } /> }
 													  			onClick={ e => this.onToggleModal(e, 'merge') }
-													  			label="Merge Ingredient"
+													  			label='Merge Ingredient'
 													  		/>
 													  		
 													  		{/* TODO */}
 													  		<Button
-													  			className="parent"
+													  			className='parent'
 													  			icon={ <FontAwesomeIcon icon={ faPlus } /> }
 													  			onClick={ e => this.onToggleModal(e, 'parent') }
-													  			label="Assign Parent"
+													  			label='Assign Parent'
 													  		/>
 
 													  		{/* TODO */}
 													  		<Button
-													  			className="parsingError"
+													  			className='parsingError'
 													  			icon={ <FontAwesomeIcon icon={ faExclamation } /> }
 													  			onClick={ e => this.onToggleModal(e, 'error') }
-													  			label="Parsing Error" 
+													  			label='Parsing Error' 
 													  		/>
 												  		</div>
 										  			</div>
 
-										  			<div className="right">
+										  			<div className='right'>
 										  				{/* Warning Messages */}
-										  			  { [ ...new Set(warnings.map(w => w.message))].map((w, index) => <div className="warning" key={ `warning_${ index }` }>{ w }</div>) }
+										  			  { [ ...new Set(warnings.map(w => w.message))].map((w, index) => <div className='warning' key={ `warning_${ index }` }>{ w }</div>) }
 
 										  				<Button
-												  			className="cancel"
+												  			className='cancel'
 												  			onClick={ e => this.onCancelClick(e) }
-												  			label="Cancel"
+												  			label='Cancel'
 												  		/>
 
 												  		<Button
-												  			className="save"
-												  			label="Save"
-												  			type="submit"
+												  			className='save'
+												  			label='Save'
+												  			type='submit'
 												  		/>
 										  			</div>
 										  		</React.Fragment>
@@ -1119,13 +1126,13 @@ IngredientCard.defaultProps = {
 	container: {
 		id: 0,
 		ingredients: [],
-		label: "All Ingredients",
-		message: "Loading...",
+		label: 'All Ingredients',
+		message: 'Loading...',
 		settings: {
 			currentIngredientID: null,
 			isCardEnabeld: false,
 			isExpanded: true,
-			typename: "__IngredientViewState"
+			typename: '__IngredientViewState'
 		}
 	},
 	view: 'all',
@@ -1143,4 +1150,3 @@ IngredientCard.propTypes = {
 
 export default IngredientCard;
 export { CURRENT_INGREDIENT_QUERY };
-
