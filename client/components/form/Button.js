@@ -17,7 +17,7 @@ const Button = ({ className, disabled, onClick, type, icon, label }) => (
 Button.defaultProps = {
 	className: null,
 	disabled: false,
-	icon: null,												// ex: <FontAwesomeIcon icon={ faPlus } />
+	icon: null,
 	label: null,
 	onClick: e => e.preventDefault(),
 	type: 'button',
@@ -29,7 +29,7 @@ Button.propTypes = {
 	icon: PropTypes.element,					// ex: <FontAwesomeIcon icon={ faPlus } />
 	label: PropTypes.string,
 	onClick: PropTypes.func,
-	type: PropTypes.arrayOf([ 'submit', 'button', 'reset' ]),
+	type: PropTypes.string,
 };
 
 export default Button;

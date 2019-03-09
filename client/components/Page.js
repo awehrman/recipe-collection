@@ -1,14 +1,14 @@
-import { Component } from 'react';
-import styled, { ThemeProvider, injectGlobal } from 'styled-components';
-import Router from 'next/router';
 import NProgress from 'nprogress';
+import PropTypes from 'prop-types';
+import Router from 'next/router';
+import styled, { ThemeProvider, injectGlobal } from 'styled-components';
 
-import Meta from '../components/Meta';
-import Nav from '../components/Nav';
+import Meta from './Meta';
+import Nav from './Nav';
 
+// TODO naming convention cleanup
 const theme = {
 	lighterGrey: 'rgba(144, 148, 151, 1)',
-
 	red: 'rgba(255, 99, 72, 1)',
 	green: 'rgba(120, 224, 143, 1)',
 	orange: 'rgba(255, 159, 67, 1)',
@@ -40,9 +40,12 @@ const theme = {
 	altGreen: '#73C6B6',
 	greenBackground: '#E8F8F5',
 
-	fontFamily: '"Source Sans Pro", Verdana, sans-serif'
+	fontFamily: '"Source Sans Pro", Verdana, sans-serif',
 };
 
+// TODO look into upgrading styled-components & nextjs
+// this will change in v4 when that happens
+// eslint-disable-next-line no-unused-expressions
 injectGlobal`
 	@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700');
 
@@ -94,7 +97,7 @@ const Wrapper = styled.div`
 
 	@media (min-width: ${ props => props.theme.tablet }) {
 		top: 0;
-		left: ${ props => props.theme.expaned ? props.theme.menuOffset: props.theme.minMenuWidth };
+		left: ${ props => (props.theme.expaned ? props.theme.menuOffset : props.theme.minMenuWidth) };
 	
 		section {
 			margin-right: 40px;
@@ -103,53 +106,32 @@ const Wrapper = styled.div`
 	}
 `;
 
+// setup NProgress bar events
 Router.onRouteChangeStart = () => {
 	NProgress.start();
-}
+};
 
 Router.onRouteChangeComplete = () => {
 	NProgress.done();
-}
+};
 
 Router.onRouteChangeError = () => {
 	NProgress.done();
-}
+};
 
+const Page = ({ children }) => (
+	<ThemeProvider theme={ theme }>
+		<Canvas>
+			<Meta />
+			<Wrapper>
+				<Nav />
+				{ children }
+			</Wrapper>
+		</Canvas>
+	</ThemeProvider>
+);
 
-class Page extends Component {
-	state = {
-		isNavExpanded: false
-	};
-
-	toggleNav = (e) => {
-		const { isNavExpanded } = this.state;
-
-		this.setState({
-			isNavExpanded: !isNavExpanded
-		});
-	}
-
-	render() {
-		const { isNavExpanded } = this.state;
-
-		return (
-			<ThemeProvider theme={ theme }>
-				<Canvas>
-					<Meta />
-					<Wrapper>
-						<Nav
-							isExpanded={ isNavExpanded }
-							onLinkClick={ e => this.toggleNav(e) }
-							onMenuIconClick={ e => this.toggleNav(e) }
-						/>
-						{ this.props.children }
-					</Wrapper>
-				</Canvas>
-			</ThemeProvider>
-		);		
-	}
-}
-
+Page.propTypes = { children: PropTypes.node.isRequired };
 
 export default Page;
 export { theme };

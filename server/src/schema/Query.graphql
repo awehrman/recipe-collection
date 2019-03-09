@@ -1,0 +1,10 @@
+type Query {
+	categories: [ Category! ]!
+	containers(group: String!, id: ID, view: String!): [ Container ]!
+	counts: Counts!
+	ingredient(where: IngredientWhereUniqueInput!): Ingredient
+	ingredients: [ Ingredient! ]!
+	recipe(where: RecipeWhereUniqueInput!): Recipe
+	recipes: [ Recipe! ]!
+	tags: [ Tag! ]!
+}

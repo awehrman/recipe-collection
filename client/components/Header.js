@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import styled from 'styled-components';
 
 const HeaderStyles = styled.div`
@@ -17,17 +18,19 @@ const HeaderStyles = styled.div`
 	}
 `;
 
-class Header extends Component {
+class Header extends React.PureComponent {
 	render() {
 		const { pageHeader } = this.props;
-	
+
 		return (
 			<HeaderStyles>
+				{/* TODO incorporate <Search /> */}
 				<h1>{ pageHeader }</h1>
 			</HeaderStyles>
-		);		
+		);
 	}
 }
 
+Header.propTypes = { pageHeader: PropTypes.string.isRequired };
 
 export default Header;

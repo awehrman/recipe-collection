@@ -93,16 +93,10 @@ type Counts {
 }
 
 type Container {
-	id: ID!
-	label: String!
-	ingredients: [ Ingredient ]!
-	message: String
-	settings: IngredientViewState
-}
-
-type IngredientViewState {
-	id: ID!
 	currentIngredientID: ID
+	id: ID!
+	ingredients: [ Ingredient ]!
   isCardEnabled: Boolean!
-  isExpanded: Boolean!		
+  isContainerExpanded: Boolean!		
+	label: String!
 }

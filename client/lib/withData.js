@@ -4,23 +4,28 @@ import gql from 'graphql-tag';
 import { endpoint } from '../config';
 
 export const typeDefs = gql`
-	type IngredientViewState {
-		id: ID
-		currentIngredientID: ID
-    isCardEnabled: Boolean!
-    isExpanded: Boolean!		
-	}
-
   type Container {
+  	currentIngredientID: ID
   	id: ID!
-  	label: String!
   	ingredients: [ Ingredient ]!
-  	message: String
-		settings: IngredientViewState
+  	label: String!
+		isCardEnabled: Boolean!
+		isContainerExpanded: Boolean!
   }
 
   type Mutation {
-    updateLocalCache(containerID: ID, ingredientID: ID, settings: IngredientViewState) : Container
+    setCurrentIngredient(
+    	id: ID!
+			currentIngredientID: Boolean
+			isCardEnabled: Boolean
+    ) : Container
+  }
+
+  type Mutation {
+    setIsContainerExpanded(
+    	id: ID!
+			isContainerExpanded: Boolean
+    ) : Container
   }
 
   type Query {
@@ -29,71 +34,95 @@ export const typeDefs = gql`
 `;
 
 function createClient({ headers }) {
-  return new ApolloClient({
-    uri: process.env.NODE_ENV === 'development' ? endpoint : endpoint,
-    request: operation => {
-      operation.setContext({
-        fetchOptions: {
-          credentials: 'include',
-        },
-        headers
-      });
-    },
-    clientState: {
-    	typeDefs,
-    	resolvers: {
-    		Mutation: {
-    			// use our local cache to keep track of the UI state of:
-    			//	- the current ingredient id,
-    			//	- whether that card is open, and 
-    			// 	- if the container itself is open
+	return new ApolloClient({
+		uri: process.env.NODE_ENV === 'development' ? endpoint : endpoint,
+		request: operation => operation.setContext({
+			fetchOptions: { credentials: 'include' },
+			headers,
+		}),
+		clientState: {
+			resolvers: {
+				// NOTE: i'm getting a console warning about the @client directive being included without resolvers
+				// but like... they're right there. this might be realted to
+				// https://github.com/apollographql/apollo-client/issues/4520
+				// so keep an eye out for upcoming react-apollo updates
+				Mutation: {
+					setCurrentIngredient(_, variables, { cache, getCacheKey }) {
+						console.warn('[withData] setCurrentIngredient');
+						console.log(variables);
+						const { currentIngredientID, id, isCardEnabled } = variables;
+						const fragmentId = getCacheKey({
+							id,
+							__typename: 'Container',
+						});
 
-    			// let the server handle any updates to the ingredients list and assigning the next ing id in the view
-    			updateLocalCache(_, { containerID, ingredientID = null, settings }, { cache, getCacheKey }) {
-    				const fragment = gql`
-			        fragment isExpanded on Container {
-			        	id
-			        	settings {
-			        		id
-				          currentIngredientID
-				          isCardEnabled
-				          isExpanded
-				        }
-			        }`;
+						const fragment = gql`
+							fragment getCurrentStatus on Container {
+								currentIngredientID
+								id
+								isCardEnabled
+							}
+						`;
 
-			      const fragmentID = getCacheKey({ id: containerID, __typename: "Container" });
+						const ctn = cache.readFragment({
+							fragment,
+							id: fragmentId,
+						});
 
-				    // lookup a fragment of our container from the cache
-    				const ctnFragment = cache.readFragment({
-    					id: fragmentID,
-    					fragment
-    				});
+						const data = {
+							...ctn,
+							currentIngredientID,
+							isCardEnabled,
+						};
 
-    				// prep container fragment updates
-    				const data = {
-		        	...ctnFragment,
-		        	settings: {
-			          __typename: 'IngredientViewState',
-			          id: getCacheKey({ id: settings.id, __typename: "IngredientViewState" }),
-			          currentIngredientID: ingredientID,
-			          isCardEnabled: (settings.isCardEnabled || false),
-			          isExpanded: (settings.isExpanded || true),
-			        }
-		        };
+						cache.writeFragment({
+							id: fragmentId,
+							fragment,
+							data,
+						});
 
-    				// update our fragment with our new UI info
-			      cache.writeFragment({
-			        id: fragmentID,
-			        data,
-			        fragment,
-			      });
+						return data;
+					},
 
-			      return data;
-    			},
-    		}
-    	}
-    }
-  });
+					setIsContainerExpanded(_, variables, { cache, getCacheKey }) {
+						console.warn('[withData] setIsContainerExpanded');
+						console.log(variables);
+						const { isContainerExpanded, id } = variables;
+						const fragmentId = getCacheKey({
+							id,
+							__typename: 'Container',
+						});
+
+						const fragment = gql`
+							fragment getContainerStatus on Container {
+								isContainerExpanded
+								id
+							}
+						`;
+
+						const ctn = cache.readFragment({
+							fragment,
+							id: fragmentId,
+						});
+
+						const data = {
+							...ctn,
+							isContainerExpanded,
+						};
+
+						cache.writeFragment({
+							id: fragmentId,
+							fragment,
+							data,
+						});
+
+						return data;
+					},
+				},
+			},
+			typeDefs,
+		},
+	});
 }
 
 export default withApollo(createClient);

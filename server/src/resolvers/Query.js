@@ -20,16 +20,50 @@ const GET_CONTAINER_INGREDIENTS_QUERY = `{
 		id
 	}
 	isValidated
-}`
+}`;
+
+const GET_INGREDIENT_QUERY = `{
+  id
+	parent {
+		id
+		name
+	}
+	name
+	plural
+	properties {
+		meat
+		poultry
+		fish
+		dairy
+		soy
+		gluten
+	}
+	alternateNames {
+		name
+	}
+	relatedIngredients {
+		id
+		name
+	}
+	substitutes {
+		id
+		name
+	}
+	references {
+		id
+		reference
+	}
+	isValidated
+  isComposedIngredient
+}`;
+
+// temp for testing
+async function stall(stallTime = 3000) {
+  await new Promise(resolve => setTimeout(resolve, stallTime));
+}
 
 const Query = {
 	categories: forwardTo('db'),
-
-	async containers(parent, args, ctx, info) {
-		const { id = null, group = 'name', view = 'all' } = args;
-		let containers = [],
-				ingredients = await ctx.db.query.ingredients({}, GET_CONTAINER_INGREDIENTS_QUERY),
-				message = '';
 
 /*
 		// if we passed an initial id, then lookup that ingredient and pass it back in settings
@@ -43,19 +77,22 @@ const Query = {
 			}
 		}
 */	
-		const getSettings = (currentIngredientID = null, ingredients = [], id = 0, isExpanded = true) => {
+	async containers(parent, args, ctx, info) {
+		const { id = null, group = 'name', view = 'all' } = args;
+		let containers = [];
+		let ingredients = await ctx.db.query.ingredients({}, GET_CONTAINER_INGREDIENTS_QUERY);
+
+		const getSettings = (currentIngredientID = null, ingredients = [], id = 0, isContainerExpanded = true) => {
 			let hasCurrentIngredient = false;
 			if (currentIngredientID) {
 				// verify that this ingredient is in this container
-				hasCurrentIngredient = (currentIngredientID && ingredients.findIndex(i => i.id === currentIngredientID) > -1) ? true : false; 
+				hasCurrentIngredient = (ingredients.findIndex(i => i.id === currentIngredientID) > -1) 
 			}
 
 			return {
 				currentIngredientID: (hasCurrentIngredient) ? currentIngredientID : false,
-				id,
         isCardEnabled: (hasCurrentIngredient) ? true : false,
-        isExpanded,
-        __typename: "IngredientViewState"
+        isContainerExpanded,
 			};
 		}
 
@@ -65,15 +102,12 @@ const Query = {
 		switch(view) {
 			case 'new':
 				ingredients = ingredients.filter(i => !i.isValidated);
-				message = (ingredients.length === 0) ? "No new ingredients exist." : "";
 				break;
 			case 'search':
 				// TODO search ingredients by search term
-				message = "No ingredients matching that term were found.";
 				break;
 			default:
 				// return all ingredients by default
-				if (ingredients.length === 0) message = "No ingredients exist.";
 				break;
 		}
 
@@ -89,8 +123,7 @@ const Query = {
 					id: uuid,
 					label: "0 References",
 					ingredients: ingredients,
-					message,
-					settings: getSettings(id, ingredients, uuid)
+					...getSettings(id, ingredients, uuid),
 				});
 				break;
 			case 'property':
@@ -121,8 +154,7 @@ const Query = {
   						id: uuid,
 							label: label.charAt(0).toUpperCase() + label.slice(1),
 							ingredients: containerIngredients,
-							message,
-							settings: getSettings(id, containerIngredients, uuid)
+							...getSettings(id, containerIngredients, uuid),
   					};
   				}
 				}).filter(c => c);
@@ -138,8 +170,7 @@ const Query = {
 					id: uuid,
 					label: "Parent Ingredients",
 					ingredients: parentIngredients,
-					message,
-					settings: getSettings(id, parentIngredients, uuid)
+					...getSettings(id, parentIngredients, uuid),
 				});
 
 				// child level ingredients
@@ -148,8 +179,7 @@ const Query = {
 					id: uuid,
 					label: "Child Ingredients",
 					ingredients: [ ...childIngredients ],
-					message,
-					settings: getSettings(id, childIngredients, uuid)
+					...getSettings(id, childIngredients, uuid),
 				});
 				break;
 			default: // name
@@ -161,8 +191,7 @@ const Query = {
 						id: uuid,
 						label: "All Ingredients",
 						ingredients,
-						message,
-						settings: getSettings(id, ingredients, uuid)
+						...getSettings(id, ingredients, uuid),
 					});
 				}
 				// otherwise we'll return a container per letter
@@ -174,10 +203,9 @@ const Query = {
 
 		// remove any empty containers that don't have any contents
 		containers = containers.filter(c => c.ingredients.length > 0);
-
 		console.log(containers);
 
-    return containers;
+		return containers;
 	},
 	
 	async counts(parent, args, ctx, info) {
@@ -197,6 +225,17 @@ const Query = {
     };
 	},
 
+	/* simulate a long response
+	async ingredient(parent, args, ctx, info) {
+		const { where } = args;
+		const { id } = where;
+		console.log(id);
+
+		await stall(5000);
+		console.log('finished stalling...');
+		return await ctx.db.query.ingredient({ where: { id }}, GET_INGREDIENT_QUERY);
+	},
+	*/
 	ingredient: forwardTo('db'),
 	ingredients: forwardTo('db'),
 	
