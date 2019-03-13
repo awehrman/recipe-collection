@@ -1,5 +1,5 @@
 import { adopt } from 'react-adopt';
-import { Query } from 'react-apollo';
+import { Query, Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import React from 'react';
 import styled from 'styled-components';
@@ -11,10 +11,7 @@ import ErrorMessage from '../ErrorMessage';
 const GET_ALL_CONTAINERS_QUERY = gql`
 	query GET_ALL_CONTAINERS_QUERY($group: String!, $id: ID, $view: String!) {
 		containers(group: $group, id: $id, view: $view) {
-			currentIngredientID
 			id
-			isCardEnabled
-			isContainerExpanded
 			ingredients {
 				id
 				name
@@ -36,6 +33,9 @@ const GET_ALL_CONTAINERS_QUERY = gql`
 				isValidated
 			}
 			label
+			currentIngredientID
+			isCardEnabled
+			isContainerExpanded
 		}
 	}
 `;
@@ -46,6 +46,13 @@ const Composed = adopt({
 	getContainers: ({ group, id, render, view }) => (
 		<Query
 			query={ GET_ALL_CONTAINERS_QUERY }
+			onCompleted={
+				(data) => {
+					console.warn('*** onCompleted ***');
+					console.log(data);
+					// TODO it looks like the initial query with an id
+				}
+			}
 			variables={ {
 				group,
 				id,
@@ -78,8 +85,9 @@ const MessageStyles = styled.div`
 
 class Containers extends React.PureComponent {
 	render() {
-		console.warn('[Containers] render');
-		const { group, id, view } = this.props;
+		console.warn(`[Containers] render`);
+		const { group, id, view } = this.props; // via the query params
+		console.log({ group, id, view });
 
 		// NOTE: if you want to let the rest of the page load without waiting on this query
 		// you can disable SSR here and call forceUpdate() in componentDidMount()
@@ -90,14 +98,20 @@ class Containers extends React.PureComponent {
 				{
 					({ getContainers }) => {
 						const { data } = getContainers || {};
-						const { loading, error } = data || {};
+						const { loading, error } = getContainers || {};
 						const { containers } = data || [];
+						console.log({ getContainers: containers });
+						console.log(loading);
 
 						if (loading) return <p>Loading ingredients...</p>;
 						if (error) return <ErrorMessage error={ error } />;
 
 						const hasContainers = ((containers.length === 1) && (containers[0].ingredients.length > 0));
 						const message = (view === 'new') ? 'No new ingredients found.' : 'No ingredients found.';
+
+						// TODO
+						// for some reason it looks like the the values labeled @client don't initially get set by this query
+
 
 						return (
 							<ContainerStyles>
@@ -108,6 +122,7 @@ class Containers extends React.PureComponent {
 										<Container
 											className={ ((!c.isContainerExpanded) || (c.ingredients.length === 0)) ? 'hidden' : '' }
 											currentIngredientID={ c.currentIngredientID }
+											group={ group }
 											id={ c.id }
 											ingredients={ c.ingredients }
 											isCardEnabled={ c.isCardEnabled }

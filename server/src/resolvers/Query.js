@@ -1,3 +1,4 @@
+const colors = require('colors');
 const uuidv1 = require('uuid/v1');
 const { forwardTo } = require('prisma-binding');
 
@@ -65,20 +66,11 @@ async function stall(stallTime = 3000) {
 const Query = {
 	categories: forwardTo('db'),
 
-/*
-		// if we passed an initial id, then lookup that ingredient and pass it back in settings
-		if (id) {
-			console.log("passed an id...");
-			const ingredient = await ctx.db.query.ingredient({ where: { id }},`{ id }`);
-			console.warn(ingredient);
-			if (ingredient) {
-				settings.currentIngredientID = ingredient.id;
-				settings.isCardEnabled = true;
-			}
-		}
-*/	
 	async containers(parent, args, ctx, info) {
-		const { id = null, group = 'name', view = 'all' } = args;
+		console.log('containers'.magenta);
+		console.log('- - - - - - - - - - - - - - - - - - - - -'.magenta);
+		const { id = null, group = 'name', view = 'all', } = args;
+		console.log({ id, group, view });
 		let containers = [];
 		let ingredients = await ctx.db.query.ingredients({}, GET_CONTAINER_INGREDIENTS_QUERY);
 
@@ -90,11 +82,13 @@ const Query = {
 			}
 
 			return {
-				currentIngredientID: (hasCurrentIngredient) ? currentIngredientID : false,
+				currentIngredientID: (hasCurrentIngredient) ? currentIngredientID : null,
         isCardEnabled: (hasCurrentIngredient) ? true : false,
         isContainerExpanded,
 			};
 		}
+
+		//const inContainer = (currentID, ctnIngredients) => (ctnIngredients.findIndex(i => i.id === currentID) > -1) ;
 
 		// TODO consider paginating containers above a certain threshold (1000?)
 
@@ -225,18 +219,23 @@ const Query = {
     };
 	},
 
-	/* simulate a long response
+	/* simulate a long response */
 	async ingredient(parent, args, ctx, info) {
+		console.log('ingredient'.blue);
+		console.log('- - - - - - - - - - - - - - - - - - - - -'.blue);
 		const { where } = args;
 		const { id } = where;
 		console.log(id);
 
-		await stall(5000);
-		console.log('finished stalling...');
-		return await ctx.db.query.ingredient({ where: { id }}, GET_INGREDIENT_QUERY);
+		//await stall(5000);
+		//console.log('finished stalling...');
+
+		const ing = await ctx.db.query.ingredient({ where: { id }}, GET_INGREDIENT_QUERY);
+		console.log(ing);
+		return ing;
 	},
-	*/
-	ingredient: forwardTo('db'),
+	
+	/*ingredient: forwardTo('db'),*/
 	ingredients: forwardTo('db'),
 	
 	recipe: forwardTo('db'),

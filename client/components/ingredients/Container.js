@@ -2,6 +2,7 @@ import { adopt } from 'react-adopt';
 import { Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import Link from 'next/link';
+import Router from 'next/router';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import styled from 'styled-components';
@@ -10,12 +11,12 @@ import { deepCopy } from '../../lib/util';
 import Card from './Card';
 
 const UPDATE_CURRENT_INGREDIENT_ID_MUTATION = gql`
-	mutation setCurrentIngredient(
+	mutation setCurrentCard(
 		$id: ID!,
 		$currentIngredientID: Boolean
 		$isCardEnabled: Boolean
 	) {
-		setCurrentIngredient(
+		setCurrentCard(
 			id: $id,
 			currentIngredientID: $currentIngredientID
 			isCardEnabled: $isCardEnabled
@@ -37,8 +38,25 @@ const UPDATE_IS_CONTAINER_EXPANDED_MUTATION = gql`
 
 const Composed = adopt({
 	// eslint-disable-next-line react/prop-types
-	setCurrentIngredient: ({ render }) => (
-		<Mutation mutation={ UPDATE_CURRENT_INGREDIENT_ID_MUTATION }>{ render }</Mutation>
+	setCurrentCard: ({ render }) => (
+		<Mutation
+			mutation={ UPDATE_CURRENT_INGREDIENT_ID_MUTATION }
+			update={
+				(cache, { data, errors }) => {
+					console.warn('update!');
+					console.log({ cache, data });
+					/*
+					const { todos } = cache.readQuery({ query: GET_TODOS });
+					cache.writeQuery({
+						query: GET_TODOS,
+						data: { todos: todos.concat([addTodo]) },
+					});
+					*/
+				}
+			}
+		>
+			{ render }
+		</Mutation>
 	),
 
 	// eslint-disable-next-line react/prop-types
@@ -48,9 +66,11 @@ const Composed = adopt({
 });
 
 const ContainerStyles = styled.div`
-	display: block;
+	margin-bottom: 16px; 
+	display: flex;
+	flex-wrap: wrap;
+	border-bottom: 1px solid #ddd;
 	width: 100%;
-	margin-bottom: 20px;
 `;
 
 const HeaderStyles = styled.div`
@@ -73,10 +93,14 @@ const IngredientsList = styled.ul`
 	margin: 0;
 	list-style-type: none;
 	line-height: 1.4;
-	padding: 10px;
 	max-height: 450px;
 	overflow: scroll;
 	position: relative;
+	padding: 10px 0;
+
+	li {
+		padding: 0 10px;
+	}
 
 	li .header {
 		font-size: 2em;
@@ -89,7 +113,7 @@ const IngredientsList = styled.ul`
 		font-style: italic;
 	}
 
-	li.active a {
+	li.active {
 		display: inline-block;
 		background: ${ props => props.theme.headerBackground };
 		width: 100%;
@@ -100,6 +124,7 @@ const IngredientsList = styled.ul`
 	}
 
 	li a {
+		cursor: pointer;
 		text-decoration: none;
 		color: #222;
 		display: inline-block; /* need to give these links height for the scroll! */
@@ -136,6 +161,18 @@ const IngredientsList = styled.ul`
 `;
 
 class Container extends Component {
+	componentDidMount() {
+		console.warn('[Container] componentDidMount');
+		// if we've pushed an id into our url our container component will re-mount itself?
+
+		// TODO
+		// if we mounted with an id and a expanded card, update our
+	}
+
+	componentDidUpdate() {
+		console.warn('[Container] componentDidUpdate');
+	}
+
 	buildIngredientsList = (ingredients) => {
 		const { currentIngredientID, isCardEnabled, view } = this.props;
 
@@ -144,9 +181,11 @@ class Container extends Component {
 			// NOTE: you better not managle that ingredients array here
 			const listItem = deepCopy(i);
 
-			listItem.className = i.type;
+			listItem.type = 'link';
+
+			listItem.className = listItem.type;
 			listItem.className += (isCardEnabled && (currentIngredientID === i.id)) ? ' active ' : '';
-			listItem.className += (i.parent) ? ' child' : '';
+			listItem.className += (i.parent !== null) ? ' child' : '';
 			listItem.className += (!i.isValidated && view !== 'new') ? ' invalid' : '';
 
 			listItem.href = { pathname: '/ingredients' };
@@ -157,7 +196,6 @@ class Container extends Component {
 				listItem.href.query = { id: i.id };
 			}
 
-			listItem.type = 'link';
 			return listItem;
 		});
 
@@ -202,6 +240,7 @@ class Container extends Component {
 	}
 
 	onHeaderClick = (e, setIsContainerExpanded, id, isContainerExpanded) => {
+		console.warn('onHeaderClick');
 		e.preventDefault();
 
 		// update the local cache
@@ -213,15 +252,22 @@ class Container extends Component {
 		});
 	}
 
-	onIngredientClick = (currentIngredientID, setCurrentIngredient) => {
-		const { id } = this.props;
+	onIngredientClick = (targetIngredientID, setCurrentCard) => {
+		console.warn('onIngredientClick');
+		const { currentIngredientID, group, id, isCardEnabled, view } = this.props;
+
+		// update the url without causing a bunch of re-renders
+		let href = `/ingredients?view=${ view }&group=${ group }`;
+		if (!isCardEnabled || (currentIngredientID !== targetIngredientID)) href += `&id=${ targetIngredientID }`;
+		const as = href;
+		Router.push(href, as, { shallow: true });
 
 		// update the local cache
-		setCurrentIngredient({
+		setCurrentCard({
 			variables: {
 				id,
-				currentIngredientID,
-				isCardEnabled: (currentIngredientID !== null),
+				currentIngredientID: targetIngredientID,
+				isCardEnabled: (!isCardEnabled || (currentIngredientID !== targetIngredientID)),
 			},
 		});
 	}
@@ -230,11 +276,11 @@ class Container extends Component {
 		console.warn('[Container] render');
 		const { className, currentIngredientID, id, ingredients, isCardEnabled, isContainerExpanded, label } = this.props;
 		const ingList = this.buildIngredientsList(ingredients);
-
+		console.log({ currentIngredientID, isCardEnabled, isContainerExpanded });
 		return (
 			<Composed>
 				{
-					({ setCurrentIngredient, setIsContainerExpanded }) => (
+					({ setCurrentCard, setIsContainerExpanded }) => (
 						<ContainerStyles className={ className }>
 							{/* Header */}
 							<HeaderStyles
@@ -243,32 +289,6 @@ class Container extends Component {
 								{ label }
 								<span className="count">{ ingredients.length }</span>
 							</HeaderStyles>
-
-							{/* Ingredients */}
-							<IngredientsList className={ (isCardEnabled) ? `expanded ${ className }` : className }>
-								{
-									ingList.map(i => (
-										<li className={ i.className } key={ i.id }>
-											{
-												(i.type === 'header')
-													? <span className="header">{ i.name }</span>
-													: (
-														<Link href={ i.href || { pathname: '/ingredients' } }>
-															<a
-																onClick={ () => this.onIngredientClick(i.id, setCurrentIngredient) }
-																onKeyPress={ () => this.onIngredientClick(i.id, setCurrentIngredient) }
-																role="link"
-																tabIndex="0"
-															>
-																{ i.name }
-															</a>
-														</Link>
-													)
-											}
-										</li>
-									))
-								}
-							</IngredientsList>
 
 							{/* Card */}
 							{
@@ -280,6 +300,30 @@ class Container extends Component {
 									)
 									: null
 							}
+
+							{/* Ingredients */}
+							<IngredientsList className={ (isCardEnabled) ? `expanded ${ className }` : className }>
+								{
+									ingList.map(i => (
+										<li className={ i.className } key={ i.id }>
+											{
+												(i.type === 'header')
+													? <span className="header">{ i.name }</span>
+													: (
+														<a
+															onClick={ () => this.onIngredientClick(i.id, setCurrentCard) }
+															onKeyPress={ () => this.onIngredientClick(i.id, setCurrentCard) }
+															role="link"
+															tabIndex="0"
+														>
+															{ i.name }
+														</a>
+													)
+											}
+										</li>
+									))
+								}
+							</IngredientsList>
 						</ContainerStyles>
 					)
 				}
@@ -310,6 +354,7 @@ const arrayOfLength = (expectedLength, props, propName, component) => {
 Container.propTypes = {
 	className: PropTypes.string,
 	currentIngredientID: PropTypes.string,
+	group: PropTypes.oneOf([ 'name', 'property', 'relationship', 'count' ]).isRequired,
 	id: PropTypes.string.isRequired,
 	ingredients: arrayOfLength.bind(null, 1),
 	isCardEnabled: PropTypes.bool,

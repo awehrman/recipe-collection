@@ -14,12 +14,11 @@ import styled from 'styled-components';
 // import faExclamation from '@fortawesome/fontawesome-pro-solid/faExclamation';
 // import faPlus from '@fortawesome/fontawesome-pro-regular/faPlus';
 
-// import Button from '../form/Button';
-// import CheckboxGroup from '../form/CheckboxGroup';
+import Button from '../form/Button';
+import CheckboxGroup from '../form/CheckboxGroup';
 import ErrorMessage from '../ErrorMessage';
-// import Input from '../form/Input';
-// import List from '../form/List';
-// import Modal from '../form/Modal';
+import Input from '../form/Input';
+import List from '../form/List';
 
 const CURRENT_INGREDIENT_QUERY = gql`
   query CURRENT_INGREDIENT_QUERY($id: ID!) {
@@ -139,6 +138,7 @@ const Composed = adopt({
 });
 
 const CardStyles = styled.div`
+	background: pink;
 	max-height: ${ props => (props.theme.mobileCardHeight) };
 	padding: 20px;
 	border-bottom: 1px solid #ddd;
@@ -161,25 +161,11 @@ const CardStyles = styled.div`
 `;
 
 const IngredientForm = styled.form`
+	border: 2px solid red;
 	flex-basis: 100%;
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-start;
-
-	.bottom {
-		margin-top: auto; /* stick to the bottom of the card */
-
-		.warning {
-			color: tomato;
-			margin-bottom: 10px;
-			font-weight: 600;
-			font-size: 13px;
-		}
-
-		.right {
-			margin-top: auto;
-		}
-	}
 
 	button {
 		border: 0;
@@ -197,8 +183,76 @@ const IngredientForm = styled.form`
 	 	border-bottom: 0;
 	}
 
+	@media (min-width: ${ props => props.theme.desktopCardWidth }) {
+		fieldset {
+			margin-bottom: 6px;
+		}
+	}
+`;
+
+const TopCardStyles = styled.div`
 	fieldset.plural {
 		height: 20px;
+	}
+
+	@media (min-width: ${ props => props.theme.desktopCardWidth }) {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 20px;
+
+		.left {
+			flex-grow: 1;
+		}
+
+		.right {
+			text-align: right;
+			flex-shrink: 2;
+
+			fieldset.isComposedIngredient {
+				margin-top: 14px;
+			}
+		}
+	}
+`;
+
+const MiddleCardStyles = styled.div`
+	@media (min-width: ${ props => props.theme.desktopCardWidth }) {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 20px;
+
+		/* TEMP - go back and look and what's causing the differences between these svg icons here and in the create component */
+		button.add {
+			top: -1px;
+		}
+
+		.right {
+			flex: 1;
+
+			ul.list {
+				max-height: 108px;
+				overflow-y: scroll;
+			}
+		}
+
+		.left {
+			flex: 1;
+		}
+	}
+`;
+
+const BottomCardStyles = styled.div`
+	margin-top: auto; /* stick to the bottom of the card */
+
+	.warning {
+		color: tomato;
+		margin-bottom: 10px;
+		font-weight: 600;
+		font-size: 13px;
+	}
+
+	.right {
+		margin-top: auto;
 	}
 
 	button.edit {
@@ -258,69 +312,21 @@ const IngredientForm = styled.form`
 	}
 
 	@media (min-width: ${ props => props.theme.desktopCardWidth }) {
-		fieldset {
-			margin-bottom: 6px;
+		display: flex;
+		justify-content: flex-end;
+
+		.left {
+			flex: 1;
 		}
 
-		.top {
-			display: flex;
-			justify-content: space-between;
-			margin-bottom: 20px;
-
-			.left {
-				flex-grow: 1;
-			}
-
-			.right {
-				text-align: right;
-				flex-shrink: 2;
-
-				fieldset.isComposedIngredient {
-					margin-top: 14px;
-				}
-			}
-		}
-
-		.middle {
-			display: flex;
-			justify-content: space-between;
-			margin-bottom: 20px;
-
-			/* TEMP - go back and look and what's causing the differences between these svg icons here and in the create component */
-			button.add {
-				top: -1px;
-			}
-
-			.right {
-				flex: 1;
-
-				ul.list {
-					max-height: 108px;
-					overflow-y: scroll;
-				}
-			}
-
-			.left {
-				flex: 1;
-			}
-		}
-
-		.bottom {
-			display: flex;
-			justify-content: flex-end;
-
-			.left {
-				flex: 1;
-			}
-
-			.right {
-				flex: 1;
-				text-align: right;
-				flex-grow: 2;
-			}
+		.right {
+			flex: 1;
+			text-align: right;
+			flex-grow: 2;
 		}
 	}
 `;
+
 
 // TODO there is so much duplicated code between this and the create component;
 // see if we can DRY this up
@@ -345,7 +351,19 @@ class Card extends Component {
 
 						return (
 							<CardStyles>
-								<IngredientForm>TODO</IngredientForm>
+								<IngredientForm>
+									<TopCardStyles>
+										
+									</TopCardStyles>
+
+									<MiddleCardStyles>
+										
+									</MiddleCardStyles>
+
+									<BottomCardStyles>
+										
+									</BottomCardStyles>
+								</IngredientForm>
 							</CardStyles>
 						);
 					}
