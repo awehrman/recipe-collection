@@ -1,7 +1,6 @@
 import { adopt } from 'react-adopt';
 import { Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
-import Link from 'next/link';
 import Router from 'next/router';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
@@ -39,22 +38,7 @@ const UPDATE_IS_CONTAINER_EXPANDED_MUTATION = gql`
 const Composed = adopt({
 	// eslint-disable-next-line react/prop-types
 	setCurrentCard: ({ render }) => (
-		<Mutation
-			mutation={ UPDATE_CURRENT_INGREDIENT_ID_MUTATION }
-			update={
-				(cache, { data, errors }) => {
-					console.warn('update!');
-					console.log({ cache, data });
-					/*
-					const { todos } = cache.readQuery({ query: GET_TODOS });
-					cache.writeQuery({
-						query: GET_TODOS,
-						data: { todos: todos.concat([addTodo]) },
-					});
-					*/
-				}
-			}
-		>
+		<Mutation mutation={ UPDATE_CURRENT_INGREDIENT_ID_MUTATION }>
 			{ render }
 		</Mutation>
 	),
@@ -161,18 +145,6 @@ const IngredientsList = styled.ul`
 `;
 
 class Container extends Component {
-	componentDidMount() {
-		console.warn('[Container] componentDidMount');
-		// if we've pushed an id into our url our container component will re-mount itself?
-
-		// TODO
-		// if we mounted with an id and a expanded card, update our
-	}
-
-	componentDidUpdate() {
-		console.warn('[Container] componentDidUpdate');
-	}
-
 	buildIngredientsList = (ingredients) => {
 		const { currentIngredientID, isCardEnabled, view } = this.props;
 
@@ -274,9 +246,11 @@ class Container extends Component {
 
 	render() {
 		console.warn('[Container] render');
-		const { className, currentIngredientID, id, ingredients, isCardEnabled, isContainerExpanded, label } = this.props;
+		const { className, currentIngredientID, id, ingredients, isCardEnabled, isContainerExpanded, label, view } = this.props;
 		const ingList = this.buildIngredientsList(ingredients);
-		console.log({ currentIngredientID, isCardEnabled, isContainerExpanded });
+		// eslint-disable-next-line object-curly-newline
+		// console.log({ currentIngredientID, isCardEnabled, isContainerExpanded });
+		console.log(`isEditMode: ${ (view === 'new') }`);
 		return (
 			<Composed>
 				{
@@ -295,7 +269,10 @@ class Container extends Component {
 								(isCardEnabled && (currentIngredientID !== null))
 									? (
 										<Card
+											className={ className }
 											id={ currentIngredientID }
+											key={ currentIngredientID }
+											view={ view }
 										/>
 									)
 									: null

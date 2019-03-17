@@ -36,7 +36,7 @@ const IngredientsPageStyles = styled.article`
 class Ingredients extends Component {
 	constructor(props) {
 		super(props);
-		// TODO should this be in Apollo's cache?
+
 		this.state = { isAddNewExpanded: false };
 	}
 
@@ -51,7 +51,7 @@ class Ingredients extends Component {
 	render() {
 		const { query } = this.props;
 		const { isAddNewExpanded } = this.state;
-		console.warn('[ingredients] render');
+		// console.warn('[ingredients] render');
 		const { group, id, view } = query;
 
 		return (

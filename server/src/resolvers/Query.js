@@ -58,7 +58,7 @@ const GET_INGREDIENT_QUERY = `{
   isComposedIngredient
 }`;
 
-// temp for testing
+// TODO move this off into a testing util lib
 async function stall(stallTime = 3000) {
   await new Promise(resolve => setTimeout(resolve, stallTime));
 }
@@ -227,7 +227,7 @@ const Query = {
 		const { id } = where;
 		console.log(id);
 
-		//await stall(5000);
+		// await stall(5000);
 		//console.log('finished stalling...');
 
 		const ing = await ctx.db.query.ingredient({ where: { id }}, GET_INGREDIENT_QUERY);

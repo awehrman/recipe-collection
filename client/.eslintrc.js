@@ -27,12 +27,14 @@ module.exports = {
 		'react/jsx-indent': [1, 'tab'],
 		'react/jsx-indent-props': [1, 'tab'],
 		'react/jsx-filename-extension': [1, { 'extensions': ['.js', '.jsx'] }],
+		'react/jsx-uses-vars': [2],
 		'jsx-a11y/anchor-is-valid': 0,
 
 		// eslint
 		'array-bracket-spacing': [1, 'always'],
 		'indent': [1, 'tab'],
 		'max-len': [1, { 'code': 150 }],
+		'no-bitwise': [2, { 'allow': ['~'] }],
     'no-console': 0,
 		'no-tabs': 0,
 		'object-curly-newline': [1, {

@@ -46,13 +46,6 @@ const Composed = adopt({
 	getContainers: ({ group, id, render, view }) => (
 		<Query
 			query={ GET_ALL_CONTAINERS_QUERY }
-			onCompleted={
-				(data) => {
-					console.warn('*** onCompleted ***');
-					console.log(data);
-					// TODO it looks like the initial query with an id
-				}
-			}
 			variables={ {
 				group,
 				id,
@@ -85,9 +78,9 @@ const MessageStyles = styled.div`
 
 class Containers extends React.PureComponent {
 	render() {
-		console.warn(`[Containers] render`);
+		// console.warn(`[Containers] render`);
 		const { group, id, view } = this.props; // via the query params
-		console.log({ group, id, view });
+		// console.log({ group, id, view });
 
 		// NOTE: if you want to let the rest of the page load without waiting on this query
 		// you can disable SSR here and call forceUpdate() in componentDidMount()
@@ -100,18 +93,13 @@ class Containers extends React.PureComponent {
 						const { data } = getContainers || {};
 						const { loading, error } = getContainers || {};
 						const { containers } = data || [];
-						console.log({ getContainers: containers });
-						console.log(loading);
+						// console.log({ getContainers: containers });
 
 						if (loading) return <p>Loading ingredients...</p>;
 						if (error) return <ErrorMessage error={ error } />;
 
 						const hasContainers = ((containers.length === 1) && (containers[0].ingredients.length > 0));
 						const message = (view === 'new') ? 'No new ingredients found.' : 'No ingredients found.';
-
-						// TODO
-						// for some reason it looks like the the values labeled @client don't initially get set by this query
-
 
 						return (
 							<ContainerStyles>

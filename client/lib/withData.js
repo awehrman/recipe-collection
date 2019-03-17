@@ -59,7 +59,7 @@ function createClient({ headers }) {
 				 query but i can't seem to figure out how to override these defaults with my initial server response
 				 so i've removed the @client directives and it seems to be working properly now but be careful about
 				 how often we're hitting the server for new data
-	 
+
 			defaults: {
 				currentIngredientID: null,
 				isCardEnabled: false,
@@ -75,7 +75,7 @@ function createClient({ headers }) {
 					setCurrentCard(_, variables, { cache, getCacheKey }) {
 						console.warn('[withData] setCurrentCard');
 						const { currentIngredientID, id, isCardEnabled } = variables;
-						console.log({ currentIngredientID, id, isCardEnabled });
+						//console.log({ currentIngredientID, id, isCardEnabled });
 
 						const fragmentId = getCacheKey({
 							id,
@@ -107,8 +107,8 @@ function createClient({ headers }) {
 							data,
 						});
 
-						console.warn('wrote cache:');
-						console.log(data);
+						//console.warn('wrote cache:');
+						//console.log(data);
 
 						return data;
 					},

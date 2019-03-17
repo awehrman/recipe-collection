@@ -1,24 +1,13 @@
 import { adopt } from 'react-adopt';
 import { Component } from 'react';
-import { darken } from 'polished';
 import { Query, Mutation } from 'react-apollo';
-// import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import gql from 'graphql-tag';
-// import levenshtein from 'fast-levenshtein';
-// import pluralize from 'pluralize';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-// import faEdit from '@fortawesome/fontawesome-pro-regular/faEdit';
-// import faCodeMerge from '@fortawesome/fontawesome-pro-light/faCodeMerge';
-// import faExclamation from '@fortawesome/fontawesome-pro-solid/faExclamation';
-// import faPlus from '@fortawesome/fontawesome-pro-regular/faPlus';
-
-import Button from '../form/Button';
-import CheckboxGroup from '../form/CheckboxGroup';
+import { deepCopy } from '../../lib/util';
 import ErrorMessage from '../ErrorMessage';
-import Input from '../form/Input';
-import List from '../form/List';
+import IngredientForm from './IngredientForm';
 
 const CURRENT_INGREDIENT_QUERY = gql`
   query CURRENT_INGREDIENT_QUERY($id: ID!) {
@@ -138,7 +127,6 @@ const Composed = adopt({
 });
 
 const CardStyles = styled.div`
-	background: pink;
 	max-height: ${ props => (props.theme.mobileCardHeight) };
 	padding: 20px;
 	border-bottom: 1px solid #ddd;
@@ -160,210 +148,71 @@ const CardStyles = styled.div`
 	}
 `;
 
-const IngredientForm = styled.form`
-	border: 2px solid red;
-	flex-basis: 100%;
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
 
-	button {
-		border: 0;
-		background: transparent;
-		cursor: pointer;
-		font-weight: 600;
-		font-size: 14px;
-	}
-
-	fieldset {
-		margin-bottom: 10px;
-	}
-
-	fieldset input {
-	 	border-bottom: 0;
-	}
-
-	@media (min-width: ${ props => props.theme.desktopCardWidth }) {
-		fieldset {
-			margin-bottom: 6px;
-		}
-	}
-`;
-
-const TopCardStyles = styled.div`
-	fieldset.plural {
-		height: 20px;
-	}
-
-	@media (min-width: ${ props => props.theme.desktopCardWidth }) {
-		display: flex;
-		justify-content: space-between;
-		margin-bottom: 20px;
-
-		.left {
-			flex-grow: 1;
-		}
-
-		.right {
-			text-align: right;
-			flex-shrink: 2;
-
-			fieldset.isComposedIngredient {
-				margin-top: 14px;
-			}
-		}
-	}
-`;
-
-const MiddleCardStyles = styled.div`
-	@media (min-width: ${ props => props.theme.desktopCardWidth }) {
-		display: flex;
-		justify-content: space-between;
-		margin-bottom: 20px;
-
-		/* TEMP - go back and look and what's causing the differences between these svg icons here and in the create component */
-		button.add {
-			top: -1px;
-		}
-
-		.right {
-			flex: 1;
-
-			ul.list {
-				max-height: 108px;
-				overflow-y: scroll;
-			}
-		}
-
-		.left {
-			flex: 1;
-		}
-	}
-`;
-
-const BottomCardStyles = styled.div`
-	margin-top: auto; /* stick to the bottom of the card */
-
-	.warning {
-		color: tomato;
-		margin-bottom: 10px;
-		font-weight: 600;
-		font-size: 13px;
-	}
-
-	.right {
-		margin-top: auto;
-	}
-
-	button.edit {
-		border: 0;
-		background: transparent;
-		cursor: pointer;
-		color: ${ props => props.theme.highlight };
-		font-weight: 600;
-		font-size: 14px;
-
-	 	svg {
-			margin-right: 8px;
-		}
-	}
-
-	button.cancel {
-		color: #ccc;
-		font-weight: 400;
-		margin-right: 10px;
-	}
-
-	button.save {
-		background: ${ props => props.theme.altGreen };
-		color: white;
-		border-radius: 5px;
-		padding: 4px 10px;
-
-		&:hover {
-			background: ${ props => darken(0.1, props.theme.altGreen) };
-		}
-	}
-
-	button.merge {
-		color: ${ props => props.theme.highlight };
-	}
-
-	button.parent {
-		color: ${ props => props.theme.orange };
-	}
-
-	button.parsingError {
-		color: tomato;
-	}
-
-	.actions {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-
-		button {
-			margin-bottom: 6px;
-
-			svg {
-				margin-right: 10px;
-			}
-		}
-	}
-
-	@media (min-width: ${ props => props.theme.desktopCardWidth }) {
-		display: flex;
-		justify-content: flex-end;
-
-		.left {
-			flex: 1;
-		}
-
-		.right {
-			flex: 1;
-			text-align: right;
-			flex-grow: 2;
-		}
-	}
-`;
-
-
-// TODO there is so much duplicated code between this and the create component;
-// see if we can DRY this up
-
+// TODO purecomponent?
 class Card extends Component {
-	initialState = {};
+	initialState = { isEditMode: false };
 
-	state = this.initialState;
+	// eslint-disable-next-line react/destructuring-assignment
+	state = { isEditMode: (this.props.view === 'new') };
+
+	onCancelClick = (e) => {
+		e.preventDefault();
+		this.setState(this.initialState);
+	}
+
+	onToggleEditMode = (e) => {
+		e.preventDefault();
+		const { isEditMode } = this.state;
+
+		this.setState({ isEditMode: !isEditMode });
+	}
+
+	onSaveIngredient = (e, updates = {}) => {
+		console.warn('[Card] onSaveIngredient');
+		e.preventDefault();
+		const pending = deepCopy(updates);
+
+		pending.isValidated = true;
+
+		// TODO mutation
+		console.warn('saving updates...');
+		console.log(updates);
+		this.setState(this.initialState);
+
+		// TODO make sure that we get the containers to refresh on save as well
+	}
 
 	render() {
-		const { id } = this.props;
+		const { className, id } = this.props;
+		const { isEditMode } = this.state;
 		console.warn('[Card] render');
+
 		return (
 			<Composed id={ id }>
 				{
 					({ getIngredient }) => {
 						const { data, error, loading } = getIngredient || {};
 						const { ingredient } = data;
-						console.log(ingredient);
+						const { alternateNames, name, plural } = ingredient || {};
 
 						if (error) return <ErrorMessage error={ error } />;
 
 						return (
-							<CardStyles>
-								<IngredientForm>
-									<TopCardStyles>
-										
-									</TopCardStyles>
-
-									<MiddleCardStyles>
-										
-									</MiddleCardStyles>
-
-									<BottomCardStyles>
-										
-									</BottomCardStyles>
-								</IngredientForm>
+							<CardStyles className={ className }>
+								<IngredientForm
+									alternateNames={ alternateNames }
+									id={ (ingredient) ? ingredient.id : null }
+									isEditMode={ isEditMode }
+									key={ (ingredient) ? ingredient.id : 'empty' }
+									loading={ loading }
+									name={ name }
+									onCancelClick={ this.onCancelClick }
+									onEditClick={ this.onToggleEditMode }
+									onSaveIngredient={ this.onSaveIngredient }
+									plural={ plural }
+									showCancelButton
+								/>
 							</CardStyles>
 						);
 					}
@@ -373,9 +222,13 @@ class Card extends Component {
 	}
 }
 
-Card.defaultProps = {};
+Card.defaultProps = { className: '' };
 
-Card.propTypes = { id: PropTypes.string.isRequired };
+Card.propTypes = {
+	className: PropTypes.string,
+	id: PropTypes.string.isRequired,
+	view: PropTypes.oneOf([ 'all', 'new' ]).isRequired,
+};
 
 export default Card;
 export {
