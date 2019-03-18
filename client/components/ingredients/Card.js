@@ -7,7 +7,7 @@ import styled from 'styled-components';
 
 import { deepCopy } from '../../lib/util';
 import ErrorMessage from '../ErrorMessage';
-import IngredientForm from './IngredientForm';
+import Form from './Form';
 
 const CURRENT_INGREDIENT_QUERY = gql`
   query CURRENT_INGREDIENT_QUERY($id: ID!) {
@@ -194,13 +194,13 @@ class Card extends Component {
 					({ getIngredient }) => {
 						const { data, error, loading } = getIngredient || {};
 						const { ingredient } = data;
-						const { alternateNames, name, plural } = ingredient || {};
+						const { alternateNames, name, plural, properties } = ingredient || {};
 
 						if (error) return <ErrorMessage error={ error } />;
 
 						return (
 							<CardStyles className={ className }>
-								<IngredientForm
+								<Form
 									alternateNames={ alternateNames }
 									id={ (ingredient) ? ingredient.id : null }
 									isEditMode={ isEditMode }
@@ -211,6 +211,7 @@ class Card extends Component {
 									onEditClick={ this.onToggleEditMode }
 									onSaveIngredient={ this.onSaveIngredient }
 									plural={ plural }
+									properties={ properties }
 									showCancelButton
 								/>
 							</CardStyles>

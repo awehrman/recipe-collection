@@ -3,7 +3,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import Button from '../form/Button';
-import IngredientForm from './IngredientForm';
+import Form from './Form';
 
 const AddNewStyles = styled.div`
 	background: ${ props => props.theme.greenBackground };
@@ -60,7 +60,7 @@ class AddNew extends React.PureComponent {
 				{
 					(isExpanded)
 						? (
-							<IngredientForm
+							<Form
 								key="add-new"
 								onSaveIngredient={ this.onAddIngredient }
 								saveLabel="Add"

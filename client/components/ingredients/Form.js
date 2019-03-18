@@ -4,7 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 // import levenshtein from 'fast-levenshtein';
-// import pluralize from 'pluralize';
+import pluralize from 'pluralize';
 
 import faEdit from '@fortawesome/fontawesome-pro-regular/faEdit';
 // import faCodeMerge from '@fortawesome/fontawesome-pro-light/faCodeMerge';
@@ -14,8 +14,7 @@ import faEdit from '@fortawesome/fontawesome-pro-regular/faEdit';
 // eslint-disable-next-line no-unused-vars
 import { deepCopy, hasProperty } from '../../lib/util';
 import Button from '../form/Button';
-// import CheckboxGroup from '../form/CheckboxGroup';
-// import ErrorMessage from '../ErrorMessage';
+import CheckboxGroup from '../form/CheckboxGroup';
 import Input from '../form/Input';
 // import List from '../form/List';
 
@@ -71,6 +70,14 @@ const TopFormStyles = styled.div`
 			}
 		}
 	}
+`;
+
+const Left = styled.div`
+	flex: 1;
+`;
+
+const Right = styled.div`
+	flex: 1;
 `;
 
 const MiddleFormStyles = styled.div`
@@ -185,7 +192,7 @@ const BottomFormStyles = styled.div`
 	}
 `;
 
-class IngredientForm extends React.PureComponent {
+class Form extends React.PureComponent {
 	initialState = {
 		pending: {},
 		warnings: [],
@@ -229,8 +236,67 @@ class IngredientForm extends React.PureComponent {
 		return ing;
 	}
 
+	onCheckboxChange = (e, fieldName, defaultValue) => {
+		const { pending } = this.state;
+		let properties = deepCopy(defaultValue);
+		let isComposedIngredient = (hasProperty(defaultValue, 'isComposedIngredient')) ? defaultValue.isComposedIngredient : false;
+		let isValidated = (hasProperty(defaultValue, 'isValidated')) ? defaultValue.isValidated : false;
+
+		switch (fieldName) {
+		case 'properties':
+			properties = (hasProperty(pending, 'properties')) ? deepCopy(pending.properties) : properties;
+
+			Object.entries(properties).forEach(([ key, value ]) => {
+				if (key === e.target.value) {
+					properties[key] = !value;
+				}
+			});
+
+			this.setState({
+				pending: {
+					...pending,
+					...{ properties },
+				},
+			});
+			break;
+
+		case 'isComposedIngredient':
+			isComposedIngredient = (hasProperty(pending, 'isComposedIngredient')) ? pending.isComposedIngredient : isComposedIngredient;
+
+			this.setState({
+				pending: {
+					...pending,
+					...{ isComposedIngredient: !isComposedIngredient },
+				},
+			});
+			break;
+
+		case 'isValidated':
+			isValidated = (hasProperty(pending, 'isValidated')) ? pending.isValidated : isValidated;
+
+			this.setState({
+				pending: {
+					...pending,
+					...{ isValidated: !isValidated },
+				},
+			});
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	onCheckboxKeyDown = (e, fieldName, defaultValue) => {
+		// prevent form submission when checking checkboxes with the return key
+		if (e.key === 'Enter') {
+			e.preventDefault();
+			this.onCheckboxChange(e, fieldName, defaultValue);
+		}
+	}
+
 	onInputChange = (e) => {
-		console.warn('[IngredientForm] onInputChange');
+		console.warn('[Form] onInputChange');
 		const { name, value } = e.target;
 		const { pending } = this.state; // TODO verify that i'm not mangling state
 		const warnings = this.validate(value, name);
@@ -245,7 +311,7 @@ class IngredientForm extends React.PureComponent {
 	}
 
 	onSaveIngredient = (e) => {
-		console.warn('[IngredientForm] onSaveIngredient');
+		console.warn('[Form] onSaveIngredient');
 		const { onSaveIngredient } = this.props;
 		const { pending } = this.state;
 
@@ -255,8 +321,24 @@ class IngredientForm extends React.PureComponent {
 		onSaveIngredient(e, pending);
 	}
 
+	onSuggestPlural = (e, defaultName) => {
+		console.warn('[Form] onSuggestPlural');
+		e.preventDefault();
+		const { pending } = this.state;
+
+		const name = (hasProperty(pending, 'name')) ? pending.name : defaultName;
+		const plural = (name) ? pluralize(name) : '';
+
+		this.setState({
+			pending: {
+				...pending,
+				...{ plural },
+			},
+		}, () => this.validate(plural, 'plural'));
+	}
+
 	validate = (value, fieldName) => {
-		console.warn('[IngredientForm] validate');
+		console.warn('[Form] validate');
 		// combine our latest pending updates with the ingredient info from the server
 		const ing = this.getPendingIngredient();
 		const warnings = {};
@@ -278,7 +360,7 @@ class IngredientForm extends React.PureComponent {
 		// we'll flag any local errors as ones that prevent the ingredient from saving until resolved
 		validationFields.forEach((f) => {
 			// if we find any matches on the name or plural fields, add a warning
-			if ((typeof ing[f] === 'string') && (ing[f].toLowerCase() === value.toLowerCase())) {
+			if (ing[f] && (typeof ing[f] === 'string') && (ing[f].toLowerCase() === value.toLowerCase())) {
 				warnings[f] = {
 					preventSave: true,
 					warning: `"${ value }" is already in use on the "${ f }" field.`,
@@ -286,7 +368,7 @@ class IngredientForm extends React.PureComponent {
 			}
 
 			// if we find any matches within the alternateNames, add a warning
-			if ((typeof ing[f] === 'object') && (!ing[f].findIndex(n => n.name.toLowerCase() === value.toLowerCase()))) {
+			if (ing[f] && (typeof ing[f] === 'object') && (!ing[f].findIndex(n => n.name.toLowerCase() === value.toLowerCase()))) {
 				warnings[f] = {
 					preventSave: true,
 					warning: `"${ value }" is already listed in the "${ f }" field.`,
@@ -296,38 +378,78 @@ class IngredientForm extends React.PureComponent {
 
 		// next, check if this value is used on another ingredient
 		// if we find any matches, we'll show a warning that this update will trigger an merge between these two ingredients
+
+		// TODO sure seems like we can use a local apollo query for this?
 		console.warn(warnings);
 
 		return warnings;
 	}
 
 	render() {
-		console.warn('[IngredientForm] render');
+		console.warn('[Form] render');
 		const {
-			id, isEditMode, loading, name,
-			onCancelClick, onEditClick, saveLabel, showCancelButton,
+			id, isEditMode, loading, name, onCancelClick, onEditClick,
+			plural, properties, saveLabel, showCancelButton,
 		} = this.props;
 		const { pending, warnings } = this.state;
 		// eslint-disable-next-line object-curly-newline
 		console.log({ pending, loading });
 
+		const checkboxes = (isEditMode && hasProperty(pending, 'properties')) ? pending.properties : properties;
+		if (hasProperty(checkboxes, '__typename')) {
+			// eslint-disable-next-line no-underscore-dangle
+			delete checkboxes.__typename;
+		}
+
+
 		return (
 			<FormStyles>
 				<TopFormStyles>
-					{/* Name */}
-					<Input
-						className="name"
-						defaultValue={ name }
-						fieldName="name"
-						isEditMode={ isEditMode }
-						isRequiredField
-						loading={ loading }
-						onChange={ this.onInputChange }
-						placeholder="name"
-						suppressInlineWarnings
-						value={ pending.name }
-						warning={ warnings.name || null }
-					/>
+					<Left>
+						{/* Name */}
+						<Input
+							className="name"
+							defaultValue={ name }
+							fieldName="name"
+							isEditMode={ isEditMode }
+							isRequiredField
+							loading={ loading }
+							onChange={ e => this.onInputChange(e) }
+							placeholder="name"
+							suppressInlineWarnings
+							value={ pending.name }
+							warning={ warnings.name || null }
+						/>
+
+						{/* Plural */}
+						<Input
+							className="plural"
+							defaultValue={ plural }
+							fieldName="plural"
+							isEditMode={ isEditMode }
+							isPluralSuggestEnabled
+							onChange={ e => this.onInputChange(e) }
+							onSuggestPlural={ e => this.onSuggestPlural(e, name) }
+							placeholder="plural"
+							suppressWarnings
+							value={ pending.plural }
+							warning={ warnings.plural || null }
+						/>
+					</Left>
+
+					<Right>
+						{/* Properties */}
+						<CheckboxGroup
+							className="properties"
+							isEditMode={ isEditMode }
+							key={ `card_properties_${ id }` }
+							keys={ [ ...Object.keys(checkboxes) ] }
+							name="properties"
+							onChange={ e => this.onCheckboxChange(e, 'properties', properties) }
+							onKeyDown={ e => this.onCheckboxKeyDown(e, 'properties', properties) }
+							values={ [ ...Object.values(checkboxes) ] }
+						/>
+					</Right>
 				</TopFormStyles>
 
 				<MiddleFormStyles />
@@ -367,7 +489,7 @@ class IngredientForm extends React.PureComponent {
 	}
 }
 
-IngredientForm.defaultProps = {
+Form.defaultProps = {
 	alternateNames: [],
 	id: '-1',
 	isEditMode: true,
@@ -377,11 +499,20 @@ IngredientForm.defaultProps = {
 	onEditClick: e => e.preventDefault(),
 	onSaveIngredient: e => e.preventDefault(),
 	plural: null,
+	properties: {
+		dairy: false,
+		fish: false,
+		gluten: false,
+		meat: false,
+		poultry: false,
+		soy: false,
+		__typename: 'Property',
+	},
 	saveLabel: 'Save',
 	showCancelButton: false,
 };
 
-IngredientForm.propTypes = {
+Form.propTypes = {
 	alternateNames: PropTypes.arrayOf(PropTypes.shape({ name: PropTypes.string.isRequired })),
 	id: PropTypes.string,
 	isEditMode: PropTypes.bool,
@@ -391,8 +522,10 @@ IngredientForm.propTypes = {
 	onEditClick: PropTypes.func,
 	onSaveIngredient: PropTypes.func,
 	plural: PropTypes.string,
+	// TODO improve proptypes
+	properties: PropTypes.object,
 	saveLabel: PropTypes.string,
 	showCancelButton: PropTypes.bool,
 };
 
-export default IngredientForm;
+export default Form;
