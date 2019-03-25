@@ -1,5 +1,5 @@
 import { adopt } from 'react-adopt';
-import { Component } from 'react';
+import React from 'react';
 import { Query, Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
@@ -148,9 +148,7 @@ const CardStyles = styled.div`
 	}
 `;
 
-
-// TODO purecomponent?
-class Card extends Component {
+class Card extends React.PureComponent {
 	initialState = { isEditMode: false };
 
 	// eslint-disable-next-line react/destructuring-assignment
@@ -194,7 +192,7 @@ class Card extends Component {
 					({ getIngredient }) => {
 						const { data, error, loading } = getIngredient || {};
 						const { ingredient } = data;
-						const { alternateNames, name, plural, properties } = ingredient || {};
+						const { alternateNames, isComposedIngredient, name, plural, properties } = ingredient || {};
 
 						if (error) return <ErrorMessage error={ error } />;
 
@@ -203,6 +201,7 @@ class Card extends Component {
 								<Form
 									alternateNames={ alternateNames }
 									id={ (ingredient) ? ingredient.id : null }
+									isComposedIngredient={ isComposedIngredient }
 									isEditMode={ isEditMode }
 									key={ (ingredient) ? ingredient.id : 'empty' }
 									loading={ loading }

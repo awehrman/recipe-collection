@@ -20,7 +20,7 @@ const GET_INGREDIENTS_COUNT_QUERY = gql`
 `;
 
 const IngredientsPageStyles = styled.article`
-	// TODO oh boy oh boy this got messed up
+	// TODO oh boy oh boy this got messed up; keep looking into react transitions
 	/*
 	.slide-enter {
     height: 0px;
@@ -76,7 +76,7 @@ class Ingredients extends Component {
 									{ (loading) ? <div className="loading">Loading ingredients...</div> : null }
 									{ (error) ? <ErrorMessage error={ error } /> : null }
 
-									{/* Ingredients */}
+									{/* Containers */}
 									<Containers
 										group={ group }
 										id={ id }

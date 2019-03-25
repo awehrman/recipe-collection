@@ -118,13 +118,6 @@ class Input extends Component {
 			currentSuggestion: -1,
 			suggestions: [],
 		};
-
-		this.textInput = React.createRef();
-	}
-
-	componentDidMount = () => {
-		// set focus to the element when it mounts
-		this.textInput.current.focus();
 	}
 
 	onChange = (e) => {
@@ -216,9 +209,10 @@ class Input extends Component {
 	render() {
 		const {
 			className, defaultValue, isEditMode, isLabelDisplayed, isPluralSuggestEnabled, isRequiredField,
-			isSuggestionEnabled, label, loading, fieldName, onBlur, onSuggestPlural, placeholder, suppressInlineWarnings, tabIndex, value, warning,
+			isSuggestionEnabled, label, loading, fieldName, onBlur, onSuggestPlural, placeholder, suppressLocalWarnings, tabIndex, value, warning,
 		} = this.props;
 		const { currentSuggestion, suggestions } = this.state;
+
 		let inputValue = (isEditMode && (value !== undefined)) ? value : defaultValue;
 		inputValue = (!inputValue) ? '' : inputValue;
 
@@ -253,7 +247,6 @@ class Input extends Component {
 						onChange={ this.onChange }
 						onKeyDown={ this.onKeyDown }
 						placeholder={ placeholder }
-						ref={ this.textInput }
 						required={ isRequiredField }
 						spellCheck={ isEditMode }
 						tabIndex={ tabIndex }
@@ -267,7 +260,7 @@ class Input extends Component {
 					</span>
 
 					{/* validation warnings */}
-					{ (!suppressInlineWarnings && warning) ? <Warning>{ warning.message }</Warning> : null }
+					{ (!suppressLocalWarnings && warning) ? <Warning>{ warning.message }</Warning> : null }
 
 					{/* relative - suggested values */}
 					{
@@ -305,7 +298,7 @@ Input.defaultProps = {
 	onSuggestPlural: e => e.preventDefault(),
 	placeholder: '',
 	suggestionPool: [],
-	suppressInlineWarnings: false,
+	suppressLocalWarnings: false,
 	tabIndex: -1,
 	value: undefined,
 	warning: null,
@@ -331,7 +324,7 @@ Input.propTypes = {
 	placeholder: PropTypes.string,
 	// TODO make props more specifics
 	suggestionPool: PropTypes.array,
-	suppressInlineWarnings: PropTypes.bool,
+	suppressLocalWarnings: PropTypes.bool,
 	tabIndex: PropTypes.number,
 	value: PropTypes.string,
 	warning: PropTypes.string,

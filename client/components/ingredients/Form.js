@@ -1,6 +1,6 @@
 import { darken } from 'polished';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import React from 'react';
+import { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 // import levenshtein from 'fast-levenshtein';
@@ -16,7 +16,7 @@ import { deepCopy, hasProperty } from '../../lib/util';
 import Button from '../form/Button';
 import CheckboxGroup from '../form/CheckboxGroup';
 import Input from '../form/Input';
-// import List from '../form/List';
+import List from '../form/List';
 
 const FormStyles = styled.form`
 	flex-basis: 100%;
@@ -192,7 +192,7 @@ const BottomFormStyles = styled.div`
 	}
 `;
 
-class Form extends React.PureComponent {
+class Form extends Component {
 	initialState = {
 		pending: {},
 		warnings: [],
@@ -388,19 +388,19 @@ class Form extends React.PureComponent {
 	render() {
 		console.warn('[Form] render');
 		const {
-			id, isEditMode, loading, name, onCancelClick, onEditClick,
-			plural, properties, saveLabel, showCancelButton,
+			alternateNames, id, isComposedIngredient, isEditMode, loading, name,
+			onCancelClick, onEditClick,plural, properties, saveLabel, showCancelButton,
 		} = this.props;
 		const { pending, warnings } = this.state;
-		// eslint-disable-next-line object-curly-newline
-		console.log({ pending, loading });
 
+		// prep properties checkboxes
 		const checkboxes = (isEditMode && hasProperty(pending, 'properties')) ? pending.properties : properties;
 		if (hasProperty(checkboxes, '__typename')) {
 			// eslint-disable-next-line no-underscore-dangle
 			delete checkboxes.__typename;
 		}
 
+		// pre
 
 		return (
 			<FormStyles>
@@ -414,9 +414,9 @@ class Form extends React.PureComponent {
 							isEditMode={ isEditMode }
 							isRequiredField
 							loading={ loading }
-							onChange={ e => this.onInputChange(e) }
+							onChange={ this.onInputChange }
 							placeholder="name"
-							suppressInlineWarnings
+							suppressLocalWarnings
 							value={ pending.name }
 							warning={ warnings.name || null }
 						/>
@@ -428,10 +428,11 @@ class Form extends React.PureComponent {
 							fieldName="plural"
 							isEditMode={ isEditMode }
 							isPluralSuggestEnabled
-							onChange={ e => this.onInputChange(e) }
+							loading={ loading }
+							onChange={ this.onInputChange }
 							onSuggestPlural={ e => this.onSuggestPlural(e, name) }
 							placeholder="plural"
-							suppressWarnings
+							suppressLocalWarnings
 							value={ pending.plural }
 							warning={ warnings.plural || null }
 						/>
@@ -441,18 +442,57 @@ class Form extends React.PureComponent {
 						{/* Properties */}
 						<CheckboxGroup
 							className="properties"
+							fieldName="properties"
 							isEditMode={ isEditMode }
+							loading={ loading }
 							key={ `card_properties_${ id }` }
 							keys={ [ ...Object.keys(checkboxes) ] }
-							name="properties"
 							onChange={ e => this.onCheckboxChange(e, 'properties', properties) }
 							onKeyDown={ e => this.onCheckboxKeyDown(e, 'properties', properties) }
 							values={ [ ...Object.values(checkboxes) ] }
 						/>
+
+						{/* Is Composed Ingredient */}
+						<CheckboxGroup
+							className="isComposedIngredient"
+							fieldName="isComposedIngredient"
+							isEditMode={ isEditMode }
+							loading={ loading }
+							key={ `card_isComposed_${ id }` }
+							keys={ [ 'Is Composed Ingredient?' ] }
+							onChange={ e => this.onCheckboxChange(e, 'isComposedIngredient', isComposedIngredient) }
+							onKeyDown={ e => this.onCheckboxKeyDown(e, 'isComposedIngredient', isComposedIngredient) }
+							values={ [ (isEditMode && hasProperty(pending, 'isComposedIngredient'))
+								? pending.isComposedIngredient : isComposedIngredient ] }
+						/>
 					</Right>
 				</TopFormStyles>
 
-				<MiddleFormStyles />
+				<MiddleFormStyles>
+					<Left>
+						{/* Alternate Names */}
+						<List
+							className="altNames"
+							defaultValues={ alternateNames }
+							fieldName="alternateNames"
+							isEditMode={ isEditMode }
+							isPluralSuggestEnabled
+							isRemoveable
+							label="Alternate Names"
+							loading={ loading }
+							onListChange={ this.onListChange }
+							onSuggestPlural={ this.onSuggestPlural }
+							onValidation={ this.onValidation }
+							placeholder="alternate name"
+							suppressLocalWarnings
+							warnings={ [ warnings.alternateNames || null ] }
+							values={ [] }
+							validate={ this.validate }
+						/>
+					</Left>
+
+					<Right />
+				</MiddleFormStyles>
 
 				<BottomFormStyles>
 					{/* Cancel Button */
@@ -492,6 +532,7 @@ class Form extends React.PureComponent {
 Form.defaultProps = {
 	alternateNames: [],
 	id: '-1',
+	isComposedIngredient: false,
 	isEditMode: true,
 	loading: false,
 	name: null,
@@ -515,6 +556,7 @@ Form.defaultProps = {
 Form.propTypes = {
 	alternateNames: PropTypes.arrayOf(PropTypes.shape({ name: PropTypes.string.isRequired })),
 	id: PropTypes.string,
+	isComposedIngredient: PropTypes.bool,
 	isEditMode: PropTypes.bool,
 	loading: PropTypes.bool,
 	name: PropTypes.string,

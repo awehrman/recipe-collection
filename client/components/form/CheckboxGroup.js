@@ -64,18 +64,18 @@ const Checkbox = styled.div`
 `;
 
 class CheckboxGroup extends Component {
-	onChange = (e, name) => {
+	onChange = (e, fieldName) => {
 		const { isEditMode, onChange } = this.props;
 
 		if (isEditMode) {
-			onChange(e, name);
+			onChange(e, fieldName);
 		} else {
 			e.preventDefault();
 		}
 	}
 
 	render() {
-		const { className, isEditMode, keys, loading, name, onKeyDown, type, values } = this.props;
+		const { className, isEditMode, keys, loading, fieldName, onKeyDown, type, values } = this.props;
 
 		return (
 			<FieldSet aria-busy={ loading } className={ (isEditMode) ? `editable ${ className }` : className } disabled={ loading }>
@@ -91,7 +91,7 @@ class CheckboxGroup extends Component {
 											id={ k }
 											checked={ values[i] }
 											onChange={ this.onChange }
-											onKeyDown={ (isEditMode) ? e => onKeyDown(e, name) : e => e.preventDefault() }
+											onKeyDown={ (isEditMode) ? e => onKeyDown(e, fieldName) : e => e.preventDefault() }
 											value={ k }
 										/>
 										<span>{ k }</span>
@@ -118,9 +118,9 @@ CheckboxGroup.defaultProps = {
 CheckboxGroup.propTypes = {
 	className: PropTypes.string,
 	isEditMode: PropTypes.bool,
+	fieldName: PropTypes.string.isRequired,
 	keys: PropTypes.arrayOf(PropTypes.string).isRequired,
 	loading: PropTypes.bool,
-	name: PropTypes.string.isRequired,
 	onChange: PropTypes.func.isRequired,
 	onKeyDown: PropTypes.func,
 	type: PropTypes.string,

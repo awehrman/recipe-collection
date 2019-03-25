@@ -58,6 +58,11 @@ injectGlobal`
 		box-sizing: inherit;
 	}
 
+	*:focus {
+		/* for whatever reason its not picking up a passed props.theme value here */
+		outline: 2px dotted rgba(128, 174, 245, 1);
+	}
+
 	body {
 		-webkit-font-smoothing: antialiased;
 	  margin: 0;

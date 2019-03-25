@@ -1,5 +1,4 @@
-import { adopt } from 'react-adopt';
-import { Query, Mutation } from 'react-apollo';
+import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 import React from 'react';
 import styled from 'styled-components';
@@ -40,23 +39,6 @@ const GET_ALL_CONTAINERS_QUERY = gql`
 	}
 `;
 
-// TODO convert this back to a regular query if we end up back with one Query
-const Composed = adopt({
-	// eslint-disable-next-line react/prop-types
-	getContainers: ({ group, id, render, view }) => (
-		<Query
-			query={ GET_ALL_CONTAINERS_QUERY }
-			variables={ {
-				group,
-				id,
-				view,
-			} }
-		>
-			{ render }
-		</Query>
-	),
-});
-
 const ContainerStyles = styled.div`
 	display: flex;
 	flex-wrap: wrap;
@@ -84,16 +66,15 @@ class Containers extends React.PureComponent {
 
 		// NOTE: if you want to let the rest of the page load without waiting on this query
 		// you can disable SSR here and call forceUpdate() in componentDidMount()
-		// if you want to enable subsequant Loading states for reteches, add notifyOnNetworkStatusChange
+		// if you want to enable subsequant Loading states for refetches, add notifyOnNetworkStatusChange
 
 		return (
-			<Composed group={ group } id={ id } view={ view }>
+			// eslint-disable-next-line object-curly-newline
+			<Query query={ GET_ALL_CONTAINERS_QUERY } variables={ { group, id, view } }>
 				{
-					({ getContainers }) => {
-						const { data } = getContainers || {};
-						const { loading, error } = getContainers || {};
+					({ data, loading, error }) => {
 						const { containers } = data || [];
-						// console.log({ getContainers: containers });
+						// console.log({ containers });
 
 						if (loading) return <p>Loading ingredients...</p>;
 						if (error) return <ErrorMessage error={ error } />;
@@ -125,7 +106,7 @@ class Containers extends React.PureComponent {
 						);
 					}
 				}
-			</Composed>
+			</Query>
 		);
 	}
 }

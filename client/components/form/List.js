@@ -14,7 +14,7 @@ import Input from './Input';
 const ListStyles = styled.fieldset`
 	border: 0;
 	padding: 0;
-	
+
 	button.add {
 		display: inline-block;
 		border: 0;
@@ -65,14 +65,14 @@ const ListStyles = styled.fieldset`
 				}
 
 				&:hover + button.delete {
-				  display: inline-block;
+					display: inline-block;
 				}
 			}
 
 			button {
 				&:hover + button.delete {
-			  	display: inline-block;
-			  }
+					display: inline-block;
+				}
 			}
 
 			button.delete {
@@ -86,7 +86,7 @@ const ListStyles = styled.fieldset`
 				display: none;
 
 				&:hover {
-				  display: inline-block;
+					display: inline-block;
 				}
 			}
 
@@ -116,7 +116,7 @@ const ListStyles = styled.fieldset`
 				}
 
 				&:hover + button.delete {
-				  display: inline-block;
+					display: inline-block;
 				}
 			}
 		}
@@ -129,100 +129,104 @@ const ListStyles = styled.fieldset`
 `;
 
 class List extends Component {
-  state = {
-  	showInput: false,
-  	value: ''
-  };
+	state = {
+		showInput: false,
+		value: '',
+	};
 
 	onAddButtonClick = (e) => {
-  	this.setState({
-  		showInput: true
-  	});
+		e.preventDefault();
+		this.setState({ showInput: true });
 	}
 
-  onBlur = (e) => {
-  	const { name } = this.props;
-  	// hide the input element if we move focus off this element
-  	if (!e.relatedTarget) {
-  		this.setState({
-	  		showInput: false,
-	  		value: ''
-	  	}, () => this.props.onValidation(null, name));
-  	}
-  }
+	onBlur = (e) => {
+		const { fieldName, onValidation } = this.props;
+		// hide the input element if we move focus off this element
+		if (!e.relatedTarget) {
+			this.setState({
+				showInput: false,
+				value: '',
+			}, () => onValidation(null, fieldName));
+		}
+	}
 
-  onChange = (e) => {
-  	const { value } = e.target;
-  	const { name } = this.props;
+	onChange = (e) => {
+		const { value } = e.target;
+		const { fieldName, onValidation } = this.props;
 
-  	this.setState({
-  		value
-  	}, () => this.props.onValidation(value, name));
-  }
+		this.setState({ value }, () => onValidation(value, fieldName));
+	}
 
-  onListChange = (listItem, fieldName, removeListItem = false) => {
-  	if (fieldName === 'alternateNames') {
-  		listItem = { name: listItem }; // TODO clean up the alt name input so that this happens automatically
-  	}
-  	
-  	this.setState({
-  		showInput: false,
-    	value: ''
-  	}, this.props.onListChange(listItem, fieldName, removeListItem));
-  }
+	onListChange = (listItem, fieldName, removeListItem = false) => {
+		const { onListChange } = this.props;
 
-  onSuggestPlural = (e, value) => {
-  	e.preventDefault();
-  	const { name, type } = this.props;
-  	const plural = (value) ? pluralize(value) : null;
+		if (fieldName === 'alternateNames') {
+			listItem = { name: listItem }; // TODO clean up the alt name input so that this happens automatically
+		}
 
-  	if (plural) {
-  		this.props.onListChange(plural, name, false);
-  	}
-  }
+		this.setState({
+			showInput: false,
+			value: '',
+		}, onListChange(listItem, fieldName, removeListItem));
+	}
 
-  showPluralSuggest = (value, list) => {
-  	const { warnings } = this.props;
-  	let showPlural = (warnings.length > 0) ? true : false;
-  	let plural = null;
+	onSuggestPlural = (e, value) => {
+		e.preventDefault();
+		const { fieldName, onListChange } = this.props;
+		const plural = (value) ? pluralize(value) : null;
 
-  	try {
-  		plural = pluralize(value);
-  	} catch {}
+		if (plural) {
+			onListChange(plural, fieldName, false);
+		}
+	}
 
-  	showPlural = (list.indexOf(plural) > 0) ? false : showPlural;
+	showPluralSuggest = (value, list) => {
+		const { warnings } = this.props;
+		let showPlural = (warnings.length > 0);
+		let plural = null;
 
-  	return showPlural;
-  }
+		try {
+			plural = pluralize(value);
+		} catch {}
 
-  render() {
-  	const { className, defaultValues, excludedSuggestions, isEditMode, isPluralSuggestEnabled, isRemoveable, isSuggestionEnabled,
-  					label, loading, name, placeholder, suggestionPool, suppressWarnings, type, warnings, values } = this.props;
-  	const { showInput, value } = this.state;
+		showPlural = (list.indexOf(plural) > 0) ? false : showPlural;
 
-  	let list = (isEditMode && (values !== undefined)) ? values : defaultValues;
-  	list = list || [];
+		return showPlural;
+	}
 
-  	const warningValues = warnings.map(w => w.value);
+	render() {
+		const {
+			className, defaultValues, excludedSuggestions, isEditMode, isPluralSuggestEnabled, isRemoveable, isSuggestionEnabled,
+			label, loading, fieldName, onListItemClick, placeholder, suggestionPool, suppressLocalWarnings, type, warnings, values,
+		} = this.props;
+		const { showInput, value } = this.state;
 
-  	if (isEditMode || (!isEditMode && list.length > 0)) {
-	  	return (
+		let list = (isEditMode && (values !== undefined)) ? values : defaultValues;
+		list = list || [];
+
+		// TODO
+		//const warningValues = warnings.map(w => w.value || w);
+
+		if (isEditMode || (!isEditMode && list.length > 0)) {
+			return (
 				<ListStyles disabled={ loading } className={ className } aria-busy={ loading }>
 					{/* List Label */}
 					{
 						(isEditMode || (list.length > 0))
-							? <label htmlFor={ name }>{ label }</label>
+							? <label htmlFor={ fieldName }>{ label }</label>
 							: null
 					}
 
 					{/* Add to List Button (+) */}
 					{
 						(isEditMode)
-							? <Button 
+							? (
+								<Button
 									className="add"
 									icon={ <FontAwesomeIcon icon={ faPlus } /> }
 									onClick={ e => this.onAddButtonClick(e) }
 								/>
+							)
 							: null
 					}
 
@@ -230,62 +234,72 @@ class List extends Component {
 					<ul className="list">
 						{
 							list.map((i, index) => {
-								const warningIndex = warningValues.findIndex(w => (w === i.name) || (w === i));
-								
+								//const warningIndex = warningValues.findIndex(w => (w === i.name) || (w === i));
+								const warningIndex = -1; // TODO
+								const key = `${ type }_${ index }_${ i.id || i.name || i }`;
 								return (
-									<li key={ `${ type }_${ index }_${ i.id || i.name || i }` }>
-										{/* TODO we might want to switch link types to return a <Link> so that the URL updates; the suggestion is cool being a button */
+									<li key={ key }>
+										{/* TODO we might want to switch link types to return a <Link> so that the URL updates;
+												the suggestion is cool being a button */
 											(type === 'link' || type === 'suggestion')
-												? <Button
+												? (
+													<Button
 														className="list"
-														onClick={e => this.props.onListItemClick(e, i) }
+														onClick={ e => onListItemClick(e, i) }
 														label={ i.name || i }
 													/>
+												)
 												: <span className={ (warningIndex > -1) ? 'warning' : '' }>{ i.name || i }</span>
 										}
 
 										{
 											(isEditMode && isPluralSuggestEnabled && this.showPluralSuggest(i, list))
-												? <FontAwesomeIcon
+												? (
+													<FontAwesomeIcon
 														className={ (!isEditMode) ? 'disabled' : '' }
 														icon={ faMagic }
-														onClick={ e => this.onSuggestPlural(e, i, list) } />
+														onClick={ e => this.onSuggestPlural(e, i, list) }
+													/>
+												)
 												: null
 										}
 
 										{/* delete button */
 											(isEditMode && isRemoveable)
-												? <Button
+												? (
+													<Button
 														className="delete"
-														onClick={ () => this.onListChange(i.name, name, true) }
+														onClick={ () => this.onListChange(i.name, fieldName, true) }
 														icon={ <FontAwesomeIcon icon={ faTimes } /> }
 													/>
+												)
 												: null
 										}
 									</li>
 								);
 							})
-
 						}
 					</ul>
 
 					{/* New List Item Input look into value assignment here */
 						(showInput)
-							? <Input
+							? (
+								<Input
 									excludedSuggestions={ excludedSuggestions }
 									isLabelDisplayed={ false }
-			  					isSuggestionEnabled={ isSuggestionEnabled }
-									name={ name }
+									isSuggestionEnabled={ isSuggestionEnabled }
+									name={ fieldName }
 									loading={ loading }
 									onBlur={ this.onBlur }
 									onChange={ this.onChange }
 									onSubmit={ this.onListChange }
 									placeholder={ placeholder }
 									suggestionPool={ suggestionPool }
-									suppressWarnings={ suppressWarnings }
-			  					value={ value.name || value }
-			  					warning={ warnings.filter(w => w.fieldName === name)[0] }
+									suppressLocalWarnings={ suppressLocalWarnings }
+									value={ value.name || value }
+									warning={ warnings.filter(w => w.fieldName === fieldName)[0] }
 								/>
+							)
 							: null
 					}
 				</ListStyles>
@@ -296,41 +310,51 @@ class List extends Component {
 }
 
 List.defaultProps = {
+	className: '',
+	defaultValues: [],
 	excludedSuggestions: {},
 	isEditMode: true,
 	isPluralSuggestEnabled: false,
 	isRemoveable: true,
 	isSuggestionEnabled: false,
+	label: '',
 	loading: false,
+	onListChange: () => {},
 	onListItemClick: () => {},
-	onSuggestPlural: () => {},
 	onValidation: () => {},
-	suppressWarnings: false,
+	placeholder: '',
+	suggestionPool: [],
+	suppressLocalWarnings: false,
 	type: 'static',
-	warnings: []
+	values: [],
+	warnings: [],
 };
 
 List.propTypes = {
 	className: PropTypes.string,
+	// TODO improve proptypes
 	defaultValues: PropTypes.array,
+	// TODO improve proptypes
 	excludedSuggestions: PropTypes.object,
+	fieldName: PropTypes.string.isRequired,
 	isEditMode: PropTypes.bool,
 	isPluralSuggestEnabled: PropTypes.bool,
 	isRemoveable: PropTypes.bool,
 	isSuggestionEnabled: PropTypes.bool,
 	label: PropTypes.string,
 	loading: PropTypes.bool,
-	name: PropTypes.string,
 	onListChange: PropTypes.func,
 	onListItemClick: PropTypes.func,
-	onSuggestPlural: PropTypes.func,
 	onValidation: PropTypes.func,
 	placeholder: PropTypes.string,
+	// TODO improve proptypes
 	suggestionPool: PropTypes.array,
-	suppressWarnings: PropTypes.bool,
+	suppressLocalWarnings: PropTypes.bool,
 	type: PropTypes.string,
+	// TODO improve proptypes
 	values: PropTypes.array,
-	warnings: PropTypes.array
+	// TODO improve proptypes
+	warnings: PropTypes.array,
 };
 
 export default List;

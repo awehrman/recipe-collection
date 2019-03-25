@@ -83,7 +83,8 @@ const IngredientsList = styled.ul`
 	padding: 10px 0;
 
 	li {
-		padding: 0 10px;
+		/* make sure you give enough top/bottom padding for a focus state */
+		padding: 2px 10px;
 	}
 
 	li .header {
@@ -150,7 +151,7 @@ class Container extends Component {
 
 		// add list item properties
 		const ingList = ingredients.map((i) => {
-			// NOTE: you better not managle that ingredients array here
+			// NOTE: you better not mangle that ingredients array here
 			const listItem = deepCopy(i);
 
 			listItem.type = 'link';
@@ -250,16 +251,14 @@ class Container extends Component {
 		const ingList = this.buildIngredientsList(ingredients);
 		// eslint-disable-next-line object-curly-newline
 		// console.log({ currentIngredientID, isCardEnabled, isContainerExpanded });
-		console.log(`isEditMode: ${ (view === 'new') }`);
+
 		return (
 			<Composed>
 				{
 					({ setCurrentCard, setIsContainerExpanded }) => (
 						<ContainerStyles className={ className }>
 							{/* Header */}
-							<HeaderStyles
-								onClick={ e => this.onHeaderClick(e, setIsContainerExpanded, id, isContainerExpanded) }
-							>
+							<HeaderStyles onClick={ e => this.onHeaderClick(e, setIsContainerExpanded, id, isContainerExpanded) }>
 								{ label }
 								<span className="count">{ ingredients.length }</span>
 							</HeaderStyles>
