@@ -1,0 +1,80 @@
+# import * from '../generated/prisma.graphql'
+
+type Query {
+	category(where: CategoryWhereUniqueInput): Category
+  categories: [ Category! ]!
+	containers(group: String!, id: ID, view: String!): [ Container ]!
+	ingredientAggregate: IngredientAggregate!
+	ingredient(where: IngredientWhereUniqueInput!): Ingredient
+	ingredients: [ Ingredient! ]!
+	recipe(where: RecipeWhereUniqueInput!): Recipe
+	recipes: [ Recipe! ]!
+	tag(where: TagWhereUniqueInput!): Tag
+	tags: [ Tag! ]!
+}
+
+type Mutation {
+  createCategory(evernoteGUID: String, name: String!): Category!
+  deleteCategory(id: ID!): ID
+  updateCategory(id: ID!): Category
+
+	createIngredient( parentID: ID,
+										parentName: String,
+										name: String!,
+										plural: String,
+										properties: PropertyCreateInput,
+										alternateNames: [ String ],
+										relatedIngredients: [ ID ],
+										substitutes: [ ID ],
+										references: [ ID ],
+										isValidated: Boolean,
+										isComposedIngredient: Boolean
+									): Ingredient!
+	deleteIngredient(ID: ID!): ID
+	updateIngredient( id: ID!,
+										#parentID: ID,
+										#parentName: String,
+										name: String,
+										plural: String,
+										properties: PropertyUpdateOneRequiredInput,
+										propertyID: ID,
+										alternateNames_Create: [ String ],
+										alternateNames_Delete: [ String ],
+										relatedIngredients_Connect: [ ID ],
+										relatedIngredients_Disconnect: [ ID ],
+										substitutes_Connect: [ ID ],
+										substitutes_Disconnect: [ ID ],
+										#references: [ ID ],
+										isValidated: Boolean,
+										isComposedIngredient: Boolean
+									): Ingredient!
+
+	createRecipe( evernoteGUID: String,
+								image: String,
+								source: String,
+								title: String!,
+								categories: [ ID! ],
+								tags: [ ID! ]
+							): Recipe!
+	deleteRecipe(ID: ID!): ID
+	updateRecipe( id: ID!,
+								evernoteGUID: String,
+								image: String,
+								source: String,
+								title: String,
+								categoryConnections: [ ID! ],
+								categoryDisconnections: [ ID! ],
+								tagConnections: [ ID! ],
+								tagDisconnections: [ ID! ],
+								ingredientConnections: [ ID! ],
+								ingredientDisconnections: [ ID! ],
+								instructionConnections: [ ID! ],
+								instructionDisconnections: [ ID! ]
+							): Recipe!
+
+	# createRecipeInstruction(blockIndex: Int!, reference: String!): RecipeInstruction!
+
+	createTag(evernoteGUID: String, name: String!): Tag!
+	deleteTag(id: ID!): ID
+  updateTag(id: ID!): Tag
+}
