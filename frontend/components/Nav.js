@@ -163,7 +163,7 @@ class Nav extends React.PureComponent {
 
 		return (
 			// note: you have to use innerRef on styled-components
-			<NavStyles expanded={ isExpanded } innerRef={ this.navigation }>
+			<NavStyles expanded={ isExpanded } ref={ this.navigation }>
 				<button
 					className="navigationIcon"
 					onClick={ this.onToggleNav }

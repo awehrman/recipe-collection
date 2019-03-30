@@ -185,9 +185,7 @@ class List extends Component {
 		let showPlural = (warnings.length > 0);
 		let plural = null;
 
-		try {
-			plural = pluralize(value);
-		} catch {}
+		plural = pluralize(value) || null;
 
 		showPlural = (list.indexOf(plural) > 0) ? false : showPlural;
 
@@ -205,7 +203,7 @@ class List extends Component {
 		list = list || [];
 
 		// TODO
-		//const warningValues = warnings.map(w => w.value || w);
+		// const warningValues = warnings.map(w => w.value || w);
 
 		if (isEditMode || (!isEditMode && list.length > 0)) {
 			return (
@@ -234,7 +232,7 @@ class List extends Component {
 					<ul className="list">
 						{
 							list.map((i, index) => {
-								//const warningIndex = warningValues.findIndex(w => (w === i.name) || (w === i));
+								// const warningIndex = warningValues.findIndex(w => (w === i.name) || (w === i));
 								const warningIndex = -1; // TODO
 								const key = `${ type }_${ index }_${ i.id || i.name || i }`;
 								return (

@@ -6,54 +6,47 @@
     "dev": "next -p 3000",
     "build": "next build",
     "start": "next start",
-    "test": "NODE_ENV=test jest --watch",
-    "heroku-postbuild": "next build"
+    "test": "NODE_ENV=test jest --watch"
   },
   "author": "Alexandra Wehrman",
   "license": "MIT",
   "dependencies": {
-    "@babel/runtime": "^7.3.4",
+    "@babel/core": "^7.4.0",
     "@fortawesome/fontawesome": "^1.1.8",
     "@fortawesome/fontawesome-pro-light": "^5.0.13",
     "@fortawesome/fontawesome-pro-regular": "^5.0.13",
     "@fortawesome/fontawesome-pro-solid": "^5.0.13",
     "@fortawesome/react-fontawesome": "^0.0.20",
     "acorn": "^6.1.1",
-    "apollo-boost": "^0.1.28",
-    "apollo-client": "^2.5.1",
-    "axios": "^0.18.0",
-    "babel-eslint": "^10.0.1",
-    "babel-plugin-styled-components": "^1.7.1",
-    "enzyme": "^3.6.0",
-    "enzyme-adapter-react-16": "^1.5.0",
+    "apollo-boost": "^0.3.1",
     "fast-levenshtein": "^2.0.6",
-    "graphql": "^14.0.2",
-    "graphql-tag": "^2.9.2",
-    "next": "^7.0.2",
+    "graphql": "^14.2.0",
+    "graphql-tag": "^2.10.1",
+    "next": "^8.0.4-canary.26",
     "next-with-apollo": "^3.4.0",
     "nprogress": "^0.2.0",
     "pluralize": "^7.0.0",
-    "polished": "^3.0.3",
+    "polished": "^3.1.0",
     "prop-types": "^15.7.2",
-    "react": "^16.8.4",
-    "react-addons-css-transition-group": "^15.6.2",
+    "react": "^16.8.6",
     "react-adopt": "^0.6.0",
-    "react-apollo": "^2.5.2",
-    "react-dom": "^16.8.4",
-    "react-notifications": "^1.4.3",
-    "react-router-dom": "^4.3.1",
-    "styled-components": "^3.4.9",
-    "waait": "^1.0.4"
+    "react-apollo": "^2.5.3",
+    "react-dom": "^16.8.6",
+    "styled-components": "^4.2.0",
+    "styled-normalize": "^8.0.6"
   },
   "devDependencies": {
-    "casual": "^1.5.19",
-    "enzyme-to-json": "^3.3.4",
-    "eslint": "^5.15.1",
+    "babel-eslint": "^10.0.1",
+    "babel-plugin-styled-components": "^1.10.0",
+    "enzyme": "^3.9.0",
+    "enzyme-adapter-react-16": "^1.11.2",
+    "enzyme-to-json": "^3.3.5",
+    "eslint": "^5.15.3",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-import": "^2.16.0",
     "eslint-plugin-jsx-a11y": "^6.2.1",
     "eslint-plugin-react": "^7.12.4",
-    "jest": "^24.3.1"
+    "jest": "^24.5.0"
   },
   "jest": {
     "setupTestFrameworkScriptFile": "<rootDir>/jest.setup.js",
@@ -64,59 +57,6 @@
     "transform": {
       "\\.(gql|graphql)$": "jest-transform-graphql",
       ".*": "babel-jest"
-    }
-  },
-  "babel": {
-    "env": {
-      "development": {
-        "presets": [
-          "next/babel"
-        ],
-        "plugins": [
-          [
-            "styled-components",
-            {
-              "ssr": true,
-              "displayName": true
-            }
-          ]
-        ]
-      },
-      "production": {
-        "presets": [
-          "next/babel"
-        ],
-        "plugins": [
-          [
-            "styled-components",
-            {
-              "ssr": true,
-              "displayName": true
-            }
-          ]
-        ]
-      },
-      "test": {
-        "presets": [
-          [
-            "next/babel",
-            {
-              "preset-env": {
-                "modules": "commonjs"
-              }
-            }
-          ]
-        ],
-        "plugins": [
-          [
-            "styled-components",
-            {
-              "ssr": true,
-              "displayName": true
-            }
-          ]
-        ]
-      }
     }
   }
 }
