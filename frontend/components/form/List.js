@@ -131,7 +131,7 @@ const ListStyles = styled.fieldset`
 class List extends Component {
 	state = {
 		showInput: false,
-		value: '',
+		value: '',				// input value
 	};
 
 	onAddButtonClick = (e) => {
@@ -140,54 +140,65 @@ class List extends Component {
 	}
 
 	onBlur = (e) => {
-		const { fieldName, onValidation } = this.props;
+		const { addWarning, fieldName, validate, resetWarnings } = this.props;
 		// hide the input element if we move focus off this element
 		if (!e.relatedTarget) {
 			this.setState({
 				showInput: false,
 				value: '',
-			}, () => onValidation(null, fieldName));
+			}, () => validate(null, fieldName, addWarning, resetWarnings));
 		}
 	}
 
 	onChange = (e) => {
 		const { value } = e.target;
-		const { fieldName, onValidation } = this.props;
+		const { addWarning, fieldName, validate, resetWarnings } = this.props;
 
-		this.setState({ value }, () => onValidation(value, fieldName));
+		this.setState({ value }, () => validate(value, fieldName, addWarning, resetWarnings));
 	}
 
 	onListChange = (listItem, fieldName, removeListItem = false) => {
-		const { onListChange } = this.props;
-
-		if (fieldName === 'alternateNames') {
-			listItem = { name: listItem }; // TODO clean up the alt name input so that this happens automatically
-		}
+		const { addWarning, onListChange, resetWarnings } = this.props;
 
 		this.setState({
 			showInput: false,
 			value: '',
-		}, onListChange(listItem, fieldName, removeListItem));
+		}, onListChange(listItem, fieldName, removeListItem, addWarning, resetWarnings));
 	}
 
 	onSuggestPlural = (e, value) => {
 		e.preventDefault();
-		const { fieldName, onListChange } = this.props;
-		const plural = (value) ? pluralize(value) : null;
+		const { addWarning, fieldName, resetWarnings } = this.props;
+		const { name } = value;
+		let plural = null;
+
+		try {
+			plural = pluralize(name);
+		} catch {
+			// do nothing if this fails
+		}
 
 		if (plural) {
-			onListChange(plural, fieldName, false);
+			const listItem = { name: plural };
+			this.onListChange(listItem, fieldName, false, addWarning, resetWarnings);
 		}
 	}
 
 	showPluralSuggest = (value, list) => {
-		const { warnings } = this.props;
-		let showPlural = (warnings.length > 0);
+		const { name } = value;
 		let plural = null;
+		let showPlural = false;
 
-		plural = pluralize(value) || null;
+		try {
+			plural = pluralize(name);
+		} catch {
+			// do nothing if this fails
+		}
 
-		showPlural = (list.indexOf(plural) > 0) ? false : showPlural;
+		// only show if the plural value exists and its not already in this list
+		if (plural) {
+			showPlural = (plural && !~list.findIndex(l => l.name === plural));
+		}
 
 		return showPlural;
 	}
@@ -201,9 +212,6 @@ class List extends Component {
 
 		let list = (isEditMode && (values !== undefined)) ? values : defaultValues;
 		list = list || [];
-
-		// TODO
-		// const warningValues = warnings.map(w => w.value || w);
 
 		if (isEditMode || (!isEditMode && list.length > 0)) {
 			return (
@@ -286,7 +294,7 @@ class List extends Component {
 									excludedSuggestions={ excludedSuggestions }
 									isLabelDisplayed={ false }
 									isSuggestionEnabled={ isSuggestionEnabled }
-									name={ fieldName }
+									fieldName={ fieldName }
 									loading={ loading }
 									onBlur={ this.onBlur }
 									onChange={ this.onChange }
@@ -295,7 +303,7 @@ class List extends Component {
 									suggestionPool={ suggestionPool }
 									suppressLocalWarnings={ suppressLocalWarnings }
 									value={ value.name || value }
-									warning={ warnings.filter(w => w.fieldName === fieldName)[0] }
+									warnings={ warnings || undefined }
 								/>
 							)
 							: null
@@ -308,32 +316,48 @@ class List extends Component {
 }
 
 List.defaultProps = {
+	addWarning: () => {},
 	className: '',
 	defaultValues: [],
-	excludedSuggestions: {},
+	excludedSuggestions: [],
 	isEditMode: true,
 	isPluralSuggestEnabled: false,
 	isRemoveable: true,
 	isSuggestionEnabled: false,
 	label: '',
 	loading: false,
-	onListChange: () => {},
-	onListItemClick: () => {},
-	onValidation: () => {},
+	onListChange: () => {
+		console.log('*** [List] psst! You didnt pass an onListChange function!');
+		return null;
+	},
+	onListItemClick: () => {
+		console.log('*** [List] psst! You didnt pass an onListItemClick function!');
+		return null;
+	},
 	placeholder: '',
+	resetWarnings: () => {},
 	suggestionPool: [],
 	suppressLocalWarnings: false,
 	type: 'static',
+	validate: () => {
+		console.log('*** [List] psst! You didnt pass a validate function!');
+		return null;
+	},
 	values: [],
-	warnings: [],
+	warnings: null,
 };
 
 List.propTypes = {
+	addWarning: PropTypes.func,
 	className: PropTypes.string,
-	// TODO improve proptypes
-	defaultValues: PropTypes.array,
-	// TODO improve proptypes
-	excludedSuggestions: PropTypes.object,
+	defaultValues: PropTypes.arrayOf(PropTypes.shape({
+		id: PropTypes.string,
+		name: PropTypes.string.isRequired,
+	})),
+	excludedSuggestions: PropTypes.arrayOf(PropTypes.shape({
+		id: PropTypes.string, /* if the id is left blank, its a new ingredient */
+		name: PropTypes.string.isRequired,
+	})),
 	fieldName: PropTypes.string.isRequired,
 	isEditMode: PropTypes.bool,
 	isPluralSuggestEnabled: PropTypes.bool,
@@ -343,16 +367,26 @@ List.propTypes = {
 	loading: PropTypes.bool,
 	onListChange: PropTypes.func,
 	onListItemClick: PropTypes.func,
-	onValidation: PropTypes.func,
 	placeholder: PropTypes.string,
-	// TODO improve proptypes
-	suggestionPool: PropTypes.array,
+	resetWarnings: PropTypes.func,
+	suggestionPool: PropTypes.arrayOf(PropTypes.shape({
+		id: PropTypes.string, /* if the id is left blank, its a new ingredient */
+		name: PropTypes.string.isRequired,
+	})),
 	suppressLocalWarnings: PropTypes.bool,
 	type: PropTypes.string,
-	// TODO improve proptypes
-	values: PropTypes.array,
-	// TODO improve proptypes
-	warnings: PropTypes.array,
+	validate: PropTypes.func,
+	values: PropTypes.arrayOf(PropTypes.shape({
+		id: PropTypes.string,
+		name: PropTypes.string.isRequired,
+	})),
+	warnings: PropTypes.arrayOf(PropTypes.shape({
+		__typename: PropTypes.string,
+		fieldName: PropTypes.string.isRequired,
+		preventSave: PropTypes.bool.isRequired,
+		value: PropTypes.string.isRequired,
+		message: PropTypes.string.isRequired,
+	})),
 };
 
 export default List;

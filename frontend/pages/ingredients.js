@@ -1,6 +1,6 @@
+import gql from 'graphql-tag';
 import { Component } from 'react';
 import { Query } from 'react-apollo';
-import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
@@ -20,7 +20,7 @@ const GET_INGREDIENTS_COUNT_QUERY = gql`
 `;
 
 const IngredientsPageStyles = styled.article`
-	// TODO look into react transitions some more
+	// TODO slide out/in AddNew panel
 `;
 
 class Ingredients extends Component {
@@ -31,7 +31,6 @@ class Ingredients extends Component {
 	}
 
 	onToggleAddNew = (e) => {
-		console.warn('onToggleAddNew');
 		e.preventDefault();
 		const { isAddNewExpanded } = this.state;
 
@@ -41,14 +40,12 @@ class Ingredients extends Component {
 	render() {
 		const { query } = this.props;
 		const { isAddNewExpanded } = this.state;
-		// console.warn('[ingredients] render');
 		const { group, id, view } = query;
 
 		return (
 			<Query query={ GET_INGREDIENTS_COUNT_QUERY }>
 				{
 					({ loading, error, data }) => {
-						console.log(data);
 						const { ingredientAggregate } = data || {};
 						const { ingredientsCount, newIngredientsCount } = ingredientAggregate || {};
 

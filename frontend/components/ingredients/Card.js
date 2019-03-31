@@ -174,8 +174,6 @@ class Card extends React.PureComponent {
 		pending.isValidated = true;
 
 		// TODO mutation
-		console.warn('saving updates...');
-		console.log(updates);
 		this.setState(this.initialState);
 
 		// TODO make sure that we get the containers to refresh on save as well
@@ -191,10 +189,11 @@ class Card extends React.PureComponent {
 				{
 					({ getIngredient }) => {
 						const { data, error, loading } = getIngredient || {};
-						console.log(data);
 						const { ingredient } = data || {};
-						const { alternateNames, isComposedIngredient, name, plural, properties } = ingredient || {};
-
+						const {
+							alternateNames, isComposedIngredient, name, plural, properties,
+							relatedIngredients, substitutes,
+						} = ingredient || {};
 						if (error) return <ErrorMessage error={ error } />;
 
 						return (
@@ -213,6 +212,8 @@ class Card extends React.PureComponent {
 									plural={ plural }
 									properties={ properties }
 									showCancelButton
+									relatedIngredients={ relatedIngredients }
+									substitutes={ substitutes }
 								/>
 							</CardStyles>
 						);

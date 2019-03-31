@@ -15,7 +15,7 @@ const AddNewStyles = styled.div`
 	//box-shadow: 0 0 10px 0 rgba(50, 50, 50, .15) inset;
   max-height: 60%;
   overflow-y: scroll;
-	z-index: 1000;
+	z-index: 600;
 
 	button {
 		cursor: pointer;

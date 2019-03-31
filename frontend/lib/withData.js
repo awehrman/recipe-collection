@@ -1,17 +1,9 @@
-import withApollo from 'next-with-apollo';
 import ApolloClient from 'apollo-boost';
 import gql from 'graphql-tag';
+import withApollo from 'next-with-apollo';
+
+import { GET_ALL_WARNINGS_QUERY } from '../components/ingredients/Form';
 import { endpoint } from '../config';
-
-// NOTE: with @client directives set on our GET_ALL_CONTAINERS_QUERY
-// initial page load sends the server response, but uses the local cached @client values
-
-// we need to invalidate the cache at certain points during our GET_ALL_CONTAINERS_QUERY
-// mutation so that we keep the cache completely up to date
-// look into using the update() call on that mutation
-
-// see related article
-// https://medium.com/@martinseanhunt/how-to-invalidate-cached-data-in-apollo-and-handle-updating-paginated-queries-379e4b9e4698
 
 export const typeDefs = gql`
   type Container {
@@ -42,8 +34,36 @@ export const typeDefs = gql`
     ) : Container
   }
 
+  type Warning {
+		fieldName: String!
+  	preventSave: Boolean!
+  	message: String!
+  	value: String!
+  }
+
+  type Warnings {
+  	id: ID
+  	warnings: [ Warning ]
+  }
+
+  type Mutation {
+    addWarning(
+    	fieldName: String!
+	  	preventSave: Boolean!
+	  	message: String!
+	  	value: String!
+    ) : Boolean
+  }
+
+	type Mutation {
+    resetWarnings(
+    	reset: Bool
+    ) : Boolean
+  }
+
   type Query {
     containers: [ Containers ]
+    warnings: [ Warning! ]
   }
 `;
 
@@ -55,27 +75,74 @@ function createClient({ headers }) {
 			headers,
 		}),
 		clientState: {
-			/* NOTE: i can get this working in conjunction with using @client directives in my getContainers
-				 query but i can't seem to figure out how to override these defaults with my initial server response
-				 so i've removed the @client directives and it seems to be working properly now but be careful about
-				 how often we're hitting the server for new data
-			/*
-			defaults: {
-				currentIngredientID: null,
-				isCardEnabled: false,
-				isContainerExpanded: true,
-			},
-			*/
+			defaults: { warnings: null },
 			resolvers: {
-				// NOTE: i'm getting a console warning about the @client directive being included without resolvers
-				// but like... they're right there. this might be realted to
-				// https://github.com/apollographql/apollo-client/issues/4520
-				// so keep an eye out for upcoming react-apollo updates
 				Mutation: {
+					addWarning(_, variables, { cache, getCacheKey }) {
+						const {
+							fieldName,
+							preventSave,
+							message,
+							value,
+						} = variables;
+
+						const warning = {
+							__typename: 'Warning',
+							fieldName,
+							preventSave,
+							message,
+							value,
+						};
+
+						let { warnings } = cache.readQuery({ query: GET_ALL_WARNINGS_QUERY });
+
+						if (warnings) {
+							warnings.push(warning);
+						} else {
+							warnings = [ warning ];
+						}
+
+						const data = {
+							__typename: 'Warnings',
+							warnings,
+						};
+
+						const fragmentId = getCacheKey({
+							id: -1,
+							__typename: 'Warning',
+						});
+
+						cache.writeData({
+							fragmentId,
+							data,
+						});
+
+						return data;
+					},
+
+					resetWarnings(_, variables, { cache, getCacheKey }) {
+						const data = {
+							__typename: 'Warnings',
+							warnings: null,
+						};
+
+						const fragmentId = getCacheKey({
+							id: -1,
+							__typename: 'Warning',
+						});
+
+						cache.writeData({
+							fragmentId,
+							data,
+						});
+
+						return data;
+					},
+
 					setCurrentCard(_, variables, { cache, getCacheKey }) {
 						console.warn('[withData] setCurrentCard');
 						const { currentIngredientID, id, isCardEnabled } = variables;
-						//console.log({ currentIngredientID, id, isCardEnabled });
+						// console.log({ currentIngredientID, id, isCardEnabled });
 
 						const fragmentId = getCacheKey({
 							id,
@@ -107,8 +174,8 @@ function createClient({ headers }) {
 							data,
 						});
 
-						//console.warn('wrote cache:');
-						//console.log(data);
+						console.warn('wrote cache:');
+						console.log(data);
 
 						return data;
 					},

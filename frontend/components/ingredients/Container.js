@@ -83,6 +83,10 @@ const IngredientsList = styled.ul`
 	position: relative;
 	padding: 0;
 
+	&.expanded {
+		display: block;
+	}
+
 	li {
 		/* make sure you give enough top/bottom padding for a focus state */
 		padding: 2px 10px;
@@ -101,8 +105,7 @@ const IngredientsList = styled.ul`
 
 	li.active {
 		display: inline-block;
-		/*background: ${ props => props.theme.headerBackground };*/
-		background: rgba(128, 174, 245, .05);
+		background: rgba(128, 174, 245, .08);
 		width: 100%;
 	}
 
@@ -131,18 +134,12 @@ const IngredientsList = styled.ul`
 	}
 
 	@media (min-width: ${ props => props.theme.desktopCardWidth }) {
+		padding: 10px 0;
+
 		/* swing the ingredient list over to the left */
 		&.expanded {
 			column-count: unset;
 			flex-basis: 25%;
-
-			li:first-of-type {
-				padding-top: 10px;
-			}
-
-			li:last-of-type {
-				padding-bottom: 10px;
-			}
 		}
 	}
 
@@ -223,7 +220,6 @@ class Container extends Component {
 	}
 
 	onHeaderClick = (e, setIsContainerExpanded, id, isContainerExpanded) => {
-		console.warn('onHeaderClick');
 		e.preventDefault();
 
 		// update the local cache
@@ -236,7 +232,6 @@ class Container extends Component {
 	}
 
 	onIngredientClick = (targetIngredientID, setCurrentCard) => {
-		console.warn('onIngredientClick');
 		const { currentIngredientID, group, id, isCardEnabled, view } = this.props;
 
 		// update the url without causing a bunch of re-renders
@@ -256,11 +251,8 @@ class Container extends Component {
 	}
 
 	render() {
-		console.warn('[Container] render');
 		const { className, currentIngredientID, id, ingredients, isCardEnabled, isContainerExpanded, label, view } = this.props;
 		const ingList = this.buildIngredientsList(ingredients);
-		// eslint-disable-next-line object-curly-newline
-		console.log({ currentIngredientID, isCardEnabled, isContainerExpanded });
 
 		return (
 			<Composed>

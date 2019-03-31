@@ -20,7 +20,7 @@ const NavStyles = styled.nav`
 	position: fixed;
 	top: 0;
 	width: 100%;
-	z-index: 500; /* we want this higher than the nprogess bar*/
+	z-index: 1000; /* we want this higher than the nprogess bar*/
 
 	.navigationIcon {
 		color: ${ props => props.theme.menuColor };
@@ -28,7 +28,8 @@ const NavStyles = styled.nav`
 		display: block;
 		padding: 10px;
 		text-align: left;
-		margin-left: 10px;
+		margin-right: 10px;
+		float: right;
 		border: 0;
 		background: transparent;
 		font-size: 1em;
@@ -47,7 +48,7 @@ const NavStyles = styled.nav`
 		display: ${ props => (props.expanded ? 'block' : 'none') };
 		list-style-type: none;
 		padding: 0;
-		margin: -10px 20px 0;
+		margin: 20px;
 
 		li {
 			margin: 20px 0;
@@ -85,10 +86,10 @@ const NavStyles = styled.nav`
 
 		button.navigationIcon {
 			position: relative;
-			left: 78px;
 			width: 40px;
 			text-align: center;
 			margin: 0 auto;	
+			margin-right: 0;
 
 			&:focus {
 				outline-width: 0;
@@ -162,7 +163,6 @@ class Nav extends React.PureComponent {
 		const { isExpanded } = this.state;
 
 		return (
-			// note: you have to use innerRef on styled-components
 			<NavStyles expanded={ isExpanded } ref={ this.navigation }>
 				<button
 					className="navigationIcon"
