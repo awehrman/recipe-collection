@@ -1,41 +1,20 @@
-import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
+import PropTypes from 'prop-types';
 import React from 'react';
 import styled from 'styled-components';
-import PropTypes from 'prop-types';
 
-import Container from './Container';
-import ErrorMessage from '../ErrorMessage';
+// import ErrorMessage from '../ErrorMessage';
 
+// ($group: String!, $view: String!)
+// group: $group, view: $view) @client @connection(key: "containers", filter: [ "view", "group" ])
 const GET_ALL_CONTAINERS_QUERY = gql`
-	query GET_ALL_CONTAINERS_QUERY($group: String!, $id: ID, $view: String!) {
-		containers(group: $group, id: $id, view: $view) {
-			id
-			ingredients {
-				id
-				name
-				plural
-				alternateNames {
-					name
-				}
-				properties {
-					meat
-				  poultry
-				  fish
-				  dairy
-				  soy
-				  gluten
-				}
-				parent {
-					id
-				}
-				isValidated
-			}
-			label
-			currentIngredientID
-			isCardEnabled
-			isContainerExpanded
-		}
+	query GET_ALL_CONTAINERS($group: String, $view: String) {
+	  containers(group: $group, view: $view) @client {
+	    container @client {
+				group
+				view
+	    }
+	  }
 	}
 `;
 
@@ -53,73 +32,44 @@ const ContainerStyles = styled.div`
 	}
 `;
 
-const MessageStyles = styled.div`
-	font-style: italic;
-	font-size: 14px;
-`;
-
 class Containers extends React.PureComponent {
-	render() {
-		// console.warn(`[Containers] render`);
-		const { group, id, view } = this.props; // via the query params
-		// console.log({ group, id, view });
+	componentDidMount() {
+		console.warn('[Containers] componentDidMount');
+		// eslint-disable-next-line object-curly-newline
+		const { group, view, updateContainers } = this.props;
+		// eslint-disable-next-line object-curly-newline
+		updateContainers({ variables: { group, view } });
+	}
 
-		// NOTE: if you want to let the rest of the page load without waiting on this query
-		// you can disable SSR here and call forceUpdate() in componentDidMount()
-		// if you want to enable subsequant Loading states for refetches, add notifyOnNetworkStatusChange
+	componentDidUpdate(prevProps) {
+		console.warn('[Containers] componentDidUpdate');
+		// eslint-disable-next-line object-curly-newline
+		const { group, view, updateContainers } = this.props;
 
-		return (
+		if (prevProps.view !== view) {
+			console.log('updating...');
 			// eslint-disable-next-line object-curly-newline
-			<Query query={ GET_ALL_CONTAINERS_QUERY } variables={ { group, id, view } }>
-				{
-					({ data, loading, error }) => {
-						const { containers } = data || [];
+			updateContainers({ variables: { group, view } });
+		}
+	}
 
-						if (loading) return <p>Loading ingredients...</p>;
-						if (error) return <ErrorMessage error={ error } />;
-
-						const hasContainers = (containers.length > 0);
-						const message = (view === 'new') ? 'No new ingredients found.' : 'No ingredients found.';
-
-						return (
-							<ContainerStyles>
-								{ (!hasContainers) ? <MessageStyles>{ message }</MessageStyles> : null }
-
-								{
-									hasContainers && containers.map(c => (
-										<Container
-											className={ ((!c.isContainerExpanded) || (c.ingredients.length === 0)) ? 'hidden' : '' }
-											currentIngredientID={ c.currentIngredientID }
-											group={ group }
-											id={ c.id }
-											ingredients={ c.ingredients }
-											isCardEnabled={ c.isCardEnabled }
-											isContainerExpanded={ c.isContainerExpanded }
-											key={ c.id }
-											label={ c.label }
-											view={ view }
-										/>
-									))
-								}
-							</ContainerStyles>
-						);
-					}
-				}
-			</Query>
-		);
+	render() {
+		console.warn('[Containers] render');
+		return <ContainerStyles>Containers</ContainerStyles>;
 	}
 }
 
 Containers.defaultProps = {
+	currentIngredientID: null,
 	group: 'name',
-	id: null,
 	view: 'all',
 };
 
 Containers.propTypes = {
+	currentIngredientID: PropTypes.string,
 	group: PropTypes.oneOf([ 'name', 'property', 'relationship', 'count' ]),
-	id: PropTypes.string,
 	view: PropTypes.oneOf([ 'all', 'new' ]),
+	updateContainers: PropTypes.func.isRequired,
 };
 
 export default Containers;

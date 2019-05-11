@@ -3,7 +3,6 @@
 type Query {
 	category(where: CategoryWhereUniqueInput): Category
   categories: [ Category! ]!
-	containers(group: String!, id: ID, view: String!): [ Container ]!
 	ingredientAggregate: IngredientAggregate!
 	ingredient(where: IngredientWhereUniqueInput!): Ingredient
 	ingredients: [ Ingredient! ]!
@@ -12,6 +11,7 @@ type Query {
 	tag(where: TagWhereUniqueInput!): Tag
 	tags: [ Tag! ]!
 }
+
 
 type Mutation {
   createCategory(evernoteGUID: String, name: String!): Category!
@@ -22,7 +22,7 @@ type Mutation {
 										parentName: String,
 										name: String!,
 										plural: String,
-										properties: PropertyCreateInput,
+										properties: PropertiesCreateInput,
 										alternateNames: [ String ],
 										relatedIngredients: [ ID ],
 										substitutes: [ ID ],
@@ -32,11 +32,11 @@ type Mutation {
 									): Ingredient!
 	deleteIngredient(ID: ID!): ID
 	updateIngredient( id: ID!,
-										#parentID: ID,
-										#parentName: String,
+										# TODO parentID: ID,
+										# TODO parentName: String,
 										name: String,
 										plural: String,
-										properties: PropertyUpdateOneRequiredInput,
+										properties: PropertiesUpdateOneRequiredInput,
 										propertyID: ID,
 										alternateNames_Create: [ String ],
 										alternateNames_Delete: [ String ],
@@ -44,7 +44,7 @@ type Mutation {
 										relatedIngredients_Disconnect: [ ID ],
 										substitutes_Connect: [ ID ],
 										substitutes_Disconnect: [ ID ],
-										#references: [ ID ],
+										# TODO references: [ ID ],
 										isValidated: Boolean,
 										isComposedIngredient: Boolean
 									): Ingredient!
@@ -72,7 +72,7 @@ type Mutation {
 								instructionDisconnections: [ ID! ]
 							): Recipe!
 
-	# createRecipeInstruction(blockIndex: Int!, reference: String!): RecipeInstruction!
+	createRecipeInstruction(blockIndex: Int!, reference: String!): RecipeInstruction!
 
 	createTag(evernoteGUID: String, name: String!): Tag!
 	deleteTag(id: ID!): ID

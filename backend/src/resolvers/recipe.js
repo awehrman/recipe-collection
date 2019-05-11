@@ -6,12 +6,12 @@ export default {
 
 	Mutation: {
 		createRecipe: async () => {
-			console.log('createRecipe');
+			console.log('TODO createRecipe');
 			// TODO
 		},
 
 		deleteRecipe: async () => {
-			console.log('deleteRecipe');
+			console.log('TODO deleteRecipe');
 			// TODO
 		},
 

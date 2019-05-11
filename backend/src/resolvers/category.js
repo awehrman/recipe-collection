@@ -13,12 +13,12 @@ export default {
 		},
 
 		deleteCategory: async () => {
-			console.log('deleteCategory');
+			console.log('TODO deleteCategory');
 			// TODO
 		},
 
 		updateCategory: async () => {
-			console.log('updateCategory');
+			console.log('TODO updateCategory');
 			// TODO
 		},
 	},

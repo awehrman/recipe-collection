@@ -7,7 +7,3 @@ generate:
     output: ./src/generated/prisma.graphql
   - generator: javascript-client
     output: ./src/generated/prisma-client/
-
-hooks:
-  post-deploy:
-    - prisma generate

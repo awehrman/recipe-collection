@@ -5,10 +5,6 @@ var typeDefs = require("./prisma-schema").typeDefs;
 
 var models = [
   {
-    name: "User",
-    embedded: false
-  },
-  {
     name: "Ingredient",
     embedded: false
   },
@@ -17,11 +13,23 @@ var models = [
     embedded: false
   },
   {
-    name: "Property",
+    name: "Properties",
     embedded: false
   },
   {
     name: "Recipe",
+    embedded: false
+  },
+  {
+    name: "RecipeInstruction",
+    embedded: false
+  },
+  {
+    name: "RecipeIngredient",
+    embedded: false
+  },
+  {
+    name: "ParsedSegment",
     embedded: false
   },
   {
@@ -30,22 +38,6 @@ var models = [
   },
   {
     name: "Tag",
-    embedded: false
-  },
-  {
-    name: "RecipeIngredient",
-    embedded: false
-  },
-  {
-    name: "RecipeInstruction",
-    embedded: false
-  },
-  {
-    name: "ParsedSegment",
-    embedded: false
-  },
-  {
-    name: "Container",
     embedded: false
   },
   {

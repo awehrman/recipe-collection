@@ -13,12 +13,12 @@ export default {
 		},
 
 		deleteTag: async () => {
-			console.log('deleteTag');
+			console.log('TODO deleteTag');
 			// TODO
 		},
 
 		updateTag: async () => {
-			console.log('updateTag');
+			console.log('TODO updateTag');
 			// TODO
 		},
 	},

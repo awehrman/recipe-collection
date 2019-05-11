@@ -2,23 +2,24 @@ import { hasProperty } from '../lib/util';
 
 const GET_ALL_INGREDIENT_FIELDS = `
 	{
-		id
-		parent {
-			id
+		alternateNames {
 			name
 		}
+		id
+		isValidated
+		isComposedIngredient
 		name
+		parent {
+			id
+		}
 		plural
 		properties {
 			meat
-			poultry
-			fish
-			dairy
-			soy
-			gluten
-		}
-		alternateNames {
-			name
+		  poultry
+		  fish
+		  dairy
+		  soy
+		  gluten
 		}
 		relatedIngredients {
 			id
@@ -28,12 +29,30 @@ const GET_ALL_INGREDIENT_FIELDS = `
 			id
 			name
 		}
-		references {
-			id
-			reference
+	}
+`;
+
+const GET_ALL_INGREDIENT_FIELDS_FOR_VALIDATION = `
+	{
+		alternateNames {
+			name
 		}
+		isComposedIngredient
 		isValidated
-	 	isComposedIngredient
+		id
+		name
+		parent {
+			id
+		}
+		plural
+		properties {
+			meat
+		  poultry
+		  fish
+		  dairy
+		  soy
+		  gluten
+		}
 	}
 `;
 
@@ -54,7 +73,12 @@ export default {
 			const { id } = where || {};
 			return ctx.prisma.ingredient({ id }).$fragment(GET_ALL_INGREDIENT_FIELDS);
 		},
-		ingredients: async (parent, args, ctx) => ctx.prisma.ingredients(),
+		ingredients: async (parent, args, ctx) => {
+			console.warn('ingredients');
+			const ingredients = await ctx.prisma.ingredients().$fragment(GET_ALL_INGREDIENT_FIELDS_FOR_VALIDATION);
+			console.log(ingredients.map(i => i.name));
+			return ingredients;
+		},
 	},
 
 	Mutation: {
@@ -158,7 +182,6 @@ export default {
 			//		- clean up text input
 			//		- add the new value to validationList for validation
 			//		- for alternate names, construct the object that keeps track of creations and deletions
-
 			// name updates
 			if (hasProperty(updates, 'name')) {
 				updates.name = updates.name.trim().toLowerCase();

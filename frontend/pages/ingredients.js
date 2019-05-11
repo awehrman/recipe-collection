@@ -1,6 +1,7 @@
+import { adopt } from 'react-adopt';
 import gql from 'graphql-tag';
 import { Component } from 'react';
-import { Query } from 'react-apollo';
+import { Query, Mutation, withApollo } from 'react-apollo';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
@@ -19,8 +20,73 @@ const GET_INGREDIENTS_COUNT_QUERY = gql`
   }
 `;
 
+const GET_ALL_INGREDIENTS_QUERY = gql`
+  query GET_ALL_INGREDIENTS_QUERY {
+  	ingredients {
+  		id
+			name
+			plural
+			alternateNames {
+				name
+			}
+			properties {
+				meat
+			  poultry
+			  fish
+			  dairy
+			  soy
+			  gluten
+			}
+			parent {
+				id
+			}
+			isComposedIngredient
+			isValidated
+		}  
+  }
+`;
+
+const UPDATE_CONTAINERS_MUTATION = gql`
+	mutation updateContainers(
+		$group: String
+		$view: String
+	) {
+		updateContainers(
+			group: $group
+			view: $view
+		) @client
+	}
+`;
+
+const Composed = adopt({
+	// eslint-disable-next-line react/prop-types
+	getIngredients: ({ render }) => (
+		// this may take a moment so disable SSR
+		<Query query={ GET_ALL_INGREDIENTS_QUERY } ssr={ false }>
+			{ render }
+		</Query>
+	),
+
+	// eslint-disable-next-line react/prop-types
+	getIngredientCounts: ({ render }) => (
+		<Query query={ GET_INGREDIENTS_COUNT_QUERY }>
+			{ render }
+		</Query>
+	),
+
+	// eslint-disable-next-line react/prop-types
+	updateContainers: ({ render, variables }) => (
+		<Mutation mutation={ UPDATE_CONTAINERS_MUTATION } variables={ variables }>
+			{ render }
+		</Mutation>
+	),
+});
+
 const IngredientsPageStyles = styled.article`
 	// TODO slide out/in AddNew panel
+	.loading {
+		margin-top: 10px;
+	}
 `;
 
 class Ingredients extends Component {
@@ -38,16 +104,26 @@ class Ingredients extends Component {
 	}
 
 	render() {
+		console.warn('[ingredients] render');
 		const { query } = this.props;
 		const { isAddNewExpanded } = this.state;
-		const { group, id, view } = query;
+		const { group = 'name', id = null, view = 'all' } = query;
 
 		return (
-			<Query query={ GET_INGREDIENTS_COUNT_QUERY }>
+			// pass our local mutation to getIngredients onCompleted
+			// so that we can instantiate our containers based on the URL variabels from above
+			// eslint-disable-next-line
+			<Composed variables={ { currentIngredientID: id, group, view } }>
 				{
-					({ loading, error, data }) => {
+					({ getIngredients, getIngredientCounts, updateContainers }) => {
+						const { error } = getIngredients || {};
+						const { loading } = getIngredients || true;
+
+						const { data } = getIngredientCounts || {};
 						const { ingredientAggregate } = data || {};
 						const { ingredientsCount, newIngredientsCount } = ingredientAggregate || {};
+						// esline-disable-next-line
+						console.log({ getIngredients, getIngredientCounts });
 
 						return (
 							<IngredientsPageStyles>
@@ -61,17 +137,25 @@ class Ingredients extends Component {
 										view={ view }
 									/>
 
-									{/* Error and Loading Messages */}
-									{ (loading) ? <div className="loading">Loading ingredients...</div> : null }
+									{/* Error Messages */}
 									{ (error) ? <ErrorMessage error={ error } /> : null }
 
-									{/* Containers */}
-									<Containers
-										group={ group }
-										id={ id }
-										view={ view }
-									/>
+									{/* Loading Message or Containers
+											TODO fix styling jump
+									*/}
 
+									{
+										(loading)
+											? <div className="loading">Loading ingredients...</div>
+											: (
+												<Containers
+													currentIngredientID={ id }
+													group={ group }
+													view={ view }
+													updateContainers={ updateContainers }
+												/>
+											)
+									}
 									{/* Add New Ingredient */}
 									<AddNew
 										isExpanded={ isAddNewExpanded }
@@ -82,7 +166,7 @@ class Ingredients extends Component {
 						);
 					}
 				}
-			</Query>
+			</Composed>
 		);
 	}
 }
@@ -103,5 +187,8 @@ Ingredients.propTypes = {
 	}),
 };
 
-export default Ingredients;
-export { GET_INGREDIENTS_COUNT_QUERY };
+export default withApollo(Ingredients);
+export {
+	GET_ALL_INGREDIENTS_QUERY,
+	GET_INGREDIENTS_COUNT_QUERY,
+};

@@ -22,7 +22,7 @@
     "nodemon": "^1.18.10",
     "pegjs": "^0.10.0",
     "pluralize": "^7.0.0",
-    "prisma-client-lib": "^1.29.2",
+    "prisma-client-lib": "^1.30.4",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
@@ -32,6 +32,6 @@
     "eslint": "^5.15.3",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.16.0",
-    "prisma": "^1.29.2"
+    "prisma": "^1.32.2"
   }
 }
