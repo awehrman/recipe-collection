@@ -5,6 +5,8 @@ import withApollo from 'next-with-apollo';
 import { endpoint } from '../config';
 import { GET_ALL_CONTAINERS_QUERY } from '../components/ingredients/Containers';
 
+// idk do i need a fucking container lookup where i pass an id or something?
+// or is that the whole point of ReadQuery?
 export const typeDefs = gql`
   type Query {
     containers: [ Container ]
@@ -25,8 +27,8 @@ export const typeDefs = gql`
 
 function createClient({ headers }) {
 	const cache = new InMemoryCache({
+		// TODO add __typename into your eslint file girl
 		dataIdFromObject: (object) => {
-			// TODO add __typename into your eslint file girl
 			// eslint-disable-next-line no-underscore-dangle
 			switch (object.__typename) {
 			case 'Containers':

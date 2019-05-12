@@ -12,10 +12,38 @@ const AddNewStyles = styled.div`
 	bottom: 0;
 	left: 0px;
 	right: 0px;
-	//box-shadow: 0 0 10px 0 rgba(50, 50, 50, .15) inset;
+	box-shadow: 0 0 10px 0 rgba(115, 198, 182, .2) inset;
   max-height: 60%;
   overflow-y: scroll;
 	z-index: 600;
+
+	*:focus {
+		/* for whatever reason its not picking up a passed props.theme value here */
+		outline: 2px dotted ${ props => props.theme.altGreen };
+	}
+
+	.add-new-btn {
+		margin-bottom: 16px;
+
+		&:focus {
+			position: relative;
+			padding: 4px;
+			left: -4px;
+			top: -4px;
+			margin-bottom: 8px !important; /* 16px - whatever your padding is (8px) */
+		}
+	}
+
+
+	&.slide {
+		height: 50px;
+		transition: all .3s ease;
+	}
+
+	&.slide_expanded {
+		height: 100%;
+		transition: all .3s ease;
+	}
 
 	button {
 		cursor: pointer;
@@ -39,7 +67,7 @@ const AddNewStyles = styled.div`
 `;
 
 class AddNew extends React.PureComponent {
-	onAddIngredient = (e, ingredient = {}) => {
+	onAddIngredient = (e) => {
 		console.warn('[AddNew] onAddIngredient');
 		e.preventDefault();
 
@@ -48,11 +76,12 @@ class AddNew extends React.PureComponent {
 
 	render() {
 		// console.warn('[AddNew] render');
-		const { isExpanded, onClick } = this.props;
+		const { className, isExpanded, onClick } = this.props;
 
 		return (
-			<AddNewStyles>
+			<AddNewStyles className={ className }>
 				<Button
+					className="add-new-btn"
 					isEditMode
 					label="Add New Ingredient"
 					onClick={ onClick }
@@ -61,6 +90,7 @@ class AddNew extends React.PureComponent {
 					(isExpanded)
 						? (
 							<Form
+								className="add"
 								key="add-new"
 								onSaveIngredient={ this.onAddIngredient }
 								saveLabel="Add"
@@ -74,11 +104,13 @@ class AddNew extends React.PureComponent {
 }
 
 AddNew.defaultProps = {
+	className: '',
 	isExpanded: false,
 	onClick: e => e.preventDefault(),
 };
 
 AddNew.propTypes = {
+	className: PropTypes.string,
 	isExpanded: PropTypes.bool,
 	onClick: PropTypes.func,
 };

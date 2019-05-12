@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
@@ -32,35 +32,45 @@ const FieldSet = styled.fieldset`
 		font-family: ${ props => props.theme.fontFamily };
 		cursor: default;
 		caret-color: transparent; /* hide the input cursor when not in edit mode */
-
-		&.warning {
-			color: tomato;
-		}
+		margin-bottom: 5px; /* you'll want at least the height of the span border */
+		background: coral;
 
 		&::placeholder {
 			font-style: italic;
 			color: #ccc;
 		}
+
+		&.warning {
+			color: tomato;
+		}
 	}
 
-	span.highlight, span.warning {
+	span#highlight {
 		font-size: 1em;
 		user-select: none;
 		line-height: 1.2;
-		/* uncomment this if you want a consistent underline */
-		/*border-top: 3px solid ${ props => props.theme.altGreen };*/
 		position: absolute;
 		left: 0;
-		top: 27px; /* 19 (height of input) + 2x (padding) */
-		max-width: 100%;
+		top: 27px; /* 19 (height of input) + 4x (padding) */
+		/*width: 100%; SET BACK TO MAX-WIDTH AFTER TESTING!!!! */
 		height: 0;
 		color: transparent;
 		font-family: ${ props => props.theme.fontFamily };
 		overflow: hidden;
-	}
+		
+		&.warning {
+			border-top: 3px solid tomato;
+			max-width: 100% !important;
+			width: auto !important;
+		}
 
-	span.warning {
-		border-top: 3px solid tomato;
+		/*
+			if there's content in the input field, we want to turn width off and max-width to auto
+			max-width: 100%;
+			width: auto;
+		*/
+
+		/* TODO is .fa-magic is enabled then adjust this width to calc that width*/
 	}
 
 	&.editable input {
@@ -68,8 +78,27 @@ const FieldSet = styled.fieldset`
 		caret-color: #222;
 
 		&:focus {
-			+ .highlight {
-				border-top: 3px solid ${ props => props.theme.highlight };
+			/* disable the default dotted box borders since WE'RE USING SEXY UNDERLINES */
+			outline: none !important;
+
+			/* if there's no content in this field and the field has focus */
+			& + span#highlight {
+				/* the ends look trash with this enabled; you could look into an svg or fa solution */
+				/* border-style: dotted !important; */
+				/* TODO this needs to pull from Input props; for Cards this will need to be a lightened highlight or disabled */
+				border-top: 3px solid #C3E7E0;
+				max-width: auto;
+				width: 100%;
+			}
+
+			/* if there IS content in this field and the field has focus then only highlight the length of the text */
+			& + span#highlight.enabled {
+				/* the ends look trash with this enabled; you could look into an svg or fa solution */
+				/* border-style: dotted !important; */
+				/* TODO this needs to pull from Input props; for Cards this will need to be highlight */
+				border-top: 3px solid ${ props => props.theme.altGreen };
+				max-width: 100% !important;
+				width: auto !important;
 			}
 		}
 	}
@@ -94,9 +123,19 @@ const FieldSet = styled.fieldset`
 			top: -24px;
 		}
 
-		~ span {
+		/* make sure you restrict the length of the span highlight so it doesn't sneak off the edge */
+		~ span#highlight {
 			margin-left: 20px;
 			top: 24px;
+			max-width: auto !important;
+			width: calc(100% - 20px) !important;
+		}
+
+		~ span#highlight.enabled {
+			margin-left: 20px;
+			top: 24px;
+			max-width: calc(100% - 20px) !important;
+			width: auto !important;
 		}
 	}
 
@@ -222,6 +261,9 @@ class Input extends Component {
 		let inputValue = (isEditMode && (value !== undefined)) ? value : defaultValue;
 		inputValue = (!inputValue) ? '' : inputValue;
 
+		let highlightClassName = (inputValue.length > 0) ? 'enabled' : '';
+		highlightClassName += (warnings) ? ' warning' : '';
+
 		return (
 			<FieldSet aria-busy={ loading } className={ (isEditMode) ? `editable ${ className }` : className } disabled={ loading }>
 				{/* input label */}
@@ -259,7 +301,7 @@ class Input extends Component {
 					/>
 
 					{/* stylistic fluff */}
-					<span className={ (warnings) ? 'warning' : 'highlight' }>
+					<span id="highlight" className={ highlightClassName.trim() }>
 						{ value && value.replace(/ /g, '\u00a0') }
 					</span>
 
@@ -324,7 +366,7 @@ Input.defaultProps = {
 	},
 	suggestionPool: [],
 	suppressLocalWarnings: false,
-	tabIndex: -1,
+	tabIndex: 0,
 	value: undefined,
 	warnings: null,
 };

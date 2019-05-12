@@ -97,6 +97,14 @@ const FormStyles = styled.form`
 			margin-bottom: 6px;
 		}
 	}
+
+	// add new ingredient form styles
+	&.add {
+		.save {
+			position: absolute;
+			bottom: 20px;
+		}
+	}
 `;
 
 const TopFormStyles = styled.div`
@@ -551,8 +559,8 @@ class Form extends Component {
 		console.warn('[Form] render');
 
 		const {
-			alternateNames, id, isComposedIngredient, isEditMode, loading, name, onCancelClick, onEditClick,
-			plural, properties, relatedIngredients, saveLabel, showCancelButton, substitutes,
+			alternateNames, className, id, isComposedIngredient, isEditMode, loading, name, onCancelClick,
+			onEditClick, plural, properties, relatedIngredients, saveLabel, showCancelButton, substitutes,
 		} = this.props;
 		const { pending } = this.state;
 
@@ -576,7 +584,7 @@ class Form extends Component {
 						if (error) return <ErrorMessage error={ error } />;
 
 						return (
-							<FormStyles>
+							<FormStyles className={ className }>
 								<TopFormStyles>
 									<Left>
 										{/* Name */}
@@ -746,6 +754,7 @@ class Form extends Component {
 
 Form.defaultProps = {
 	alternateNames: [],
+	className: '',
 	id: '-1',
 	isComposedIngredient: false,
 	isEditMode: true,
@@ -781,6 +790,7 @@ Form.defaultProps = {
 
 Form.propTypes = {
 	alternateNames: PropTypes.arrayOf(PropTypes.shape({ name: PropTypes.string.isRequired })),
+	className: PropTypes.string,
 	id: PropTypes.string,
 	isComposedIngredient: PropTypes.bool,
 	isEditMode: PropTypes.bool,

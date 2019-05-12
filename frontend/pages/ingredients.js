@@ -93,7 +93,7 @@ class Ingredients extends Component {
 	constructor(props) {
 		super(props);
 
-		this.state = { isAddNewExpanded: false };
+		this.state = { isAddNewExpanded: true }; // TODO switch back to false when add new updates are complete
 	}
 
 	onToggleAddNew = (e) => {
@@ -122,7 +122,7 @@ class Ingredients extends Component {
 						const { data } = getIngredientCounts || {};
 						const { ingredientAggregate } = data || {};
 						const { ingredientsCount, newIngredientsCount } = ingredientAggregate || {};
-						// esline-disable-next-line
+						// eslint-disable-next-line
 						console.log({ getIngredients, getIngredientCounts });
 
 						return (
@@ -158,6 +158,7 @@ class Ingredients extends Component {
 									}
 									{/* Add New Ingredient */}
 									<AddNew
+										className={ `slide${ isAddNewExpanded ? '_expanded' : '' }` }
 										isExpanded={ isAddNewExpanded }
 										onClick={ this.onToggleAddNew }
 									/>
