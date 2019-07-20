@@ -34,7 +34,6 @@ const AddNewStyles = styled.div`
 		}
 	}
 
-
 	&.slide {
 		height: 50px;
 		transition: all .3s ease;

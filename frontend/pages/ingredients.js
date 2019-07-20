@@ -42,7 +42,7 @@ const GET_ALL_INGREDIENTS_QUERY = gql`
 			}
 			isComposedIngredient
 			isValidated
-		}  
+		}
   }
 `;
 
@@ -93,7 +93,7 @@ class Ingredients extends Component {
 	constructor(props) {
 		super(props);
 
-		this.state = { isAddNewExpanded: true }; // TODO switch back to false when add new updates are complete
+		this.state = { isAddNewExpanded: false };
 	}
 
 	onToggleAddNew = (e) => {
@@ -111,7 +111,7 @@ class Ingredients extends Component {
 
 		return (
 			// pass our local mutation to getIngredients onCompleted
-			// so that we can instantiate our containers based on the URL variabels from above
+			// so that we can instantiate our containers based on the URL variables from above
 			// eslint-disable-next-line
 			<Composed variables={ { currentIngredientID: id, group, view } }>
 				{

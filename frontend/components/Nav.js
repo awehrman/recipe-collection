@@ -1,12 +1,11 @@
 import { lighten } from 'polished';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCloudDownload, faEllipsisV, faHome, faLemon, faFolderOpen } from '@fortawesome/pro-regular-svg-icons';
-import Link from 'next/link';
 import PropTypes from 'prop-types';
 import React from 'react';
 import styled, { withTheme } from 'styled-components';
 
-import Button from './form/Button';
+import ButtonLink from './form/ButtonLink';
 
 // TODO address icon FOUT
 const NavStyles = styled.nav`
@@ -165,55 +164,51 @@ class Nav extends React.PureComponent {
 					ref={ this.navigationIcon }
 					type="button"
 				>
-					{ <FontAwesomeIcon icon={ faEllipsisV } /> }
+					{<FontAwesomeIcon icon={ faEllipsisV } />}
 				</button>
 				<ul>
 					{/* Home */}
 					<li>
-						<Link href="/">
-							<Button
-								className="link"
-								icon={ <FontAwesomeIcon icon={ faHome } /> }
-								label="Home"
-								onClick={ this.onToggleNav }
-							/>
-						</Link>
+						<ButtonLink
+							className="link"
+							href="/"
+							icon={ <FontAwesomeIcon icon={ faHome } /> }
+							label="Home"
+							onClick={ this.onToggleNav }
+						/>
 					</li>
 
 					{/* Import */}
 					<li>
-						<Link href="/import">
-							<Button
-								className="link"
-								icon={ <FontAwesomeIcon icon={ faCloudDownload } /> }
-								label="Import"
-								onClick={ this.onToggleNav }
-							/>
-						</Link>
+						<ButtonLink
+							className="link"
+							href="/import"
+							icon={ <FontAwesomeIcon icon={ faCloudDownload } /> }
+							label="Import"
+							onClick={ this.onToggleNav }
+						/>
 					</li>
 
 					{/* Ingredients */}
 					<li>
-						<Link href="/ingredients">
-							<Button
-								className="link"
-								icon={ <FontAwesomeIcon icon={ faLemon } /> }
-								label="Ingredients"
-								onClick={ this.onToggleNav }
-							/>
-						</Link>
+						<ButtonLink
+							className="link"
+							href="/ingredients"
+							icon={ <FontAwesomeIcon icon={ faLemon } /> }
+							label="Ingredients"
+							onClick={ this.onToggleNav }
+						/>
 					</li>
 
 					{/* Recipes */}
 					<li>
-						<Link href="/recipes">
-							<Button
-								className="link"
-								icon={ <FontAwesomeIcon icon={ faFolderOpen } /> }
-								label="Recipes"
-								onClick={ this.onToggleNav }
-							/>
-						</Link>
+						<ButtonLink
+							className="link"
+							href="/recipes"
+							icon={ <FontAwesomeIcon icon={ faFolderOpen } /> }
+							label="Recipes"
+							onClick={ this.onToggleNav }
+						/>
 					</li>
 				</ul>
 			</NavStyles>
