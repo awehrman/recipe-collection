@@ -1,5 +1,4 @@
 import { Component } from 'react';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
@@ -48,7 +47,7 @@ class Modal extends Component {
 		  			onClick={ e => this.props.onCancel(e) }
 		  			label="Cancel"
 		  		/>
-		  		
+
 		  		<Button
 		  			className="save"
 		  			onClick={ e => this.onSave(e) }

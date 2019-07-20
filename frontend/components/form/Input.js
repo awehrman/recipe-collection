@@ -1,9 +1,8 @@
 import { Component } from 'react';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagic } from '@fortawesome/pro-regular-svg-icons';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-
-import faMagic from '@fortawesome/fontawesome-pro-regular/faMagic';
 
 import Suggestions from './Suggestions';
 
@@ -33,7 +32,6 @@ const FieldSet = styled.fieldset`
 		cursor: default;
 		caret-color: transparent; /* hide the input cursor when not in edit mode */
 		margin-bottom: 5px; /* you'll want at least the height of the span border */
-		background: coral;
 
 		&::placeholder {
 			font-style: italic;
@@ -57,7 +55,7 @@ const FieldSet = styled.fieldset`
 		color: transparent;
 		font-family: ${ props => props.theme.fontFamily };
 		overflow: hidden;
-		
+
 		&.warning {
 			border-top: 3px solid tomato;
 			max-width: 100% !important;
@@ -343,25 +341,25 @@ Input.defaultProps = {
 	isSuggestionEnabled: false,
 	loading: false,
 	onBlur: () => {
-		console.log('*** [Input] psst! You didnt pass an onBlur function!');
+		console.log('*** [Input] psst! You didn\'t pass an onBlur function!');
 		return null;
 	},
 	onChange: () => {
-		console.log('*** [Input] psst! You didnt pass an onChange function!');
+		console.log('*** [Input] psst! You didn\'t pass an onChange function!');
 		return null;
 	},
 	onSubmit: () => {
-		console.log('*** [Input] psst! You didnt pass an onSubmit function!');
+		console.log('*** [Input] psst! You didn\'t pass an onSubmit function!');
 		return null;
 	},
 	onSuggestPlural: () => {
-		console.log('*** [Input] psst! You didnt pass an onSuggestPlural function!');
+		console.log('*** [Input] psst! You didn\'t pass an onSuggestPlural function!');
 		return null;
 	},
 	placeholder: '',
 	pluralBasis: null,
 	resetWarnings: () => {
-		console.log('*** [Input] psst! You didnt pass an resetWarnings function!');
+		console.log('*** [Input] psst! You didn\'t pass an resetWarnings function!');
 		return null;
 	},
 	suggestionPool: [],

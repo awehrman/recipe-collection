@@ -1,26 +1,21 @@
 import { lighten } from 'polished';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCloudDownload, faEllipsisV, faHome, faLemon, faFolderOpen } from '@fortawesome/pro-regular-svg-icons';
 import Link from 'next/link';
 import PropTypes from 'prop-types';
 import React from 'react';
 import styled, { withTheme } from 'styled-components';
 
-// TODO address icon FOUT
-import faEllipsisV from '@fortawesome/fontawesome-pro-regular/faEllipsisV';
-import faHome from '@fortawesome/fontawesome-pro-regular/faHome';
-import faCloudDownload from '@fortawesome/fontawesome-pro-regular/faCloudDownload';
-import faLemon from '@fortawesome/fontawesome-pro-regular/faLemon';
-import faFolderOpen from '@fortawesome/fontawesome-pro-regular/faFolderOpen';
-
 import Button from './form/Button';
 
+// TODO address icon FOUT
 const NavStyles = styled.nav`
 	/* mobile top nav */
 	background: ${ props => props.theme.menuBackground };
 	position: fixed;
 	top: 0;
 	width: 100%;
-	z-index: 1000; /* we want this higher than the nprogess bar*/
+	z-index: 1000; /* we want this higher than the nprogress bar*/
 
 	.navigationIcon {
 		color: ${ props => props.theme.menuColor };
@@ -38,7 +33,7 @@ const NavStyles = styled.nav`
 			/* this helps the FOUT issue but there's still a bit of movement on reload */
 			height: 16px;
 		}
-		
+
 		&:hover {
 			color: ${ props => lighten(0.1, props.theme.menuColor) };
 		}
@@ -88,7 +83,7 @@ const NavStyles = styled.nav`
 			position: relative;
 			width: 40px;
 			text-align: center;
-			margin: 0 auto;	
+			margin: 0 auto;
 			margin-right: 0;
 
 			&:focus {
@@ -135,7 +130,7 @@ class Nav extends React.PureComponent {
 		if (window.innerWidth > tablet) {
 			const yPosition = ((e.clientY - 20) < 0) ? 20 : e.clientY - 10;
 
-			// move the menu icon to whereever our cursor is
+			// move the menu icon to where ever our cursor is
 			this.navigationIcon.current.style = `top: ${ yPosition }px;`;
 
 			// keep updating this anytime we move our mouse around the nav
@@ -170,7 +165,7 @@ class Nav extends React.PureComponent {
 					ref={ this.navigationIcon }
 					type="button"
 				>
-					<FontAwesomeIcon icon={ faEllipsisV } />
+					{ <FontAwesomeIcon icon={ faEllipsisV } /> }
 				</button>
 				<ul>
 					{/* Home */}

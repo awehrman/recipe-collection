@@ -8,11 +8,10 @@ import { darken } from 'polished';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faEdit from '@fortawesome/fontawesome-pro-regular/faEdit';
-// import faCodeMerge from '@fortawesome/fontawesome-pro-light/faCodeMerge';
-// import faExclamation from '@fortawesome/fontawesome-pro-solid/faExclamation';
-// import faPlus from '@fortawesome/fontawesome-pro-regular/faPlus';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit } from '@fortawesome/pro-regular-svg-icons';
+// import { faCodeMerge } from '@fortawesome/pro-light-svg-icons';
+// import { faExclamation } from '@fortawesome/pro-solid-svg-icons';
 
 // eslint-disable-next-line no-unused-vars
 import { deepCopy, hasProperty } from '../../lib/util';
@@ -761,15 +760,15 @@ Form.defaultProps = {
 	loading: false,
 	name: null,
 	onCancelClick: () => {
-		console.log('*** [Form] psst! You didnt pass an onCancelClick function!');
+		console.log('*** [Form] psst! You didn\'t pass an onCancelClick function!');
 		return null;
 	},
 	onEditClick: () => {
-		console.log('*** [Form] psst! You didnt pass an onEditClick function!');
+		console.log('*** [Form] psst! You didn\'t pass an onEditClick function!');
 		return null;
 	},
 	onSaveIngredient: () => {
-		console.log('*** [Form] psst! You didnt pass an onSaveIngredient function!');
+		console.log('*** [Form] psst! You didn\'t pass an onSaveIngredient function!');
 		return null;
 	},
 	plural: null,
@@ -800,7 +799,7 @@ Form.propTypes = {
 	onEditClick: PropTypes.func,
 	onSaveIngredient: PropTypes.func,
 	plural: PropTypes.string,
-	// TODO improve proptypes
+	// TODO improve prop types
 	properties: PropTypes.shape({
 		dairy: PropTypes.bool.isRequired,
 		fish: PropTypes.bool.isRequired,

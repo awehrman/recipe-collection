@@ -1,12 +1,10 @@
 import { Component } from 'react';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagic } from '@fortawesome/pro-regular-svg-icons';
+import { faPlus, faTimes } from '@fortawesome/pro-solid-svg-icons';
 import pluralize from 'pluralize';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-
-import faMagic from '@fortawesome/fontawesome-pro-regular/faMagic';
-import faPlus from '@fortawesome/fontawesome-pro-solid/faPlus';
-import faTimes from '@fortawesome/fontawesome-pro-solid/faTimes';
 
 import Button from './Button';
 import Input from './Input';

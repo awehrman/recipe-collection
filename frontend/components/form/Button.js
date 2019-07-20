@@ -26,7 +26,7 @@ Button.defaultProps = {
 Button.propTypes = {
 	className: PropTypes.string,
 	disabled: PropTypes.bool,
-	icon: PropTypes.element,					// ex: <FontAwesomeIcon icon={ faPlus } />
+	icon: PropTypes.element,
 	label: PropTypes.string,
 	onClick: PropTypes.func,
 	type: PropTypes.string,
