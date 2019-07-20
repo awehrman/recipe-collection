@@ -31,13 +31,13 @@
     "react-adopt": "^0.6.0",
     "react-apollo": "^2.5.3",
     "react-dom": "^16.8.6",
-    "styled-components": "^4.2.0",
+    "styled-components": "^4.3.2",
     "styled-normalize": "^8.0.6",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.2",
-    "babel-plugin-styled-components": "^1.10.0",
+    "babel-plugin-styled-components": "^1.10.6",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.14.0",
     "enzyme-to-json": "^3.3.5",
