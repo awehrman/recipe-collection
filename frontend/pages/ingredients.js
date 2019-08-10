@@ -1,7 +1,7 @@
 import { adopt } from 'react-adopt';
 import gql from 'graphql-tag';
 import { Component } from 'react';
-import { Query, Mutation, withApollo } from 'react-apollo';
+import { Query, withApollo } from 'react-apollo';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
@@ -46,39 +46,20 @@ const GET_ALL_INGREDIENTS_QUERY = gql`
   }
 `;
 
-const UPDATE_CONTAINERS_MUTATION = gql`
-	mutation updateContainers(
-		$group: String
-		$view: String
-	) {
-		updateContainers(
-			group: $group
-			view: $view
-		) @client
-	}
-`;
-
 const Composed = adopt({
 	// eslint-disable-next-line react/prop-types
 	getIngredients: ({ render }) => (
 		// this may take a moment so disable SSR
 		<Query query={ GET_ALL_INGREDIENTS_QUERY } ssr={ false }>
-			{ render }
+			{render}
 		</Query>
 	),
 
 	// eslint-disable-next-line react/prop-types
 	getIngredientCounts: ({ render }) => (
 		<Query query={ GET_INGREDIENTS_COUNT_QUERY }>
-			{ render }
+			{render}
 		</Query>
-	),
-
-	// eslint-disable-next-line react/prop-types
-	updateContainers: ({ render, variables }) => (
-		<Mutation mutation={ UPDATE_CONTAINERS_MUTATION } variables={ variables }>
-			{ render }
-		</Mutation>
 	),
 });
 
@@ -110,20 +91,16 @@ class Ingredients extends Component {
 		const { group = 'name', id = null, view = 'all' } = query;
 
 		return (
-			// pass our local mutation to getIngredients onCompleted
-			// so that we can instantiate our containers based on the URL variables from above
 			// eslint-disable-next-line
-			<Composed variables={ { currentIngredientID: id, group, view } }>
+			<Composed variables={{ group, ingredientID: id, view }}>
 				{
-					({ getIngredients, getIngredientCounts, updateContainers }) => {
+					({ getIngredients, getIngredientCounts }) => {
 						const { error } = getIngredients || {};
 						const { loading } = getIngredients || true;
 
 						const { data } = getIngredientCounts || {};
 						const { ingredientAggregate } = data || {};
 						const { ingredientsCount, newIngredientsCount } = ingredientAggregate || {};
-						// eslint-disable-next-line
-						console.log({ getIngredients, getIngredientCounts });
 
 						return (
 							<IngredientsPageStyles>
@@ -152,14 +129,13 @@ class Ingredients extends Component {
 													currentIngredientID={ id }
 													group={ group }
 													view={ view }
-													updateContainers={ updateContainers }
 												/>
 											)
 									}
+
 									{/* Add New Ingredient */}
 									<AddNew
 										className={ `slide${ isAddNewExpanded ? '_expanded' : '' }` }
-										isExpanded={ isAddNewExpanded }
 										onClick={ this.onToggleAddNew }
 									/>
 								</section>

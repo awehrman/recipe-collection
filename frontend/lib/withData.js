@@ -1,71 +1,137 @@
-import ApolloClient, { InMemoryCache, defaultDataIdFromObject } from 'apollo-boost';
+import ApolloClient, { InMemoryCache } from 'apollo-boost';
 import gql from 'graphql-tag';
 import withApollo from 'next-with-apollo';
-
+import { GET_ALL_INGREDIENTS_QUERY } from '../pages/ingredients';
 import { endpoint } from '../config';
-import { GET_ALL_CONTAINERS_QUERY } from '../components/ingredients/Containers';
+/* eslint-disable object-curly-newline */
+import {
+	generateContainerByCount,
+	generateContainerByName,
+	generateContainerByProperty,
+	generateContainerByRelationship,
+} from './generateContainers';
+/* eslint-enable object-curly-newline */
 
-// idk do i need a fucking container lookup where i pass an id or something?
-// or is that the whole point of ReadQuery?
-export const typeDefs = gql`
-  type Query {
-    containers: [ Container ]
+const typeDefs = gql`
+	type Container {
+		count: Int!
+		id: String!
+		ingredientID: String
+		ingredients: [ ContainerIngredient ]!
+		isExpanded: Boolean!
+		label: String!
+	}
+
+	type ContainerIngredient {
+		hasParent: Boolean!
+		id: ID!
+		isValidated: Boolean!
+		name: String!
+		properties: Properties!
+		referenceCount: Int!
+	}
+
+	type Properties {
+		id: ID!
+		meat: Boolean!
+		poultry: Boolean!
+		fish: Boolean!
+		dairy: Boolean!
+		soy: Boolean!
+		gluten: Boolean!
+	}
+
+	type CreateContainersResponse {
+    containers: [Container]
   }
 
-  type Container {
-  	group: String
-		view: String  	
-  }
+	type Query {
+		viewIngredients: [ ContainerIngredient ]!
+		containers: [ Container ]!
+	}
 
-  type Mutation {
-   	updateContainers(
-	  	group: String
-	  	view: String
-    ) : Container
-  }
+	type Mutation {
+   	createContainers(
+	  	group: String!
+			ingredientID: String!
+			ingredients: [ ContainerIngredient ]!
+			view: String!
+    ) : CreateContainersResponse
+	}
+`;
+
+const GET_CONTAINERS_QUERY = gql`
+	query GET_CONTAINERS_QUERY($group: String, $view: String) {
+		containers(group: $group, view: $view) @client {
+			count
+			id
+			ingredientID
+			ingredients {
+				id
+				isValidated
+				name
+				properties {
+					meat
+					poultry
+					fish
+					dairy
+					soy
+					gluten
+				}
+			}
+			isExpanded
+			label
+		}
+	}
+`;
+
+const CREATE_CONTAINERS_MUTATION = gql`
+	mutation createContainers(
+		$group: String!
+		$ingredientID: String!
+		$ingredients: [ ContainerIngredient ]!
+		$view: String!
+	) {
+		createContainers(
+			group: $group
+			ingredientID: $ingredientID,
+			ingredients: $ingredients
+			view: $view
+		) @client {
+			containers {
+				count
+				id
+				ingredientID
+				ingredients
+				isExpanded
+				label
+			}
+		}
+	}
+`;
+
+const GET_VIEW_INGREDIENTS_QUERY = gql`
+	query GET_VIEW_INGREDIENTS_QUERY($view: String) {
+		viewIngredients(view: $view) @client {
+			hasParent @client
+			id
+			isValidated
+			name
+			properties {
+				meat
+				poultry
+				fish
+				dairy
+				soy
+				gluten
+			}
+			referenceCount @client
+		}
+	}
 `;
 
 function createClient({ headers }) {
-	const cache = new InMemoryCache({
-		// TODO add __typename into your eslint file girl
-		dataIdFromObject: (object) => {
-			// eslint-disable-next-line no-underscore-dangle
-			switch (object.__typename) {
-			case 'Containers':
-				console.warn('[cache] dataIdFromObject - Containers');
-				console.log(object);
-				console.log(`${ object.data.view }_${ object.data.group }`);
-				// this is another one where i'd rather not use an id so could i slap
-				// some combination of a `${ view }_${ group }` combo?
-				// to be real i don't think i understand how this totalllly works in regards to read/write query
-				// sure seems like something that i need to pass as a variable?
-				// or does this just generate a custom id field?
-				return `${ object.data.view }_${ object.data.group }`;
-			default:
-				return defaultDataIdFromObject(object); // fall back to default handling
-			}
-		},
-	});
-
-	// I DON'T FUCKING KNOW?? IS THIS A THING PEOPLE DO!?
-
-	cache.writeData({
-		data: {
-			containers: [ {
-				__typename: 'Container',
-				// idk is this id ACTUALLY needed?
-				// or does dataIdFromObject provide whatever lookup magic?
-				// OBVIOUSLY I NEED TO READ MORE ABOUT THIS
-				id: 'all_name', // and for whatever reason this doesn't fucking work
-				group: 'name',	// in conjunction to dataIdFromObject
-				view: 'all',		// it still yells at me cause these fucking variables DON'T WORK
-			} ],
-		},
-		variables: {
-			group: 'name',
-			view: 'all',
-		},
-	});
+	const cache = new InMemoryCache();
 
 	return new ApolloClient({
 		uri: process.env.NODE_ENV === 'development' ? endpoint : endpoint,
@@ -75,88 +141,94 @@ function createClient({ headers }) {
 		}),
 		cache,
 		clientState: {
-			/*
-			defaults: {
-				// so this resolves to
-				// containers: {"type":"json","json":[]}
-				// which feels super wrong
-				// containers: [],
-
-				// now, if we try to set this up with an initial container...
-				// okay this actually looks more normal than i last remember,
-				// but it looks to be exactly the same as doing the initial
-				// cache.writeData, and i mean it fucking should be right?
-				// EXCEPT... what i still don't get is that in both instances
-				// applying the variables do fucking nothing
-				// and idk even know how you're supposed to pass those in defaults
-				containers: [
-					{
-						__typename: 'Container',
-						id: 'all_name',
-						group: 'name',
-						view: 'all',
-					},
-				],
-			},
-			*/
 			resolvers: {
-				Mutation: {
-					// eslint-disable-next-line
-					updateContainers(_, variables, { client, cache, getCacheKey }) {
-						console.warn('[withData] updateContainers');
-						// eslint-disable-next-line
-						console.log({ _, variables });
+				Query: {
+					async containers(_, { group, view }, { client }) {
+						console.warn(`... [withData](${ group }, ${ view }) containers query resolver`);
+						let containers = [];
+						let ingredients = [];
 
-						// eslint-disable-next-line
-						const { currentIngredientID, group, view } = variables;
+						// fetch the ingredients for this view from the cache
+						const ingredientsViewData = await client.query({
+							// if this isn't in the cache, then go through the local query resolver
+							fetchPolicy: 'cache-first',
+							query: GET_VIEW_INGREDIENTS_QUERY,
+							variables: { view },
+						});
 
-						const container = {
-							__typename: 'Container',
-							id: `${ view }_${ group }`,
-							group,
-							view,
-						};
+						ingredients = ingredientsViewData.data.viewIngredients;
 
-						let containers;
+						// group the ingredients into containers
+						const { data } = await client.mutate({
+							mutation: CREATE_CONTAINERS_MUTATION,
+							variables: {
+								group,
+								ingredients,
+								view,
+							},
+						});
 
-						const query = GET_ALL_CONTAINERS_QUERY;
+						({ containers } = data.createContainers);
 
-						// Read the todo's from the cache
-						try {
-							// eslint-disable-next-line
-							console.log({ query, variables });
-							containers.containers = cache.readQuery({
-								query,
-								variables,
-							});
-							console.log(containers);
-						} catch (err) {
-							// because right now we sure can't fucking ready our cache with this dataIdFromObject
-							console.error('no containers!');
-							console.log(err);
-							containers = [ container ];
+						console.log({ containers });
+
+						return containers;
+					},
+					viewIngredients(_, { view }) {
+						console.warn(`... [withData](${ view }) viewIngredients query resolver`);
+						// get all ingredients from the cache
+						let { ingredients } = cache.readQuery({ query: GET_ALL_INGREDIENTS_QUERY });
+
+						// filter ingredients based on the view
+						if (view === 'new') {
+							ingredients = ingredients.filter(i => !i.isValidated);
+						}
+						if (view === 'search') {
+							// TODO
 						}
 
-						const data = { containers };
+						// pare down the ingredient info to match the ContainerIngredient shape
+						ingredients = ingredients.map(i => ({
+							__typename: 'ContainerIngredient',
+							hasParent: Boolean(i.parent),
+							id: i.id,
+							isValidated: i.isValidated,
+							name: i.isValidated,
+							properties: { ...i.properties },
+							referenceCount: 0,
+						}));
 
-						// Update the cached todos
-						// NUMBER ONE??
-						const res = cache.writeQuery({
-							query,
-							data,
-							variables,
-						});
+						return ingredients;
+					},
+				},
+				Mutation: {
+					// eslint-disable-next-line object-curly-newline
+					createContainers(_, { ingredientID, group, ingredients, view }) {
+						// eslint-disable-next-line max-len
+						console.warn(`,,, [withData](${ ingredientID }, ${ group }, ingredients: ${ ingredients.length }, ${ view } }) createContainers mutation resolver`);
+						let containers = [];
 
-						console.log(res);
-						// OR NUMBER TWO??
-						/*
-						cache.writeData({
-							fragmentId,
-							data,
-						});
-						*/
+						switch (group) {
+						case 'count':
+							containers = generateContainerByCount(ingredientID, ingredients);
+							break;
+						case 'property':
+							containers = generateContainerByProperty(ingredientID, ingredients);
+							break;
+						case 'relationship':
+							containers = generateContainerByRelationship(ingredientID, ingredients);
+							break;
+						default:
+							containers = generateContainerByName(ingredientID, ingredients, view);
+							break;
+						}
 
-						return data;
+						console.warn({ containers });
+
+						return {
+							__typename: 'CreateContainersResponse',
+							containers,
+						};
 					},
 				},
 			},

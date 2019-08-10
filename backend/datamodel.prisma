@@ -7,14 +7,14 @@
 		# TODO 1.33: alternateNames: [ String ]! @unique @scalarList(strategy: RELATION)
 		alternateNames: [ AlternateName! ]! @relation(link: TABLE, name: "AlternateNames", onDelete: CASCADE)
 
-		# TODO 1.33: 
+		# TODO 1.33:
 		# keep an eye out for 1.33 which should have a bug fix for this
 		# THEN WE CAN DO THE NONSTUPID COOL SCALARLIST CRAP
 		# https://github.com/prisma/prisma/issues/4421
 		# Properties: [ Properties ]! @scalarList(strategy: RELATION)
 		# FINE RELATION TABLE IT FUCKING IS THEN
 		properties: Properties! @relation(link: TABLE, name: "Properties", onDelete: CASCADE)
-		isComposedIngredient: Boolean! @default(value: false) 
+		isComposedIngredient: Boolean! @default(value: false)
 		isValidated: Boolean! @default(value: false)
 
 		parent: Ingredient @relation(name: "ParentIngredient")
@@ -59,10 +59,10 @@
 		# TODO
 		# author: String
 		# book: String
-		
+
 		categories: [ Category! ]! @relation(link: TABLE, name: "RecipeCategories")
 		tags: [ Tag! ]! @relation(link: TABLE, name: "RecipeTags")
-		
+
 		image: String
 		ingredients: [ RecipeIngredient! ]! @relation(name: "RecipeIngredients" onDelete: CASCADE)
 		instructions: [ RecipeInstruction! ]! @relation(name: "RecipeInstructions" onDelete: CASCADE)

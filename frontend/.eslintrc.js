@@ -44,5 +44,6 @@ module.exports = {
       'ExportDeclaration': { 'multiline': true, 'minProperties': 3 }
     }],
     'template-curly-spacing': [1, 'always'],
+    "no-underscore-dangle": ["error", { "allow": ["__typename"] }],
 	}
 };
