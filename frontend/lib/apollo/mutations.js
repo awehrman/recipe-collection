@@ -3,11 +3,13 @@ import gql from 'graphql-tag';
 export const CREATE_CONTAINERS_MUTATION = gql`
 	mutation createContainers(
 		$group: String!
+		$ingredientID: String
 		$ingredients: [ ContainerIngredient ]!
 		$view: String!
 	) {
 		createContainers(
 			group: $group
+			ingredientID: $ingredientID
 			ingredients: $ingredients
 			view: $view
 		) @client {

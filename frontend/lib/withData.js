@@ -2,7 +2,7 @@ import ApolloClient, { InMemoryCache } from 'apollo-boost';
 import gql from 'graphql-tag';
 import withApollo from 'next-with-apollo';
 import { GET_ALL_INGREDIENTS_QUERY, GET_VIEW_INGREDIENTS_QUERY } from './apollo/queries';
-import { CREATE_CONTAINERS_MUTATION, UPDATE_CONTAINER_INGREDIENT_ID_MUTATION, UPDATE_IS_CONTAINER_EXPANDED_MUTATION } from './apollo/mutations';
+import { CREATE_CONTAINERS_MUTATION } from './apollo/mutations';
 import { endpoint } from '../config';
 /* eslint-disable object-curly-newline */
 import {
@@ -48,6 +48,7 @@ const typeDefs = gql`
 
 	type Query {
 		viewIngredients: [ ContainerIngredient ]!
+		container(id: String!): Container
 		containers: [ Container ]!
 	}
 
@@ -87,7 +88,40 @@ function createClient({ headers }) {
 		clientState: {
 			resolvers: {
 				Query: {
-					async containers(_, { group, view }, { client }) {
+					container(_, { id }, { client, getCacheKey }) {
+						console.warn(`... [withData](${ id }) container query resolver`);
+						const container = client.readFragment({
+							id: getCacheKey({
+								__typename: 'Container',
+								id,
+							}),
+							fragment: gql`
+								fragment getContainer on Container {
+									count
+									id
+									ingredientID
+									ingredients {
+										id
+										isValidated
+										name
+										properties {
+											meat
+											poultry
+											fish
+											dairy
+											soy
+											gluten
+										}
+									}
+									isExpanded
+									label
+								}
+							`,
+						});
+
+						return container;
+					},
+					async containers(_, { group, ingredientID, view }, { client }) {
 						console.warn(`... [withData](${ group }, ${ view }) containers query resolver`);
 						let containers = [];
 						let ingredients = [];
@@ -107,13 +141,13 @@ function createClient({ headers }) {
 							mutation: CREATE_CONTAINERS_MUTATION,
 							variables: {
 								group,
+								ingredientID,
 								ingredients,
 								view,
 							},
 						});
 
 						({ containers } = data.createContainers);
-
 						return containers;
 					},
 					viewIngredients(_, { view }) {
@@ -145,25 +179,23 @@ function createClient({ headers }) {
 				},
 				Mutation: {
 					// eslint-disable-next-line object-curly-newline
-					createContainers(_, { group, ingredients, view }) {
+					createContainers(_, { group, ingredientID, ingredients, view }) {
 						// eslint-disable-next-line max-len
 						console.warn(`,,, [withData](${ group }, ingredients: ${ ingredients.length }, ${ view }) createContainers mutation resolver`);
 						let containers = [];
-						// eslint-disable-next-line max-len
-						// TODO in regards to the ingredientID, sure, i can pass this as a variable to containers, but then i'm going to have SO MANY MORE containers in the cache and that feels silly and wrong. i think i need to figure out how to pass in the query params off the router maybe as an HOC? or maybe this just happens as a secondary mutation to set the ingredientID fragment thru a separate toggleContainerIngredientID mutation
 
 						switch (group) {
 						case 'count':
-							containers = generateByCount(null, ingredients);
+							containers = generateByCount(ingredientID, ingredients);
 							break;
 						case 'property':
-							containers = generateByProperty(null, ingredients);
+							containers = generateByProperty(ingredientID, ingredients);
 							break;
 						case 'relationship':
-							containers = generateByRelationship(null, ingredients);
+							containers = generateByRelationship(ingredientID, ingredients);
 							break;
 						default:
-							containers = generateByName(null, ingredients, view);
+							containers = generateByName(ingredientID, ingredients, view);
 							break;
 						}
 
@@ -173,11 +205,11 @@ function createClient({ headers }) {
 						};
 					},
 					// eslint-disable-next-line object-curly-newline
-					setCurrentCard(_, { id, ingredientID }, { getCacheKey }) {
+					setCurrentCard(_, { id, ingredientID }, { client, getCacheKey }) {
 						// eslint-disable-next-line max-len
 						console.warn(`,,, [withData](${ id }, ${ ingredientID }) setCurrentCard mutation resolver`);
 
-						cache.writeFragment({
+						client.writeFragment({
 							id: getCacheKey({
 								__typename: 'Container',
 								id,
@@ -196,11 +228,11 @@ function createClient({ headers }) {
 						return null;
 					},
 					// eslint-disable-next-line object-curly-newline
-					setContainerIsExpanded(_, { id, isExpanded }, { getCacheKey }) {
+					setContainerIsExpanded(_, { id, isExpanded }, { client, getCacheKey }) {
 						// eslint-disable-next-line max-len
 						console.warn(`,,, [withData](${ id }, ${ isExpanded }) setContainerIsExpanded mutation resolver`);
 
-						cache.writeFragment({
+						client.writeFragment({
 							id: getCacheKey({
 								__typename: 'Container',
 								id,

@@ -1,4 +1,5 @@
 import React from 'react';
+import { adopt } from 'react-adopt';
 import { Query, withApollo } from 'react-apollo';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
@@ -21,41 +22,51 @@ const ContainerStyles = styled.div`
 	}
 `;
 
+const Composed = adopt({
+	// eslint-disable-next-line react/prop-types
+	getContainers: ({ group, ingredientID, render, view }) => (
+		// eslint-disable-next-line object-curly-newline
+		<Query query={ GET_CONTAINERS_QUERY } variables={ { group, ingredientID, view } }>
+			{ render }
+		</Query>
+	),
+});
+
 class Containers extends React.PureComponent {
 	// TODO i might need to toggle a separate mutation to set ingredientID within the appropriate containers
 	render() {
 		console.warn('[Containers] render');
-		const { group, view } = this.props;
+		const { group, ingredientID, view } = this.props;
 
 		return (// TODO do i need to adjust the fetchPolicy here?
+			// TODO GET_CONTAINERS_QUERY ONLY NEEDS TO RETURN AN ID NOW
 			// eslint-disable-next-line object-curly-newline
-			<Query query={ GET_CONTAINERS_QUERY } variables={ { group, view } }>
-				{({ loading, error, data }) => {
-					if (loading) return null;
-					const { containers } = data;
+			<Composed group={ group } ingredientID={ ingredientID } view={ view }>
+				{
+					({ getContainers }) => {
+						const { loading, error, data } = getContainers;
+						if (loading) return null;
+						if (error) return <ErrorMessage error={ error } />;
+						const { containers } = data;
 
-					return (
-						<ContainerStyles>
-							{ (error) ? <ErrorMessage error={ error } /> : null }
-							{
-								containers.filter(ctn => ctn.ingredients && (ctn.ingredients.length > 0))
-									.map(c => (
-										<Container
-											group={ group }
-											id={ c.id }
-											ingredientID={ c.ingredientID }
-											ingredients={ c.ingredients }
-											isExpanded={ c.isExpanded }
-											key={ c.id }
-											label={ c.label }
-											view={ view }
-										/>
-									))
-							}
-						</ContainerStyles>
-					);
-				}}
-			</Query>
+						return (
+							<ContainerStyles>
+								{
+									containers.filter(ctn => ctn.ingredients && (ctn.ingredients.length > 0))
+										.map(c => (
+											<Container
+												group={ group }
+												id={ c.id }
+												key={ c.id }
+												view={ view }
+											/>
+										))
+								}
+							</ContainerStyles>
+						);
+					}
+				}
+			</Composed>
 		);
 	}
 }

@@ -33,7 +33,7 @@ export const generateByCount = (ingredientID = null, ingredients = []) => {
 				id: uuidv1(),
 				ingredientID,
 				ingredients: containerIngredients,
-				isExpanded: false,
+				isExpanded: Boolean(ingredientID),
 				label: '0 References',
 			};
 		}
@@ -48,7 +48,7 @@ export const generateByCount = (ingredientID = null, ingredients = []) => {
 				id: uuidv1(),
 				ingredientID,
 				ingredients: containerIngredients,
-				isExpanded: false,
+				isExpanded: Boolean(ingredientID),
 				label: '1 Reference',
 			};
 		}
@@ -69,7 +69,7 @@ export const generateByCount = (ingredientID = null, ingredients = []) => {
 			id: uuidv1(),
 			ingredientID,
 			ingredients: containerIngredients,
-			isExpanded: false,
+			isExpanded: Boolean(ingredientID),
 			label: `${ rangeStart }-${ rangeEnd } References`,
 		};
 	}).filter(c => c.ingredients.length > 0);

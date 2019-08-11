@@ -16,6 +16,7 @@
   "author": "Alexandra Wehrman",
   "license": "MIT",
   "dependencies": {
+    "@apollo/react-hooks": "^3.0.0",
     "@babel/core": "^7.5.5",
     "@fortawesome/fontawesome-svg-core": "^1.2.19",
     "@fortawesome/free-solid-svg-icons": "^5.9.0",
@@ -23,7 +24,7 @@
     "@fortawesome/pro-regular-svg-icons": "^5.9.0",
     "@fortawesome/pro-solid-svg-icons": "^5.9.0",
     "@fortawesome/react-fontawesome": "^0.1.4",
-    "apollo-boost": "^0.4.3",
+    "apollo-boost": "^0.4.4",
     "fast-levenshtein": "^2.0.6",
     "graphql": "^14.4.2",
     "graphql-tag": "^2.10.1",

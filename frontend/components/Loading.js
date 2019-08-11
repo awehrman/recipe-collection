@@ -14,7 +14,7 @@ const Loading = ({ name }) => (
 	</LoadingStyles>
 );
 
-Loading.defaultProps = { name: {} };
+Loading.defaultProps = { name: '' };
 
 Loading.propTypes = { name: PropTypes.string };
 

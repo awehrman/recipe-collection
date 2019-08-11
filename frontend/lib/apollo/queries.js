@@ -1,9 +1,34 @@
 import gql from 'graphql-tag';
 
 /* Containers */
+export const GET_CONTAINER_QUERY = gql`
+	query GET_CONTAINER_QUERY($id: String!) {
+		container(id: $id) @client {
+			count
+			id
+			ingredientID
+			ingredients {
+				id
+				isValidated
+				name
+				properties {
+					meat
+					poultry
+					fish
+					dairy
+					soy
+					gluten
+				}
+			}
+			isExpanded
+			label
+		}
+	}
+`;
+
 export const GET_CONTAINERS_QUERY = gql`
-	query GET_CONTAINERS_QUERY($group: String, $view: String) {
-		containers(group: $group, view: $view) @client {
+	query GET_CONTAINERS_QUERY($group: String, $ingredientID: String, $view: String) {
+		containers(group: $group, ingredientID: $ingredientID, view: $view) @client {
 			count
 			id
 			ingredientID
@@ -84,6 +109,7 @@ export const GET_ALL_INGREDIENTS_QUERY = gql`
 
 
 export default [
+	GET_CONTAINER_QUERY,
 	GET_CONTAINERS_QUERY,
 	GET_VIEW_INGREDIENTS_QUERY,
 	GET_INGREDIENTS_COUNT_QUERY,

@@ -57,15 +57,11 @@ class Ingredients extends React.PureComponent {
 			<Composed variables={{ group, ingredientID: id, view }}>
 				{
 					({ getIngredients, getIngredientCounts }) => {
-						const { error } = getIngredients || {};
-						const { loading } = getIngredients || true;
-
+						const { error, loading } = getIngredients;
 						const { data } = getIngredientCounts || {};
 						const { ingredientAggregate } = data || {};
 						const { ingredientsCount, newIngredientsCount } = ingredientAggregate || {};
 
-						// eslint-disable-next-line object-curly-newline
-						console.log({ loadingIngredients: loading, loadingCounts: getIngredientCounts.loading });
 						return (
 							<IngredientsPageStyles>
 								<Header pageHeader="Ingredients" />

@@ -1,14 +1,17 @@
 import { adopt } from 'react-adopt';
-import { Mutation, withApollo } from 'react-apollo';
+import { Query, Mutation, withApollo } from 'react-apollo';
 import Router from 'next/router';
 import PropTypes from 'prop-types';
-import { Component } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
+import { GET_CONTAINER_QUERY } from '../../lib/apollo/queries';
 import { UPDATE_CONTAINER_INGREDIENT_ID_MUTATION, UPDATE_IS_CONTAINER_EXPANDED_MUTATION } from '../../lib/apollo/mutations';
 
 import { deepCopy } from '../../lib/util';
-// import Card from './Card';
+import Card from './Card';
+import ErrorMessage from '../ErrorMessage';
+import Loading from '../Loading';
 
 const ContainerStyles = styled.div`
 	margin-bottom: 16px;
@@ -118,24 +121,30 @@ const IngredientsList = styled.ul`
 
 const Composed = adopt({
 	// eslint-disable-next-line react/prop-types
+	getContainer: ({ id, render }) => (
+		<Query query={ GET_CONTAINER_QUERY } variables={ { id } }>
+			{ render }
+		</Query>
+	),
+
+	// eslint-disable-next-line react/prop-types
 	setCurrentCard: ({ render }) => (
 		<Mutation mutation={ UPDATE_CONTAINER_INGREDIENT_ID_MUTATION }>
-			{render}
+			{ render }
 		</Mutation>
 	),
 
 	// eslint-disable-next-line react/prop-types
 	setContainerIsExpanded: ({ render }) => (
 		<Mutation mutation={ UPDATE_IS_CONTAINER_EXPANDED_MUTATION }>
-			{render}
+			{ render }
 		</Mutation>
 	),
 });
 
-class Container extends Component {
-	buildIngredientsList = (ingredients) => {
-		const { ingredientID, view } = this.props;
-
+class Container extends React.PureComponent {
+	buildIngredientsList = (ingredients, ingredientID) => {
+		const { view } = this.props;
 		// add list item properties
 		const ingList = ingredients.map((i) => {
 			// NOTE: you better not mangle that ingredients array here
@@ -144,9 +153,14 @@ class Container extends Component {
 			listItem.type = 'link';
 
 			listItem.className = listItem.type;
-			listItem.className += (ingredientID === i.id) ? ' active ' : '';
+			listItem.className += (ingredientID && (ingredientID === i.id)) ? ' active ' : '';
 			listItem.className += (i.hasParent !== null) ? ' child' : '';
 			listItem.className += (!i.isValidated && view !== 'new') ? ' invalid' : '';
+
+			if (i.name === 'butter') {
+				// eslint-disable-next-line object-curly-newline
+				console.log({ className: listItem.className, ingredientID });
+			}
 
 			listItem.href = { pathname: '/ingredients' };
 			// only put the ingredient id in the URL if we don't have an open card
@@ -199,9 +213,8 @@ class Container extends Component {
 	}
 
 	onHeaderClick = (e, setContainerIsExpanded, id, isExpanded) => {
+		e.preventDefault();
 		console.warn('[Container] onHeaderClick');
-		// eslint-disable-next-line object-curly-newline
-		console.log({ setContainerIsExpanded, id, isExpanded });
 		// update the local cache
 		setContainerIsExpanded({
 			variables: {
@@ -211,12 +224,15 @@ class Container extends Component {
 		});
 	}
 
-	onIngredientClick = (e, targetIngredientID, setCurrentCard) => {
-		const { ingredientID, group, id, view } = this.props;
+	onIngredientClick = (e, setCurrentCard, currentIngredientID) => {
+		e.preventDefault();
+		const targetIngredientID = e.target.id;
+		console.log(`[Container] onIngredientClick click:${ targetIngredientID }, current: ${ currentIngredientID } `);
+		const { group, id, view } = this.props;
 
 		// update the url without causing a bunch of re-renders
 		let href = `/ingredients?view=${ view }&group=${ group }`;
-		if (!ingredientID || (ingredientID !== targetIngredientID)) href += `&id=${ targetIngredientID }`;
+		href += (currentIngredientID === targetIngredientID) ? '' : `&id=${ targetIngredientID }`;
 		const as = href;
 		Router.push(href, as, { shallow: true });
 
@@ -224,89 +240,84 @@ class Container extends Component {
 		setCurrentCard({
 			variables: {
 				id,
-				ingredientID: targetIngredientID,
+				ingredientID: (currentIngredientID === targetIngredientID) ? null : targetIngredientID,
 			},
 		});
 	}
 
-
 	render() {
 		console.warn('[Container] render');
-		const { className, id, ingredientID, ingredients, isExpanded, label } = this.props;
-		const ingList = this.buildIngredientsList(ingredients);
+		const { id, view } = this.props;
 
 		return (
-			<Composed>
+			<Composed id={ id }>
 				{
-					({ setCurrentCard, setContainerIsExpanded }) => (
-						<ContainerStyles className={ (isExpanded) ? `expanded ${ className }` : className }>
-							<HeaderStyles onClick={ e => this.onHeaderClick(e, setContainerIsExpanded, id, isExpanded) }>
-								{ label }
-								<span className="count">{ ingredients.length }</span>
-							</HeaderStyles>
+					({ getContainer, setCurrentCard, setContainerIsExpanded }) => {
+						const { data, error, loading } = getContainer;
+						if (error) return <ErrorMessage error={ error } />;
+						if (loading) return <Loading />;
 
-							{
-								(isExpanded)
-									? (
-										<IngredientsList className={ (ingredientID) ? `expanded ${ className }` : className }>
-											{
-												ingList.map(i => (
-													<li className={ i.className } key={ i.id }>
-														{
-															(i.type === 'header')
-																? <span className="header">{ i.name }</span>
-																: (
-																	<a
-																		onClick={ e => this.onIngredientClick(e, i.id, setCurrentCard) }
-																		onKeyPress={ e => this.onIngredientClick(e, i.id, setCurrentCard) }
-																		role="link"
-																		tabIndex="0"
-																	>
-																		{ i.name }
-																	</a>
-																)
-														}
-													</li>
-												))
-											}
-										</IngredientsList>
-									)
-									: null
-							}
-						</ContainerStyles>
-					)
+						const { container } = data || {};
+						const { count, ingredients, isExpanded, label } = container;
+						const currentIngredientID = container.ingredientID;
+						const ingList = this.buildIngredientsList(ingredients, currentIngredientID);
+						const listClassName = (`${ (!isExpanded) ? 'hidden' : '' } ${ (currentIngredientID) ? 'expanded' : '' }`).trim();
+
+						return (
+							<ContainerStyles className={ (isExpanded) ? 'expanded' : '' }>
+								<HeaderStyles onClick={ e => this.onHeaderClick(e, setContainerIsExpanded, id, isExpanded) }>
+									{label}
+									<span className="count">{count}</span>
+								</HeaderStyles>
+
+								{
+									(currentIngredientID)
+										? (
+											<Card
+												className={ listClassName }
+												id={ currentIngredientID }
+												key={ currentIngredientID }
+												view={ view }
+											/>
+										)
+										: null
+								}
+
+								<IngredientsList className={ listClassName }>
+									{
+										ingList.map(i => (
+											<li className={ i.className } key={ i.id }>
+												{
+													(i.type === 'header')
+														? <span className="header">{i.name}</span>
+														: (
+															<a
+																id={ i.id }
+																onClick={ e => this.onIngredientClick(e, setCurrentCard, currentIngredientID) }
+																onKeyPress={ e => this.onIngredientClick(e, setCurrentCard, currentIngredientID) }
+																role="link"
+																tabIndex="0"
+															>
+																{i.name}
+															</a>
+														)
+												}
+											</li>
+										))
+									}
+								</IngredientsList>
+							</ContainerStyles>
+						);
+					}
 				}
 			</Composed>
 		);
 	}
 }
 
-Container.defaultProps = {
-	className: '',
-	ingredientID: null,
-	ingredients: [],
-	isExpanded: true,
-	label: 'All Ingredients',
-};
-
-const arrayOfLength = (expectedLength, props, propName, component) => {
-	// eslint-disable-next-line react/destructuring-assignment
-	const { length } = props[propName];
-	if (length < expectedLength) {
-		const message = `Invalid array length ${ length } for prop ${ propName } supplied to ${ component }. Validation failed.`;
-		return new Error(message);
-	}
-	return null;
-};
-
 Container.propTypes = {
-	className: PropTypes.string,
-	ingredientID: PropTypes.string,
 	group: PropTypes.oneOf([ 'name', 'property', 'relationship', 'count' ]).isRequired,
 	id: PropTypes.string.isRequired,
-	ingredients: arrayOfLength.bind(null, 1),
-	isExpanded: PropTypes.bool,
-	label: PropTypes.string,
 	view: PropTypes.oneOf([ 'all', 'new' ]).isRequired,
 };
 
