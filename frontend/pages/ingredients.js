@@ -1,6 +1,5 @@
 import { adopt } from 'react-adopt';
-import gql from 'graphql-tag';
-import { Component } from 'react';
+import React from 'react';
 import { Query, withApollo } from 'react-apollo';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
@@ -8,49 +7,16 @@ import styled from 'styled-components';
 import AddNew from '../components/ingredients/AddNew';
 import Containers from '../components/ingredients/Containers';
 import ErrorMessage from '../components/ErrorMessage';
+import Loading from '../components/Loading';
 import Header from '../components/Header';
 import Filters from '../components/ingredients/Filters';
+import { GET_ALL_INGREDIENTS_QUERY, GET_INGREDIENTS_COUNT_QUERY } from '../lib/apollo/queries';
 
-const GET_INGREDIENTS_COUNT_QUERY = gql`
-  query GET_INGREDIENTS_COUNT_QUERY {
-  	ingredientAggregate {
-	  	ingredientsCount
-			newIngredientsCount
-		}
-  }
-`;
-
-const GET_ALL_INGREDIENTS_QUERY = gql`
-  query GET_ALL_INGREDIENTS_QUERY {
-  	ingredients {
-  		id
-			name
-			plural
-			alternateNames {
-				name
-			}
-			properties {
-				meat
-			  poultry
-			  fish
-			  dairy
-			  soy
-			  gluten
-			}
-			parent {
-				id
-			}
-			isComposedIngredient
-			isValidated
-		}
-  }
-`;
-
+// TODO look into SSR config to see if i can serve the page with the aggregate baked in
 const Composed = adopt({
 	// eslint-disable-next-line react/prop-types
 	getIngredients: ({ render }) => (
-		// this may take a moment so disable SSR
-		<Query query={ GET_ALL_INGREDIENTS_QUERY } ssr={ false }>
+		<Query query={ GET_ALL_INGREDIENTS_QUERY }>
 			{render}
 		</Query>
 	),
@@ -64,13 +30,9 @@ const Composed = adopt({
 });
 
 const IngredientsPageStyles = styled.article`
-	// TODO slide out/in AddNew panel
-	.loading {
-		margin-top: 10px;
-	}
 `;
 
-class Ingredients extends Component {
+class Ingredients extends React.PureComponent {
 	constructor(props) {
 		super(props);
 
@@ -102,11 +64,12 @@ class Ingredients extends Component {
 						const { ingredientAggregate } = data || {};
 						const { ingredientsCount, newIngredientsCount } = ingredientAggregate || {};
 
+						// eslint-disable-next-line object-curly-newline
+						console.log({ loadingIngredients: loading, loadingCounts: getIngredientCounts.loading });
 						return (
 							<IngredientsPageStyles>
 								<Header pageHeader="Ingredients" />
 								<section>
-									{/* View and Group Filters */}
 									<Filters
 										group={ group }
 										ingredientsCount={ ingredientsCount }
@@ -114,26 +77,20 @@ class Ingredients extends Component {
 										view={ view }
 									/>
 
-									{/* Error Messages */}
 									{ (error) ? <ErrorMessage error={ error } /> : null }
-
-									{/* Loading Message or Containers
-											TODO fix styling jump
-									*/}
 
 									{
 										(loading)
-											? <div className="loading">Loading ingredients...</div>
+											? <Loading name="ingredients" />
 											: (
 												<Containers
-													currentIngredientID={ id }
 													group={ group }
+													ingredientID={ id }
 													view={ view }
 												/>
 											)
 									}
 
-									{/* Add New Ingredient */}
 									<AddNew
 										className={ `slide${ isAddNewExpanded ? '_expanded' : '' }` }
 										onClick={ this.onToggleAddNew }
@@ -165,7 +122,3 @@ Ingredients.propTypes = {
 };
 
 export default withApollo(Ingredients);
-export {
-	GET_ALL_INGREDIENTS_QUERY,
-	GET_INGREDIENTS_COUNT_QUERY,
-};

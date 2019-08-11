@@ -1,7 +1,7 @@
 import uuidv1 from 'uuid/v1';
 import { hasProperty } from './util';
 
-export const generateContainerByCount = (ingredientID = null, ingredients = []) => {
+export const generateByCount = (ingredientID = null, ingredients = []) => {
 	let containers = [];
 
 	// get the largest reference count from the bunch
@@ -77,7 +77,7 @@ export const generateContainerByCount = (ingredientID = null, ingredients = []) 
 	return containers;
 };
 
-export const generateContainerByName = (ingredientID = null, ingredients = [], view) => {
+export const generateByName = (ingredientID = null, ingredients = [], view) => {
 	let containers = [];
 	let pagerLabels = [];
 
@@ -125,7 +125,7 @@ export const generateContainerByName = (ingredientID = null, ingredients = [], v
 	return containers;
 };
 
-export const generateContainerByProperty = (ingredientID = null, ingredients = []) => {
+export const generateByProperty = (ingredientID = null, ingredients = []) => {
 	const labels = [ 'meat', 'poultry', 'fish', 'dairy', 'soy', 'gluten', 'other' ];
 
 	return labels.map((label) => {
@@ -151,7 +151,7 @@ export const generateContainerByProperty = (ingredientID = null, ingredients = [
 	}).filter(c => c);
 };
 
-export const generateContainerByRelationship = (ingredientID = null, ingredients = []) => {
+export const generateByRelationship = (ingredientID = null, ingredients = []) => {
 	const containers = [];
 	const parentIngredients = ingredients.filter(i => !i.hasParent);
 	const childIngredients = ingredients.filter(i => i.hasParent);
@@ -171,10 +171,10 @@ export const generateContainerByRelationship = (ingredientID = null, ingredients
 	if (parentIngredients.length > 0) {
 		containers.push({
 			__typename: 'Container',
-			count: childIngredients.length,
+			count: parentIngredients.length,
 			id: uuidv1(),
 			ingredientID,
-			ingredients: childIngredients,
+			ingredients: parentIngredients,
 			isExpanded: true,
 			label: 'Parent Ingredients',
 		});
@@ -184,8 +184,8 @@ export const generateContainerByRelationship = (ingredientID = null, ingredients
 };
 
 export default [
-	generateContainerByCount,
-	generateContainerByName,
-	generateContainerByProperty,
-	generateContainerByRelationship,
+	generateByCount,
+	generateByName,
+	generateByProperty,
+	generateByRelationship,
 ];

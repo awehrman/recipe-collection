@@ -1,60 +1,24 @@
 import { adopt } from 'react-adopt';
-import { Mutation } from 'react-apollo';
-import gql from 'graphql-tag';
+import { Mutation, withApollo } from 'react-apollo';
 import Router from 'next/router';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import styled from 'styled-components';
 
+import { UPDATE_CONTAINER_INGREDIENT_ID_MUTATION, UPDATE_IS_CONTAINER_EXPANDED_MUTATION } from '../../lib/apollo/mutations';
+
 import { deepCopy } from '../../lib/util';
-import Card from './Card';
-
-const UPDATE_CURRENT_INGREDIENT_ID_MUTATION = gql`
-	mutation setCurrentCard(
-		$id: ID!,
-		$currentIngredientID: Boolean
-		$isCardEnabled: Boolean
-	) {
-		setCurrentCard(
-			id: $id,
-			currentIngredientID: $currentIngredientID
-			isCardEnabled: $isCardEnabled
-		) @client
-	}
-`;
-
-const UPDATE_IS_CONTAINER_EXPANDED_MUTATION = gql`
-	mutation setIsContainerExpanded(
-		$id: ID!,
-		$isContainerExpanded: Boolean
-	) {
-		setIsContainerExpanded(
-			id: $id,
-			isContainerExpanded: $isContainerExpanded
-		) @client
-	}
-`;
-
-const Composed = adopt({
-	// eslint-disable-next-line react/prop-types
-	setCurrentCard: ({ render }) => (
-		<Mutation mutation={ UPDATE_CURRENT_INGREDIENT_ID_MUTATION }>
-			{ render }
-		</Mutation>
-	),
-
-	// eslint-disable-next-line react/prop-types
-	setIsContainerExpanded: ({ render }) => (
-		<Mutation mutation={ UPDATE_IS_CONTAINER_EXPANDED_MUTATION }>{ render }</Mutation>
-	),
-});
+// import Card from './Card';
 
 const ContainerStyles = styled.div`
-	margin-bottom: 16px; 
+	margin-bottom: 16px;
 	display: flex;
 	flex-wrap: wrap;
-	border-bottom: 1px solid #ddd;
 	width: 100%;
+
+	&.expanded {
+		border-bottom: 1px solid #ddd;
+	}
 `;
 
 const HeaderStyles = styled.div`
@@ -152,9 +116,25 @@ const IngredientsList = styled.ul`
 	}
 `;
 
+const Composed = adopt({
+	// eslint-disable-next-line react/prop-types
+	setCurrentCard: ({ render }) => (
+		<Mutation mutation={ UPDATE_CONTAINER_INGREDIENT_ID_MUTATION }>
+			{render}
+		</Mutation>
+	),
+
+	// eslint-disable-next-line react/prop-types
+	setContainerIsExpanded: ({ render }) => (
+		<Mutation mutation={ UPDATE_IS_CONTAINER_EXPANDED_MUTATION }>
+			{render}
+		</Mutation>
+	),
+});
+
 class Container extends Component {
 	buildIngredientsList = (ingredients) => {
-		const { currentIngredientID, isCardEnabled, view } = this.props;
+		const { ingredientID, view } = this.props;
 
 		// add list item properties
 		const ingList = ingredients.map((i) => {
@@ -164,15 +144,14 @@ class Container extends Component {
 			listItem.type = 'link';
 
 			listItem.className = listItem.type;
-			listItem.className += (isCardEnabled && (currentIngredientID === i.id)) ? ' active ' : '';
-			listItem.className += (i.parent !== null) ? ' child' : '';
+			listItem.className += (ingredientID === i.id) ? ' active ' : '';
+			listItem.className += (i.hasParent !== null) ? ' child' : '';
 			listItem.className += (!i.isValidated && view !== 'new') ? ' invalid' : '';
 
 			listItem.href = { pathname: '/ingredients' };
-			// TODO re-test this
 			// only put the ingredient id in the URL if we don't have an open card
 			// or its another card that the one we're on
-			if (!isCardEnabled || (currentIngredientID !== i.id)) {
+			if (ingredientID !== i.id) {
 				listItem.href.query = { id: i.id };
 			}
 
@@ -219,24 +198,25 @@ class Container extends Component {
 		return ingListWithHeaders;
 	}
 
-	onHeaderClick = (e, setIsContainerExpanded, id, isContainerExpanded) => {
-		e.preventDefault();
-
+	onHeaderClick = (e, setContainerIsExpanded, id, isExpanded) => {
+		console.warn('[Container] onHeaderClick');
+		// eslint-disable-next-line object-curly-newline
+		console.log({ setContainerIsExpanded, id, isExpanded });
 		// update the local cache
-		setIsContainerExpanded({
+		setContainerIsExpanded({
 			variables: {
 				id,
-				isContainerExpanded: !isContainerExpanded,
+				isExpanded: !isExpanded,
 			},
 		});
 	}
 
-	onIngredientClick = (targetIngredientID, setCurrentCard) => {
-		const { currentIngredientID, group, id, isCardEnabled, view } = this.props;
+	onIngredientClick = (e, targetIngredientID, setCurrentCard) => {
+		const { ingredientID, group, id, view } = this.props;
 
 		// update the url without causing a bunch of re-renders
 		let href = `/ingredients?view=${ view }&group=${ group }`;
-		if (!isCardEnabled || (currentIngredientID !== targetIngredientID)) href += `&id=${ targetIngredientID }`;
+		if (!ingredientID || (ingredientID !== targetIngredientID)) href += `&id=${ targetIngredientID }`;
 		const as = href;
 		Router.push(href, as, { shallow: true });
 
@@ -244,64 +224,55 @@ class Container extends Component {
 		setCurrentCard({
 			variables: {
 				id,
-				currentIngredientID: targetIngredientID,
-				isCardEnabled: (!isCardEnabled || (currentIngredientID !== targetIngredientID)),
+				ingredientID: targetIngredientID,
 			},
 		});
 	}
 
+
 	render() {
-		const { className, currentIngredientID, id, ingredients, isCardEnabled, isContainerExpanded, label, view } = this.props;
+		console.warn('[Container] render');
+		const { className, id, ingredientID, ingredients, isExpanded, label } = this.props;
 		const ingList = this.buildIngredientsList(ingredients);
 
 		return (
 			<Composed>
 				{
-					({ setCurrentCard, setIsContainerExpanded }) => (
-						<ContainerStyles className={ className }>
-							{/* Header */}
-							<HeaderStyles onClick={ e => this.onHeaderClick(e, setIsContainerExpanded, id, isContainerExpanded) }>
+					({ setCurrentCard, setContainerIsExpanded }) => (
+						<ContainerStyles className={ (isExpanded) ? `expanded ${ className }` : className }>
+							<HeaderStyles onClick={ e => this.onHeaderClick(e, setContainerIsExpanded, id, isExpanded) }>
 								{ label }
 								<span className="count">{ ingredients.length }</span>
 							</HeaderStyles>
 
-							{/* Card */}
 							{
-								(isCardEnabled && (currentIngredientID !== null))
+								(isExpanded)
 									? (
-										<Card
-											className={ className }
-											id={ currentIngredientID }
-											key={ currentIngredientID }
-											view={ view }
-										/>
+										<IngredientsList className={ (ingredientID) ? `expanded ${ className }` : className }>
+											{
+												ingList.map(i => (
+													<li className={ i.className } key={ i.id }>
+														{
+															(i.type === 'header')
+																? <span className="header">{ i.name }</span>
+																: (
+																	<a
+																		onClick={ e => this.onIngredientClick(e, i.id, setCurrentCard) }
+																		onKeyPress={ e => this.onIngredientClick(e, i.id, setCurrentCard) }
+																		role="link"
+																		tabIndex="0"
+																	>
+																		{ i.name }
+																	</a>
+																)
+														}
+													</li>
+												))
+											}
+										</IngredientsList>
 									)
 									: null
 							}
-
-							{/* Ingredients */}
-							<IngredientsList className={ (isCardEnabled) ? `expanded ${ className }` : className }>
-								{
-									ingList.map(i => (
-										<li className={ i.className } key={ i.id }>
-											{
-												(i.type === 'header')
-													? <span className="header">{ i.name }</span>
-													: (
-														<a
-															onClick={ () => this.onIngredientClick(i.id, setCurrentCard) }
-															onKeyPress={ () => this.onIngredientClick(i.id, setCurrentCard) }
-															role="link"
-															tabIndex="0"
-														>
-															{ i.name }
-														</a>
-													)
-											}
-										</li>
-									))
-								}
-							</IngredientsList>
 						</ContainerStyles>
 					)
 				}
@@ -312,10 +283,9 @@ class Container extends Component {
 
 Container.defaultProps = {
 	className: '',
-	currentIngredientID: null,
+	ingredientID: null,
 	ingredients: [],
-	isCardEnabled: false,
-	isContainerExpanded: true,
+	isExpanded: true,
 	label: 'All Ingredients',
 };
 
@@ -331,18 +301,13 @@ const arrayOfLength = (expectedLength, props, propName, component) => {
 
 Container.propTypes = {
 	className: PropTypes.string,
-	currentIngredientID: PropTypes.string,
+	ingredientID: PropTypes.string,
 	group: PropTypes.oneOf([ 'name', 'property', 'relationship', 'count' ]).isRequired,
 	id: PropTypes.string.isRequired,
 	ingredients: arrayOfLength.bind(null, 1),
-	isCardEnabled: PropTypes.bool,
-	isContainerExpanded: PropTypes.bool,
+	isExpanded: PropTypes.bool,
 	label: PropTypes.string,
 	view: PropTypes.oneOf([ 'all', 'new' ]).isRequired,
 };
 
-export default Container;
-export {
-	UPDATE_CURRENT_INGREDIENT_ID_MUTATION,
-	UPDATE_IS_CONTAINER_EXPANDED_MUTATION,
-};
+export default withApollo(Container);

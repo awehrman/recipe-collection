@@ -1,14 +1,15 @@
 import ApolloClient, { InMemoryCache } from 'apollo-boost';
 import gql from 'graphql-tag';
 import withApollo from 'next-with-apollo';
-import { GET_ALL_INGREDIENTS_QUERY } from '../pages/ingredients';
+import { GET_ALL_INGREDIENTS_QUERY, GET_VIEW_INGREDIENTS_QUERY } from './apollo/queries';
+import { CREATE_CONTAINERS_MUTATION, UPDATE_CONTAINER_INGREDIENT_ID_MUTATION, UPDATE_IS_CONTAINER_EXPANDED_MUTATION } from './apollo/mutations';
 import { endpoint } from '../config';
 /* eslint-disable object-curly-newline */
 import {
-	generateContainerByCount,
-	generateContainerByName,
-	generateContainerByProperty,
-	generateContainerByRelationship,
+	generateByCount,
+	generateByName,
+	generateByProperty,
+	generateByRelationship,
 } from './generateContainers';
 /* eslint-enable object-curly-newline */
 
@@ -41,8 +42,8 @@ const typeDefs = gql`
 		gluten: Boolean!
 	}
 
-	type CreateContainersResponse {
-    containers: [Container]
+	type ContainersResponse {
+    containers: [ Container ]
   }
 
 	type Query {
@@ -53,80 +54,23 @@ const typeDefs = gql`
 	type Mutation {
    	createContainers(
 	  	group: String!
-			ingredientID: String!
 			ingredients: [ ContainerIngredient ]!
 			view: String!
-    ) : CreateContainersResponse
+    ) : ContainersResponse
 	}
-`;
 
-const GET_CONTAINERS_QUERY = gql`
-	query GET_CONTAINERS_QUERY($group: String, $view: String) {
-		containers(group: $group, view: $view) @client {
-			count
-			id
-			ingredientID
-			ingredients {
-				id
-				isValidated
-				name
-				properties {
-					meat
-					poultry
-					fish
-					dairy
-					soy
-					gluten
-				}
-			}
-			isExpanded
-			label
-		}
+	type Mutation {
+   	setCurrentCard(
+	  	id: String!
+			ingredientID: String
+    ) : null
 	}
-`;
 
-const CREATE_CONTAINERS_MUTATION = gql`
-	mutation createContainers(
-		$group: String!
-		$ingredientID: String!
-		$ingredients: [ ContainerIngredient ]!
-		$view: String!
-	) {
-		createContainers(
-			group: $group
-			ingredientID: $ingredientID,
-			ingredients: $ingredients
-			view: $view
-		) @client {
-			containers {
-				count
-				id
-				ingredientID
-				ingredients
-				isExpanded
-				label
-			}
-		}
-	}
-`;
-
-const GET_VIEW_INGREDIENTS_QUERY = gql`
-	query GET_VIEW_INGREDIENTS_QUERY($view: String) {
-		viewIngredients(view: $view) @client {
-			hasParent @client
-			id
-			isValidated
-			name
-			properties {
-				meat
-				poultry
-				fish
-				dairy
-				soy
-				gluten
-			}
-			referenceCount @client
-		}
+	type Mutation {
+   	setContainerIsExpanded(
+	  	id: String!
+			isExpanded: Boolean!
+    ) : null
 	}
 `;
 
@@ -170,8 +114,6 @@ function createClient({ headers }) {
 
 						({ containers } = data.createContainers);
 
-						console.log({ containers });
-
 						return containers;
 					},
 					viewIngredients(_, { view }) {
@@ -193,7 +135,7 @@ function createClient({ headers }) {
 							hasParent: Boolean(i.parent),
 							id: i.id,
 							isValidated: i.isValidated,
-							name: i.isValidated,
+							name: i.name,
 							properties: { ...i.properties },
 							referenceCount: 0,
 						}));
@@ -203,32 +145,78 @@ function createClient({ headers }) {
 				},
 				Mutation: {
 					// eslint-disable-next-line object-curly-newline
-					createContainers(_, { ingredientID, group, ingredients, view }) {
+					createContainers(_, { group, ingredients, view }) {
 						// eslint-disable-next-line max-len
-						console.warn(`,,, [withData](${ ingredientID }, ${ group }, ingredients: ${ ingredients.length }, ${ view } }) createContainers mutation resolver`);
+						console.warn(`,,, [withData](${ group }, ingredients: ${ ingredients.length }, ${ view }) createContainers mutation resolver`);
 						let containers = [];
+						// eslint-disable-next-line max-len
+						// TODO in regards to the ingredientID, sure, i can pass this as a variable to containers, but then i'm going to have SO MANY MORE containers in the cache and that feels silly and wrong. i think i need to figure out how to pass in the query params off the router maybe as an HOC? or maybe this just happens as a secondary mutation to set the ingredientID fragment thru a separate toggleContainerIngredientID mutation
 
 						switch (group) {
 						case 'count':
-							containers = generateContainerByCount(ingredientID, ingredients);
+							containers = generateByCount(null, ingredients);
 							break;
 						case 'property':
-							containers = generateContainerByProperty(ingredientID, ingredients);
+							containers = generateByProperty(null, ingredients);
 							break;
 						case 'relationship':
-							containers = generateContainerByRelationship(ingredientID, ingredients);
+							containers = generateByRelationship(null, ingredients);
 							break;
 						default:
-							containers = generateContainerByName(ingredientID, ingredients, view);
+							containers = generateByName(null, ingredients, view);
 							break;
 						}
 
-						console.warn({ containers });
-
 						return {
-							__typename: 'CreateContainersResponse',
+							__typename: 'ContainersResponse',
 							containers,
 						};
+					},
+					// eslint-disable-next-line object-curly-newline
+					setCurrentCard(_, { id, ingredientID }, { getCacheKey }) {
+						// eslint-disable-next-line max-len
+						console.warn(`,,, [withData](${ id }, ${ ingredientID }) setCurrentCard mutation resolver`);
+
+						cache.writeFragment({
+							id: getCacheKey({
+								__typename: 'Container',
+								id,
+							}),
+							fragment: gql`
+								fragment setCurrentCard on Container {
+									ingredientID
+								}
+							`,
+							data: {
+								__typename: 'Container',
+								ingredientID,
+							},
+						});
+
+						return null;
+					},
+					// eslint-disable-next-line object-curly-newline
+					setContainerIsExpanded(_, { id, isExpanded }, { getCacheKey }) {
+						// eslint-disable-next-line max-len
+						console.warn(`,,, [withData](${ id }, ${ isExpanded }) setContainerIsExpanded mutation resolver`);
+
+						cache.writeFragment({
+							id: getCacheKey({
+								__typename: 'Container',
+								id,
+							}),
+							fragment: gql`
+								fragment setIsExpanded on Container {
+									isExpanded
+								}
+							`,
+							data: {
+								__typename: 'Container',
+								isExpanded,
+							},
+						});
+
+						return null;
 					},
 				},
 			},
