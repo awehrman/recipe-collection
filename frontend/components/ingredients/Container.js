@@ -157,11 +157,6 @@ class Container extends React.PureComponent {
 			listItem.className += (i.hasParent !== null) ? ' child' : '';
 			listItem.className += (!i.isValidated && view !== 'new') ? ' invalid' : '';
 
-			if (i.name === 'butter') {
-				// eslint-disable-next-line object-curly-newline
-				console.log({ className: listItem.className, ingredientID });
-			}
-
 			listItem.href = { pathname: '/ingredients' };
 			// only put the ingredient id in the URL if we don't have an open card
 			// or its another card that the one we're on
@@ -214,7 +209,7 @@ class Container extends React.PureComponent {
 
 	onHeaderClick = (e, setContainerIsExpanded, id, isExpanded) => {
 		e.preventDefault();
-		console.warn('[Container] onHeaderClick');
+		console.log('[Container] onHeaderClick');
 		// update the local cache
 		setContainerIsExpanded({
 			variables: {

@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -40,7 +39,6 @@ const AddNewStyles = styled.div`
 	}
 
 	&.slide_expanded {
-		height: 100%;
 		transition: all .3s ease;
 	}
 
@@ -66,6 +64,12 @@ const AddNewStyles = styled.div`
 `;
 
 class AddNew extends React.PureComponent {
+	constructor(props) {
+		super(props);
+
+		this.state = { isExpanded: true };
+	}
+
 	onAddIngredient = (e) => {
 		console.warn('[AddNew] onAddIngredient');
 		e.preventDefault();
@@ -73,17 +77,24 @@ class AddNew extends React.PureComponent {
 		// TODO add mutation
 	}
 
+	onToggleAddNew = (e) => {
+		e.preventDefault();
+		const { isExpanded } = this.state;
+
+		this.setState({ isExpanded: !isExpanded });
+	}
+
 	render() {
-		// console.warn('[AddNew] render');
-		const { className, isExpanded, onClick } = this.props;
+		console.warn('[AddNew] render');
+		const { isExpanded } = this.state;
 
 		return (
-			<AddNewStyles className={ className }>
+			<AddNewStyles className={ `slide${ isExpanded ? '_expanded' : '' }` }>
 				<Button
 					className="add-new-btn"
 					isEditMode
 					label="Add New Ingredient"
-					onClick={ onClick }
+					onClick={ e => this.onToggleAddNew(e) }
 				/>
 				{
 					(isExpanded)
@@ -101,17 +112,5 @@ class AddNew extends React.PureComponent {
 		);
 	}
 }
-
-AddNew.defaultProps = {
-	className: '',
-	isExpanded: false,
-	onClick: e => e.preventDefault(),
-};
-
-AddNew.propTypes = {
-	className: PropTypes.string,
-	isExpanded: PropTypes.bool,
-	onClick: PropTypes.func,
-};
 
 export default AddNew;

@@ -33,23 +33,9 @@ const IngredientsPageStyles = styled.article`
 `;
 
 class Ingredients extends React.PureComponent {
-	constructor(props) {
-		super(props);
-
-		this.state = { isAddNewExpanded: false };
-	}
-
-	onToggleAddNew = (e) => {
-		e.preventDefault();
-		const { isAddNewExpanded } = this.state;
-
-		this.setState({ isAddNewExpanded: !isAddNewExpanded });
-	}
-
 	render() {
 		console.warn('[ingredients] render');
 		const { query } = this.props;
-		const { isAddNewExpanded } = this.state;
 		const { group = 'name', id = null, view = 'all' } = query;
 
 		return (
@@ -87,10 +73,7 @@ class Ingredients extends React.PureComponent {
 											)
 									}
 
-									<AddNew
-										className={ `slide${ isAddNewExpanded ? '_expanded' : '' }` }
-										onClick={ this.onToggleAddNew }
-									/>
+									<AddNew />
 								</section>
 							</IngredientsPageStyles>
 						);

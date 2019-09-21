@@ -29,13 +29,18 @@ const Checkbox = styled.div`
 			opacity: 0; /* we want to hide the original input, but maintain focus state */
 
 			&:checked + span::after {
-		    display: block;
 		    position: absolute;
 		    top: 0;
-		    font-family: "Font Awesome 5 Pro";
-		    content: "\f00c";
-		    font-weight: 900;
-		    color: ${ props => props.theme.altGreen };
+				color: ${ props => props.theme.altGreen };
+				display: block;
+				font-style: normal;
+				font-variant: normal;
+				text-rendering: auto;
+				-webkit-font-smoothing: antialiased;
+
+				font-family: "Font Awesome 5 Pro";
+				font-weight: 900;
+				content: "\f00c";
 		  }
 		}
 	}

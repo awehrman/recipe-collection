@@ -38,7 +38,7 @@ export const UPDATE_CONTAINER_INGREDIENT_ID_MUTATION = gql`
 `;
 
 export const UPDATE_IS_CONTAINER_EXPANDED_MUTATION = gql`
-	mutation setIsContainerExpanded(
+	mutation setContainerIsExpanded(
 		$id: ID!,
 		$isExpanded: Boolean
 	) {

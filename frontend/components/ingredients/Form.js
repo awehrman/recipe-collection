@@ -1,73 +1,23 @@
-import { adopt } from 'react-adopt';
+import { withApollo } from 'react-apollo';
 // import levenshtein from 'fast-levenshtein';
-import gql from 'graphql-tag';
 import { Component } from 'react';
-import { Query, Mutation } from 'react-apollo';
 import pluralize from 'pluralize';
 import { darken } from 'polished';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import uuid from 'uuid';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/pro-regular-svg-icons';
 // import { faCodeMerge } from '@fortawesome/pro-light-svg-icons';
 // import { faExclamation } from '@fortawesome/pro-solid-svg-icons';
 
-// eslint-disable-next-line no-unused-vars
 import { deepCopy, hasProperty } from '../../lib/util';
 import Button from '../form/Button';
 import CheckboxGroup from '../form/CheckboxGroup';
-import ErrorMessage from '../ErrorMessage';
 import Input from '../form/Input';
 import List from '../form/List';
-
-const ADD_WARNING_MUTATION = gql`
-	mutation addWarning(
-		$fieldName: String!
-	  $preventSave: Boolean!
-	  $message: String!
-	  $value: String!
-	) {
-		addWarning(
-			fieldName: $fieldName,
-			preventSave: $preventSave
-			message: $message
-			value: $value
-		) @client
-	}
-`;
-
-const RESET_WARNINGS_MUTATION = gql`
-	mutation addWarning($reset: Boolean!) {
-		resetWarnings(reset: $reset) @client
-	}
-`;
-
-const GET_ALL_WARNINGS_QUERY = gql`
-	query GET_ALL_WARNINGS_QUERY {
-		warnings @client {
-			fieldName
-			preventSave
-			message
-			value
-		}
-	}
-`;
-
-const Composed = adopt({
-	// eslint-disable-next-line react/prop-types
-	getWarnings: ({ render }) => (
-		<Query query={ GET_ALL_WARNINGS_QUERY }>{ render }</Query>
-	),
-	// eslint-disable-next-line react/prop-types
-	addWarning: ({ render }) => (
-		<Mutation mutation={ ADD_WARNING_MUTATION }>{ render }</Mutation>
-	),
-	// eslint-disable-next-line react/prop-types
-	resetWarnings: ({ render }) => (
-		<Mutation mutation={ RESET_WARNINGS_MUTATION }>{ render }</Mutation>
-	),
-});
+import { GET_INGREDIENT_BY_VALUE_QUERY } from '../../lib/apollo/queries';
 
 const FormStyles = styled.form`
 	flex-basis: 100%;
@@ -97,11 +47,12 @@ const FormStyles = styled.form`
 		}
 	}
 
-	// add new ingredient form styles
+	/* add new ingredient form styles */
 	&.add {
 		.save {
-			position: absolute;
+			position: relative;
 			bottom: 20px;
+			margin-top: 20px;
 		}
 	}
 `;
@@ -172,11 +123,14 @@ const MiddleFormStyles = styled.div`
 const BottomFormStyles = styled.div`
 	margin-top: auto; /* stick to the bottom of the card */
 
-	.warning {
-		color: tomato;
-		margin-bottom: 10px;
-		font-weight: 600;
-		font-size: 13px;
+	.warnings {
+		flex-basis: 100%;
+		text-align: right;
+		font-size: .875em;
+		color: ${ props => props.theme.red };
+		list-style-type: none;
+		margin: 0;
+		padding: 0;
 	}
 
 	.right {
@@ -252,38 +206,58 @@ const BottomFormStyles = styled.div`
 			text-align: right;
 			flex-grow: 2;
 		}
+
+		.save {
+			margin-left: 20px;
+		}
 	}
 `;
-
 class Form extends Component {
-	initialState = { pending: {} };
+	initialState = {
+		pending: {},
+		warnings: [],
+	};
 
 	state = this.initialState;
 
-	// TODO finish merging the rest of the fields
-	// TODO this could be simplified further
 	getPendingIngredient = () => {
-		console.warn('getPendingIngredient');
-		// combine pending and props
 		const { pending } = this.state;
-		const { alternateNames, id, name, plural, relatedIngredients, substitutes } = this.props;
-		const ing = {};
-		console.log({ pending, ing });
+		const {
+			alternateNames,
+			id,
+			isComposedIngredient,
+			name,
+			plural,
+			properties,
+			relatedIngredients,
+			substitutes,
+		} = this.props;
 
-		ing.id = id;
-		ing.name = pending.name || name;
-		ing.plural = pending.plural || plural;
-		ing.alternateNames = deepCopy(alternateNames);
-		ing.relatedIngredients = deepCopy(relatedIngredients);
-		ing.substitutes = deepCopy(substitutes);
-		// TODO properties
-		// TODO isComposedIngredient
+		const ing = {
+			id,
+			name: pending.name || name,
+			plural: pending.plural || plural,
+			alternateNames: deepCopy(alternateNames),
+			relatedIngredients: deepCopy(relatedIngredients),
+			substitutes: deepCopy(substitutes),
+			properties: {
+				__typename: 'Properties',
+				dairy: hasProperty(pending, properties) ? pending.properties.dairy : properties.dairy,
+				fish: hasProperty(pending, properties) ? pending.properties.fish : properties.fish,
+				gluten: hasProperty(pending, properties) ? pending.properties.gluten : properties.gluten,
+				meat: hasProperty(pending, properties) ? pending.properties.meat : properties.meat,
+				poultry: hasProperty(pending, properties) ? pending.properties.poultry : properties.poultry,
+				soy: hasProperty(pending, properties) ? pending.properties.soy : properties.soy,
+			},
+			isComposedIngredient: (hasProperty(pending, isComposedIngredient))
+				? pending.isComposedIngredient : isComposedIngredient,
+		};
 
 		// add in any new alternate names
 		if (hasProperty(pending, 'alternateNamesCreate')) {
 			pending.alternateNamesCreate.forEach((c) => {
 				if (!~ing.alternateNames.indexOf(c)) {
-					ing.alternateNames.push(c);
+					ing.alternateNames.push({ name: c });
 				}
 			});
 		}
@@ -300,7 +274,7 @@ class Form extends Component {
 		if (hasProperty(pending, 'relatedIngredientsConnect')) {
 			pending.relatedIngredientsConnect.forEach((c) => {
 				if (!~ing.relatedIngredients.indexOf(c)) {
-					ing.relatedIngredients.push(c);
+					ing.relatedIngredients.push({ ...c });
 				}
 			});
 		}
@@ -317,7 +291,7 @@ class Form extends Component {
 		if (hasProperty(pending, 'substitutesConnect')) {
 			pending.substitutesConnect.forEach((c) => {
 				if (!~ing.substitutes.indexOf(c)) {
-					ing.substitutes.push(c);
+					ing.substitutes.push({ ...c });
 				}
 			});
 		}
@@ -329,11 +303,6 @@ class Form extends Component {
 				if (index !== -1) { ing.substitutes.splice(index, 1); }
 			});
 		}
-
-
-		// TODO merge property updates
-		// TODO take any isComposedIngredient updates
-
 
 		return ing;
 	}
@@ -351,7 +320,8 @@ class Form extends Component {
 	}
 
 	onCheckboxChange = (e, fieldName, defaultValue) => {
-		const { pending } = this.state;
+		// eslint-disable-next-line react/destructuring-assignment
+		const pending = deepCopy(this.state.pending);
 		let properties = deepCopy(defaultValue);
 		let isComposedIngredient = (hasProperty(defaultValue, 'isComposedIngredient')) ? defaultValue.isComposedIngredient : false;
 		let isValidated = (hasProperty(defaultValue, 'isValidated')) ? defaultValue.isValidated : false;
@@ -409,24 +379,22 @@ class Form extends Component {
 		}
 	}
 
-	onInputChange = (e, addWarning, resetWarnings) => {
+	onInputChange = (e) => {
 		const { name, value } = e.target;
-		const { pending } = this.state; // TODO verify that i'm not mangling state
-
-		this.validate(value, name, addWarning, resetWarnings);
+		const { pending } = this.state;
 
 		this.setState({
 			pending: {
-				...pending,
+				...deepCopy(pending),
 				...{ [name]: value },
 			},
-		});
+		}, () => this.validate(name, value));
 	}
 
-	onListChange = (listItem, fieldName, removeListItem = false, addWarning, resetWarnings) => {
+	onListChange = (listItem, fieldName, removeListItem = false) => {
 		let mutationMethod; // 'connect', 'disconnect', delete', 'create'
-		const { pending } = this.state; // TODO verify that i'm not mangling state
-		this.validate(listItem.name, fieldName, addWarning, resetWarnings);
+		const { pending } = this.state;
+		let isRemoved = false;
 
 		if (!removeListItem) {
 			mutationMethod = (fieldName === 'alternateNames')
@@ -436,6 +404,7 @@ class Form extends Component {
 			mutationMethod = (fieldName === 'alternateNames')
 				? `${ fieldName }Delete`
 				: `${ fieldName }Disconnect`;
+			isRemoved = true;
 		}
 
 		let pendingMutationMethod;
@@ -448,10 +417,10 @@ class Form extends Component {
 
 		this.setState({
 			pending: {
-				...pending,
+				...deepCopy(pending),
 				...{ [mutationMethod]: pendingMutationMethod },
 			},
-		});
+		}, () => this.validate(fieldName, listItem, isRemoved));
 	}
 
 	onSaveIngredient = (e) => {
@@ -463,7 +432,7 @@ class Form extends Component {
 		onSaveIngredient(e, pending);
 	}
 
-	onSuggestPlural = (e, pluralBasis, addWarning, resetWarnings) => {
+	onSuggestPlural = async (e, pluralBasis) => {
 		e.preventDefault();
 		const { pending } = this.state;
 
@@ -476,92 +445,131 @@ class Form extends Component {
 		}
 
 		if (plural) {
-			this.validate(plural, 'plural', addWarning, resetWarnings);
-
 			this.setState({
 				pending: {
-					...pending,
+					...deepCopy(pending),
 					...{ plural },
 				},
+			}, () => {
+				if (plural) {
+					this.validate('plural', plural);
+				}
 			});
 		}
 	}
 
-	// TODO consider moving the warnings into the local Apollo cache
-	// and letting our state contain just the updates that need to happen
-	validate = async (value, fieldName, addWarning, resetWarnings) => {
-		console.warn('[Form] validate');
-		await resetWarnings();
-		// combine our latest pending updates with the ingredient info from the server
+	validate = async (fieldName, value, isRemoved = false) => {
+		console.warn(`validate ${ fieldName }, ${ value }, ${ isRemoved }`);
+		let warnings = [];
 		const ing = this.getPendingIngredient();
-		// eslint-disable-next-line
-		console.log({ value, fieldName });
 
-		// skip this whole thing if we don't have a value
-		if (!value) return false;
+		warnings = warnings.concat(await this.validateField(fieldName, value, isRemoved));
 
-		// determine which other fields we need to look in to see if this value already exists
+		if ((fieldName !== 'name') && ing.name) {
+			warnings = warnings.concat(await this.validateField('name', ing.name, isRemoved));
+		}
+
+		if ((fieldName !== 'plural') && ing.plural) {
+			warnings = warnings.concat(await this.validateField('plural', ing.plural, isRemoved));
+		}
+
+		if ((fieldName !== 'alternateNames') && (ing.alternateNames.length > 0)) {
+			const promises = ing.alternateNames.map(async w => this.validateField('alternateNames', w.name, isRemoved));
+			const resolvedPromises = await Promise.all(promises);
+			warnings = warnings.concat(resolvedPromises);
+		}
+
+		// filter duplicate messages
+		warnings = warnings.reduce((acc, current) => {
+			const x = acc.find(w => w.message === current.message);
+			if (!x || current.isPreventSave) {
+				return acc.concat([ current ]);
+			}
+			return acc;
+		}, []);
+
+		this.setState({ warnings: warnings.flat() });
+	}
+
+	validateField = async (fieldName, value, isRemoved = false) => {
+		console.warn(`validateField ${ fieldName }, ${ value }, ${ isRemoved }`);
+		const { client } = this.props;
+		const warnings = [];
+
+		// if we found this value used on another ingredient, add a warning, but allow save
+		// saving will trigger a merge on these two ingredients
+		const { data } = await client.query({
+			query: GET_INGREDIENT_BY_VALUE_QUERY,
+			variables: { value },
+		});
+		const { ingredient } = data;
+
+		// if we found this value used on another ingredient, add a warning, but allow save
+		// saving will trigger a merge on these two ingredients
+		if (ingredient && (!~warnings.findIndex(w => w.value === value))) {
+			warnings.push({
+				id: uuid.v4(),
+				fieldName,
+				preventSave: false,
+				message: `"${ value }" is already in use on the "${ ingredient.name }" ingredient. D`,
+				value,
+			});
+		}
+
+		// TODO determine which other fields we need to look in to see if this value already exists
 		// exclude the current field that we're updating
-		// so if you're changing 'name' field of 'buttr' to 'butter'. we need to check plural and altnames
+		// so if you're changing 'name' field of 'buttr' to 'butter'. we need to check plural and alt names
 		// for instances of 'butter'
+		const ing = this.getPendingIngredient();
 		const validationFields = [ 'name', 'plural', 'alternateNames' ].filter(f => f !== fieldName);
 
 		// first, check the local fields on this ingredient to see if this new value is used
 		// ex: plural and alternateNames for our 'butter' example
 		// if we find any matches locally, add them to the warnings array
 		// we'll flag any local errors as ones that prevent the ingredient from saving until resolved
+
 		validationFields.forEach(async (f) => {
 			// if we find any matches on the name or plural fields, add a warning
-			if (ing[f] && (typeof ing[f] === 'string') && (ing[f].toLowerCase() === value.toLowerCase())) {
-				await addWarning({
-					variables: {
-						__typename: 'Warning',
-						fieldName: f,
-						preventSave: true,
-						message: `"${ value }" is already in use on the "${ f }" field.`,
-						value,
-					},
+			if (value && ing[f] && (typeof ing[f] === 'string') && (ing[f].toLowerCase() === value.toLowerCase())) {
+				warnings.push({
+					id: uuid.v4(),
+					fieldName: f,
+					preventSave: true,
+					message: `"${ value }" is already in use on the "${ f }" field. C`,
+					value,
 				});
 
-				await addWarning({
-					variables: {
-						__typename: 'Warning',
-						fieldName,
-						preventSave: true,
-						message: `"${ value }" is already in use on the "${ f }" field.`,
-						value,
-					},
+				warnings.push({
+					id: uuid.v4(),
+					fieldName,
+					preventSave: true,
+					message: `"${ value }" is already in use on the "${ fieldName }" field. B `,
+					value,
 				});
 			}
 
 			// if we find any matches within the alternateNames, add a warning
 			if (ing[f] && (typeof ing[f] === 'object') && (!ing[f].findIndex(n => n.name.toLowerCase() === value.toLowerCase()))) {
-				await addWarning({
-					variables: {
-						__typename: 'Warning',
-						fieldName,
-						preventSave: true,
-						message: `"${ value }" is already listed in the "${ f }" field.`,
-						value,
-					},
+				warnings.push({
+					id: uuid.v4(),
+					fieldName,
+					preventSave: true,
+					message: `"${ value }" is already listed in the "${ f }" field. A`,
+					value,
 				});
 			}
 		});
 
-		// TODO next, check if this value is used on another ingredient
-		// if we find any matches, we'll show a warning that this update will trigger an merge between these two ingredients
-
-		return true;
+		return warnings;
 	}
 
 	render() {
 		console.warn('[Form] render');
-
 		const {
 			alternateNames, className, id, isComposedIngredient, isEditMode, loading, name, onCancelClick,
 			onEditClick, plural, properties, relatedIngredients, saveLabel, showCancelButton, substitutes,
 		} = this.props;
-		const { pending } = this.state;
+		const { pending, warnings } = this.state;
 
 		// cleanup properties data
 		const checkboxes = (isEditMode && hasProperty(pending, 'properties')) ? pending.properties : properties;
@@ -574,179 +582,174 @@ class Form extends Component {
 		const pendingIngredient = this.getPendingIngredient();
 
 		return (
-			<Composed>
-				{
-					({ getWarnings, addWarning, resetWarnings }) => {
-						const { data, error } = getWarnings || {};
-						const { warnings } = data || [];
+			<FormStyles className={ className }>
+				<TopFormStyles>
+					<Left>
+						{/* Name */}
+						<Input
+							className="name"
+							defaultValue={ name }
+							fieldName="name"
+							isEditMode={ isEditMode }
+							isRequiredField
+							loading={ loading }
+							onChange={ this.onInputChange }
+							placeholder="name"
+							suppressLocalWarnings
+							value={ pending.name }
+							warnings={ this.getWarning('name', warnings) || undefined }
+						/>
 
-						if (error) return <ErrorMessage error={ error } />;
+						{/* Plural */}
+						<Input
+							className={ (isEditMode) ? 'plural' : 'plural hidden' }
+							defaultValue={ plural }
+							fieldName="plural"
+							isEditMode={ isEditMode }
+							isPluralSuggestEnabled
+							loading={ loading }
+							onChange={ this.onInputChange }
+							onSuggestPlural={ e => this.onSuggestPlural(e, name) }
+							placeholder="plural"
+							pluralBasis={ name }
+							suppressLocalWarnings
+							value={ pending.plural }
+							warnings={ this.getWarning('plural', warnings) || undefined }
+						/>
+					</Left>
 
-						return (
-							<FormStyles className={ className }>
-								<TopFormStyles>
-									<Left>
-										{/* Name */}
-										<Input
-											addWarning={ addWarning }
-											className="name"
-											defaultValue={ name }
-											fieldName="name"
-											isEditMode={ isEditMode }
-											isRequiredField
-											loading={ loading }
-											onChange={ this.onInputChange }
-											placeholder="name"
-											resetWarnings={ resetWarnings }
-											suppressLocalWarnings
-											value={ pending.name }
-											warnings={ this.getWarning('name', warnings) || undefined }
-										/>
+					<Right>
+						{/* Properties */}
+						<CheckboxGroup
+							className="properties"
+							fieldName="properties"
+							isEditMode={ isEditMode }
+							loading={ loading }
+							key={ `card_properties_${ id }` }
+							keys={ [ ...Object.keys(checkboxes) ] }
+							onChange={ e => this.onCheckboxChange(e, 'properties', properties) }
+							onKeyDown={ e => this.onCheckboxKeyDown(e, 'properties', properties) }
+							values={ [ ...Object.values(checkboxes) ] }
+						/>
 
-										{/* Plural */}
-										<Input
-											addWarning={ addWarning }
-											className={ (isEditMode) ? 'plural' : 'plural hidden' }
-											defaultValue={ plural }
-											fieldName="plural"
-											isEditMode={ isEditMode }
-											isPluralSuggestEnabled
-											loading={ loading }
-											onChange={ this.onInputChange }
-											onSuggestPlural={ e => this.onSuggestPlural(e, name) }
-											placeholder="plural"
-											pluralBasis={ name }
-											resetWarnings={ resetWarnings }
-											suppressLocalWarnings
-											value={ pending.plural }
-											warnings={ this.getWarning('plural', warnings) || undefined }
-										/>
-									</Left>
+						{/* Is Composed Ingredient */}
+						<CheckboxGroup
+							className="isComposedIngredient"
+							fieldName="isComposedIngredient"
+							isEditMode={ isEditMode }
+							loading={ loading }
+							key={ `card_isComposed_${ id }` }
+							keys={ [ 'Is Composed Ingredient?' ] }
+							onChange={ e => this.onCheckboxChange(e, 'isComposedIngredient', isComposedIngredient) }
+							onKeyDown={ e => this.onCheckboxKeyDown(e, 'isComposedIngredient', isComposedIngredient) }
+							values={ [ (isEditMode && hasProperty(pending, 'isComposedIngredient'))
+								? pending.isComposedIngredient : isComposedIngredient ] }
+						/>
+					</Right>
+				</TopFormStyles>
 
-									<Right>
-										{/* Properties */}
-										<CheckboxGroup
-											className="properties"
-											fieldName="properties"
-											isEditMode={ isEditMode }
-											loading={ loading }
-											key={ `card_properties_${ id }` }
-											keys={ [ ...Object.keys(checkboxes) ] }
-											onChange={ e => this.onCheckboxChange(e, 'properties', properties) }
-											onKeyDown={ e => this.onCheckboxKeyDown(e, 'properties', properties) }
-											values={ [ ...Object.values(checkboxes) ] }
-										/>
+				<MiddleFormStyles>
+					<Left>
+						{/* Alternate Names */}
+						<List
+							className="alternateNames"
+							defaultValues={ alternateNames }
+							fieldName="alternateNames"
+							isEditMode={ isEditMode }
+							isPluralSuggestEnabled
+							isRemovable
+							label="Alternate Names"
+							loading={ loading }
+							onListChange={ this.onListChange }
+							onSuggestPlural={ this.onSuggestPlural }
+							placeholder="alternate name"
+							suppressLocalWarnings
+							warnings={ this.getWarning('alternateNames', warnings) || undefined }
+							validate={ this.validate }
+							values={ pendingIngredient.alternateNames }
+						/>
 
-										{/* Is Composed Ingredient */}
-										<CheckboxGroup
-											className="isComposedIngredient"
-											fieldName="isComposedIngredient"
-											isEditMode={ isEditMode }
-											loading={ loading }
-											key={ `card_isComposed_${ id }` }
-											keys={ [ 'Is Composed Ingredient?' ] }
-											onChange={ e => this.onCheckboxChange(e, 'isComposedIngredient', isComposedIngredient) }
-											onKeyDown={ e => this.onCheckboxKeyDown(e, 'isComposedIngredient', isComposedIngredient) }
-											values={ [ (isEditMode && hasProperty(pending, 'isComposedIngredient'))
-												? pending.isComposedIngredient : isComposedIngredient ] }
-										/>
-									</Right>
-								</TopFormStyles>
+						{/* Related Ingredients */}
+						<List
+							className="relatedIngredients"
+							defaultValues={ relatedIngredients }
+							fieldName="relatedIngredients"
+							isEditMode={ isEditMode }
+							isRemovable
+							label="Related Ingredients"
+							loading={ loading }
+							onListChange={ this.onListChange }
+							placeholder="related ingredient"
+							suppressLocalWarnings
+							validate={ this.validate }
+							values={ pendingIngredient.relatedIngredients }
+						/>
 
-								<MiddleFormStyles>
-									<Left>
-										{/* Alternate Names */}
-										<List
-											addWarning={ addWarning }
-											className="alternateNames"
-											defaultValues={ alternateNames }
-											fieldName="alternateNames"
-											isEditMode={ isEditMode }
-											isPluralSuggestEnabled
-											isRemoveable
-											label="Alternate Names"
-											loading={ loading }
-											onListChange={ this.onListChange }
-											onSuggestPlural={ this.onSuggestPlural }
-											placeholder="alternate name"
-											resetWarnings={ resetWarnings }
-											suppressLocalWarnings
-											warnings={ this.getWarning('alternateNames', warnings) || undefined }
-											values={ pendingIngredient.alternateNames }
-											validate={ this.validate }
-										/>
+						{/* Substitutes */}
+						<List
+							className="substitutes"
+							defaultValues={ substitutes }
+							fieldName="substitutes"
+							isEditMode={ isEditMode }
+							isRemovable
+							label="Substitutes"
+							loading={ loading }
+							onListChange={ this.onListChange }
+							placeholder="substitutes"
+							suppressLocalWarnings
+							validate={ this.validate }
+							values={ pendingIngredient.substitutes }
+						/>
+					</Left>
 
-										{/* Related Ingredients */}
-										<List
-											className="relatedIngredients"
-											defaultValues={ relatedIngredients }
-											fieldName="relatedIngredients"
-											isEditMode={ isEditMode }
-											isRemoveable
-											label="Related Ingredients"
-											loading={ loading }
-											onListChange={ this.onListChange }
-											placeholder="related ingredient"
-											suppressLocalWarnings
-											values={ pendingIngredient.relatedIngredients }
-											validate={ this.validate }
-										/>
+					<Right />
+				</MiddleFormStyles>
 
-										{/* Substitutes */}
-										<List
-											className="substitutes"
-											defaultValues={ substitutes }
-											fieldName="substitutes"
-											isEditMode={ isEditMode }
-											isRemoveable
-											label="Substitutes"
-											loading={ loading }
-											onListChange={ this.onListChange }
-											placeholder="substitutes"
-											suppressLocalWarnings
-											values={ pendingIngredient.substitutes }
-											validate={ this.validate }
-										/>
-									</Left>
-
-									<Right />
-								</MiddleFormStyles>
-
-								<BottomFormStyles>
-									{/* Cancel Button */
-										(isEditMode && showCancelButton)
-											? (
-												<Button
-													className="cancel"
-													label="Cancel"
-													onClick={ e => onCancelClick(e) }
-												/>
-											) : null
+				<BottomFormStyles>
+					{/* Warnings */
+						(warnings && warnings.length > 0)
+							? (
+								<ul className="warnings">
+									{
+										warnings.map((warning, index) => (
+											<li key={ `${ warning.id }_${ index }` }>
+												{ warning.message }
+											</li>
+										))
 									}
-
-									{/* Edit / Save Button */
-										(!isEditMode)
-											? (
-												<Button
-													className="edit"
-													icon={ <FontAwesomeIcon icon={ faEdit } /> }
-													label="Edit"
-													onClick={ e => onEditClick(e) }
-												/>
-											) : (
-												<Button
-													className="save"
-													label={ saveLabel }
-													onClick={ e => this.onSaveIngredient(e) }
-												/>
-											)
-									}
-								</BottomFormStyles>
-							</FormStyles>
-						);
+								</ul>
+							) : null
 					}
-				}
-			</Composed>
+					{/* Cancel Button */
+						(isEditMode && showCancelButton)
+							? (
+								<Button
+									className="cancel"
+									label="Cancel"
+									onClick={ e => onCancelClick(e) }
+								/>
+							) : null
+					}
+
+					{/* Edit / Save Button */
+						(!isEditMode)
+							? (
+								<Button
+									className="edit"
+									icon={ <FontAwesomeIcon icon={ faEdit } /> }
+									label="Edit"
+									onClick={ e => onEditClick(e) }
+								/>
+							) : (
+								<Button
+									className="save"
+									label={ saveLabel }
+									onClick={ e => this.onSaveIngredient(e) }
+								/>
+							)
+					}
+				</BottomFormStyles>
+			</FormStyles>
 		);
 	}
 }
@@ -759,18 +762,9 @@ Form.defaultProps = {
 	isEditMode: true,
 	loading: false,
 	name: null,
-	onCancelClick: () => {
-		console.log('*** [Form] psst! You didn\'t pass an onCancelClick function!');
-		return null;
-	},
-	onEditClick: () => {
-		console.log('*** [Form] psst! You didn\'t pass an onEditClick function!');
-		return null;
-	},
-	onSaveIngredient: () => {
-		console.log('*** [Form] psst! You didn\'t pass an onSaveIngredient function!');
-		return null;
-	},
+	onCancelClick: () => {},
+	onEditClick: () => {},
+	onSaveIngredient: () => {},
 	plural: null,
 	properties: {
 		dairy: false,
@@ -790,6 +784,10 @@ Form.defaultProps = {
 Form.propTypes = {
 	alternateNames: PropTypes.arrayOf(PropTypes.shape({ name: PropTypes.string.isRequired })),
 	className: PropTypes.string,
+	client: PropTypes.shape({
+		readQuery: PropTypes.func,
+		query: PropTypes.func,
+	}).isRequired,
 	id: PropTypes.string,
 	isComposedIngredient: PropTypes.bool,
 	isEditMode: PropTypes.bool,
@@ -799,7 +797,6 @@ Form.propTypes = {
 	onEditClick: PropTypes.func,
 	onSaveIngredient: PropTypes.func,
 	plural: PropTypes.string,
-	// TODO improve prop types
 	properties: PropTypes.shape({
 		dairy: PropTypes.bool.isRequired,
 		fish: PropTypes.bool.isRequired,
@@ -820,9 +817,4 @@ Form.propTypes = {
 	})),
 };
 
-export default Form;
-export {
-	ADD_WARNING_MUTATION,
-	GET_ALL_WARNINGS_QUERY,
-	RESET_WARNINGS_MUTATION,
-};
+export default withApollo(Form);

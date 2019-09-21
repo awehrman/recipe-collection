@@ -1,4 +1,4 @@
-import ApolloClient, { InMemoryCache } from 'apollo-boost';
+import ApolloClient, { InMemoryCache, IntrospectionFragmentMatcher } from 'apollo-boost';
 import gql from 'graphql-tag';
 import withApollo from 'next-with-apollo';
 import { GET_ALL_INGREDIENTS_QUERY, GET_VIEW_INGREDIENTS_QUERY } from './apollo/queries';
@@ -32,6 +32,10 @@ const typeDefs = gql`
 		referenceCount: Int!
 	}
 
+	type ContainersResponse {
+    containers: [ Container ]
+  }
+
 	type Properties {
 		id: ID!
 		meat: Boolean!
@@ -42,14 +46,11 @@ const typeDefs = gql`
 		gluten: Boolean!
 	}
 
-	type ContainersResponse {
-    containers: [ Container ]
-  }
-
 	type Query {
-		viewIngredients: [ ContainerIngredient ]!
 		container(id: String!): Container
 		containers: [ Container ]!
+		ingredient(value: String!): ContainerIngredient
+		viewIngredients: [ ContainerIngredient ]!
 	}
 
 	type Mutation {
@@ -61,22 +62,23 @@ const typeDefs = gql`
 	}
 
 	type Mutation {
-   	setCurrentCard(
-	  	id: String!
-			ingredientID: String
-    ) : null
-	}
-
-	type Mutation {
    	setContainerIsExpanded(
 	  	id: String!
 			isExpanded: Boolean!
     ) : null
 	}
+
+	type Mutation {
+   	setCurrentCard(
+	  	id: String!
+			ingredientID: String
+    ) : null
+	}
 `;
 
 function createClient({ headers }) {
-	const cache = new InMemoryCache();
+	const fragmentMatcher = new IntrospectionFragmentMatcher({ introspectionQueryResultData: { __schema: { types: [] } } });
+	const cache = new InMemoryCache({ fragmentMatcher });
 
 	return new ApolloClient({
 		uri: process.env.NODE_ENV === 'development' ? endpoint : endpoint,
@@ -90,6 +92,7 @@ function createClient({ headers }) {
 				Query: {
 					container(_, { id }, { client, getCacheKey }) {
 						console.warn(`... [withData](${ id }) container query resolver`);
+
 						const container = client.readFragment({
 							id: getCacheKey({
 								__typename: 'Container',
@@ -126,6 +129,7 @@ function createClient({ headers }) {
 						let containers = [];
 						let ingredients = [];
 
+						// TODO so why am i using query instead of readQuery here? does this HAVE to be async?
 						// fetch the ingredients for this view from the cache
 						const ingredientsViewData = await client.query({
 							// if this isn't in the cache, then go through the local query resolver
@@ -149,6 +153,35 @@ function createClient({ headers }) {
 
 						({ containers } = data.createContainers);
 						return containers;
+					},
+					ingredient(_, { value }) {
+						console.warn('[withData] ingredient');
+
+						// get all ingredients from the cache
+						let { ingredients } = cache.readQuery({ query: GET_ALL_INGREDIENTS_QUERY });
+
+						// pare down the ingredient info to match the ContainerIngredient shape
+						ingredients = ingredients.filter((i) => {
+							// match on name
+							if (i.name === value) return i;
+							// match on plural
+							if (i.plural === value) return i;
+							// match on altName
+							if (i.alternateNames.find(n => n.name === value)) return i;
+							return null;
+						});
+
+						if (ingredients && (ingredients.length === 1)) {
+							return {
+								__typename: 'ContainerIngredient',
+								id: ingredients[0].id,
+								name: ingredients[0].name,
+							};
+						}
+
+						// TODO partial store resets aren't coming until 3.0, we can try to clear out the proxy on a mutation update with:
+						// proxy.data.delete('Ingredient');
+						return null;
 					},
 					viewIngredients(_, { view }) {
 						console.warn(`... [withData](${ view }) viewIngredients query resolver`);
@@ -205,29 +238,6 @@ function createClient({ headers }) {
 						};
 					},
 					// eslint-disable-next-line object-curly-newline
-					setCurrentCard(_, { id, ingredientID }, { client, getCacheKey }) {
-						// eslint-disable-next-line max-len
-						console.warn(`,,, [withData](${ id }, ${ ingredientID }) setCurrentCard mutation resolver`);
-
-						client.writeFragment({
-							id: getCacheKey({
-								__typename: 'Container',
-								id,
-							}),
-							fragment: gql`
-								fragment setCurrentCard on Container {
-									ingredientID
-								}
-							`,
-							data: {
-								__typename: 'Container',
-								ingredientID,
-							},
-						});
-
-						return null;
-					},
-					// eslint-disable-next-line object-curly-newline
 					setContainerIsExpanded(_, { id, isExpanded }, { client, getCacheKey }) {
 						// eslint-disable-next-line max-len
 						console.warn(`,,, [withData](${ id }, ${ isExpanded }) setContainerIsExpanded mutation resolver`);
@@ -245,6 +255,29 @@ function createClient({ headers }) {
 							data: {
 								__typename: 'Container',
 								isExpanded,
+							},
+						});
+
+						return null;
+					},
+					// eslint-disable-next-line object-curly-newline
+					setCurrentCard(_, { id, ingredientID }, { client, getCacheKey }) {
+						// eslint-disable-next-line max-len
+						console.warn(`,,, [withData](${ id }, ${ ingredientID }) setCurrentCard mutation resolver`);
+
+						client.writeFragment({
+							id: getCacheKey({
+								__typename: 'Container',
+								id,
+							}),
+							fragment: gql`
+								fragment setCurrentCard on Container {
+									ingredientID
+								}
+							`,
+							data: {
+								__typename: 'Container',
+								ingredientID,
 							},
 						});
 

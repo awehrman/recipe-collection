@@ -104,10 +104,11 @@ const ListStyles = styled.fieldset`
 				width: 13px;
 				position: relative;
 				left: 8px;
-				top: 0;
+				top: 2px;
 				margin-right: 8px;
 				display: inline-block;
 				z-index: 1;
+				height: 18px;
 
 				&:hover {
 					color: ${ props => props.theme.altGreen };
@@ -138,35 +139,39 @@ class List extends Component {
 	}
 
 	onBlur = (e) => {
-		const { addWarning, fieldName, validate, resetWarnings } = this.props;
+		const { fieldName, validate } = this.props;
 		// hide the input element if we move focus off this element
 		if (!e.relatedTarget) {
 			this.setState({
 				showInput: false,
 				value: '',
-			}, () => validate(null, fieldName, addWarning, resetWarnings));
+			}, () => validate(fieldName, null));
 		}
 	}
 
 	onChange = (e) => {
 		const { value } = e.target;
-		const { addWarning, fieldName, validate, resetWarnings } = this.props;
+		const { fieldName, validate } = this.props;
 
-		this.setState({ value }, () => validate(value, fieldName, addWarning, resetWarnings));
+		this.setState({ value }, () => validate(fieldName, (value.name) ? value.name : value));
 	}
 
-	onListChange = (listItem, fieldName, removeListItem = false) => {
-		const { addWarning, onListChange, resetWarnings } = this.props;
-
+	onListChange = (e, listItem, fieldName, removeListItem = false) => {
+		try {
+			e.preventDefault();
+		} catch (err) {
+			console.error(e);
+		}
+		const { onListChange } = this.props;
 		this.setState({
 			showInput: false,
 			value: '',
-		}, onListChange(listItem, fieldName, removeListItem, addWarning, resetWarnings));
+		}, onListChange((listItem.name) ? listItem.name : listItem, fieldName, removeListItem));
 	}
 
 	onSuggestPlural = (e, value) => {
 		e.preventDefault();
-		const { addWarning, fieldName, resetWarnings } = this.props;
+		const { fieldName } = this.props;
 		const { name } = value;
 		let plural = null;
 
@@ -178,7 +183,7 @@ class List extends Component {
 
 		if (plural) {
 			const listItem = { name: plural };
-			this.onListChange(listItem, fieldName, false, addWarning, resetWarnings);
+			this.onListChange(e, listItem, fieldName, false);
 		}
 	}
 
@@ -203,8 +208,9 @@ class List extends Component {
 
 	render() {
 		const {
-			className, defaultValues, excludedSuggestions, isEditMode, isPluralSuggestEnabled, isRemoveable, isSuggestionEnabled,
-			label, loading, fieldName, onListItemClick, placeholder, suggestionPool, suppressLocalWarnings, type, warnings, values,
+			className, defaultValues, excludedSuggestions, isEditMode, isPluralSuggestEnabled,
+			isRemovable, isSuggestionEnabled, label, loading, fieldName, onListItemClick,
+			placeholder, suggestionPool, suppressLocalWarnings, type, warnings, validate, values,
 		} = this.props;
 		const { showInput, value } = this.state;
 
@@ -238,8 +244,8 @@ class List extends Component {
 					<ul className="list">
 						{
 							list.map((i, index) => {
-								// const warningIndex = warningValues.findIndex(w => (w === i.name) || (w === i));
-								const warningIndex = -1; // TODO
+								console.log({ warnings });
+								const warningIndex = warnings.findIndex(w => (w.value === i.name));
 								const key = `${ type }_${ index }_${ i.id || i.name || i }`;
 								return (
 									<li key={ key }>
@@ -269,11 +275,11 @@ class List extends Component {
 										}
 
 										{/* delete button */
-											(isEditMode && isRemoveable)
+											(isEditMode && isRemovable)
 												? (
 													<Button
 														className="delete"
-														onClick={ () => this.onListChange(i.name, fieldName, true) }
+														onClick={ e => this.onListChange(e, { name: i.name }, fieldName, true) }
 														icon={ <FontAwesomeIcon icon={ faTimes } /> }
 													/>
 												)
@@ -300,6 +306,7 @@ class List extends Component {
 									placeholder={ placeholder }
 									suggestionPool={ suggestionPool }
 									suppressLocalWarnings={ suppressLocalWarnings }
+									validate={ validate }
 									value={ value.name || value }
 									warnings={ warnings || undefined }
 								/>
@@ -314,39 +321,25 @@ class List extends Component {
 }
 
 List.defaultProps = {
-	addWarning: () => {},
 	className: '',
 	defaultValues: [],
 	excludedSuggestions: [],
 	isEditMode: true,
 	isPluralSuggestEnabled: false,
-	isRemoveable: true,
+	isRemovable: true,
 	isSuggestionEnabled: false,
 	label: '',
 	loading: false,
-	onListChange: () => {
-		console.log('*** [List] psst! You didnt pass an onListChange function!');
-		return null;
-	},
-	onListItemClick: () => {
-		console.log('*** [List] psst! You didnt pass an onListItemClick function!');
-		return null;
-	},
+	onListItemClick: e => e.preventDefault(),
 	placeholder: '',
-	resetWarnings: () => {},
 	suggestionPool: [],
 	suppressLocalWarnings: false,
 	type: 'static',
-	validate: () => {
-		console.log('*** [List] psst! You didnt pass a validate function!');
-		return null;
-	},
 	values: [],
-	warnings: null,
+	warnings: [],
 };
 
 List.propTypes = {
-	addWarning: PropTypes.func,
 	className: PropTypes.string,
 	defaultValues: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string,
@@ -359,24 +352,23 @@ List.propTypes = {
 	fieldName: PropTypes.string.isRequired,
 	isEditMode: PropTypes.bool,
 	isPluralSuggestEnabled: PropTypes.bool,
-	isRemoveable: PropTypes.bool,
+	isRemovable: PropTypes.bool,
 	isSuggestionEnabled: PropTypes.bool,
 	label: PropTypes.string,
 	loading: PropTypes.bool,
-	onListChange: PropTypes.func,
+	onListChange: PropTypes.func.isRequired,
 	onListItemClick: PropTypes.func,
 	placeholder: PropTypes.string,
-	resetWarnings: PropTypes.func,
 	suggestionPool: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string, /* if the id is left blank, its a new ingredient */
 		name: PropTypes.string.isRequired,
 	})),
 	suppressLocalWarnings: PropTypes.bool,
 	type: PropTypes.string,
-	validate: PropTypes.func,
+	validate: PropTypes.func.isRequired,
 	values: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string,
-		name: PropTypes.string.isRequired,
+		name: PropTypes.string, // TODO isRequired
 	})),
 	warnings: PropTypes.arrayOf(PropTypes.shape({
 		__typename: PropTypes.string,

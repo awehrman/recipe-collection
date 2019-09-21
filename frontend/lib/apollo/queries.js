@@ -107,11 +107,20 @@ export const GET_ALL_INGREDIENTS_QUERY = gql`
   }
 `;
 
+export const GET_INGREDIENT_BY_VALUE_QUERY = gql`
+  query GET_INGREDIENT_BY_VALUE_QUERY($value: String!) {
+  	ingredient(value: $value) @client {
+			id
+			name
+		}
+  }
+`;
 
 export default [
 	GET_CONTAINER_QUERY,
 	GET_CONTAINERS_QUERY,
 	GET_VIEW_INGREDIENTS_QUERY,
 	GET_INGREDIENTS_COUNT_QUERY,
+	GET_INGREDIENT_BY_VALUE_QUERY,
 	GET_ALL_INGREDIENTS_QUERY,
 ];
