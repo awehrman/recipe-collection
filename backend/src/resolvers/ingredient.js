@@ -84,38 +84,47 @@ export default {
 	Mutation: {
 		createIngredient: async (parent, args, ctx, info) => {
 			console.log('createIngredient');
-			let parentRelation;
+			console.log(args);
 			const {
+				alternateNames,
+				isComposedIngredient,
+				isValidated,
+				name,
 				parentID,
 				parentName,
+				plural,
+				properties,
+				relatedIngredients,
 				references,
-			} = args;
-			let {
-				name, plural, properties,
-				alternateNames, relatedIngredients, substitutes,
-				isValidated, isComposedIngredient,
+				substitutes,
 			} = args;
 
-			name = (name) ? name.trim().toLowerCase() : '';
-			plural = (plural) ? plural.trim().toLowerCase() : '';
+			let ingredient = {
+				name: (name && (name.length > 0)) ? name.trim().toLowerCase() : '',
+				plural: (plural && (plural.length > 0)) ? plural.trim().toLowerCase() : '',
+				isValidated: isValidated || false,
+				isComposedIngredient: isComposedIngredient || false,
+			};
 
-			if (!properties) {
-				properties = {
-					meat: false,
-					poultry: false,
-					fish: false,
-					dairy: false,
-					soy: false,
-					gluten: false,
-				};
-			}
+			ingredient.properties = (!properties)
+				? {
+					create: {
+						meat: false,
+						poultry: false,
+						fish: false,
+						dairy: false,
+						soy: false,
+						gluten: false,
+					},
+				}
+				: { create: properties };
 
 			if (parentID) {
-				parentRelation = { connect: { id: parentID } };
+				ingredient.parent = { connect: { id: parentID } };
 			} else if (parentName) {
 				// TODO test with existing ingredient to make sure this doesn't duplicate
 				// if not found, then create ingredient with parent parentName
-				parentRelation = {
+				ingredient.parent = {
 					create: {
 						name: parentName,
 						properties: { create: properties },
@@ -123,38 +132,32 @@ export default {
 				};
 			}
 
-			alternateNames = (alternateNames && alternateNames.length > 0)
-				? alternateNames.map(a => a.toLowerCase())
-				: [];
+			if (alternateNames && alternateNames.length > 0) {
+				ingredient.alternateNames = { create: alternateNames.map(a => ({ name: (a && (a.length > 0)) ? a.toLowerCase() : '' })) };
+			}
 
-			relatedIngredients = (relatedIngredients)
-				? { connect: relatedIngredients.map(i => ({ id: i })) }
-				: [];
+			if (relatedIngredients && relatedIngredients.length > 0) {
+				ingredient.relatedIngredients = { connect: relatedIngredients.map(i => ({ id: i })) };
+			}
 
-			substitutes = (substitutes)
-				? { connect: substitutes.map(i => ({ id: i })) }
-				: [];
+			if (substitutes && substitutes.length > 0) {
+				ingredient.substitutes = { connect: substitutes.map(i => ({ id: i })) };
+			}
 
-			isValidated = isValidated || false;
-			isComposedIngredient = isComposedIngredient || false;
+			if (references && references.length > 0) {
+				ingredient.references = { connect: references.map(i => ({ id: i })) };
+			}
 
-			let ingredient = {
-				parent: parentRelation,
-				name,
-				plural,
-				properties: { create: properties },
-				alternateNames: { set: alternateNames },
-				relatedIngredients,
-				substitutes,
-				references,
-				isValidated,
-				isComposedIngredient,
-			};
+			console.log(ingredient);
 
 			// TODO double check syntax after move to prisma client
-			ingredient = await ctx.prisma.createIngredient({ data: { ...ingredient } }, info);
-			console.log(ingredient);
-			return ingredient;
+			try {
+				ingredient = await ctx.prisma.createIngredient({ ...ingredient }, info);
+				return ingredient;
+			} catch (err) {
+				console.log(err);
+			}
+			return null;
 		},
 
 		deleteIngredient: async () => {

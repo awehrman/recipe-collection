@@ -49,8 +49,41 @@ export const UPDATE_IS_CONTAINER_EXPANDED_MUTATION = gql`
 	}
 `;
 
+export const CREATE_INGREDIENT_MUTATION = gql`
+	mutation createIngredient(
+		$parentID: ID,
+		$parentName: String,
+		$name: String!,
+		$plural: String,
+		$properties: PropertiesCreateInput,
+		$alternateNames: [ String ],
+		$relatedIngredients: [ ID ],
+		$substitutes: [ ID ],
+		$references: [ ID ],
+		$isValidated: Boolean,
+		$isComposedIngredient: Boolean
+	) {
+		createIngredient(
+			parentID: $parentID
+			parentName: $parentName
+			name: $name
+			plural: $plural
+			properties: $properties
+			alternateNames: $alternateNames
+			relatedIngredients: $relatedIngredients
+			substitutes: $substitutes
+			references: $references
+			isValidated: $isValidated
+			isComposedIngredient: $isComposedIngredient
+		) {
+			id
+		}
+	}
+`;
+
 export default [
 	CREATE_CONTAINERS_MUTATION,
 	UPDATE_CONTAINER_INGREDIENT_ID_MUTATION,
 	UPDATE_IS_CONTAINER_EXPANDED_MUTATION,
+	CREATE_INGREDIENT_MUTATION,
 ];

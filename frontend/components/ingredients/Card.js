@@ -187,7 +187,7 @@ class Card extends React.PureComponent {
 		return (
 			<Composed id={ id }>
 				{
-					({ getIngredient }) => {
+					({ getIngredient, updateIngredient }) => {
 						const { data, error, loading } = getIngredient || {};
 						const { ingredient } = data || {};
 						const {
@@ -211,6 +211,7 @@ class Card extends React.PureComponent {
 									onSaveIngredient={ this.onSaveIngredient }
 									plural={ plural }
 									properties={ properties }
+									saveMutation={ updateIngredient }
 									showCancelButton
 									relatedIngredients={ relatedIngredients }
 									substitutes={ substitutes }

@@ -1,5 +1,8 @@
 import React from 'react';
+import { adopt } from 'react-adopt';
+import { Mutation, withApollo } from 'react-apollo';
 import styled from 'styled-components';
+import { CREATE_INGREDIENT_MUTATION } from '../../lib/apollo/mutations';
 
 import Button from '../form/Button';
 import Form from './Form';
@@ -63,6 +66,16 @@ const AddNewStyles = styled.div`
 	}
 `;
 
+const Composed = adopt({
+	// eslint-disable-next-line react/prop-types
+	createIngredient: ({ render }) => (
+		<Mutation mutation={ CREATE_INGREDIENT_MUTATION }>
+			{ render }
+		</Mutation>
+	),
+});
+
+
 class AddNew extends React.PureComponent {
 	constructor(props) {
 		super(props);
@@ -70,11 +83,41 @@ class AddNew extends React.PureComponent {
 		this.state = { isExpanded: true };
 	}
 
-	onAddIngredient = (e) => {
-		console.warn('[AddNew] onAddIngredient');
+	onCreateIngredient = (e, ingredient, createIngredient) => {
+		console.warn('[AddNew] onCreateIngredient');
+		console.log(createIngredient);
 		e.preventDefault();
+		const {
+			parentID,
+			parentName,
+			name,
+			plural,
+			properties,
+			alternateNames,
+			relatedIngredients,
+			substitutes,
+			references,
+			isComposedIngredient,
+		} = ingredient;
 
-		// TODO add mutation
+		delete properties.__typename;
+		console.log({ alternateNames: alternateNames.map(n => n.name) });
+
+		createIngredient({
+			variables: {
+				parentID,
+				parentName,
+				name,
+				plural,
+				properties,
+				alternateNames: alternateNames.map(n => n.name),
+				relatedIngredients,
+				substitutes,
+				references,
+				isValidated: true,
+				isComposedIngredient,
+			},
+		});
 	}
 
 	onToggleAddNew = (e) => {
@@ -89,28 +132,35 @@ class AddNew extends React.PureComponent {
 		const { isExpanded } = this.state;
 
 		return (
-			<AddNewStyles className={ `slide${ isExpanded ? '_expanded' : '' }` }>
-				<Button
-					className="add-new-btn"
-					isEditMode
-					label="Add New Ingredient"
-					onClick={ e => this.onToggleAddNew(e) }
-				/>
+			<Composed>
 				{
-					(isExpanded)
-						? (
-							<Form
-								className="add"
-								key="add-new"
-								onSaveIngredient={ this.onAddIngredient }
-								saveLabel="Add"
+					({ createIngredient }) => (
+						<AddNewStyles className={ `slide${ isExpanded ? '_expanded' : '' }` }>
+							<Button
+								className="add-new-btn"
+								isEditMode
+								label="Add New Ingredient"
+								onClick={ e => this.onToggleAddNew(e) }
 							/>
-						)
-						: null
+							{
+								(isExpanded)
+									? (
+										<Form
+											className="add"
+											key="add-new"
+											onSaveIngredient={ this.onCreateIngredient }
+											saveLabel="Add"
+											saveMutation={ createIngredient }
+										/>
+									)
+									: null
+							}
+						</AddNewStyles>
+					)
 				}
-			</AddNewStyles>
+			</Composed>
 		);
 	}
 }
 
-export default AddNew;
+export default withApollo(AddNew);

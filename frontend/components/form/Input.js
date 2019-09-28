@@ -263,7 +263,8 @@ class Input extends Component {
 		inputValue = (!inputValue) ? '' : inputValue;
 
 		let highlightClassName = (inputValue.length > 0) ? 'enabled' : '';
-		highlightClassName += (warnings) ? ' warning' : '';
+		const warningIndex = warnings.findIndex(w => (w.value === inputValue));
+		highlightClassName += (warningIndex > -1) ? ' warning' : '';
 
 		return (
 			<FieldSet aria-busy={ loading } className={ (isEditMode) ? `editable ${ className }` : className } disabled={ loading }>
@@ -287,7 +288,7 @@ class Input extends Component {
 					<input
 						aria-busy={ loading }
 						autoComplete="off"
-						className={ (warnings) ? 'warning' : '' }
+						className={ (warningIndex > -1) ? ' warning' : '' }
 						id={ fieldName }
 						name={ fieldName }
 						onBlur={ onBlur }
@@ -307,7 +308,7 @@ class Input extends Component {
 					</span>
 
 					{/* validation warnings */}
-					{ (!suppressLocalWarnings && warnings) ? warnings.map(w => <Warning>{ w.message }</Warning>) : null }
+					{ (!suppressLocalWarnings && warnings && (warnings.length > 0)) ? warnings.map(w => <Warning>{ w.message }</Warning>) : null }
 
 					{/* relative - suggested values */}
 					{
@@ -348,7 +349,7 @@ Input.defaultProps = {
 	suppressLocalWarnings: false,
 	tabIndex: 0,
 	value: undefined,
-	warnings: null,
+	warnings: [],
 };
 
 Input.propTypes = {

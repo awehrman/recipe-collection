@@ -226,9 +226,13 @@ class Form extends Component {
 			alternateNames,
 			id,
 			isComposedIngredient,
+			isValidated,
 			name,
+			parentID,
+			parentName,
 			plural,
 			properties,
+			references,
 			relatedIngredients,
 			substitutes,
 		} = this.props;
@@ -251,6 +255,10 @@ class Form extends Component {
 			},
 			isComposedIngredient: (hasProperty(pending, isComposedIngredient))
 				? pending.isComposedIngredient : isComposedIngredient,
+			isValidated,
+			parentID, // TODO
+			parentName, // TODO
+			references, // TODO
 		};
 
 		// add in any new alternate names
@@ -424,12 +432,13 @@ class Form extends Component {
 	}
 
 	onSaveIngredient = (e) => {
-		const { onSaveIngredient } = this.props;
-		const { pending } = this.state;
+		const { onSaveIngredient, saveMutation } = this.props;
+		const { warnings } = this.state;
+		const ing = this.getPendingIngredient();
 
-		// TODO any common validation?
-
-		onSaveIngredient(e, pending);
+		if (warnings.filter(w => w.preventSave).length === 0) {
+			onSaveIngredient(e, ing, saveMutation);
+		}
 	}
 
 	onSuggestPlural = async (e, pluralBasis) => {
@@ -482,7 +491,7 @@ class Form extends Component {
 		// filter duplicate messages
 		warnings = warnings.reduce((acc, current) => {
 			const x = acc.find(w => w.message === current.message);
-			if (!x || current.isPreventSave) {
+			if (!x || current.preventSave) {
 				return acc.concat([ current ]);
 			}
 			return acc;
@@ -511,7 +520,7 @@ class Form extends Component {
 				id: uuid.v4(),
 				fieldName,
 				preventSave: false,
-				message: `"${ value }" is already in use on the "${ ingredient.name }" ingredient. D`,
+				message: `"${ value }" is already in use on the "${ ingredient.name }" ingredient.`,
 				value,
 			});
 		}
@@ -535,7 +544,7 @@ class Form extends Component {
 					id: uuid.v4(),
 					fieldName: f,
 					preventSave: true,
-					message: `"${ value }" is already in use on the "${ f }" field. C`,
+					message: `"${ value }" is already in use on the "${ f }" field.`,
 					value,
 				});
 
@@ -543,7 +552,7 @@ class Form extends Component {
 					id: uuid.v4(),
 					fieldName,
 					preventSave: true,
-					message: `"${ value }" is already in use on the "${ fieldName }" field. B `,
+					message: `"${ value }" is already in use on the "${ fieldName }" field.`,
 					value,
 				});
 			}
@@ -554,7 +563,7 @@ class Form extends Component {
 					id: uuid.v4(),
 					fieldName,
 					preventSave: true,
-					message: `"${ value }" is already listed in the "${ f }" field. A`,
+					message: `"${ value }" is already listed in the "${ f }" field.`,
 					value,
 				});
 			}
@@ -602,7 +611,7 @@ class Form extends Component {
 
 						{/* Plural */}
 						<Input
-							className={ (isEditMode) ? 'plural' : 'plural hidden' }
+							className="plural"
 							defaultValue={ plural }
 							fieldName="plural"
 							isEditMode={ isEditMode }
@@ -759,12 +768,16 @@ Form.defaultProps = {
 	className: '',
 	id: '-1',
 	isComposedIngredient: false,
+	isValidated: false,
 	isEditMode: true,
 	loading: false,
 	name: null,
 	onCancelClick: () => {},
 	onEditClick: () => {},
 	onSaveIngredient: () => {},
+	parentID: null,
+	parentName: null,
+	references: [],
 	plural: null,
 	properties: {
 		dairy: false,
@@ -790,12 +803,15 @@ Form.propTypes = {
 	}).isRequired,
 	id: PropTypes.string,
 	isComposedIngredient: PropTypes.bool,
+	isValidated: PropTypes.bool,
 	isEditMode: PropTypes.bool,
 	loading: PropTypes.bool,
 	name: PropTypes.string,
 	onCancelClick: PropTypes.func,
 	onEditClick: PropTypes.func,
 	onSaveIngredient: PropTypes.func,
+	parentID: PropTypes.string,
+	parentName: PropTypes.string,
 	plural: PropTypes.string,
 	properties: PropTypes.shape({
 		dairy: PropTypes.bool.isRequired,
@@ -805,11 +821,13 @@ Form.propTypes = {
 		poultry: PropTypes.bool.isRequired,
 		soy: PropTypes.bool.isRequired,
 	}),
+	references: PropTypes.arrayOf(),
 	relatedIngredients: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string, /* if the id is left blank, its a new ingredient */
 		name: PropTypes.string.isRequired,
 	})),
 	saveLabel: PropTypes.string,
+	saveMutation: PropTypes.func.isRequired,
 	showCancelButton: PropTypes.bool,
 	substitutes: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string, /* if the id is left blank, its a new ingredient */

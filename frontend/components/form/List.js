@@ -244,7 +244,8 @@ class List extends Component {
 					<ul className="list">
 						{
 							list.map((i, index) => {
-								console.log({ warnings });
+								if (i.name && (i.name.length === 0)) return null;
+								console.log({ i, fieldName, warnings });
 								const warningIndex = warnings.findIndex(w => (w.value === i.name));
 								const key = `${ type }_${ index }_${ i.id || i.name || i }`;
 								return (
