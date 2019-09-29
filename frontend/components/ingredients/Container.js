@@ -250,7 +250,6 @@ class Container extends React.Component {
 						const { container } = data || {};
 						const { ingredients, isExpanded, label, referenceCount } = container;
 						const currentIngredientID = container.ingredientID;
-						console.log({ ingredients });
 						const ingList = this.buildIngredientsList(ingredients, currentIngredientID);
 						const listClassName = (`${ (!isExpanded) ? 'hidden' : '' } ${ (currentIngredientID) ? 'expanded' : '' }`).trim();
 

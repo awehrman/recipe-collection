@@ -46,7 +46,7 @@ class Ingredients extends React.PureComponent {
 
 	render() {
 		// console.warn('[ingredients] render');
-		const { updateContainers, query } = this.props;
+		const { query } = this.props;
 		const { group = 'name', id = null, view = 'all' } = query;
 
 		return (
@@ -79,7 +79,7 @@ class Ingredients extends React.PureComponent {
 												<Containers
 													group={ group }
 													ingredientID={ id }
-													updateContainers={ updateContainers }
+													updateContainers={ this.refreshContainers }
 													view={ view }
 												/>
 											)

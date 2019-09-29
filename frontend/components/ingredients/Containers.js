@@ -37,7 +37,7 @@ class Containers extends React.Component {
 	async componentDidUpdate() {
 		const { client, group, ingredientID, view } = this.props;
 
-		const { data: { containers } } = await client.query({
+		await client.query({
 			fetchPolicy: 'network-only',
 			query: GET_CONTAINERS_QUERY,
 			variables: {
@@ -92,6 +92,7 @@ Containers.defaultProps = {
 };
 
 Containers.propTypes = {
+	client: PropTypes.shape({ query: PropTypes.func }).isRequired,
 	group: PropTypes.oneOf([ 'name', 'property', 'relationship', 'count' ]),
 	ingredientID: PropTypes.string,
 	view: PropTypes.oneOf([ 'all', 'new' ]),

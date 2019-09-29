@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import { adopt } from 'react-adopt';
 import { Mutation, withApollo } from 'react-apollo';
@@ -113,6 +114,7 @@ class AddNew extends React.PureComponent {
 		delete properties.__typename;
 		const { client, group, ingredientID, refreshContainers, view } = this.props;
 
+		// create the ingredient on the server
 		client.mutate({
 			mutation: CREATE_INGREDIENT_MUTATION,
 			variables: {
@@ -129,21 +131,23 @@ class AddNew extends React.PureComponent {
 				isComposedIngredient,
 			},
 		})
-			.then((res) => {
+			// then refresh our ingredient count and ingredients list
+			.then(() => {
 				const queries = [
 					{ query: GET_ALL_INGREDIENTS_QUERY },
 					{ query: GET_INGREDIENTS_COUNT_QUERY },
 				];
 				return this.refetchQueries(queries);
 			})
-			.then(async (res) => {
-				const queryRes = await client.query({
+			// then update our containers with our new ingredient data
+			.then(async () => {
+				await client.query({
 					notifyOnNetworkStatusChange: true,
 					fetchPolicy: 'network-only',
 					query: GET_CONTAINERS_QUERY,
 					variables: {
 						group,
-						ingredient,
+						ingredientID,
 						view,
 					},
 				});
@@ -202,5 +206,18 @@ class AddNew extends React.PureComponent {
 		);
 	}
 }
+
+AddNew.defaultProps = { ingredientID: null };
+
+AddNew.propTypes = {
+	client: PropTypes.shape({
+		query: PropTypes.func,
+		mutate: PropTypes.func,
+	}).isRequired,
+	group: PropTypes.string.isRequired,
+	ingredientID: PropTypes.string,
+	refreshContainers: PropTypes.func.isRequired,
+	view: PropTypes.string.isRequired,
+};
 
 export default withApollo(AddNew);
