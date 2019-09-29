@@ -26,20 +26,34 @@ const Composed = adopt({
 	// eslint-disable-next-line react/prop-types
 	getContainers: ({ group, ingredientID, render, view }) => (
 		// eslint-disable-next-line object-curly-newline
-		<Query query={ GET_CONTAINERS_QUERY } variables={ { group, ingredientID, view } }>
+		<Query fetchPolicy="network-only" notifyOnNetworkStatusChange query={ GET_CONTAINERS_QUERY } variables={ { group, ingredientID, view } }>
 			{ render }
 		</Query>
 	),
 });
 
-class Containers extends React.PureComponent {
+// eslint-disable-next-line
+class Containers extends React.Component {
+	async componentDidUpdate() {
+		const { client, group, ingredientID, view } = this.props;
+
+		const { data: { containers } } = await client.query({
+			fetchPolicy: 'network-only',
+			query: GET_CONTAINERS_QUERY,
+			variables: {
+				group,
+				ingredientID,
+				view,
+			},
+		});
+	}
+
 	// TODO i might need to toggle a separate mutation to set ingredientID within the appropriate containers
 	render() {
-		console.warn('[Containers] render');
+		// console.warn('[Containers] render');
 		const { group, ingredientID, view } = this.props;
 
-		return (// TODO do i need to adjust the fetchPolicy here?
-			// TODO GET_CONTAINERS_QUERY ONLY NEEDS TO RETURN AN ID NOW
+		return (
 			// eslint-disable-next-line object-curly-newline
 			<Composed group={ group } ingredientID={ ingredientID } view={ view }>
 				{
@@ -52,7 +66,7 @@ class Containers extends React.PureComponent {
 						return (
 							<ContainerStyles>
 								{
-									containers.filter(ctn => ctn.ingredients && (ctn.ingredients.length > 0))
+									containers && containers.filter(ctn => ctn.ingredients && (ctn.ingredients.length > 0))
 										.map(c => (
 											<Container
 												group={ group }

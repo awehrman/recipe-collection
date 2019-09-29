@@ -84,7 +84,6 @@ export default {
 	Mutation: {
 		createIngredient: async (parent, args, ctx, info) => {
 			console.log('createIngredient');
-			console.log(args);
 			const {
 				alternateNames,
 				isComposedIngredient,
@@ -101,7 +100,7 @@ export default {
 
 			let ingredient = {
 				name: (name && (name.length > 0)) ? name.trim().toLowerCase() : '',
-				plural: (plural && (plural.length > 0)) ? plural.trim().toLowerCase() : '',
+				plural: (plural && (plural.length > 0)) ? plural.trim().toLowerCase() : null,
 				isValidated: isValidated || false,
 				isComposedIngredient: isComposedIngredient || false,
 			};
@@ -148,11 +147,24 @@ export default {
 				ingredient.references = { connect: references.map(i => ({ id: i })) };
 			}
 
-			console.log(ingredient);
-
-			// TODO double check syntax after move to prisma client
 			try {
 				ingredient = await ctx.prisma.createIngredient({ ...ingredient }, info);
+				console.log('returning ing?');
+				// TODO look into why prisma isn't returning properties
+				if (!ingredient.properties) {
+					ingredient.properties = (!properties)
+						? {
+							meat: false,
+							poultry: false,
+							fish: false,
+							dairy: false,
+							soy: false,
+							gluten: false,
+						}
+						: { ...properties };
+				}
+				console.log(ingredient);
+
 				return ingredient;
 			} catch (err) {
 				console.log(err);

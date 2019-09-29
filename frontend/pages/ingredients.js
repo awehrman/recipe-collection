@@ -22,7 +22,7 @@ const Composed = adopt({
 	),
 
 	// eslint-disable-next-line react/prop-types
-	getIngredientCounts: ({ render }) => (
+	getIngredientsCount: ({ render }) => (
 		<Query query={ GET_INGREDIENTS_COUNT_QUERY }>
 			{render}
 		</Query>
@@ -33,18 +33,29 @@ const IngredientsPageStyles = styled.article`
 `;
 
 class Ingredients extends React.PureComponent {
+	constructor(props) {
+		super(props);
+
+		this.state = { updateContainers: false };
+	}
+
+	refreshContainers = () => {
+		const { updateContainers } = this.state;
+		this.setState({ updateContainers: !updateContainers });
+	}
+
 	render() {
-		console.warn('[ingredients] render');
-		const { query } = this.props;
+		// console.warn('[ingredients] render');
+		const { updateContainers, query } = this.props;
 		const { group = 'name', id = null, view = 'all' } = query;
 
 		return (
 			// eslint-disable-next-line
-			<Composed variables={{ group, ingredientID: id, view }}>
+			<Composed>
 				{
-					({ getIngredients, getIngredientCounts }) => {
+					({ getIngredients, getIngredientsCount }) => {
 						const { error, loading } = getIngredients;
-						const { data } = getIngredientCounts || {};
+						const { data } = getIngredientsCount || {};
 						const { ingredientAggregate } = data || {};
 						const { ingredientsCount, newIngredientsCount } = ingredientAggregate || {};
 
@@ -68,12 +79,18 @@ class Ingredients extends React.PureComponent {
 												<Containers
 													group={ group }
 													ingredientID={ id }
+													updateContainers={ updateContainers }
 													view={ view }
 												/>
 											)
 									}
 
-									<AddNew />
+									<AddNew
+										group={ group }
+										ingredientID={ id }
+										refreshContainers={ this.refreshContainers }
+										view={ view }
+									/>
 								</section>
 							</IngredientsPageStyles>
 						);
@@ -93,6 +110,7 @@ Ingredients.defaultProps = {
 };
 
 Ingredients.propTypes = {
+	client: PropTypes.shape({ query: PropTypes.func }).isRequired,
 	query: PropTypes.shape({
 		group: PropTypes.oneOf([ 'name', 'property', 'relationship', 'count' ]),
 		id: PropTypes.string,

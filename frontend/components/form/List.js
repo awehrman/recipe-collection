@@ -127,6 +127,7 @@ const ListStyles = styled.fieldset`
 	}
 `;
 
+// TODO replace this with react-window at some point
 class List extends Component {
 	state = {
 		showInput: false,
@@ -223,6 +224,7 @@ class List extends Component {
 					{/* List Label */}
 					{
 						(isEditMode || (list.length > 0))
+							// eslint-disable-next-line jsx-a11y/label-has-for
 							? <label htmlFor={ fieldName }>{ label }</label>
 							: null
 					}
@@ -245,7 +247,6 @@ class List extends Component {
 						{
 							list.map((i, index) => {
 								if (i.name && (i.name.length === 0)) return null;
-								console.log({ i, fieldName, warnings });
 								const warningIndex = warnings.findIndex(w => (w.value === i.name));
 								const key = `${ type }_${ index }_${ i.id || i.name || i }`;
 								return (

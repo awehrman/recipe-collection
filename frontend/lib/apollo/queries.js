@@ -4,10 +4,10 @@ import gql from 'graphql-tag';
 export const GET_CONTAINER_QUERY = gql`
 	query GET_CONTAINER_QUERY($id: String!) {
 		container(id: $id) @client {
-			count
 			id
 			ingredientID
 			ingredients {
+				hasParent
 				id
 				isValidated
 				name
@@ -22,6 +22,7 @@ export const GET_CONTAINER_QUERY = gql`
 			}
 			isExpanded
 			label
+			referenceCount
 		}
 	}
 `;
@@ -29,10 +30,10 @@ export const GET_CONTAINER_QUERY = gql`
 export const GET_CONTAINERS_QUERY = gql`
 	query GET_CONTAINERS_QUERY($group: String, $ingredientID: String, $view: String) {
 		containers(group: $group, ingredientID: $ingredientID, view: $view) @client {
-			count
 			id
 			ingredientID
 			ingredients {
+				hasParent
 				id
 				isValidated
 				name
@@ -47,6 +48,7 @@ export const GET_CONTAINERS_QUERY = gql`
 			}
 			isExpanded
 			label
+			referenceCount
 		}
 	}
 `;

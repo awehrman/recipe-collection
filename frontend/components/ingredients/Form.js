@@ -220,6 +220,13 @@ class Form extends Component {
 
 	state = this.initialState;
 
+	componentDidUpdate() {
+		const { isFormReset, resetForm } = this.props;
+		if (isFormReset) {
+			this.setState(this.initialState, resetForm);
+		}
+	}
+
 	getPendingIngredient = () => {
 		const { pending } = this.state;
 		const {
@@ -432,12 +439,12 @@ class Form extends Component {
 	}
 
 	onSaveIngredient = (e) => {
-		const { onSaveIngredient, saveMutation } = this.props;
+		const { onSaveIngredient } = this.props;
 		const { warnings } = this.state;
 		const ing = this.getPendingIngredient();
 
 		if (warnings.filter(w => w.preventSave).length === 0) {
-			onSaveIngredient(e, ing, saveMutation);
+			onSaveIngredient(e, ing);
 		}
 	}
 
@@ -468,7 +475,7 @@ class Form extends Component {
 	}
 
 	validate = async (fieldName, value, isRemoved = false) => {
-		console.warn(`validate ${ fieldName }, ${ value }, ${ isRemoved }`);
+		// console.warn(`validate ${ fieldName }, ${ value }, ${ isRemoved }`);
 		let warnings = [];
 		const ing = this.getPendingIngredient();
 
@@ -497,11 +504,15 @@ class Form extends Component {
 			return acc;
 		}, []);
 
+		// get rid of any empty values
+		warnings = warnings.filter(w => w.value && w.value.length > 0);
+
 		this.setState({ warnings: warnings.flat() });
 	}
 
+	// TODO test removing fields here
 	validateField = async (fieldName, value, isRemoved = false) => {
-		console.warn(`validateField ${ fieldName }, ${ value }, ${ isRemoved }`);
+		// console.warn(`validateField ${ fieldName }, ${ value }, ${ isRemoved }`);
 		const { client } = this.props;
 		const warnings = [];
 
@@ -573,7 +584,7 @@ class Form extends Component {
 	}
 
 	render() {
-		console.warn('[Form] render');
+		// console.warn('[Form] render');
 		const {
 			alternateNames, className, id, isComposedIngredient, isEditMode, loading, name, onCancelClick,
 			onEditClick, plural, properties, relatedIngredients, saveLabel, showCancelButton, substitutes,
@@ -721,6 +732,7 @@ class Form extends Component {
 								<ul className="warnings">
 									{
 										warnings.map((warning, index) => (
+											// eslint-disable-next-line react/no-array-index-key
 											<li key={ `${ warning.id }_${ index }` }>
 												{ warning.message }
 											</li>
@@ -770,6 +782,7 @@ Form.defaultProps = {
 	isComposedIngredient: false,
 	isValidated: false,
 	isEditMode: true,
+	isFormReset: false,
 	loading: false,
 	name: null,
 	onCancelClick: () => {},
@@ -789,6 +802,7 @@ Form.defaultProps = {
 		__typename: 'Property',
 	},
 	relatedIngredients: [],
+	resetForm: () => {},
 	saveLabel: 'Save',
 	showCancelButton: false,
 	substitutes: [],
@@ -805,6 +819,7 @@ Form.propTypes = {
 	isComposedIngredient: PropTypes.bool,
 	isValidated: PropTypes.bool,
 	isEditMode: PropTypes.bool,
+	isFormReset: PropTypes.bool,
 	loading: PropTypes.bool,
 	name: PropTypes.string,
 	onCancelClick: PropTypes.func,
@@ -821,13 +836,13 @@ Form.propTypes = {
 		poultry: PropTypes.bool.isRequired,
 		soy: PropTypes.bool.isRequired,
 	}),
-	references: PropTypes.arrayOf(),
+	references: PropTypes.arrayOf(PropTypes.shape({})),
 	relatedIngredients: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string, /* if the id is left blank, its a new ingredient */
 		name: PropTypes.string.isRequired,
 	})),
+	resetForm: PropTypes.func,
 	saveLabel: PropTypes.string,
-	saveMutation: PropTypes.func.isRequired,
 	showCancelButton: PropTypes.bool,
 	substitutes: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string, /* if the id is left blank, its a new ingredient */

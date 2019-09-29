@@ -29,12 +29,12 @@ export const generateByCount = (ingredientID = null, ingredients = []) => {
 			containerIngredients = ingredients.filter(i => i.referenceCount === 0);
 			return {
 				__typename: 'Container',
-				count: containerIngredients.length,
 				id: uuidv1(),
 				ingredientID,
 				ingredients: containerIngredients,
 				isExpanded: Boolean(ingredientID),
 				label: '0 References',
+				referenceCount: containerIngredients.length,
 			};
 		}
 
@@ -44,12 +44,12 @@ export const generateByCount = (ingredientID = null, ingredients = []) => {
 
 			return {
 				__typename: 'Container',
-				count: containerIngredients.length,
 				id: uuidv1(),
 				ingredientID,
 				ingredients: containerIngredients,
 				isExpanded: Boolean(ingredientID),
 				label: '1 Reference',
+				referenceCount: containerIngredients.length,
 			};
 		}
 
@@ -65,12 +65,12 @@ export const generateByCount = (ingredientID = null, ingredients = []) => {
 
 		return {
 			__typename: 'Container',
-			count: containerIngredients.length,
 			id: uuidv1(),
 			ingredientID,
 			ingredients: containerIngredients,
 			isExpanded: Boolean(ingredientID),
 			label: `${ rangeStart }-${ rangeEnd } References`,
+			referenceCount: containerIngredients.length,
 		};
 	}).filter(c => c.ingredients.length > 0);
 
@@ -85,14 +85,14 @@ export const generateByName = (ingredientID = null, ingredients = [], view) => {
 	if (ingredients.length <= 500) {
 		containers.push({
 			__typename: 'Container',
-			count: ingredients.length,
 			id: uuidv1(),
 			ingredientID,
 			ingredients,
 			isExpanded: true,
 			label: (view === 'search')
-				? 'Search Results'
-				: `${ view.charAt(0).toUpperCase() + view.slice(1) } Ingredients`,
+			? 'Search Results'
+			: `${ view.charAt(0).toUpperCase() + view.slice(1) } Ingredients`,
+			referenceCount: ingredients.length,
 		});
 	// otherwise break up into containers by letter
 	} else {
@@ -112,12 +112,12 @@ export const generateByName = (ingredientID = null, ingredients = [], view) => {
 
 			return {
 				__typename: 'Container',
-				count: containerIngredients.length,
 				id: uuidv1(),
 				ingredientID,
 				ingredients: containerIngredients,
 				isExpanded: true,
 				label: char,
+				referenceCount: containerIngredients.length,
 			};
 		});
 	}
@@ -140,12 +140,12 @@ export const generateByProperty = (ingredientID = null, ingredients = []) => {
 		if (containerIngredients.length > 0) {
 			return {
 				__typename: 'Container',
-				count: containerIngredients.length,
 				id: uuidv1(),
 				ingredientID,
 				ingredients: containerIngredients,
 				isExpanded: true,
 				label: label.charAt(0).toUpperCase() + label.slice(1),
+				referenceCount: containerIngredients.length,
 			};
 		} return null;
 	}).filter(c => c);
@@ -159,24 +159,24 @@ export const generateByRelationship = (ingredientID = null, ingredients = []) =>
 	if (childIngredients.length > 0) {
 		containers.push({
 			__typename: 'Container',
-			count: childIngredients.length,
 			id: uuidv1(),
 			ingredientID,
 			ingredients: childIngredients,
 			isExpanded: true,
 			label: 'Child Ingredients',
+			referenceCount: childIngredients.length,
 		});
 	}
 
 	if (parentIngredients.length > 0) {
 		containers.push({
 			__typename: 'Container',
-			count: parentIngredients.length,
 			id: uuidv1(),
 			ingredientID,
 			ingredients: parentIngredients,
 			isExpanded: true,
 			label: 'Parent Ingredients',
+			referenceCount: parentIngredients.length,
 		});
 	}
 

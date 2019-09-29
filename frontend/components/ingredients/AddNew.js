@@ -2,6 +2,7 @@ import React from 'react';
 import { adopt } from 'react-adopt';
 import { Mutation, withApollo } from 'react-apollo';
 import styled from 'styled-components';
+import { GET_ALL_INGREDIENTS_QUERY, GET_INGREDIENTS_COUNT_QUERY, GET_CONTAINERS_QUERY } from '../../lib/apollo/queries';
 import { CREATE_INGREDIENT_MUTATION } from '../../lib/apollo/mutations';
 
 import Button from '../form/Button';
@@ -80,12 +81,21 @@ class AddNew extends React.PureComponent {
 	constructor(props) {
 		super(props);
 
-		this.state = { isExpanded: true };
+		this.state = {
+			isExpanded: false,
+			isFormReset: false,
+		};
 	}
 
-	onCreateIngredient = (e, ingredient, createIngredient) => {
+	refetchQueries = (queries) => {
+		const { client } = this.props;
+		return Promise.all(queries.map(q => client.query(
+			Object.assign({}, q, { fetchPolicy: 'network-only' }),
+		)));
+	}
+
+	onCreateIngredient = async (e, ingredient) => {
 		console.warn('[AddNew] onCreateIngredient');
-		console.log(createIngredient);
 		e.preventDefault();
 		const {
 			parentID,
@@ -101,9 +111,10 @@ class AddNew extends React.PureComponent {
 		} = ingredient;
 
 		delete properties.__typename;
-		console.log({ alternateNames: alternateNames.map(n => n.name) });
+		const { client, group, ingredientID, refreshContainers, view } = this.props;
 
-		createIngredient({
+		client.mutate({
+			mutation: CREATE_INGREDIENT_MUTATION,
 			variables: {
 				parentID,
 				parentName,
@@ -117,7 +128,36 @@ class AddNew extends React.PureComponent {
 				isValidated: true,
 				isComposedIngredient,
 			},
-		});
+		})
+			.then((res) => {
+				const queries = [
+					{ query: GET_ALL_INGREDIENTS_QUERY },
+					{ query: GET_INGREDIENTS_COUNT_QUERY },
+				];
+				return this.refetchQueries(queries);
+			})
+			.then(async (res) => {
+				const queryRes = await client.query({
+					notifyOnNetworkStatusChange: true,
+					fetchPolicy: 'network-only',
+					query: GET_CONTAINERS_QUERY,
+					variables: {
+						group,
+						ingredient,
+						view,
+					},
+				});
+
+				// minimize and reset this form
+				this.setState({
+					isExpanded: false,
+					isFormReset: true,
+				}, refreshContainers());
+			});
+	}
+
+	resetForm = () => {
+		this.setState({ isFormReset: false });
 	}
 
 	onToggleAddNew = (e) => {
@@ -128,13 +168,12 @@ class AddNew extends React.PureComponent {
 	}
 
 	render() {
-		console.warn('[AddNew] render');
-		const { isExpanded } = this.state;
+		const { isExpanded, isFormReset } = this.state;
 
 		return (
 			<Composed>
 				{
-					({ createIngredient }) => (
+					() => (
 						<AddNewStyles className={ `slide${ isExpanded ? '_expanded' : '' }` }>
 							<Button
 								className="add-new-btn"
@@ -148,9 +187,10 @@ class AddNew extends React.PureComponent {
 										<Form
 											className="add"
 											key="add-new"
+											resetForm={ this.resetForm }
 											onSaveIngredient={ this.onCreateIngredient }
+											isFormReset={ isFormReset }
 											saveLabel="Add"
-											saveMutation={ createIngredient }
 										/>
 									)
 									: null

@@ -14,10 +14,23 @@ export const CREATE_CONTAINERS_MUTATION = gql`
 			view: $view
 		) @client {
 			containers {
-				count
 				id
 				ingredientID
-				ingredients
+				ingredients {
+					hasParent
+					id
+					isValidated
+					name
+					properties {
+						meat
+						poultry
+						fish
+						dairy
+						soy
+						gluten
+					}
+					referenceCount
+				}
 				isExpanded
 				label
 			}
@@ -76,7 +89,23 @@ export const CREATE_INGREDIENT_MUTATION = gql`
 			isValidated: $isValidated
 			isComposedIngredient: $isComposedIngredient
 		) {
+			parent {
+				id
+			}
 			id
+			isValidated
+			name
+			properties {
+				meat
+				poultry
+				fish
+				dairy
+				soy
+				gluten
+			}
+			references {
+				id
+			}
 		}
 	}
 `;

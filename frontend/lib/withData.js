@@ -14,13 +14,18 @@ import {
 /* eslint-enable object-curly-newline */
 
 const typeDefs = gql`
+	type IngredientAggregate {
+		ingredientsCount: Int!
+		newIngredientsCount: Int!
+	}
+
 	type Container {
-		count: Int!
 		id: String!
 		ingredientID: String
 		ingredients: [ ContainerIngredient ]!
 		isExpanded: Boolean!
 		label: String!
+		referenceCount: Int!
 	}
 
 	type ContainerIngredient {
@@ -91,7 +96,7 @@ function createClient({ headers }) {
 			resolvers: {
 				Query: {
 					container(_, { id }, { client, getCacheKey }) {
-						console.warn(`... [withData](${ id }) container query resolver`);
+						// console.warn(`... [withData](${ id }) container query resolver`);
 
 						const container = client.readFragment({
 							id: getCacheKey({
@@ -100,10 +105,10 @@ function createClient({ headers }) {
 							}),
 							fragment: gql`
 								fragment getContainer on Container {
-									count
 									id
 									ingredientID
 									ingredients {
+										hasParent
 										id
 										isValidated
 										name
@@ -118,6 +123,7 @@ function createClient({ headers }) {
 									}
 									isExpanded
 									label
+									referenceCount
 								}
 							`,
 						});
@@ -125,7 +131,7 @@ function createClient({ headers }) {
 						return container;
 					},
 					async containers(_, { group, ingredientID, view }, { client }) {
-						console.warn(`... [withData](${ group }, ${ view }) containers query resolver`);
+						// console.warn(`... [withData](${ group }, ${ view }) containers query resolver`);
 						let containers = [];
 						let ingredients = [];
 
@@ -133,29 +139,32 @@ function createClient({ headers }) {
 						// fetch the ingredients for this view from the cache
 						const ingredientsViewData = await client.query({
 							// if this isn't in the cache, then go through the local query resolver
-							fetchPolicy: 'cache-first',
+							fetchPolicy: 'network-only', // 'cache-first',
 							query: GET_VIEW_INGREDIENTS_QUERY,
 							variables: { view },
 						});
 
 						ingredients = ingredientsViewData.data.viewIngredients;
-
 						// group the ingredients into containers
-						const { data } = await client.mutate({
-							mutation: CREATE_CONTAINERS_MUTATION,
-							variables: {
-								group,
-								ingredientID,
-								ingredients,
-								view,
-							},
-						});
-
+						let data = { createContainers: { containers: [] } };
+						try {
+							({ data } = await client.mutate({
+								mutation: CREATE_CONTAINERS_MUTATION,
+								variables: {
+									group,
+									ingredientID,
+									ingredients,
+									view,
+								},
+							}));
+						} catch (err) {
+							console.error({ err });
+						}
 						({ containers } = data.createContainers);
 						return containers;
 					},
 					ingredient(_, { value }) {
-						console.warn('[withData] ingredient');
+						// console.warn('... [withData] ingredient');
 
 						// get all ingredients from the cache
 						let { ingredients } = cache.readQuery({ query: GET_ALL_INGREDIENTS_QUERY });
@@ -184,7 +193,7 @@ function createClient({ headers }) {
 						return null;
 					},
 					viewIngredients(_, { view }) {
-						console.warn(`... [withData](${ view }) viewIngredients query resolver`);
+						// console.warn(`... [withData](${ view }) viewIngredients query resolver`);
 						// get all ingredients from the cache
 						let { ingredients } = cache.readQuery({ query: GET_ALL_INGREDIENTS_QUERY });
 
@@ -214,7 +223,7 @@ function createClient({ headers }) {
 					// eslint-disable-next-line object-curly-newline
 					createContainers(_, { group, ingredientID, ingredients, view }) {
 						// eslint-disable-next-line max-len
-						console.warn(`,,, [withData](${ group }, ingredients: ${ ingredients.length }, ${ view }) createContainers mutation resolver`);
+						// console.warn(`,,, [withData](${ group }, ingredients: ${ ingredients.length }, ${ view }) createContainers mutation resolver`);
 						let containers = [];
 
 						switch (group) {
@@ -240,7 +249,7 @@ function createClient({ headers }) {
 					// eslint-disable-next-line object-curly-newline
 					setContainerIsExpanded(_, { id, isExpanded }, { client, getCacheKey }) {
 						// eslint-disable-next-line max-len
-						console.warn(`,,, [withData](${ id }, ${ isExpanded }) setContainerIsExpanded mutation resolver`);
+						// console.warn(`,,, [withData](${ id }, ${ isExpanded }) setContainerIsExpanded mutation resolver`);
 
 						client.writeFragment({
 							id: getCacheKey({
@@ -263,7 +272,7 @@ function createClient({ headers }) {
 					// eslint-disable-next-line object-curly-newline
 					setCurrentCard(_, { id, ingredientID }, { client, getCacheKey }) {
 						// eslint-disable-next-line max-len
-						console.warn(`,,, [withData](${ id }, ${ ingredientID }) setCurrentCard mutation resolver`);
+						// console.warn(`,,, [withData](${ id }, ${ ingredientID }) setCurrentCard mutation resolver`);
 
 						client.writeFragment({
 							id: getCacheKey({

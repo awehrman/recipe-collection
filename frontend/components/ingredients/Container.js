@@ -40,7 +40,7 @@ const HeaderStyles = styled.div`
 `;
 
 const IngredientsList = styled.ul`
-	display: flex;
+	display: block;
 	flex-basis: 100%;
 	margin: 0;
 	list-style-type: none;
@@ -50,44 +50,41 @@ const IngredientsList = styled.ul`
 	position: relative;
 	padding: 0;
 
-	&.expanded {
-		display: block;
-	}
-
 	li {
+		flex-basis: 100%;
 		/* make sure you give enough top/bottom padding for a focus state */
 		padding: 2px 10px;
-	}
 
-	li .header {
-		font-size: 2em;
-		display: inline-block;
-		width: 100%;
-		font-weight: 600;
-	}
+		+ .active {
+			display: inline-block;
+			background: rgba(128, 174, 245, .08);
+			width: 100%;
+		}
 
-	li.child a {
-		font-style: italic;
-	}
+		+ .child a {
+			font-style: italic;
+		}
 
-	li.active {
-		display: inline-block;
-		background: rgba(128, 174, 245, .08);
-		width: 100%;
-	}
+		+ .invalid a {
+			color: silver;
+		}
 
-	li.invalid a {
-		color: silver;
-	}
+		.header {
+			font-size: 2em;
+			display: inline-block;
+			width: 100%;
+			font-weight: 600;
+		}
 
-	li a {
-		cursor: pointer;
-		text-decoration: none;
-		color: #222;
-		display: inline-block; /* need to give these links height for the scroll! */
+		a {
+			cursor: pointer;
+			text-decoration: none;
+			color: #222;
+			display: inline-block; /* need to give these links height for the scroll! */
 
-		&:hover {
-			color: ${ props => props.theme.highlight };
+			&:hover {
+				color: ${ props => props.theme.highlight };
+			}
 		}
 	}
 
@@ -122,7 +119,7 @@ const IngredientsList = styled.ul`
 const Composed = adopt({
 	// eslint-disable-next-line react/prop-types
 	getContainer: ({ id, render }) => (
-		<Query query={ GET_CONTAINER_QUERY } variables={ { id } }>
+		<Query fetchPolicy="network-only" notifyOnNetworkStatusChange query={ GET_CONTAINER_QUERY } variables={ { id } }>
 			{ render }
 		</Query>
 	),
@@ -142,7 +139,7 @@ const Composed = adopt({
 	),
 });
 
-class Container extends React.PureComponent {
+class Container extends React.Component {
 	buildIngredientsList = (ingredients, ingredientID) => {
 		const { view } = this.props;
 		// add list item properties
@@ -151,10 +148,9 @@ class Container extends React.PureComponent {
 			const listItem = deepCopy(i);
 
 			listItem.type = 'link';
-
 			listItem.className = listItem.type;
 			listItem.className += (ingredientID && (ingredientID === i.id)) ? ' active ' : '';
-			listItem.className += (i.hasParent !== null) ? ' child' : '';
+			listItem.className += (i.hasParent) ? ' child' : '';
 			listItem.className += (!i.isValidated && view !== 'new') ? ' invalid' : '';
 
 			listItem.href = { pathname: '/ingredients' };
@@ -209,7 +205,6 @@ class Container extends React.PureComponent {
 
 	onHeaderClick = (e, setContainerIsExpanded, id, isExpanded) => {
 		e.preventDefault();
-		console.log('[Container] onHeaderClick');
 		// update the local cache
 		setContainerIsExpanded({
 			variables: {
@@ -241,7 +236,7 @@ class Container extends React.PureComponent {
 	}
 
 	render() {
-		console.warn('[Container] render');
+		// console.warn('[Container] render');
 		const { id, view } = this.props;
 
 		return (
@@ -253,8 +248,9 @@ class Container extends React.PureComponent {
 						if (loading) return <Loading />;
 
 						const { container } = data || {};
-						const { count, ingredients, isExpanded, label } = container;
+						const { ingredients, isExpanded, label, referenceCount } = container;
 						const currentIngredientID = container.ingredientID;
+						console.log({ ingredients });
 						const ingList = this.buildIngredientsList(ingredients, currentIngredientID);
 						const listClassName = (`${ (!isExpanded) ? 'hidden' : '' } ${ (currentIngredientID) ? 'expanded' : '' }`).trim();
 
@@ -262,7 +258,7 @@ class Container extends React.PureComponent {
 							<ContainerStyles className={ (isExpanded) ? 'expanded' : '' }>
 								<HeaderStyles onClick={ e => this.onHeaderClick(e, setContainerIsExpanded, id, isExpanded) }>
 									{label}
-									<span className="count">{count}</span>
+									<span className="count">{ referenceCount }</span>
 								</HeaderStyles>
 
 								{

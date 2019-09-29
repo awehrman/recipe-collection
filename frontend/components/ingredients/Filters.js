@@ -45,7 +45,6 @@ const FilterStyles = styled.div`
 			}
 		}
 `;
-
 class Filters extends React.PureComponent {
 	render() {
 		// console.warn('[Filters] render');
