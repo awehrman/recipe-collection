@@ -3,7 +3,6 @@ import React from 'react';
 import { adopt } from 'react-adopt';
 import { Mutation, withApollo } from 'react-apollo';
 import styled from 'styled-components';
-import { GET_ALL_INGREDIENTS_QUERY, GET_INGREDIENTS_COUNT_QUERY, GET_CONTAINERS_QUERY } from '../../lib/apollo/queries';
 import { CREATE_INGREDIENT_MUTATION } from '../../lib/apollo/mutations';
 
 import Button from '../form/Button';
@@ -88,13 +87,6 @@ class AddNew extends React.PureComponent {
 		};
 	}
 
-	refetchQueries = (queries) => {
-		const { client } = this.props;
-		return Promise.all(queries.map(q => client.query(
-			Object.assign({}, q, { fetchPolicy: 'network-only' }),
-		)));
-	}
-
 	onCreateIngredient = async (e, ingredient) => {
 		console.warn('[AddNew] onCreateIngredient');
 		e.preventDefault();
@@ -112,7 +104,7 @@ class AddNew extends React.PureComponent {
 		} = ingredient;
 
 		delete properties.__typename;
-		const { client, group, ingredientID, refreshContainers, view } = this.props;
+		const { client, refreshContainers } = this.props;
 
 		// create the ingredient on the server
 		client.mutate({
@@ -131,32 +123,12 @@ class AddNew extends React.PureComponent {
 				isComposedIngredient,
 			},
 		})
-			// then refresh our ingredient count and ingredients list
+			// then minimize and reset this form
 			.then(() => {
-				const queries = [
-					{ query: GET_ALL_INGREDIENTS_QUERY },
-					{ query: GET_INGREDIENTS_COUNT_QUERY },
-				];
-				return this.refetchQueries(queries);
-			})
-			// then update our containers with our new ingredient data
-			.then(async () => {
-				await client.query({
-					notifyOnNetworkStatusChange: true,
-					fetchPolicy: 'network-only',
-					query: GET_CONTAINERS_QUERY,
-					variables: {
-						group,
-						ingredientID,
-						view,
-					},
-				});
-
-				// minimize and reset this form
 				this.setState({
 					isExpanded: false,
 					isFormReset: true,
-				}, refreshContainers());
+				}, () => refreshContainers());
 			});
 	}
 
@@ -207,17 +179,11 @@ class AddNew extends React.PureComponent {
 	}
 }
 
-AddNew.defaultProps = { ingredientID: null };
+AddNew.defaultProps = {};
 
 AddNew.propTypes = {
-	client: PropTypes.shape({
-		query: PropTypes.func,
-		mutate: PropTypes.func,
-	}).isRequired,
-	group: PropTypes.string.isRequired,
-	ingredientID: PropTypes.string,
+	client: PropTypes.shape({ mutate: PropTypes.func }).isRequired,
 	refreshContainers: PropTypes.func.isRequired,
-	view: PropTypes.string.isRequired,
 };
 
 export default withApollo(AddNew);

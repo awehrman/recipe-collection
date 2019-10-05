@@ -37,6 +37,11 @@ const typeDefs = gql`
 		referenceCount: Int!
 	}
 
+	type Suggestion {
+		id: ID!
+		name: String!
+	}
+
 	type ContainersResponse {
     containers: [ Container ]
   }
@@ -56,6 +61,7 @@ const typeDefs = gql`
 		containers: [ Container ]!
 		ingredient(value: String!): ContainerIngredient
 		viewIngredients: [ ContainerIngredient ]!
+		suggestions: [ Suggestion ]!
 	}
 
 	type Mutation {
@@ -191,6 +197,33 @@ function createClient({ headers }) {
 						// TODO partial store resets aren't coming until 3.0, we can try to clear out the proxy on a mutation update with:
 						// proxy.data.delete('Ingredient');
 						return null;
+					},
+					suggestions(_, { value }) {
+						console.warn(`... [withData](${ value }) suggestions query resolver`);
+						let suggestions = [];
+
+						if (value && value.length > 0) {
+							// get all ingredients from the cache
+							const { ingredients } = cache.readQuery({ query: GET_ALL_INGREDIENTS_QUERY });
+
+							suggestions = ingredients.filter(i => (
+								// return partial matches
+								(i.name.indexOf(value) > -1)
+								// ... as long as they're not an exact match on our input
+								&& (i.name !== value)
+							));
+
+							suggestions.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+							suggestions = suggestions.slice(0, 5);
+
+							suggestions = suggestions.map(i => ({
+								__typename: 'Suggestion',
+								id: i.id,
+								name: i.name,
+							}));
+							console.warn({ suggestions });
+						}
+						return suggestions;
 					},
 					viewIngredients(_, { view }) {
 						// console.warn(`... [withData](${ view }) viewIngredients query resolver`);

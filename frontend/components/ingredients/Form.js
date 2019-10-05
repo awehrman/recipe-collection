@@ -6,6 +6,7 @@ import { darken } from 'polished';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import uuid from 'uuid';
+import intersection from 'lodash/intersection';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/pro-regular-svg-icons';
@@ -223,6 +224,7 @@ class Form extends Component {
 	componentDidUpdate() {
 		const { isFormReset, resetForm } = this.props;
 		if (isFormReset) {
+			// eslint-disable-next-line
 			this.setState(this.initialState, resetForm);
 		}
 	}
@@ -407,10 +409,10 @@ class Form extends Component {
 	}
 
 	onListChange = (listItem, fieldName, removeListItem = false) => {
+		console.log({ listItem, fieldName });
 		let mutationMethod; // 'connect', 'disconnect', delete', 'create'
 		const { pending } = this.state;
 		let isRemoved = false;
-
 		if (!removeListItem) {
 			mutationMethod = (fieldName === 'alternateNames')
 				? `${ fieldName }Create`
@@ -430,12 +432,33 @@ class Form extends Component {
 			pendingMutationMethod = [ listItem ];
 		}
 
-		this.setState({
-			pending: {
-				...deepCopy(pending),
-				...{ [mutationMethod]: pendingMutationMethod },
-			},
-		}, () => this.validate(fieldName, listItem, isRemoved));
+		// if we're removing an item thats just in our pending state, remove both instances
+		const data = {
+			...deepCopy(pending),
+			...{ [mutationMethod]: pendingMutationMethod },
+		};
+		console.log({ data });
+
+		const pendingLists = Object.values(data).filter(v => Array.isArray(v));
+		let repeated = intersection(pendingLists)[1];
+		console.log({ pendingLists, repeated });
+
+		if (repeated) {
+			repeated = repeated.join(',');
+			// eslint-disable-next-line
+			for (const [key, value] of Object.entries(data)) {
+				const isPendingListMutation = key.includes('Create')
+					|| key.includes('Delete')
+					|| key.includes('Connect')
+					|| key.includes('Disconnect');
+
+				if (isPendingListMutation && (repeated.indexOf(value) > -1)) {
+					delete data[key];
+				}
+			}
+		}
+		console.warn({ data });
+		this.setState({ pending: data }, () => this.validate(fieldName, listItem, isRemoved));
 	}
 
 	onSaveIngredient = (e) => {
@@ -475,7 +498,7 @@ class Form extends Component {
 	}
 
 	validate = async (fieldName, value, isRemoved = false) => {
-		// console.warn(`validate ${ fieldName }, ${ value }, ${ isRemoved }`);
+		console.warn(`validate ${ fieldName }, ${ value }, ${ isRemoved }`);
 		let warnings = [];
 		const ing = this.getPendingIngredient();
 
@@ -511,6 +534,7 @@ class Form extends Component {
 	}
 
 	// TODO test removing fields here
+	// eslint-disable-next-line
 	validateField = async (fieldName, value, isRemoved = false) => {
 		// console.warn(`validateField ${ fieldName }, ${ value }, ${ isRemoved }`);
 		const { client } = this.props;
@@ -584,7 +608,7 @@ class Form extends Component {
 	}
 
 	render() {
-		// console.warn('[Form] render');
+		console.warn('[Form] render');
 		const {
 			alternateNames, className, id, isComposedIngredient, isEditMode, loading, name, onCancelClick,
 			onEditClick, plural, properties, relatedIngredients, saveLabel, showCancelButton, substitutes,
@@ -600,6 +624,9 @@ class Form extends Component {
 
 		// cleanup alternateNames data
 		const pendingIngredient = this.getPendingIngredient();
+
+		console.warn({ pendingIngredient });
+
 
 		return (
 			<FormStyles className={ className }>
@@ -696,6 +723,7 @@ class Form extends Component {
 							fieldName="relatedIngredients"
 							isEditMode={ isEditMode }
 							isRemovable
+							isSuggestionEnabled
 							label="Related Ingredients"
 							loading={ loading }
 							onListChange={ this.onListChange }
@@ -712,6 +740,7 @@ class Form extends Component {
 							fieldName="substitutes"
 							isEditMode={ isEditMode }
 							isRemovable
+							isSuggestionEnabled
 							label="Substitutes"
 							loading={ loading }
 							onListChange={ this.onListChange }

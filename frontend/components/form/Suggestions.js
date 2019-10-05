@@ -1,61 +1,109 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
+import { Query, withApollo } from 'react-apollo';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-const SuggestionStyles = styled.ul`
-	position: relative;
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  overflow-y: hidden;
+const SuggestionStyles = styled.div`
+	ul.suggestions {
+		position: relative;
+		list-style-type: none;
+		margin: 2px;
+		padding: 0;
+		overflow-y: hidden;
 
-	a {
-		color: ${ props => props.theme.altGreen };
-
-		li {
+		a {
+			color: ${ props => props.theme.altGreen };
 			display: inline-block;
-			padding: 4px 10px;
-			padding-left: 0;
-			font-size: .875em;
-		}
-	}
+			margin-right: 10px;
+			padding-bottom: 2px;
 
-	a.active {
-		color: ${ props => props.theme.highlight };
-		font-weight: 600;
+			li {
+				display: inline-block;
+				padding-left: 0;
+				font-size: .875em;
+			}
+		}
+
+		a.active, a:active, a:focus {
+			color: ${ props => props.theme.highlight };
+			font-weight: 600;
+			outline: 0;
+			border-bottom: 2px solid ${ props => props.theme.highlight };
+		}
 	}
 `;
 
-class Suggestions extends Component {
-  render() {
-  	const suggestions = [ ...this.props.suggestions ];
-  	const { currentSuggestion, value } = this.props;
+class Suggestions extends PureComponent {
+	onKeyDown = (e, suggestion) => {
+		console.warn('onKeyDown');
+		if (e.key === 'Enter') {
+			e.preventDefault();
+			// this is usually only utilized by the List component
+			this.onSelectSuggestion(null, suggestion);
+		}
+	}
 
-    return (
-      <SuggestionStyles>
+	onSelectSuggestion = (e, suggestion) => {
+		console.warn('onSelectSuggestion');
+		if (e) e.preventDefault();
+		const { fieldName, onSelectSuggestion } = this.props;
+		onSelectSuggestion(null, suggestion, fieldName);
+	}
+
+	render() {
+		console.warn('[Suggestions] render');
+		const { children, isSuggestionEnabled, suggestionQuery, value } = this.props;
+
+		return (
+			<Query query={ suggestionQuery } variables={ { value } }>
 				{
-					(value)
-						? suggestions.map((s, index) =>
-								// TODO i feel like there was a reason why i had to use onMouseDown here; but i'd really like to avoid this href="#" if possible because its litering the URL
-								<a href="#"  key={ s.id } onMouseDown={ e => this.props.onSelectSuggestion(e, s) } className={ (currentSuggestion === index) ? 'active' : '' }>
-									<li onClick={ e => this.props.onSelectSuggestion(e, s) }>{ s.name }</li>
-								</a>
-							)
-						: null
+					({ data }) => {
+						const { suggestions = [] } = data;
+						console.log({ suggestions, data });
+						return (
+							<SuggestionStyles>
+								{/* input element */}
+								{ children }
+								<ul className="suggestions">
+									{
+										(isSuggestionEnabled && (value.length > 0))
+											? suggestions.map((s, index) => (
+												<a
+													href="#"
+													id={ s.id }
+													key={ s.id }
+													onClick={ e => this.onSelectSuggestion(e, s) }
+													onKeyDown={ e => this.onKeyDown(e, s) }
+													onMouseDown={ e => this.onSelectSuggestion(e, s) }
+													value={ s.name }
+												>
+													<li>{ s.name }</li>
+												</a>
+											))
+											: null
+									}
+								</ul>
+							</SuggestionStyles>
+						);
+					}
 				}
-      </SuggestionStyles>
-    );
-  }
+			</Query>
+		);
+	}
 }
 
 Suggestions.defaultProps = {
-	suggestions: []
+	isSuggestionEnabled: false,
+	value: '',
 };
 
 Suggestions.propTypes = {
-	currentSuggestion: PropTypes.number,
-	suggestions: PropTypes.array.isRequired,
+	children: PropTypes.element.isRequired,
+	fieldName: PropTypes.string.isRequired,
+	isSuggestionEnabled: PropTypes.bool,
+	onSelectSuggestion: PropTypes.func.isRequired,
+	suggestionQuery: PropTypes.shape({}).isRequired,
 	value: PropTypes.string,
 };
 
-export default Suggestions;
+export default withApollo(Suggestions);

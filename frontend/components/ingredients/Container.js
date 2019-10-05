@@ -196,7 +196,15 @@ class Container extends React.Component {
 				} ];
 
 				// push ingredients under that letter group
-				return grouping.concat(...ingredients.filter(i => i.name.charAt(0) === char));
+				const array = grouping.concat(
+					...ingredients.filter(i => i.name.charAt(0) === char)
+						.sort((a, b) => {
+							if (a.name < b.name) { return -1; }
+							if (a.name > b.name) { return 1; }
+							return 0;
+						}),
+				);
+				return array;
 			}),
 		);
 

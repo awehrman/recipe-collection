@@ -73,6 +73,15 @@ export const GET_VIEW_INGREDIENTS_QUERY = gql`
 	}
 `;
 
+export const GET_SUGGESTED_INGREDIENTS_QUERY = gql`
+	query GET_SUGGESTED_INGREDIENTS_QUERY($value: String) {
+		suggestions(value: $value) @client {
+			id
+			name
+		}
+	}
+`;
+
 /* Ingredients */
 export const GET_INGREDIENTS_COUNT_QUERY = gql`
   query GET_INGREDIENTS_COUNT_QUERY {
@@ -125,4 +134,5 @@ export default [
 	GET_INGREDIENTS_COUNT_QUERY,
 	GET_INGREDIENT_BY_VALUE_QUERY,
 	GET_ALL_INGREDIENTS_QUERY,
+	GET_SUGGESTED_INGREDIENTS_QUERY,
 ];

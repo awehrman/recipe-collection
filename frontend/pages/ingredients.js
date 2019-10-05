@@ -33,15 +33,18 @@ const IngredientsPageStyles = styled.article`
 `;
 
 class Ingredients extends React.PureComponent {
-	constructor(props) {
-		super(props);
-
-		this.state = { updateContainers: false };
-	}
-
 	refreshContainers = () => {
-		const { updateContainers } = this.state;
-		this.setState({ updateContainers: !updateContainers });
+		console.warn('refreshContainers');
+		const { client } = this.props;
+
+		const queries = [
+			{ query: GET_ALL_INGREDIENTS_QUERY },
+			{ query: GET_INGREDIENTS_COUNT_QUERY },
+		];
+
+		return Promise.all(queries.map(q => client.query(
+			Object.assign({}, q, { fetchPolicy: 'network-only' }),
+		)));
 	}
 
 	render() {
@@ -79,18 +82,12 @@ class Ingredients extends React.PureComponent {
 												<Containers
 													group={ group }
 													ingredientID={ id }
-													updateContainers={ this.refreshContainers }
 													view={ view }
 												/>
 											)
 									}
 
-									<AddNew
-										group={ group }
-										ingredientID={ id }
-										refreshContainers={ this.refreshContainers }
-										view={ view }
-									/>
+									<AddNew refreshContainers={ this.refreshContainers } />
 								</section>
 							</IngredientsPageStyles>
 						);

@@ -8,6 +8,8 @@ import styled from 'styled-components';
 
 import Button from './Button';
 import Input from './Input';
+import Suggestions from './Suggestions';
+import { GET_SUGGESTED_INGREDIENTS_QUERY } from '../../lib/apollo/queries';
 
 const ListStyles = styled.fieldset`
 	border: 0;
@@ -151,6 +153,7 @@ class List extends Component {
 	}
 
 	onChange = (e) => {
+		console.log('[List] onChange');
 		const { value } = e.target;
 		const { fieldName, validate } = this.props;
 
@@ -158,16 +161,13 @@ class List extends Component {
 	}
 
 	onListChange = (e, listItem, fieldName, removeListItem = false) => {
-		try {
-			e.preventDefault();
-		} catch (err) {
-			console.error(e);
-		}
+		console.log({ listItem });
+		if (e) e.preventDefault();
 		const { onListChange } = this.props;
 		this.setState({
 			showInput: false,
 			value: '',
-		}, onListChange((listItem.name) ? listItem.name : listItem, fieldName, removeListItem));
+		}, onListChange(listItem, fieldName, removeListItem));
 	}
 
 	onSuggestPlural = (e, value) => {
@@ -209,12 +209,12 @@ class List extends Component {
 
 	render() {
 		const {
-			className, defaultValues, excludedSuggestions, isEditMode, isPluralSuggestEnabled,
+			className, defaultValues, isEditMode, isPluralSuggestEnabled,
 			isRemovable, isSuggestionEnabled, label, loading, fieldName, onListItemClick,
-			placeholder, suggestionPool, suppressLocalWarnings, type, warnings, validate, values,
+			placeholder, suppressLocalWarnings, type, warnings, validate, values,
 		} = this.props;
 		const { showInput, value } = this.state;
-
+		console.log({ values });
 		let list = (isEditMode && (values !== undefined)) ? values : defaultValues;
 		list = list || [];
 
@@ -249,6 +249,7 @@ class List extends Component {
 								if (i.name && (i.name.length === 0)) return null;
 								const warningIndex = warnings.findIndex(w => (w.value === i.name));
 								const key = `${ type }_${ index }_${ i.id || i.name || i }`;
+								console.log({ i, index });
 								return (
 									<li key={ key }>
 										{/* TODO we might want to switch link types to return a <Link> so that the URL updates;
@@ -296,22 +297,27 @@ class List extends Component {
 					{/* New List Item Input look into value assignment here */
 						(showInput)
 							? (
-								<Input
-									excludedSuggestions={ excludedSuggestions }
-									isLabelDisplayed={ false }
+								<Suggestions
 									isSuggestionEnabled={ isSuggestionEnabled }
 									fieldName={ fieldName }
-									loading={ loading }
-									onBlur={ this.onBlur }
-									onChange={ this.onChange }
-									onSubmit={ this.onListChange }
-									placeholder={ placeholder }
-									suggestionPool={ suggestionPool }
-									suppressLocalWarnings={ suppressLocalWarnings }
-									validate={ validate }
+									onSelectSuggestion={ this.onListChange }
+									suggestionQuery={ GET_SUGGESTED_INGREDIENTS_QUERY }
 									value={ value.name || value }
-									warnings={ warnings || undefined }
-								/>
+								>
+									<Input
+										isLabelDisplayed={ false }
+										fieldName={ fieldName }
+										loading={ loading }
+										onBlur={ this.onBlur }
+										onChange={ this.onChange }
+										onSubmit={ this.onListChange }
+										placeholder={ placeholder }
+										suppressLocalWarnings={ suppressLocalWarnings }
+										validate={ validate }
+										value={ value.name || value }
+										warnings={ warnings || undefined }
+									/>
+								</Suggestions>
 							)
 							: null
 					}
@@ -325,7 +331,6 @@ class List extends Component {
 List.defaultProps = {
 	className: '',
 	defaultValues: [],
-	excludedSuggestions: [],
 	isEditMode: true,
 	isPluralSuggestEnabled: false,
 	isRemovable: true,
@@ -334,7 +339,6 @@ List.defaultProps = {
 	loading: false,
 	onListItemClick: e => e.preventDefault(),
 	placeholder: '',
-	suggestionPool: [],
 	suppressLocalWarnings: false,
 	type: 'static',
 	values: [],
@@ -347,10 +351,6 @@ List.propTypes = {
 		id: PropTypes.string,
 		name: PropTypes.string.isRequired,
 	})),
-	excludedSuggestions: PropTypes.arrayOf(PropTypes.shape({
-		id: PropTypes.string, /* if the id is left blank, its a new ingredient */
-		name: PropTypes.string.isRequired,
-	})),
 	fieldName: PropTypes.string.isRequired,
 	isEditMode: PropTypes.bool,
 	isPluralSuggestEnabled: PropTypes.bool,
@@ -361,10 +361,6 @@ List.propTypes = {
 	onListChange: PropTypes.func.isRequired,
 	onListItemClick: PropTypes.func,
 	placeholder: PropTypes.string,
-	suggestionPool: PropTypes.arrayOf(PropTypes.shape({
-		id: PropTypes.string, /* if the id is left blank, its a new ingredient */
-		name: PropTypes.string.isRequired,
-	})),
 	suppressLocalWarnings: PropTypes.bool,
 	type: PropTypes.string,
 	validate: PropTypes.func.isRequired,
