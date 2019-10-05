@@ -70,9 +70,9 @@ export const CREATE_INGREDIENT_MUTATION = gql`
 		$plural: String,
 		$properties: PropertiesCreateInput,
 		$alternateNames: [ String ],
-		$relatedIngredients: [ ID ],
-		$substitutes: [ ID ],
-		$references: [ ID ],
+		$relatedIngredients: [ String ],
+		$substitutes: [ String ],
+		$references: [ String ],
 		$isValidated: Boolean,
 		$isComposedIngredient: Boolean
 	) {

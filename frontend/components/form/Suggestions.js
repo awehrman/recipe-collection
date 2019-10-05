@@ -35,7 +35,6 @@ const SuggestionStyles = styled.div`
 
 class Suggestions extends PureComponent {
 	onKeyDown = (e, suggestion) => {
-		console.warn('onKeyDown');
 		if (e.key === 'Enter') {
 			e.preventDefault();
 			// this is usually only utilized by the List component
@@ -44,14 +43,12 @@ class Suggestions extends PureComponent {
 	}
 
 	onSelectSuggestion = (e, suggestion) => {
-		console.warn('onSelectSuggestion');
 		if (e) e.preventDefault();
 		const { fieldName, onSelectSuggestion } = this.props;
 		onSelectSuggestion(null, suggestion, fieldName);
 	}
 
 	render() {
-		console.warn('[Suggestions] render');
 		const { children, isSuggestionEnabled, suggestionQuery, value } = this.props;
 
 		return (
@@ -59,7 +56,6 @@ class Suggestions extends PureComponent {
 				{
 					({ data }) => {
 						const { suggestions = [] } = data;
-						console.log({ suggestions, data });
 						return (
 							<SuggestionStyles>
 								{/* input element */}
@@ -67,7 +63,7 @@ class Suggestions extends PureComponent {
 								<ul className="suggestions">
 									{
 										(isSuggestionEnabled && (value.length > 0))
-											? suggestions.map((s, index) => (
+											? suggestions.map(s => (
 												<a
 													href="#"
 													id={ s.id }

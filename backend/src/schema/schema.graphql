@@ -24,9 +24,9 @@ type Mutation {
 										plural: String,
 										properties: PropertiesCreateInput,
 										alternateNames: [ String ],
-										relatedIngredients: [ ID ],
-										substitutes: [ ID ],
-										references: [ ID ],
+										relatedIngredients: [ String ],
+										substitutes: [ String ],
+										references: [ String ],
 										isValidated: Boolean,
 										isComposedIngredient: Boolean
 									): Ingredient!

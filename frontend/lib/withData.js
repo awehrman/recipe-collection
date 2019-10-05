@@ -30,7 +30,7 @@ const typeDefs = gql`
 
 	type ContainerIngredient {
 		hasParent: Boolean!
-		id: ID!
+		id: String!
 		isValidated: Boolean!
 		name: String!
 		properties: Properties!
@@ -38,7 +38,7 @@ const typeDefs = gql`
 	}
 
 	type Suggestion {
-		id: ID!
+		id: String!
 		name: String!
 	}
 
@@ -47,7 +47,17 @@ const typeDefs = gql`
   }
 
 	type Properties {
-		id: ID!
+		id: String!
+		meat: Boolean!
+		poultry: Boolean!
+		fish: Boolean!
+		dairy: Boolean!
+		soy: Boolean!
+		gluten: Boolean!
+	}
+
+	type PropertiesCreateInput {
+		id: String!
 		meat: Boolean!
 		poultry: Boolean!
 		fish: Boolean!
@@ -221,7 +231,6 @@ function createClient({ headers }) {
 								id: i.id,
 								name: i.name,
 							}));
-							console.warn({ suggestions });
 						}
 						return suggestions;
 					},

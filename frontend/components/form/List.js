@@ -153,7 +153,6 @@ class List extends Component {
 	}
 
 	onChange = (e) => {
-		console.log('[List] onChange');
 		const { value } = e.target;
 		const { fieldName, validate } = this.props;
 
@@ -161,13 +160,16 @@ class List extends Component {
 	}
 
 	onListChange = (e, listItem, fieldName, removeListItem = false) => {
-		console.log({ listItem });
 		if (e) e.preventDefault();
 		const { onListChange } = this.props;
+		const item = {
+			id: listItem.id || null,
+			name: listItem.name,
+		};
 		this.setState({
 			showInput: false,
 			value: '',
-		}, onListChange(listItem, fieldName, removeListItem));
+		}, onListChange(item, fieldName, removeListItem));
 	}
 
 	onSuggestPlural = (e, value) => {
@@ -214,7 +216,6 @@ class List extends Component {
 			placeholder, suppressLocalWarnings, type, warnings, validate, values,
 		} = this.props;
 		const { showInput, value } = this.state;
-		console.log({ values });
 		let list = (isEditMode && (values !== undefined)) ? values : defaultValues;
 		list = list || [];
 
@@ -249,7 +250,6 @@ class List extends Component {
 								if (i.name && (i.name.length === 0)) return null;
 								const warningIndex = warnings.findIndex(w => (w.value === i.name));
 								const key = `${ type }_${ index }_${ i.id || i.name || i }`;
-								console.log({ i, index });
 								return (
 									<li key={ key }>
 										{/* TODO we might want to switch link types to return a <Link> so that the URL updates;

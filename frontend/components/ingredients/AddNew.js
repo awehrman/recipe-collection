@@ -90,6 +90,11 @@ class AddNew extends React.PureComponent {
 	onCreateIngredient = async (e, ingredient) => {
 		console.warn('[AddNew] onCreateIngredient');
 		e.preventDefault();
+		let {
+			relatedIngredients,
+			substitutes,
+			references,
+		} = ingredient;
 		const {
 			parentID,
 			parentName,
@@ -97,14 +102,23 @@ class AddNew extends React.PureComponent {
 			plural,
 			properties,
 			alternateNames,
-			relatedIngredients,
-			substitutes,
-			references,
 			isComposedIngredient,
 		} = ingredient;
 
 		delete properties.__typename;
 		const { client, refreshContainers } = this.props;
+
+		if (relatedIngredients) {
+			relatedIngredients = relatedIngredients.map(r => r.id);
+		}
+
+		if (substitutes) {
+			substitutes = substitutes.map(r => r.id);
+		}
+
+		if (references) {
+			references = references.map(r => r.id);
+		}
 
 		// create the ingredient on the server
 		client.mutate({

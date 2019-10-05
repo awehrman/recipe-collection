@@ -149,7 +149,6 @@ export default {
 
 			try {
 				ingredient = await ctx.prisma.createIngredient({ ...ingredient }, info);
-				console.log('returning ing?');
 				// TODO look into why prisma isn't returning properties
 				if (!ingredient.properties) {
 					ingredient.properties = (!properties)

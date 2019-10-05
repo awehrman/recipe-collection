@@ -409,7 +409,6 @@ class Form extends Component {
 	}
 
 	onListChange = (listItem, fieldName, removeListItem = false) => {
-		console.log({ listItem, fieldName });
 		let mutationMethod; // 'connect', 'disconnect', delete', 'create'
 		const { pending } = this.state;
 		let isRemoved = false;
@@ -437,11 +436,9 @@ class Form extends Component {
 			...deepCopy(pending),
 			...{ [mutationMethod]: pendingMutationMethod },
 		};
-		console.log({ data });
 
 		const pendingLists = Object.values(data).filter(v => Array.isArray(v));
 		let repeated = intersection(pendingLists)[1];
-		console.log({ pendingLists, repeated });
 
 		if (repeated) {
 			repeated = repeated.join(',');
@@ -457,7 +454,6 @@ class Form extends Component {
 				}
 			}
 		}
-		console.warn({ data });
 		this.setState({ pending: data }, () => this.validate(fieldName, listItem, isRemoved));
 	}
 
@@ -498,7 +494,7 @@ class Form extends Component {
 	}
 
 	validate = async (fieldName, value, isRemoved = false) => {
-		console.warn(`validate ${ fieldName }, ${ value }, ${ isRemoved }`);
+		// console.warn(`validate ${ fieldName }, ${ value }, ${ isRemoved }`);
 		let warnings = [];
 		const ing = this.getPendingIngredient();
 
@@ -539,24 +535,27 @@ class Form extends Component {
 		// console.warn(`validateField ${ fieldName }, ${ value }, ${ isRemoved }`);
 		const { client } = this.props;
 		const warnings = [];
+		const nameValue = (typeof value === 'string') ? value : value.name;
+		console.warn({ nameValue, fieldName });
+		if (fieldName === 'relatedIngredients' || fieldName === 'substitutes') return warnings;
 
 		// if we found this value used on another ingredient, add a warning, but allow save
 		// saving will trigger a merge on these two ingredients
 		const { data } = await client.query({
 			query: GET_INGREDIENT_BY_VALUE_QUERY,
-			variables: { value },
+			variables: { value: nameValue },
 		});
 		const { ingredient } = data;
 
 		// if we found this value used on another ingredient, add a warning, but allow save
 		// saving will trigger a merge on these two ingredients
-		if (ingredient && (!~warnings.findIndex(w => w.value === value))) {
+		if (ingredient && (!~warnings.findIndex(w => w.value === nameValue))) {
 			warnings.push({
 				id: uuid.v4(),
 				fieldName,
 				preventSave: false,
-				message: `"${ value }" is already in use on the "${ ingredient.name }" ingredient.`,
-				value,
+				message: `"${nameValue }" is already in use on the "${ ingredient.name }" ingredient.`,
+				value: nameValue,
 			});
 		}
 
@@ -574,32 +573,32 @@ class Form extends Component {
 
 		validationFields.forEach(async (f) => {
 			// if we find any matches on the name or plural fields, add a warning
-			if (value && ing[f] && (typeof ing[f] === 'string') && (ing[f].toLowerCase() === value.toLowerCase())) {
+			if (nameValue && ing[f] && (typeof ing[f] === 'string') && (ing[f].toLowerCase() === nameValue.toLowerCase())) {
 				warnings.push({
 					id: uuid.v4(),
 					fieldName: f,
 					preventSave: true,
-					message: `"${ value }" is already in use on the "${ f }" field.`,
-					value,
+					message: `"${ nameValue }" is already in use on the "${ f }" field.`,
+					value: nameValue,
 				});
 
 				warnings.push({
 					id: uuid.v4(),
 					fieldName,
 					preventSave: true,
-					message: `"${ value }" is already in use on the "${ fieldName }" field.`,
-					value,
+					message: `"${ nameValue }" is already in use on the "${ fieldName }" field.`,
+					value: nameValue,
 				});
 			}
 
 			// if we find any matches within the alternateNames, add a warning
-			if (ing[f] && (typeof ing[f] === 'object') && (!ing[f].findIndex(n => n.name.toLowerCase() === value.toLowerCase()))) {
+			if (nameValue && ing[f] && (typeof ing[f] === 'object') && (!ing[f].findIndex(n => n.name.toLowerCase() === nameValue.toLowerCase()))) {
 				warnings.push({
 					id: uuid.v4(),
 					fieldName,
 					preventSave: true,
-					message: `"${ value }" is already listed in the "${ f }" field.`,
-					value,
+					message: `"${ nameValue }" is already listed in the "${ f }" field.`,
+					value: nameValue,
 				});
 			}
 		});
@@ -608,7 +607,7 @@ class Form extends Component {
 	}
 
 	render() {
-		console.warn('[Form] render');
+		// console.warn('[Form] render');
 		const {
 			alternateNames, className, id, isComposedIngredient, isEditMode, loading, name, onCancelClick,
 			onEditClick, plural, properties, relatedIngredients, saveLabel, showCancelButton, substitutes,
@@ -624,9 +623,6 @@ class Form extends Component {
 
 		// cleanup alternateNames data
 		const pendingIngredient = this.getPendingIngredient();
-
-		console.warn({ pendingIngredient });
-
 
 		return (
 			<FormStyles className={ className }>
