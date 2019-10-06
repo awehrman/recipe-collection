@@ -126,7 +126,7 @@ const Composed = adopt({
 
 	// eslint-disable-next-line react/prop-types
 	setCurrentCard: ({ render }) => (
-		<Mutation mutation={ UPDATE_CONTAINER_INGREDIENT_ID_MUTATION }>
+		<Mutation mutation={ UPDATE_CONTAINER_INGREDIENT_ID_MUTATION } refetchQueries={ [ GET_CONTAINER_QUERY ] }>
 			{ render }
 		</Mutation>
 	),
@@ -139,7 +139,7 @@ const Composed = adopt({
 	),
 });
 
-class Container extends React.Component {
+class Container extends React.PureComponent {
 	buildIngredientsList = (ingredients, ingredientID) => {
 		const { view } = this.props;
 		// add list item properties
@@ -222,36 +222,52 @@ class Container extends React.Component {
 		});
 	}
 
-	onIngredientClick = (e, setCurrentCard, currentIngredientID) => {
+	onIngredientClick = async (e, setCurrentCard, currentIngredientID) => {
 		e.preventDefault();
 		const targetIngredientID = e.target.id;
 		console.log(`[Container] onIngredientClick click:${ targetIngredientID }, current: ${ currentIngredientID } `);
-		const { group, id, view } = this.props;
+
+		const { client, group, id, view } = this.props;
 
 		// update the url without causing a bunch of re-renders
 		let href = `/ingredients?view=${ view }&group=${ group }`;
 		href += (currentIngredientID === targetIngredientID) ? '' : `&id=${ targetIngredientID }`;
 		const as = href;
 		Router.push(href, as, { shallow: true });
+		console.log((currentIngredientID === targetIngredientID) ? null : targetIngredientID);
 
 		// update the local cache
+		/*
 		setCurrentCard({
 			variables: {
 				id,
 				ingredientID: (currentIngredientID === targetIngredientID) ? null : targetIngredientID,
 			},
 		});
+		*/
+		try {
+			await client.mutate({
+				mutation: UPDATE_CONTAINER_INGREDIENT_ID_MUTATION,
+				variables: {
+					id,
+					ingredientID: (currentIngredientID === targetIngredientID) ? null : targetIngredientID,
+				},
+			}).then(() => console.log('done'));
+		} catch (err) {
+			console.error({ err });
+		}
 	}
 
 	render() {
-		// console.warn('[Container] render');
+		console.warn('[Container] render');
 		const { id, view } = this.props;
-
 		return (
 			<Composed id={ id }>
 				{
 					({ getContainer, setCurrentCard, setContainerIsExpanded }) => {
 						const { data, error, loading } = getContainer;
+						// eslint-disable-next-line
+						console.log({ id, data, error, loading });
 						if (error) return <ErrorMessage error={ error } />;
 						if (loading) return <Loading />;
 
@@ -260,7 +276,7 @@ class Container extends React.Component {
 						const currentIngredientID = container.ingredientID;
 						const ingList = this.buildIngredientsList(ingredients, currentIngredientID);
 						const listClassName = (`${ (!isExpanded) ? 'hidden' : '' } ${ (currentIngredientID) ? 'expanded' : '' }`).trim();
-
+						console.log({ currentIngredientID });
 						return (
 							<ContainerStyles className={ (isExpanded) ? 'expanded' : '' }>
 								<HeaderStyles onClick={ e => this.onHeaderClick(e, setContainerIsExpanded, id, isExpanded) }>
@@ -314,6 +330,7 @@ class Container extends React.Component {
 }
 
 Container.propTypes = {
+	client: PropTypes.shape({ mutate: PropTypes.func }).isRequired,
 	group: PropTypes.oneOf([ 'name', 'property', 'relationship', 'count' ]).isRequired,
 	id: PropTypes.string.isRequired,
 	view: PropTypes.oneOf([ 'all', 'new' ]).isRequired,

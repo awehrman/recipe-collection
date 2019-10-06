@@ -57,8 +57,6 @@
 		title: String!
 		source: String
 		# TODO
-		# author: String
-		# book: String
 
 		categories: [ Category! ]! @relation(link: TABLE, name: "RecipeCategories")
 		tags: [ Tag! ]! @relation(link: TABLE, name: "RecipeTags")

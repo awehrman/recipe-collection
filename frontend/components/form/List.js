@@ -156,16 +156,21 @@ class List extends Component {
 		const { value } = e.target;
 		const { fieldName, validate } = this.props;
 
-		this.setState({ value }, () => validate(fieldName, (value.name) ? value.name : value));
+		this.setState({ value }, () => validate(fieldName, (typeof value === 'string') ? value : value.name));
 	}
 
 	onListChange = (e, listItem, fieldName, removeListItem = false) => {
 		if (e) e.preventDefault();
 		const { onListChange } = this.props;
-		const item = {
-			id: listItem.id || null,
-			name: listItem.name,
-		};
+		let item;
+		if (typeof listItem === 'string') {
+			item = listItem;
+		} else {
+			item = {
+				id: listItem.id || null,
+				name: listItem.name,
+			};
+		}
 		this.setState({
 			showInput: false,
 			value: '',

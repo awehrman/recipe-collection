@@ -162,7 +162,6 @@ export default {
 						}
 						: { ...properties };
 				}
-				console.log(ingredient);
 
 				return ingredient;
 			} catch (err) {

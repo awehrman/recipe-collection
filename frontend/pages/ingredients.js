@@ -51,6 +51,7 @@ class Ingredients extends React.PureComponent {
 		// console.warn('[ingredients] render');
 		const { query } = this.props;
 		const { group = 'name', id = null, view = 'all' } = query;
+		// eslint-disable-next-line
 
 		return (
 			// eslint-disable-next-line

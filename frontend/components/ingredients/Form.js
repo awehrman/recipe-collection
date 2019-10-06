@@ -255,12 +255,12 @@ class Form extends Component {
 			substitutes: deepCopy(substitutes),
 			properties: {
 				__typename: 'Properties',
-				dairy: hasProperty(pending, properties) ? pending.properties.dairy : properties.dairy,
-				fish: hasProperty(pending, properties) ? pending.properties.fish : properties.fish,
-				gluten: hasProperty(pending, properties) ? pending.properties.gluten : properties.gluten,
-				meat: hasProperty(pending, properties) ? pending.properties.meat : properties.meat,
-				poultry: hasProperty(pending, properties) ? pending.properties.poultry : properties.poultry,
-				soy: hasProperty(pending, properties) ? pending.properties.soy : properties.soy,
+				dairy: hasProperty(pending, 'properties') ? pending.properties.dairy : properties.dairy,
+				fish: hasProperty(pending, 'properties') ? pending.properties.fish : properties.fish,
+				gluten: hasProperty(pending, 'properties') ? pending.properties.gluten : properties.gluten,
+				meat: hasProperty(pending, 'properties') ? pending.properties.meat : properties.meat,
+				poultry: hasProperty(pending, 'properties') ? pending.properties.poultry : properties.poultry,
+				soy: hasProperty(pending, 'properties') ? pending.properties.soy : properties.soy,
 			},
 			isComposedIngredient: (hasProperty(pending, isComposedIngredient))
 				? pending.isComposedIngredient : isComposedIngredient,
@@ -432,10 +432,20 @@ class Form extends Component {
 		}
 
 		// if we're removing an item thats just in our pending state, remove both instances
+		// TODO this whole thing could be cleaned up especially with the inconsistencies between
+		// receiving listItem objects vs strings
 		const data = {
 			...deepCopy(pending),
 			...{ [mutationMethod]: pendingMutationMethod },
 		};
+
+		if (hasProperty(data, 'alternateNamesCreate')) {
+			data.alternateNamesCreate = data.alternateNamesCreate.map(n => n.name);
+		}
+
+		if (hasProperty(data, 'alternateNamesDelete')) {
+			data.alternateNamesDelete = data.alternateNamesDelete.map(n => n.name);
+		}
 
 		const pendingLists = Object.values(data).filter(v => Array.isArray(v));
 		let repeated = intersection(pendingLists)[1];
@@ -454,6 +464,7 @@ class Form extends Component {
 				}
 			}
 		}
+
 		this.setState({ pending: data }, () => this.validate(fieldName, listItem, isRemoved));
 	}
 
@@ -536,7 +547,6 @@ class Form extends Component {
 		const { client } = this.props;
 		const warnings = [];
 		const nameValue = (typeof value === 'string') ? value : value.name;
-		console.warn({ nameValue, fieldName });
 		if (fieldName === 'relatedIngredients' || fieldName === 'substitutes') return warnings;
 
 		// if we found this value used on another ingredient, add a warning, but allow save
@@ -554,7 +564,7 @@ class Form extends Component {
 				id: uuid.v4(),
 				fieldName,
 				preventSave: false,
-				message: `"${nameValue }" is already in use on the "${ ingredient.name }" ingredient.`,
+				message: `"${ nameValue }" is already in use on the "${ ingredient.name }" ingredient.`,
 				value: nameValue,
 			});
 		}

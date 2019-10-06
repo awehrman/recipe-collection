@@ -37,6 +37,60 @@ const typeDefs = gql`
 		referenceCount: Int!
 	}
 
+	type Ingredient {
+		id: ID!
+		name: String!
+		plural: String
+		alternateNames: [ AlternateName! ]!
+		properties: Properties!
+		isComposedIngredient: Boolean!
+		isValidated: Boolean!
+		parent: Ingredient
+		relatedIngredients: [ Ingredient! ]!
+		substitutes: [ Ingredient! ]!
+		references: [ RecipeIngredient! ]!
+	}
+
+	type AlternateName {
+		id: ID!
+		name: String!
+	}
+
+	type Recipe {
+		id: ID!
+		evernoteGUID: String
+		title: String!
+		source: String
+		categories: [ Category! ]!
+		tags: [ Tag! ]!
+		image: String
+		ingredients: [ RecipeIngredient! ]!
+		instructions: [ RecipeInstruction! ]!
+	}
+
+	type RecipeInstruction {
+		id: ID!
+		blockIndex: Int!
+		reference: String!
+	}
+
+	type RecipeIngredient {
+		id: ID!
+		blockIndex: Int!
+		lineIndex: Int!
+		reference: String!
+		isParsed: Boolean!
+		parsed: [ ParsedSegment! ]
+	}
+
+	type ParsedSegment {
+		id: ID!
+		rule: String!
+		type: String!
+		value: String!
+		ingredient: Ingredient
+	}
+
 	type Suggestion {
 		id: String!
 		name: String!
@@ -163,6 +217,9 @@ function createClient({ headers }) {
 						ingredients = ingredientsViewData.data.viewIngredients;
 						// group the ingredients into containers
 						let data = { createContainers: { containers: [] } };
+						// TODO this should attempt to read the container from the cache first
+						// TODO or idk properly reset parts of the cache, there's definitely some race conditions here
+						// it might be worth waiting till the next apollo bump tho
 						try {
 							({ data } = await client.mutate({
 								mutation: CREATE_CONTAINERS_MUTATION,
@@ -174,7 +231,7 @@ function createClient({ headers }) {
 								},
 							}));
 						} catch (err) {
-							console.error({ err });
+							// console.error({ err });
 						}
 						({ containers } = data.createContainers);
 						return containers;
@@ -265,7 +322,7 @@ function createClient({ headers }) {
 					// eslint-disable-next-line object-curly-newline
 					createContainers(_, { group, ingredientID, ingredients, view }) {
 						// eslint-disable-next-line max-len
-						// console.warn(`,,, [withData](${ group }, ingredients: ${ ingredients.length }, ${ view }) createContainers mutation resolver`);
+						// console.warn(`,,, [withData](${ group }, ingredientID: ${ ingredientID } ingredients: ${ ingredients.length }, ${ view }) createContainers mutation resolver`);
 						let containers = [];
 
 						switch (group) {
