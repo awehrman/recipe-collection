@@ -352,15 +352,18 @@ export default {
 			if (updates.substitutes_Disconnect) delete updates.substitutes_Disconnect;
 
 			// references updates
-			if (hasProperty(updates, 'references')) console.log('...REFERENCES'.yellow);
-			// TODO
+			const references = {
+				...(updates.references_Connect && { connect: updates.references_Connect.map(u => ({ id: u })) }),
+				...(updates.references_Disconnect && { disconnect: updates.references_Disconnect.map(u => ({ id: u })) }),
+			};
+
+			if (updates.references_Connect) delete updates.references_Connect;
+			if (updates.references_Disconnect) delete updates.references_Disconnect;
 
 			const alternateNames = {
 				...(updates.alternateNames_Create && { create: updates.alternateNames_Create.map(u => ({ name: u.trim().toLowerCase() })) }),
 				...(updates.alternateNames_Delete && { delete: updates.alternateNames_Delete.map(u => ({ name: u.trim().toLowerCase() })) }),
 			};
-
-			console.log(alternateNames.create);
 
 			// clean up alternate name create/delete strings now that we're done with merging
 			if (updates.alternateNames_Create) delete updates.alternateNames_Create;
@@ -374,6 +377,7 @@ export default {
 						alternateNames,
 						relatedIngredients,
 						substitutes,
+						references,
 						...updates,					// update any other changed ingredient fields
 					},
 					where: { id: args.id },

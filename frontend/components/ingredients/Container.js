@@ -1,6 +1,6 @@
 import { adopt } from 'react-adopt';
 import { Query, Mutation, withApollo } from 'react-apollo';
-import Router from 'next/router';
+import { withRouter } from 'next/router'
 import PropTypes from 'prop-types';
 import React from 'react';
 import styled from 'styled-components';
@@ -222,29 +222,22 @@ class Container extends React.PureComponent {
 		});
 	}
 
-	onIngredientClick = async (e, setCurrentCard, currentIngredientID) => {
+	onIngredientClick = async (e, currentIngredientID) => {
 		e.preventDefault();
 		const targetIngredientID = e.target.id;
 		console.log(`[Container] onIngredientClick click:${ targetIngredientID }, current: ${ currentIngredientID } `);
 
-		const { client, group, id, view } = this.props;
+		const { client, group, id, router, view } = this.props;
 
 		// update the url without causing a bunch of re-renders
-		let href = `/ingredients?view=${ view }&group=${ group }`;
-		href += (currentIngredientID === targetIngredientID) ? '' : `&id=${ targetIngredientID }`;
-		const as = href;
-		Router.push(href, as, { shallow: true });
-		console.log((currentIngredientID === targetIngredientID) ? null : targetIngredientID);
+
+		// TODO shallow rendering doesn't seem to be working
+		// let href = `/ingredients?view=${ view }&group=${ group }`;
+		// href += (currentIngredientID === targetIngredientID) ? '' : `&id=${ targetIngredientID }`;
+		// const as = href.split('/ingredients')[1];
+		// router.replace(href, as, { shallow: true });
 
 		// update the local cache
-		/*
-		setCurrentCard({
-			variables: {
-				id,
-				ingredientID: (currentIngredientID === targetIngredientID) ? null : targetIngredientID,
-			},
-		});
-		*/
 		try {
 			await client.mutate({
 				mutation: UPDATE_CONTAINER_INGREDIENT_ID_MUTATION,
@@ -264,10 +257,9 @@ class Container extends React.PureComponent {
 		return (
 			<Composed id={ id }>
 				{
-					({ getContainer, setCurrentCard, setContainerIsExpanded }) => {
+					({ getContainer, setContainerIsExpanded }) => {
 						const { data, error, loading } = getContainer;
 						// eslint-disable-next-line
-						console.log({ id, data, error, loading });
 						if (error) return <ErrorMessage error={ error } />;
 						if (loading) return <Loading />;
 
@@ -276,7 +268,7 @@ class Container extends React.PureComponent {
 						const currentIngredientID = container.ingredientID;
 						const ingList = this.buildIngredientsList(ingredients, currentIngredientID);
 						const listClassName = (`${ (!isExpanded) ? 'hidden' : '' } ${ (currentIngredientID) ? 'expanded' : '' }`).trim();
-						console.log({ currentIngredientID });
+
 						return (
 							<ContainerStyles className={ (isExpanded) ? 'expanded' : '' }>
 								<HeaderStyles onClick={ e => this.onHeaderClick(e, setContainerIsExpanded, id, isExpanded) }>
@@ -307,8 +299,8 @@ class Container extends React.PureComponent {
 														: (
 															<a
 																id={ i.id }
-																onClick={ e => this.onIngredientClick(e, setCurrentCard, currentIngredientID) }
-																onKeyPress={ e => this.onIngredientClick(e, setCurrentCard, currentIngredientID) }
+																onClick={ e => this.onIngredientClick(e, currentIngredientID) }
+																onKeyPress={ e => this.onIngredientClick(e, currentIngredientID) }
 																role="link"
 																tabIndex="0"
 															>
@@ -336,4 +328,4 @@ Container.propTypes = {
 	view: PropTypes.oneOf([ 'all', 'new' ]).isRequired,
 };
 
-export default withApollo(Container);
+export default withRouter(withApollo(Container));

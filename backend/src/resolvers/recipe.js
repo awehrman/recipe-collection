@@ -5,9 +5,42 @@ export default {
 	},
 
 	Mutation: {
-		createRecipe: async () => {
-			console.log('TODO createRecipe');
-			// TODO
+		createRecipe: async (parent, args, ctx, info) => {
+			console.log('createRecipe');
+			const {
+				evernoteGUID,
+				image,
+				source,
+				title,
+				categories,
+				tags,
+			} = args;
+
+			// TODO reject if no title is provided
+
+			let recipe = {
+				title,
+				evernoteGUID,
+				image,
+				source,	// TODO break up url vs book links eventually
+			};
+
+			if (categories && categories.length > 0) {
+				recipe.categories = { connect: categories.map(i => ({ id: i })) };
+			}
+
+			if (tags && tags.length > 0) {
+				recipe.tags = { connect: tags.map(i => ({ id: i })) };
+			}
+
+			try {
+				recipe = await ctx.prisma.createRecipe({ ...recipe }, info);
+				return recipe;
+			} catch (err) {
+				console.log(err);
+			}
+
+			return null;
 		},
 
 		deleteRecipe: async () => {

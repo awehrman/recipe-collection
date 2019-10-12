@@ -85,6 +85,10 @@ const ListStyles = styled.fieldset`
 				margin: 0 !important;
 				display: none;
 
+				svg {
+					height: 14px;
+				}
+
 				&:hover {
 					display: inline-block;
 				}
@@ -252,9 +256,9 @@ class List extends Component {
 					<ul className="list">
 						{
 							list.map((i, index) => {
-								if (i.name && (i.name.length === 0)) return null;
+								if (!i.name) return null;
 								const warningIndex = warnings.findIndex(w => (w.value === i.name));
-								const key = `${ type }_${ index }_${ i.id || i.name || i }`;
+								const key = `${ type }_${ index }_${ i.id || i.name }`;
 								return (
 									<li key={ key }>
 										{/* TODO we might want to switch link types to return a <Link> so that the URL updates;

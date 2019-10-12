@@ -148,6 +148,7 @@ const BottomFormStyles = styled.div`
 
 	 	svg {
 			margin-right: 8px;
+			height: 14px;
 		}
 	}
 
@@ -440,16 +441,21 @@ class Form extends Component {
 		};
 
 		if (hasProperty(data, 'alternateNamesCreate')) {
-			data.alternateNamesCreate = data.alternateNamesCreate.map(n => n.name);
+			data.alternateNamesCreate = data.alternateNamesCreate.map(n => n.name || n);
 		}
 
 		if (hasProperty(data, 'alternateNamesDelete')) {
-			data.alternateNamesDelete = data.alternateNamesDelete.map(n => n.name);
+			// if this value is in the associated alternateNamesCreate list, then just remove both instances
+			if (hasProperty(data, 'alternateNamesCreate') && data.alternateNamesCreate.find(n => n === listItem.name || n === listItem || n.name === listItem.name)) {
+				// remove it from data.alternateNamesCreate
+				data.alternateNamesCreate = data.alternateNamesCreate.filter(n => n !== listItem.name);
+			} else {
+				data.alternateNamesDelete = data.alternateNamesDelete.map(n => n.name || n);
+			}
 		}
 
 		const pendingLists = Object.values(data).filter(v => Array.isArray(v));
 		let repeated = intersection(pendingLists)[1];
-
 		if (repeated) {
 			repeated = repeated.join(',');
 			// eslint-disable-next-line
@@ -508,19 +514,20 @@ class Form extends Component {
 		// console.warn(`validate ${ fieldName }, ${ value }, ${ isRemoved }`);
 		let warnings = [];
 		const ing = this.getPendingIngredient();
+		const currentIngredientID = ing.id;
 
-		warnings = warnings.concat(await this.validateField(fieldName, value, isRemoved));
+		warnings = warnings.concat(await this.validateField(fieldName, value, isRemoved, currentIngredientID));
 
 		if ((fieldName !== 'name') && ing.name) {
-			warnings = warnings.concat(await this.validateField('name', ing.name, isRemoved));
+			warnings = warnings.concat(await this.validateField('name', ing.name, isRemoved, currentIngredientID));
 		}
 
 		if ((fieldName !== 'plural') && ing.plural) {
-			warnings = warnings.concat(await this.validateField('plural', ing.plural, isRemoved));
+			warnings = warnings.concat(await this.validateField('plural', ing.plural, isRemoved, currentIngredientID));
 		}
 
 		if ((fieldName !== 'alternateNames') && (ing.alternateNames.length > 0)) {
-			const promises = ing.alternateNames.map(async w => this.validateField('alternateNames', w.name, isRemoved));
+			const promises = ing.alternateNames.map(async w => this.validateField('alternateNames', w.name, isRemoved, currentIngredientID));
 			const resolvedPromises = await Promise.all(promises);
 			warnings = warnings.concat(resolvedPromises);
 		}
@@ -542,11 +549,11 @@ class Form extends Component {
 
 	// TODO test removing fields here
 	// eslint-disable-next-line
-	validateField = async (fieldName, value, isRemoved = false) => {
+	validateField = async (fieldName, value, isRemoved = false, currentIngredientID = '-1') => {
 		// console.warn(`validateField ${ fieldName }, ${ value }, ${ isRemoved }`);
 		const { client } = this.props;
 		const warnings = [];
-		const nameValue = (typeof value === 'string') ? value : value.name;
+		const nameValue = ((typeof value === 'string') || (value === null)) ? value : value.name;
 		if (fieldName === 'relatedIngredients' || fieldName === 'substitutes') return warnings;
 
 		// if we found this value used on another ingredient, add a warning, but allow save
@@ -559,7 +566,8 @@ class Form extends Component {
 
 		// if we found this value used on another ingredient, add a warning, but allow save
 		// saving will trigger a merge on these two ingredients
-		if (ingredient && (!~warnings.findIndex(w => w.value === nameValue))) {
+		const isNotCurrentIngredient = ingredient && (currentIngredientID !== ingredient.id);
+		if (isNotCurrentIngredient && ingredient && (!~warnings.findIndex(w => w.value === nameValue))) {
 			warnings.push({
 				id: uuid.v4(),
 				fieldName,
