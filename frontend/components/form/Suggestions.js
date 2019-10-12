@@ -45,6 +45,7 @@ class Suggestions extends PureComponent {
 	onSelectSuggestion = (e, suggestion) => {
 		if (e) e.preventDefault();
 		const { fieldName, onSelectSuggestion } = this.props;
+		console.log({ suggestion, fieldName });
 		onSelectSuggestion(null, suggestion, fieldName);
 	}
 

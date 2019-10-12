@@ -261,8 +261,7 @@ class List extends Component {
 								const key = `${ type }_${ index }_${ i.id || i.name }`;
 								return (
 									<li key={ key }>
-										{/* TODO we might want to switch link types to return a <Link> so that the URL updates;
-												the suggestion is cool being a button */
+										{
 											(type === 'link' || type === 'suggestion')
 												? (
 													<Button
@@ -375,7 +374,7 @@ List.propTypes = {
 	validate: PropTypes.func.isRequired,
 	values: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string,
-		name: PropTypes.string, // TODO isRequired
+		name: PropTypes.string.isRequired,
 	})),
 	warnings: PropTypes.arrayOf(PropTypes.shape({
 		__typename: PropTypes.string,

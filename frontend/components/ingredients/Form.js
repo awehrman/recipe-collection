@@ -454,23 +454,6 @@ class Form extends Component {
 			}
 		}
 
-		const pendingLists = Object.values(data).filter(v => Array.isArray(v));
-		let repeated = intersection(pendingLists)[1];
-		if (repeated) {
-			repeated = repeated.join(',');
-			// eslint-disable-next-line
-			for (const [key, value] of Object.entries(data)) {
-				const isPendingListMutation = key.includes('Create')
-					|| key.includes('Delete')
-					|| key.includes('Connect')
-					|| key.includes('Disconnect');
-
-				if (isPendingListMutation && (repeated.indexOf(value) > -1)) {
-					delete data[key];
-				}
-			}
-		}
-
 		this.setState({ pending: data }, () => this.validate(fieldName, listItem, isRemoved));
 	}
 

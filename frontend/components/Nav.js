@@ -7,7 +7,6 @@ import styled, { withTheme } from 'styled-components';
 
 import ButtonLink from './form/ButtonLink';
 
-// TODO address icon FOUT
 const NavStyles = styled.nav`
 	/* mobile top nav */
 	background: ${ props => props.theme.menuBackground };
@@ -29,7 +28,7 @@ const NavStyles = styled.nav`
 		font-size: 1em;
 
 		svg {
-			/* this helps the FOUT issue but there's still a bit of movement on reload */
+			/* TODO look into SVG FOUT issues */
 			height: 16px;
 		}
 

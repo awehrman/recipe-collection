@@ -26,7 +26,7 @@ class Modal extends Component {
 
 	onSave = (e) => {
 		e.preventDefault();
-	// TODO
+		// TODO onSave
 	}
 
 	render() {
@@ -36,9 +36,9 @@ class Modal extends Component {
 			<ModalStyles>
 				<div className="modal">
 					<h1>{ title }</h1>
-					{/* TODO this.renderContent() */}
+					{/* TODO render modal content */}
 					<div className="controls">
-						{/* TODO this.renderWarnings() */}
+						{/* TODO render modal warnings */}
 
 						<Button
 							className="cancel"
@@ -58,13 +58,12 @@ class Modal extends Component {
 	}
 }
 
-Modal.defaultProps = {
-};
+Modal.defaultProps = {};
 
 Modal.propTypes = {
-	label: PropTypes.string,
-	onCancel: PropTypes.func,
-	title: PropTypes.string,
+	label: PropTypes.string.isRequired,
+	onCancel: PropTypes.func.isRequired,
+	title: PropTypes.string.isRequired,
 };
 
 export default Modal;
