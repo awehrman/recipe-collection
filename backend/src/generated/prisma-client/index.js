@@ -43,6 +43,10 @@ var models = [
   {
     name: "IngredientAggregate",
     embedded: false
+  },
+  {
+    name: "RecipeAggregate",
+    embedded: false
   }
 ];
 exports.Prisma = prisma_lib_1.makePrismaClientClass({

@@ -110,3 +110,8 @@
 		ingredientsCount: Int!
 		newIngredientsCount: Int!
 	}
+
+	type RecipeAggregate {
+		id: ID! @id
+		recipesCount: Int!
+	}

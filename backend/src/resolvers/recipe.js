@@ -2,6 +2,11 @@ export default {
 	Query: {
 		recipe: (parent, args, ctx) => ctx.prisma.recipe({ id: args.id }),
 		recipes: (parent, args, ctx) => ctx.prisma.recipes(),
+		recipeAggregate: async (parent, args, ctx) => {
+			console.log('recipeAggregate');
+			const recipesCount = await ctx.prisma.recipesConnection().aggregate().count();
+			return { recipesCount };
+		},
 	},
 
 	Mutation: {

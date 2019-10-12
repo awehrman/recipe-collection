@@ -3,11 +3,12 @@
 type Query {
 	category(where: CategoryWhereUniqueInput): Category
   categories: [ Category! ]!
-	ingredientAggregate: IngredientAggregate!
 	ingredient(where: IngredientWhereUniqueInput!): Ingredient
 	ingredients: [ Ingredient! ]!
+	ingredientAggregate: IngredientAggregate!
 	recipe(where: RecipeWhereUniqueInput!): Recipe
 	recipes: [ Recipe! ]!
+	recipeAggregate: RecipeAggregate!
 	tag(where: TagWhereUniqueInput!): Tag
 	tags: [ Tag! ]!
 }
@@ -53,8 +54,8 @@ type Mutation {
 								image: String,
 								source: String,
 								title: String!,
-								categories: [ ID! ],
-								tags: [ ID! ]
+								categories: [ ID ],
+								tags: [ ID ]
 							): Recipe!
 	deleteRecipe(ID: ID!): ID
 	updateRecipe( id: ID!,
