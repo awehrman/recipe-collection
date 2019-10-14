@@ -1,5 +1,10 @@
 # import * from '../generated/prisma.graphql'
 
+type CategoryResponse {
+	errors: [ String ]
+	category: Category
+}
+
 type IngredientResponse {
 	errors: [ String ]
 	ingredient: Ingredient
@@ -8,6 +13,11 @@ type IngredientResponse {
 type RecipeResponse {
 	errors: [ String ]
 	recipe: Recipe
+}
+
+type TagResponse {
+	errors: [ String ]
+	tag: Tag
 }
 
 type Query {
@@ -27,19 +37,19 @@ type Query {
 }
 
 type Mutation {
-  createCategory(evernoteGUID: String, name: String!): Category!
-  deleteCategory(id: ID!): ID
-  updateCategory(id: ID!): Category
+  createCategory(evernoteGUID: String, name: String!): CategoryResponse!
+  deleteCategory(id: ID!): CategoryResponse!
+  updateCategory(id: ID!): CategoryResponse!
 
-	createIngredient(data: IngredientCreateInput) : IngredientResponse!
+	createIngredient(data: IngredientCreateInput!) : IngredientResponse!
 	deleteIngredient(ID: ID!): IngredientResponse!
-	updateIngredient(data: IngredientUpdateDataInput): IngredientResponse!
+	updateIngredient(data: IngredientUpdateInput!, where: IngredientWhereUniqueInput!): IngredientResponse!
 
-	createRecipe(data: RecipeCreateInput): Recipe!
-	deleteRecipe(ID: ID!): ID
-	updateRecipe(data: RecipeUpdateInput): Recipe!
+	createRecipe(data: RecipeCreateInput): RecipeResponse!
+	deleteRecipe(ID: ID!): RecipeResponse!
+	updateRecipe(data: RecipeUpdateInput): RecipeResponse!
 
-	createTag(evernoteGUID: String, name: String!): Tag!
-	deleteTag(id: ID!): ID
-  updateTag(id: ID!): Tag
+	createTag(evernoteGUID: String, name: String!): TagResponse!
+	deleteTag(id: ID!): TagResponse!
+  updateTag(id: ID!): TagResponse!
 }
