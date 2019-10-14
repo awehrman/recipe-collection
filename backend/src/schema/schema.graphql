@@ -37,19 +37,19 @@ type Query {
 }
 
 type Mutation {
-  createCategory(evernoteGUID: String, name: String!): CategoryResponse!
-  deleteCategory(id: ID!): CategoryResponse!
-  updateCategory(id: ID!): CategoryResponse!
+  createCategory(data: CategoryCreateInput): CategoryResponse!
+  deleteCategory(where: CategoryWhereUniqueInput!): CategoryResponse!
+  updateCategory(data: CategoryUpdateInput!, where: CategoryWhereUniqueInput!): CategoryResponse!
 
 	createIngredient(data: IngredientCreateInput!) : IngredientResponse!
-	deleteIngredient(ID: ID!): IngredientResponse!
+	deleteIngredient(where: IngredientWhereUniqueInput!): IngredientResponse!
 	updateIngredient(data: IngredientUpdateInput!, where: IngredientWhereUniqueInput!): IngredientResponse!
 
 	createRecipe(data: RecipeCreateInput): RecipeResponse!
-	deleteRecipe(ID: ID!): RecipeResponse!
-	updateRecipe(data: RecipeUpdateInput): RecipeResponse!
+	deleteRecipe(where: RecipeWhereUniqueInput!): RecipeResponse!
+	updateRecipe(data: RecipeUpdateInput!, where: RecipeWhereUniqueInput!): RecipeResponse!
 
-	createTag(evernoteGUID: String, name: String!): TagResponse!
-	deleteTag(id: ID!): TagResponse!
-  updateTag(id: ID!): TagResponse!
+	createTag(data: TagCreateInput): TagResponse!
+	deleteTag(where: TagWhereUniqueInput!): TagResponse!
+  updateTag(data: TagUpdateInput!, where: TagWhereUniqueInput!): TagResponse!
 }

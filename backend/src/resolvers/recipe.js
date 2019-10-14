@@ -1,3 +1,5 @@
+import { GET_ALL_RECIPE_FIELDS_FOR_VALIDATION, GET_ALL_RECIPE_FIELDS } from '../graphql/fragments';
+
 export default {
 	Query: {
 		recipe: (parent, args, ctx) => ctx.prisma.recipe({ id: args.id }),
@@ -12,89 +14,95 @@ export default {
 	Mutation: {
 		createRecipe: async (parent, args, ctx, info) => {
 			console.log('createRecipe');
-			const {
-				evernoteGUID,
-				image,
-				source,
-				title,
-				categories,
-				tags,
-			} = args;
-
-			// TODO reject if no title is provided
-
-			let recipe = {
-				title,
-				evernoteGUID,
-				image,
-				source,	// TODO break up url vs book links eventually
+			const response = {
+				__typename: 'RecipeResponse',
+				recipe: null,
+				errors: [],
 			};
 
-			if (categories && categories.length > 0) {
-				// TODO if no id is provided, create the category
-				recipe.categories = { connect: categories.map(i => ({ id: i })) };
-			}
-
-			if (tags && tags.length > 0) {
-				// TODO if no id is provided, create the tag
-				recipe.tags = { connect: tags.map(i => ({ id: i })) };
-			}
+			const { data } = args;
+			// TODO add in joi validation
 
 			try {
-				recipe = await ctx.prisma.createRecipe({ ...recipe }, info);
-				return recipe;
+				const { id } = await ctx.prisma.createRecipe({ ...data }, info);
+				const recipe = await ctx.prisma.recipe({ id }).$fragment(GET_ALL_RECIPE_FIELDS_FOR_VALIDATION);
+				response.ingredient = {
+					__typename: 'Recipe',
+					...recipe,
+				};
 			} catch (err) {
 				console.log(err);
+				const { result } = err;
+				const { errors } = result;
+				errors.forEach((error) => {
+					const { message } = error;
+					response.errors.push(message);
+				});
 			}
-
-			return null;
+			console.log(JSON.stringify(response, null, 2));
+			return response;
 		},
 
-		deleteRecipe: async () => {
+		deleteRecipe: async (parent, args, ctx, info) => {
 			console.log('TODO deleteRecipe');
-			// TODO
+			const response = {
+				__typename: 'RecipeResponse',
+				recipe: null,
+				errors: [],
+			};
+
+			const { where } = args;
+			// TODO add in joi validation
+
+			try {
+				await ctx.prisma.deleteRecipe({ where }, info);
+			} catch (err) {
+				// TODO display these on the front-end
+				console.log(err);
+				const { result } = err;
+				const { errors } = result;
+				errors.forEach((error) => {
+					const { message } = error;
+					response.errors.push(message);
+				});
+			}
+			console.log(JSON.stringify(response, null, 2));
+			return response;
 		},
 
 		updateRecipe: async (parent, args, ctx, info) => {
 			console.log('updateRecipe');
-			console.log('updateRecipe'.blue);
-			const updates = { ...args };
-			let recipe = {};
-			delete updates.id;
-
-			// handle category updates
-			const categories = {
-				...(updates.categoryConnections && { connect: updates.categoryConnections.map(u => ({ id: u })) }),
-				...(updates.categoryDisconnections && { disconnect: updates.categoryDisconnections.map(u => ({ id: u })) }),
+			const response = {
+				__typename: 'RecipeResponse',
+				recipe: null,
+				errors: [],
 			};
 
-			if (updates.categoryConnections) delete updates.categoryConnections;
-			if (updates.categoryDisconnections) delete updates.categoryDisconnections;
+			const { data, where } = args;
+			// TODO add in joi validation
 
-			// handle tag updates
-			const tags = {
-				...(updates.tagConnections && { connect: updates.tagConnections.map(u => ({ id: u })) }),
-				...(updates.tagDisconnections && { disconnect: updates.tagDisconnections.map(u => ({ id: u })) }),
-			};
-
-			if (updates.tagConnections) delete updates.tagConnections;
-			if (updates.tagDisconnections) delete updates.tagDisconnections;
-
-			// update the remainder of the fields
-			// TODO retest that we've switched to prisma client over bindings
-			recipe = await ctx.prisma.updateRecipe(
-				{
-					data: {
-						categories,		// connect and/or disconnect category changes
-						tags,					// connect and/or disconnect tag changes
-						...updates,		// update any other changed recipe fields (title, evernoteGUID, source, image, etc.)
-					},
-					where: { id: args.id },
-				},
-				info,
-			);
-
-			return recipe;
+			try {
+				const { id } = await ctx.prisma.updateRecipe({
+					data,
+					where,
+				}, info);
+				const recipe = await ctx.prisma.recipe({ id }).$fragment(GET_ALL_RECIPE_FIELDS);
+				response.recipe = {
+					__typename: 'Recipe',
+					...recipe,
+				};
+			} catch (err) {
+				// TODO display these on the front-end
+				console.log(err);
+				const { result } = err;
+				const { errors } = result;
+				errors.forEach((error) => {
+					const { message } = error;
+					response.errors.push(message);
+				});
+			}
+			console.log(JSON.stringify(response, null, 2));
+			return response;
 		},
 	},
 };
