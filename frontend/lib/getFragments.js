@@ -22,7 +22,7 @@ fetch(`http://localhost:3001/`, {
   }),
 })
   .then(result => result.json())
-  .then(result => {
+  .then((result) => {
     // here we're filtering out any type information unrelated to unions or interfaces
     const filteredData = result.data.__schema.types.filter(
       type => type.possibleTypes !== null,

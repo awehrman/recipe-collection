@@ -47,7 +47,6 @@ const FilterStyles = styled.div`
 `;
 class Filters extends React.PureComponent {
 	render() {
-		// console.warn('[Filters] render');
 		const { group, ingredientsCount, newIngredientsCount, view } = this.props;
 
 		return (

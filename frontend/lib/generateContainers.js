@@ -90,8 +90,8 @@ export const generateByName = (ingredientID = null, ingredients = [], view) => {
 			ingredients,
 			isExpanded: true,
 			label: (view === 'search')
-			? 'Search Results'
-			: `${ view.charAt(0).toUpperCase() + view.slice(1) } Ingredients`,
+				? 'Search Results'
+				: `${ view.charAt(0).toUpperCase() + view.slice(1) } Ingredients`,
 			referenceCount: ingredients.length,
 		});
 	// otherwise break up into containers by letter
@@ -122,6 +122,7 @@ export const generateByName = (ingredientID = null, ingredients = [], view) => {
 		});
 	}
 
+	containers = containers.filter(c => (c.ingredients && c.ingredients.length > 0));
 	return containers;
 };
 
@@ -134,7 +135,8 @@ export const generateByProperty = (ingredientID = null, ingredients = []) => {
 		if (label !== 'other') {
 			containerIngredients = ingredients.filter(i => hasProperty(i.properties, label) && i.properties[label]);
 		} else {
-			containerIngredients = ingredients.filter(i => Object.values(i.properties).filter(value => (value !== 'Properties') && value).length === 0);
+			containerIngredients = ingredients.filter(i => Object.values(i.properties)
+				.filter(value => (value !== 'Properties') && value).length === 0);
 		}
 
 		if (containerIngredients.length > 0) {

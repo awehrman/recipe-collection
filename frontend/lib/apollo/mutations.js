@@ -63,51 +63,148 @@ export const UPDATE_IS_CONTAINER_EXPANDED_MUTATION = gql`
 `;
 
 export const CREATE_INGREDIENT_MUTATION = gql`
-	mutation createIngredient(
-		$parentID: ID,
-		$parentName: String,
-		$name: String!,
-		$plural: String,
-		$properties: PropertiesCreateInput,
-		$alternateNames: [ String ],
-		$relatedIngredients: [ String ],
-		$substitutes: [ String ],
-		$references: [ String ],
-		$isValidated: Boolean,
-		$isComposedIngredient: Boolean
-	) {
+	mutation createIngredient($data: IngredientCreateInput!) {
 		createIngredient(
-			parentID: $parentID
-			parentName: $parentName
-			name: $name
-			plural: $plural
-			properties: $properties
-			alternateNames: $alternateNames
-			relatedIngredients: $relatedIngredients
-			substitutes: $substitutes
-			references: $references
-			isValidated: $isValidated
-			isComposedIngredient: $isComposedIngredient
+			data: $data
 		) {
-			parent {
+			errors
+			ingredient {
+				parent {
+					id
+				}
 				id
-			}
-			id
-			isValidated
-			name
-			properties {
-				meat
-				poultry
-				fish
-				dairy
-				soy
-				gluten
-			}
-			references {
-				id
+				isValidated
+				name
+				properties {
+					meat
+					poultry
+					fish
+					dairy
+					soy
+					gluten
+				}
+				references {
+					id
+				}
 			}
 		}
 	}
+`;
+
+export const UPDATE_INGREDIENT_MUTATION = gql`
+  mutation UPDATE_INGREDIENT_MUTATION(
+		$data: IngredientUpdateInput!,
+		$where: IngredientWhereUniqueInput!
+	) {
+    updateIngredient(
+    	data: $data,
+			where: $where
+    ) {
+			errors
+			ingredient {
+				id
+				parent {
+					id
+					name
+				}
+				name
+				plural
+				properties {
+					meat
+					poultry
+					fish
+					dairy
+					soy
+					gluten
+				}
+				alternateNames {
+					name
+				}
+				relatedIngredients {
+					id
+					name
+				}
+				substitutes {
+					id
+					name
+				}
+				references {
+					id
+					reference
+				}
+				isValidated
+				isComposedIngredient
+			}
+		}
+  }
+`;
+
+// TODO add in ingredients and instructions
+export const CREATE_RECIPE_MUTATION = gql`
+	mutation createRecipe($data: RecipeCreateInput!) {
+		createRecipe(
+			data: $data
+		) {
+			errors
+			recipe {
+				evernoteGUID
+				id
+				title
+				source
+			}
+		}
+	}
+`;
+
+export const UPDATE_RECIPE_MUTATION = gql`
+  mutation UPDATE_RECIPE_MUTATION(
+		$data: RecipeUpdateInput!,
+		$where: RecipeWhereUniqueInput!
+	) {
+    updateRecipe(
+    	data: $data,
+			where: $where
+    ) {
+			errors
+			recipe {
+				id
+				evernoteGUID
+				title
+				source
+				categories {
+					id
+					name
+				}
+				tags {
+					id
+					name
+				}
+				image
+				ingredients {
+					id
+					blockIndex
+					lineIndex
+					reference
+					isParsed
+					parsed {
+						id
+						rule
+						type
+						value
+						ingredient {
+							id
+							name
+						}
+					}
+				}
+				instructions {
+					id
+					blockIndex
+					reference
+				}
+			}
+		}
+  }
 `;
 
 export default [
@@ -115,4 +212,7 @@ export default [
 	UPDATE_CONTAINER_INGREDIENT_ID_MUTATION,
 	UPDATE_IS_CONTAINER_EXPANDED_MUTATION,
 	CREATE_INGREDIENT_MUTATION,
+	UPDATE_INGREDIENT_MUTATION,
+	CREATE_RECIPE_MUTATION,
+	UPDATE_RECIPE_MUTATION,
 ];

@@ -68,7 +68,7 @@ class AddNew extends React.PureComponent {
 		super(props);
 
 		this.state = {
-			isExpanded: false,
+			isExpanded: true, // TEMP
 			isFormReset: false,
 		};
 	}
@@ -95,7 +95,7 @@ class AddNew extends React.PureComponent {
 				<Button
 					className="add-new-btn"
 					isEditMode
-					label="Add New Ingredient"
+					label="Add New Recipe"
 					onClick={ e => this.onToggleAddNew(e) }
 				/>
 				{

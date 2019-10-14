@@ -1,128 +1,20 @@
 import { adopt } from 'react-adopt';
 import React from 'react';
-import { Query, Mutation } from 'react-apollo';
-import gql from 'graphql-tag';
+import { Query } from 'react-apollo';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import { deepCopy } from '../../lib/util';
 import ErrorMessage from '../ErrorMessage';
 import Form from './Form';
 
-const CURRENT_INGREDIENT_QUERY = gql`
-  query CURRENT_INGREDIENT_QUERY($id: ID!) {
-		ingredient(where: { id: $id }) {
-			id
-			parent {
-				id
-				name
-			}
-			name
-			plural
-			properties {
-				meat
-				poultry
-				fish
-				dairy
-				soy
-				gluten
-			}
-			alternateNames {
-				name
-			}
-			relatedIngredients {
-				id
-				name
-			}
-			substitutes {
-				id
-				name
-			}
-			references {
-				id
-				reference
-			}
-			isValidated
-      isComposedIngredient
-		}
-	}
-`;
-
-const UPDATE_INGREDIENT_MUTATION = gql`
-  mutation UPDATE_INGREDIENT_MUTATION(
-  	$id: ID!
-    $name: String
-    $plural: String
-    $properties: PropertyUpdateDataInput
-		$alternateNames_Create: [ String ]
-		$alternateNames_Delete: [ String ]
-		$relatedIngredients_Connect: [ ID ]
-		$relatedIngredients_Disconnect: [ ID ]
-		$substitutes_Connect: [ ID ]
-		$substitutes_Disconnect: [ ID ]
-		$isValidated: Boolean
-		$isComposedIngredient: Boolean
-  ) {
-    updateIngredient(
-    	id: $id
-      name: $name
-      plural: $plural
-      properties: {
-      	update: $properties
-      }
-	    alternateNames_Create: $alternateNames_Create
-	    alternateNames_Delete: $alternateNames_Delete
-	    relatedIngredients_Connect: $relatedIngredients_Connect
-	    relatedIngredients_Disconnect: $relatedIngredients_Disconnect
-	    substitutes_Connect: $substitutes_Connect
-	    substitutes_Disconnect: $substitutes_Disconnect
-	    isValidated: $isValidated
-	    isComposedIngredient: $isComposedIngredient
-    ) {
-      id
-			parent {
-				id
-				name
-			}
-			name
-			plural
-			properties {
-				meat
-				poultry
-				fish
-				dairy
-				soy
-				gluten
-			}
-			alternateNames {
-				name
-			}
-			relatedIngredients {
-				id
-				name
-			}
-			substitutes {
-				id
-				name
-			}
-			references {
-				id
-				reference
-			}
-			isValidated
-      isComposedIngredient
-    }
-  }
-`;
+import { GET_INGREDIENT_BY_ID_QUERY } from '../../lib/apollo/queries';
 
 const Composed = adopt({
 	// eslint-disable-next-line react/prop-types
 	getIngredient: ({ render, id }) => (
-		<Query query={ CURRENT_INGREDIENT_QUERY } variables={ { id } }>{ render }</Query>
-	),
-	// eslint-disable-next-line react/prop-types
-	updateIngredient: ({ render }) => (
-		<Mutation mutation={ UPDATE_INGREDIENT_MUTATION }>{ render }</Mutation>
+		<Query query={ GET_INGREDIENT_BY_ID_QUERY } variables={ { id } }>
+			{ render }
+		</Query>
 	),
 });
 
@@ -166,28 +58,18 @@ class Card extends React.PureComponent {
 		this.setState({ isEditMode: !isEditMode });
 	}
 
-	onSaveIngredient = (e, updates = {}) => {
-		console.warn('[Card] onSaveIngredient');
-		e.preventDefault();
-		const pending = deepCopy(updates);
-
-		pending.isValidated = true;
-
-		// TODO mutation
+	resetState = () => {
 		this.setState(this.initialState);
-
-		// TODO make sure that we get the containers to refresh on save as well
 	}
 
 	render() {
 		const { className, id } = this.props;
 		const { isEditMode } = this.state;
-		console.warn('[Card] render');
 
 		return (
 			<Composed id={ id }>
 				{
-					({ getIngredient, updateIngredient }) => {
+					({ getIngredient }) => {
 						const { data, error, loading } = getIngredient || {};
 						const { ingredient } = data || {};
 						const {
@@ -208,10 +90,9 @@ class Card extends React.PureComponent {
 									name={ name }
 									onCancelClick={ this.onCancelClick }
 									onEditClick={ this.onToggleEditMode }
-									onSaveIngredient={ this.onSaveIngredient }
+									onSaveCallback={ this.resetState }
 									plural={ plural }
 									properties={ properties }
-									saveMutation={ updateIngredient }
 									showCancelButton
 									relatedIngredients={ relatedIngredients }
 									substitutes={ substitutes }
@@ -234,7 +115,3 @@ Card.propTypes = {
 };
 
 export default Card;
-export {
-	CURRENT_INGREDIENT_QUERY,
-	UPDATE_INGREDIENT_MUTATION,
-};

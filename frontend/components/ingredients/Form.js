@@ -6,7 +6,6 @@ import { darken } from 'polished';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import uuid from 'uuid';
-import intersection from 'lodash/intersection';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/pro-regular-svg-icons';
@@ -18,7 +17,8 @@ import Button from '../form/Button';
 import CheckboxGroup from '../form/CheckboxGroup';
 import Input from '../form/Input';
 import List from '../form/List';
-import { GET_INGREDIENT_BY_VALUE_QUERY } from '../../lib/apollo/queries';
+import { CREATE_INGREDIENT_MUTATION, UPDATE_INGREDIENT_MUTATION } from '../../lib/apollo/mutations';
+import { GET_INGREDIENT_BY_VALUE_QUERY, GET_ALL_INGREDIENTS_QUERY, GET_INGREDIENTS_COUNT_QUERY } from '../../lib/apollo/queries';
 
 const FormStyles = styled.form`
 	flex-basis: 100%;
@@ -214,6 +214,7 @@ const BottomFormStyles = styled.div`
 		}
 	}
 `;
+
 class Form extends Component {
 	initialState = {
 		pending: {},
@@ -228,6 +229,133 @@ class Form extends Component {
 			// eslint-disable-next-line
 			this.setState(this.initialState, resetForm);
 		}
+	}
+
+	getNetworkIngredient = (type = 'create') => {
+		const ingredient = this.getPendingIngredient();
+		const { pending } = this.state;
+		const data = {};
+
+		// name: String!
+		data.name = ingredient.name;
+
+		// plural: String
+		if (ingredient.plural) {
+			data.plural = ingredient.plural;
+		}
+
+		// alternateNames: AlternateNameCreateManyInput || AlternateNameUpdateManyInput
+		if (ingredient.alternateNames && (ingredient.alternateNames.length > 0)) {
+			if (type === 'create') {
+				data.alternateNames = { create: [ ...ingredient.alternateNames ] };
+			} else if (type === 'update') {
+				if (pending.alternateNamesCreate) {
+					data.alternateNames = { create: pending.alternateNamesCreate.map(n => ({ name: n })) };
+				}
+				if (pending.alternateNamesDelete) {
+					data.alternateNames = { delete: pending.alternateNamesDelete.map(n => ({ name: n })) };
+				}
+			}
+		}
+
+		// properties: PropertiesCreateOneInput! || PropertiesUpdateOneRequiredInput
+		if (type === 'create') {
+			data.properties = { create: { ...ingredient.properties } };
+			delete data.properties.create.__typename;
+		} else if (type === 'update') {
+			data.properties = { update: { ...ingredient.properties } };
+			delete data.properties.update.__typename;
+		}
+
+		// isComposedIngredient: Boolean
+		data.isComposedIngredient = ingredient.isComposedIngredient;
+		// isValidated: Boolean
+		data.isValidated = true;
+
+		// TODO parent: IngredientCreateOneWithoutParentInput || IngredientUpdateOneWithoutParentInput
+		if (ingredient.parentID) {
+			data.parent = { connect: { id: ingredient.parentID } };
+		}
+
+		// relatedIngredients: IngredientCreateManyWithoutRelatedIngredientsInput || IngredientUpdateManyWithoutRelatedIngredientsInput
+		if (ingredient.relatedIngredients) {
+			data.relatedIngredients = {
+				create: [],
+				connect: [],
+				disconnect: [],
+			};
+			ingredient.relatedIngredients.forEach((r) => {
+				if (r.id) {
+					data.relatedIngredients.connect.push({ ...r });
+				} else {
+					data.relatedIngredients.create.push({
+						name: r.name,
+						properties: {
+							create: {
+								meat: false,
+								poultry: false,
+								fish: false,
+								dairy: false,
+								soy: false,
+								gluten: false,
+							},
+						},
+					});
+				}
+			});
+
+			if (pending.relatedIngredientsDisconnect) {
+				pending.relatedIngredientsDisconnect.forEach((r) => {
+					data.relatedIngredients.disconnect.push({ ...r });
+				});
+			}
+
+			if (data.relatedIngredients.create.length === 0) delete data.relatedIngredients.create;
+			if (data.relatedIngredients.connect.length === 0) delete data.relatedIngredients.connect;
+			if (data.relatedIngredients.disconnect.length === 0) delete data.relatedIngredients.disconnect;
+		}
+
+		// substitutes: IngredientCreateManyWithoutSubstitutesInput || IngredientUpdateManyWithoutSubstitutesInput
+		if (ingredient.substitutes) {
+			data.substitutes = {
+				create: [],
+				connect: [],
+				disconnect: [],
+			};
+			ingredient.substitutes.forEach((r) => {
+				if (r.id) {
+					data.substitutes.connect.push({ ...r });
+				} else {
+					data.substitutes.create.push({
+						name: r.name,
+						properties: {
+							create: {
+								meat: false,
+								poultry: false,
+								fish: false,
+								dairy: false,
+								soy: false,
+								gluten: false,
+							},
+						},
+					});
+				}
+			});
+
+			if (pending.substitutesDisconnect) {
+				pending.substitutesDisconnect.forEach((r) => {
+					data.substitutes.disconnect.push({ ...r });
+				});
+			}
+
+			if (data.substitutes.create.length === 0) delete data.substitutes.create;
+			if (data.substitutes.connect.length === 0) delete data.substitutes.connect;
+			if (data.substitutes.disconnect.length === 0) delete data.substitutes.disconnect;
+		}
+
+		// TODO references: RecipeIngredientCreateManyInput || RecipeIngredientUpdateManyInput
+
+		return data;
 	}
 
 	getPendingIngredient = () => {
@@ -263,12 +391,12 @@ class Form extends Component {
 				poultry: hasProperty(pending, 'properties') ? pending.properties.poultry : properties.poultry,
 				soy: hasProperty(pending, 'properties') ? pending.properties.soy : properties.soy,
 			},
-			isComposedIngredient: (hasProperty(pending, isComposedIngredient))
+			isComposedIngredient: (hasProperty(pending, 'isComposedIngredient'))
 				? pending.isComposedIngredient : isComposedIngredient,
 			isValidated,
-			parentID, // TODO
-			parentName, // TODO
-			references, // TODO
+			parentID, // TODO getPendingIngredient parentID
+			parentName, // TODO getPendingIngredient parentName
+			references, // TODO getPendingIngredient references
 		};
 
 		// add in any new alternate names
@@ -283,7 +411,7 @@ class Form extends Component {
 		// remove any deleted alternate names
 		if (hasProperty(pending, 'alternateNamesDelete')) {
 			pending.alternateNamesDelete.forEach((d) => {
-				const index = ing.alternateNames.findIndex(item => item.name === d.name);
+				const index = ing.alternateNames.findIndex(item => item.name === d);
 				if (index !== -1) { ing.alternateNames.splice(index, 1); }
 			});
 		}
@@ -341,8 +469,6 @@ class Form extends Component {
 		// eslint-disable-next-line react/destructuring-assignment
 		const pending = deepCopy(this.state.pending);
 		let properties = deepCopy(defaultValue);
-		let isComposedIngredient = (hasProperty(defaultValue, 'isComposedIngredient')) ? defaultValue.isComposedIngredient : false;
-		let isValidated = (hasProperty(defaultValue, 'isValidated')) ? defaultValue.isValidated : false;
 
 		switch (fieldName) {
 		case 'properties':
@@ -363,23 +489,19 @@ class Form extends Component {
 			break;
 
 		case 'isComposedIngredient':
-			isComposedIngredient = (hasProperty(pending, 'isComposedIngredient')) ? pending.isComposedIngredient : isComposedIngredient;
-
 			this.setState({
 				pending: {
 					...pending,
-					...{ isComposedIngredient: !isComposedIngredient },
+					...{ isComposedIngredient: e.target.checked },
 				},
 			});
 			break;
 
 		case 'isValidated':
-			isValidated = (hasProperty(pending, 'isValidated')) ? pending.isValidated : isValidated;
-
 			this.setState({
 				pending: {
 					...pending,
-					...{ isValidated: !isValidated },
+					...{ isValidated: e.target.checked },
 				},
 			});
 			break;
@@ -446,6 +568,7 @@ class Form extends Component {
 
 		if (hasProperty(data, 'alternateNamesDelete')) {
 			// if this value is in the associated alternateNamesCreate list, then just remove both instances
+			// eslint-disable-next-line max-len
 			if (hasProperty(data, 'alternateNamesCreate') && data.alternateNamesCreate.find(n => n === listItem.name || n === listItem || n.name === listItem.name)) {
 				// remove it from data.alternateNamesCreate
 				data.alternateNamesCreate = data.alternateNamesCreate.filter(n => n !== listItem.name);
@@ -454,17 +577,131 @@ class Form extends Component {
 			}
 		}
 
+		console.log({ data });
 		this.setState({ pending: data }, () => this.validate(fieldName, listItem, isRemoved));
 	}
 
-	onSaveIngredient = (e) => {
-		const { onSaveIngredient } = this.props;
-		const { warnings } = this.state;
-		const ing = this.getPendingIngredient();
+	onSaveIngredient = async (e) => {
+		e.preventDefault();
+		const { id, name } = this.props;
+		const { pending, warnings } = this.state;
 
+		await this.validate('name', (pending.name || name), false);
+		// if we don't have any problematic errors, allow to create or update the ingredient
 		if (warnings.filter(w => w.preventSave).length === 0) {
-			onSaveIngredient(e, ing);
+			if (!id || (`${ id }` === '-1')) {
+				this.createIngredient();
+			} else {
+				this.updateIngredient();
+			}
 		}
+	}
+
+	createIngredient = async () => {
+		console.warn('[Form] createIngredient');
+		const { client, onSaveCallback } = this.props;
+		const { warnings } = this.state;
+
+		const data = this.getNetworkIngredient('create');
+
+		console.log({ data });
+		// create the ingredient on the server
+		await client.mutate({
+			refetchQueries: [
+				{ query: GET_ALL_INGREDIENTS_QUERY },
+				{ query: GET_INGREDIENTS_COUNT_QUERY },
+			],
+			mutation: CREATE_INGREDIENT_MUTATION,
+			variables: { data },
+		}).then((res) => {
+			const { errors } = res;
+			const errorWarnings = [];
+			if (errors) {
+				console.error({ errors });
+				errorWarnings.push({
+					id: uuid.v4(),
+					fieldName: 'Card',
+					preventSave: false,
+					message: errors.message,
+					value: data.name,
+				});
+			}
+
+			if (res.data.createIngredient.errors && (res.data.createIngredient.errors.length > 0)) {
+				console.error(res.data.createIngredient.errors);
+				res.data.createIngredient.errors.forEach((error) => {
+					errorWarnings.push({
+						id: uuid.v4(),
+						fieldName: 'Card',
+						preventSave: false,
+						message: error,
+						value: data.name,
+					});
+				});
+			}
+			console.log(errorWarnings.length === 0);
+
+			if (errorWarnings.length === 0) return onSaveCallback();
+
+			return this.setState({ warnings: errorWarnings.concat(warnings) });
+		});
+	}
+
+	updateIngredient = async () => {
+		console.warn('[Form] updateIngredient');
+		const { client, onSaveCallback } = this.props;
+		const { warnings } = this.state;
+		const { id } = this.props;
+
+		const data = this.getNetworkIngredient('update');
+		const where = { id };
+
+		console.log({ data });
+		// create the ingredient on the server
+		await client.mutate({
+			refetchQueries: [
+				{ query: GET_ALL_INGREDIENTS_QUERY },
+				{ query: GET_INGREDIENTS_COUNT_QUERY },
+			],
+			mutation: UPDATE_INGREDIENT_MUTATION,
+			variables: {
+				data,
+				where,
+			},
+		}).then((res) => {
+			console.warn({ res });
+			const { errors } = res;
+			// eslint-disable-next-line
+			const errorWarnings = [];
+			if (errors) {
+				console.error({ errors });
+				errorWarnings.push({
+					id: uuid.v4(),
+					fieldName: 'Card',
+					preventSave: false,
+					message: errors.message,
+					value: data.name,
+				});
+			}
+
+			if (res.data.updateIngredient.errors && (res.data.updateIngredient.errors.length > 0)) {
+				console.error(res.data.updateIngredient.errors);
+				res.data.updateIngredient.errors.forEach((error) => {
+					errorWarnings.push({
+						id: uuid.v4(),
+						fieldName: 'Card',
+						preventSave: false,
+						message: error,
+						value: data.name,
+					});
+				});
+			}
+			console.log(errorWarnings.length === 0);
+
+			if (errorWarnings.length === 0) return onSaveCallback();
+
+			return this.setState({ warnings: errorWarnings.concat(warnings) });
+		});
 	}
 
 	onSuggestPlural = async (e, pluralBasis) => {
@@ -494,11 +731,20 @@ class Form extends Component {
 	}
 
 	validate = async (fieldName, value, isRemoved = false) => {
-		// console.warn(`validate ${ fieldName }, ${ value }, ${ isRemoved }`);
 		let warnings = [];
 		const ing = this.getPendingIngredient();
 		const currentIngredientID = ing.id;
 
+		// ensure we have a name value
+		if ((fieldName === 'name') && !value) {
+			warnings.push({
+				id: uuid.v4(),
+				fieldName,
+				preventSave: true,
+				message: 'An ingredient name must be provided.',
+				value: '',
+			});
+		}
 		warnings = warnings.concat(await this.validateField(fieldName, value, isRemoved, currentIngredientID));
 
 		if ((fieldName !== 'name') && ing.name) {
@@ -524,16 +770,14 @@ class Form extends Component {
 			return acc;
 		}, []);
 
-		// get rid of any empty values
-		warnings = warnings.filter(w => w.value && w.value.length > 0);
+		warnings = warnings.flat();
 
-		this.setState({ warnings: warnings.flat() });
+		this.setState({ warnings });
 	}
 
 	// TODO test removing fields here
 	// eslint-disable-next-line
 	validateField = async (fieldName, value, isRemoved = false, currentIngredientID = '-1') => {
-		// console.warn(`validateField ${ fieldName }, ${ value }, ${ isRemoved }`);
 		const { client } = this.props;
 		const warnings = [];
 		const nameValue = ((typeof value === 'string') || (value === null)) ? value : value.name;
@@ -560,7 +804,6 @@ class Form extends Component {
 			});
 		}
 
-		// TODO determine which other fields we need to look in to see if this value already exists
 		// exclude the current field that we're updating
 		// so if you're changing 'name' field of 'buttr' to 'butter'. we need to check plural and alt names
 		// for instances of 'butter'
@@ -608,13 +851,11 @@ class Form extends Component {
 	}
 
 	render() {
-		// console.warn('[Form] render');
 		const {
 			alternateNames, className, id, isComposedIngredient, isEditMode, loading, name, onCancelClick,
 			onEditClick, plural, properties, relatedIngredients, saveLabel, showCancelButton, substitutes,
 		} = this.props;
 		const { pending, warnings } = this.state;
-
 		// cleanup properties data
 		const checkboxes = (isEditMode && hasProperty(pending, 'properties')) ? pending.properties : properties;
 		if (hasProperty(checkboxes, '__typename')) {
@@ -645,21 +886,23 @@ class Form extends Component {
 						/>
 
 						{/* Plural */}
-						<Input
-							className="plural"
-							defaultValue={ plural }
-							fieldName="plural"
-							isEditMode={ isEditMode }
-							isPluralSuggestEnabled
-							loading={ loading }
-							onChange={ this.onInputChange }
-							onSuggestPlural={ e => this.onSuggestPlural(e, name) }
-							placeholder="plural"
-							pluralBasis={ name }
-							suppressLocalWarnings
-							value={ pending.plural }
-							warnings={ this.getWarning('plural', warnings) || undefined }
-						/>
+						{
+							<Input
+								className="plural"
+								defaultValue={ plural }
+								fieldName="plural"
+								isEditMode={ isEditMode }
+								isPluralSuggestEnabled
+								loading={ loading }
+								onChange={ this.onInputChange }
+								onSuggestPlural={ e => this.onSuggestPlural(e, name) }
+								placeholder="plural"
+								pluralBasis={ name }
+								suppressLocalWarnings
+								value={ pending.plural }
+								warnings={ this.getWarning('plural', warnings) || undefined }
+							/>
+						}
 					</Left>
 
 					<Right>
@@ -683,7 +926,7 @@ class Form extends Component {
 							isEditMode={ isEditMode }
 							loading={ loading }
 							key={ `card_isComposed_${ id }` }
-							keys={ [ 'Is Composed Ingredient?' ] }
+							keys={ [ 'Recipe Ingredient' ] }
 							onChange={ e => this.onCheckboxChange(e, 'isComposedIngredient', isComposedIngredient) }
 							onKeyDown={ e => this.onCheckboxKeyDown(e, 'isComposedIngredient', isComposedIngredient) }
 							values={ [ (isEditMode && hasProperty(pending, 'isComposedIngredient'))
@@ -813,7 +1056,7 @@ Form.defaultProps = {
 	name: null,
 	onCancelClick: () => {},
 	onEditClick: () => {},
-	onSaveIngredient: () => {},
+	onSaveCallback: () => {},
 	parentID: null,
 	parentName: null,
 	references: [],
@@ -840,6 +1083,7 @@ Form.propTypes = {
 	client: PropTypes.shape({
 		readQuery: PropTypes.func,
 		query: PropTypes.func,
+		mutate: PropTypes.func,
 	}).isRequired,
 	id: PropTypes.string,
 	isComposedIngredient: PropTypes.bool,
@@ -850,7 +1094,7 @@ Form.propTypes = {
 	name: PropTypes.string,
 	onCancelClick: PropTypes.func,
 	onEditClick: PropTypes.func,
-	onSaveIngredient: PropTypes.func,
+	onSaveCallback: PropTypes.func,
 	parentID: PropTypes.string,
 	parentName: PropTypes.string,
 	plural: PropTypes.string,

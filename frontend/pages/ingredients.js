@@ -51,10 +51,8 @@ class Ingredients extends React.PureComponent {
 		// console.warn('[ingredients] render');
 		const { query } = this.props;
 		const { group = 'name', id = null, view = 'all' } = query;
-		// eslint-disable-next-line
 
 		return (
-			// eslint-disable-next-line
 			<Composed>
 				{
 					({ getIngredients, getIngredientsCount }) => {
@@ -87,6 +85,8 @@ class Ingredients extends React.PureComponent {
 												/>
 											)
 									}
+
+									{/* TODO display a message when we have no ingredients in either view */}
 
 									<AddNew refreshContainers={ this.refreshContainers } />
 								</section>

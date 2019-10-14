@@ -3,6 +3,7 @@ import gql from 'graphql-tag';
 import withApollo from 'next-with-apollo';
 import { GET_ALL_INGREDIENTS_QUERY, GET_VIEW_INGREDIENTS_QUERY } from './apollo/queries';
 import { CREATE_CONTAINERS_MUTATION } from './apollo/mutations';
+import typeDefs from './apollo/typeDefs';
 import { endpoint } from '../config';
 /* eslint-disable object-curly-newline */
 import {
@@ -12,144 +13,6 @@ import {
 	generateByRelationship,
 } from './generateContainers';
 /* eslint-enable object-curly-newline */
-
-const typeDefs = gql`
-	type IngredientAggregate {
-		ingredientsCount: Int!
-		newIngredientsCount: Int!
-	}
-
-	type Container {
-		id: String!
-		ingredientID: String
-		ingredients: [ ContainerIngredient ]!
-		isExpanded: Boolean!
-		label: String!
-		referenceCount: Int!
-	}
-
-	type ContainerIngredient {
-		hasParent: Boolean!
-		id: String!
-		isValidated: Boolean!
-		name: String!
-		properties: Properties!
-		referenceCount: Int!
-	}
-
-	type Ingredient {
-		id: ID!
-		name: String!
-		plural: String
-		alternateNames: [ AlternateName! ]!
-		properties: Properties!
-		isComposedIngredient: Boolean!
-		isValidated: Boolean!
-		parent: Ingredient
-		relatedIngredients: [ Ingredient! ]!
-		substitutes: [ Ingredient! ]!
-		references: [ RecipeIngredient! ]!
-	}
-
-	type AlternateName {
-		id: ID!
-		name: String!
-	}
-
-	type Recipe {
-		id: ID!
-		evernoteGUID: String
-		title: String!
-		source: String
-		categories: [ Category! ]!
-		tags: [ Tag! ]!
-		image: String
-		ingredients: [ RecipeIngredient! ]!
-		instructions: [ RecipeInstruction! ]!
-	}
-
-	type RecipeInstruction {
-		id: ID!
-		blockIndex: Int!
-		reference: String!
-	}
-
-	type RecipeIngredient {
-		id: ID!
-		blockIndex: Int!
-		lineIndex: Int!
-		reference: String!
-		isParsed: Boolean!
-		parsed: [ ParsedSegment! ]
-	}
-
-	type ParsedSegment {
-		id: ID!
-		rule: String!
-		type: String!
-		value: String!
-		ingredient: Ingredient
-	}
-
-	type Suggestion {
-		id: String!
-		name: String!
-	}
-
-	type ContainersResponse {
-    containers: [ Container ]
-  }
-
-	type Properties {
-		id: String!
-		meat: Boolean!
-		poultry: Boolean!
-		fish: Boolean!
-		dairy: Boolean!
-		soy: Boolean!
-		gluten: Boolean!
-	}
-
-	type PropertiesCreateInput {
-		id: String!
-		meat: Boolean!
-		poultry: Boolean!
-		fish: Boolean!
-		dairy: Boolean!
-		soy: Boolean!
-		gluten: Boolean!
-	}
-
-	type Query {
-		container(id: String!): Container
-		containers: [ Container ]!
-		ingredient(value: String!): ContainerIngredient
-		viewIngredients: [ ContainerIngredient ]!
-		suggestions: [ Suggestion ]!
-	}
-
-	type Mutation {
-   	createContainers(
-	  	group: String!
-			ingredients: [ ContainerIngredient ]!
-			view: String!
-    ) : ContainersResponse
-	}
-
-	type Mutation {
-   	setContainerIsExpanded(
-	  	id: String!
-			isExpanded: Boolean!
-    ) : null
-	}
-
-	type Mutation {
-   	setCurrentCard(
-	  	id: String!
-			ingredientID: String
-    ) : null
-	}
-`;
 
 function createClient({ headers }) {
 	const fragmentMatcher = new IntrospectionFragmentMatcher({ introspectionQueryResultData: { __schema: { types: [] } } });
@@ -168,6 +31,7 @@ function createClient({ headers }) {
 					container(_, { id }, { client, getCacheKey }) {
 						// console.warn(`... [withData](${ id }) container query resolver`);
 
+						// TODO move fragments into their own file
 						const container = client.readFragment({
 							id: getCacheKey({
 								__typename: 'Container',
@@ -266,7 +130,7 @@ function createClient({ headers }) {
 						return null;
 					},
 					suggestions(_, { value }) {
-						console.warn(`... [withData](${ value }) suggestions query resolver`);
+						// console.warn(`... [withData](${ value }) suggestions query resolver`);
 						let suggestions = [];
 
 						if (value && value.length > 0) {

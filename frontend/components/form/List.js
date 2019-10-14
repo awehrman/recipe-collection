@@ -31,6 +31,7 @@ const ListStyles = styled.fieldset`
 		.fa-plus {
 			margin: 0;
 			font-size: 14px;
+			height: 14px;
 		}
 
 		&:focus {
@@ -349,6 +350,7 @@ List.defaultProps = {
 	placeholder: '',
 	suppressLocalWarnings: false,
 	type: 'static',
+	validate: () => {},
 	values: [],
 	warnings: [],
 };
@@ -371,7 +373,7 @@ List.propTypes = {
 	placeholder: PropTypes.string,
 	suppressLocalWarnings: PropTypes.bool,
 	type: PropTypes.string,
-	validate: PropTypes.func.isRequired,
+	validate: PropTypes.func,
 	values: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string,
 		name: PropTypes.string.isRequired,

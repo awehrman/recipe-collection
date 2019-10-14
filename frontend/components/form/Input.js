@@ -186,7 +186,7 @@ class Input extends Component {
 
 					{/* suggest plural icon */}
 					{
-						(isPluralSuggestEnabled)
+						(isEditMode && isPluralSuggestEnabled)
 							? (
 								<FontAwesomeIcon
 									className={ (!isEditMode) ? 'disabled' : '' }

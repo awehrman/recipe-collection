@@ -29,7 +29,7 @@ const NavStyles = styled.nav`
 
 		svg {
 			/* TODO look into SVG FOUT issues */
-			height: 16px;
+			height: 16px !important;
 		}
 
 		&:hover {
@@ -65,6 +65,7 @@ const NavStyles = styled.nav`
 
 				svg {
 					margin-right: 10px;
+					height: 14px;
 				}
 			}
 		}

@@ -127,12 +127,83 @@ export const GET_INGREDIENT_BY_VALUE_QUERY = gql`
   }
 `;
 
+export const GET_INGREDIENT_BY_ID_QUERY = gql`
+  query GET_INGREDIENT_BY_ID_QUERY($id: ID!) {
+		ingredient(where: { id: $id }) {
+			id
+			parent {
+				id
+				name
+			}
+			name
+			plural
+			properties {
+				meat
+				poultry
+				fish
+				dairy
+				soy
+				gluten
+			}
+			alternateNames {
+				name
+			}
+			relatedIngredients {
+				id
+				name
+			}
+			substitutes {
+				id
+				name
+			}
+			references {
+				id
+				reference
+			}
+			isValidated
+      isComposedIngredient
+		}
+	}
+`;
+
+/* Recipes */
+export const GET_RECIPES_COUNT_QUERY = gql`
+  query GET_RECIPES_COUNT_QUERY {
+  	recipeAggregate {
+	  	recipesCount
+		}
+  }
+`;
+
+export const GET_ALL_RECIPES_QUERY = gql`
+  query GET_ALL_RECIPES_QUERY {
+  	recipes {
+  		id
+			evernoteGUID
+			image
+			source
+			title
+			categories {
+				id
+				name
+			}
+			tags {
+				id
+				name
+			}
+		}
+  }
+`;
+
 export default [
 	GET_CONTAINER_QUERY,
 	GET_CONTAINERS_QUERY,
 	GET_VIEW_INGREDIENTS_QUERY,
 	GET_INGREDIENTS_COUNT_QUERY,
 	GET_INGREDIENT_BY_VALUE_QUERY,
+	GET_INGREDIENT_BY_ID_QUERY,
 	GET_ALL_INGREDIENTS_QUERY,
 	GET_SUGGESTED_INGREDIENTS_QUERY,
+	GET_RECIPES_COUNT_QUERY,
+	GET_ALL_RECIPES_QUERY,
 ];

@@ -20,6 +20,12 @@ const ContainerStyles = styled.div`
 	ul.hidden {
 		display: none;
 	}
+
+	span.message {
+		font-size: 14px;
+		font-style: italic;
+		color: '#222';
+	}
 `;
 
 const Composed = adopt({
@@ -48,10 +54,9 @@ class Containers extends React.Component {
 		});
 	}
 
-	// TODO i might need to toggle a separate mutation to set ingredientID within the appropriate containers
 	render() {
-		// console.warn('[Containers] render');
 		const { group, ingredientID, view } = this.props;
+		const message = (view === 'new') ? 'There are no new ingredients to review.' : 'There are no ingredients yet.';
 
 		return (
 			// eslint-disable-next-line object-curly-newline
@@ -75,6 +80,9 @@ class Containers extends React.Component {
 												view={ view }
 											/>
 										))
+								}
+								{/* if we have no containers then display a message */
+									(containers.length === 0) ? <span className="message">{ message }</span> : null
 								}
 							</ContainerStyles>
 						);

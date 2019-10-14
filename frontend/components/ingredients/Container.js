@@ -1,6 +1,6 @@
 import { adopt } from 'react-adopt';
 import { Query, Mutation, withApollo } from 'react-apollo';
-import { withRouter } from 'next/router'
+import { withRouter } from 'next/router';
 import PropTypes from 'prop-types';
 import React from 'react';
 import styled from 'styled-components';
@@ -20,6 +20,7 @@ const ContainerStyles = styled.div`
 	width: 100%;
 
 	&.expanded {
+		padding-bottom: 5px;
 		border-bottom: 1px solid #ddd;
 	}
 `;
@@ -225,9 +226,8 @@ class Container extends React.PureComponent {
 	onIngredientClick = async (e, currentIngredientID) => {
 		e.preventDefault();
 		const targetIngredientID = e.target.id;
-		console.log(`[Container] onIngredientClick click:${ targetIngredientID }, current: ${ currentIngredientID } `);
 
-		const { client, group, id, router, view } = this.props;
+		const { client, id } = this.props;
 
 		// update the url without causing a bunch of re-renders
 
@@ -245,14 +245,13 @@ class Container extends React.PureComponent {
 					id,
 					ingredientID: (currentIngredientID === targetIngredientID) ? null : targetIngredientID,
 				},
-			}).then(() => console.log('done'));
+			});
 		} catch (err) {
 			console.error({ err });
 		}
 	}
 
 	render() {
-		console.warn('[Container] render');
 		const { id, view } = this.props;
 		return (
 			<Composed id={ id }>
