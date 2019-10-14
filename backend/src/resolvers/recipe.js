@@ -31,10 +31,12 @@ export default {
 			};
 
 			if (categories && categories.length > 0) {
+				// TODO if no id is provided, create the category
 				recipe.categories = { connect: categories.map(i => ({ id: i })) };
 			}
 
 			if (tags && tags.length > 0) {
+				// TODO if no id is provided, create the tag
 				recipe.tags = { connect: tags.map(i => ({ id: i })) };
 			}
 

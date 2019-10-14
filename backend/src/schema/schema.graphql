@@ -1,79 +1,43 @@
 # import * from '../generated/prisma.graphql'
 
+type IngredientResponse {
+	errors: [ String ]
+	ingredient: Ingredient
+}
+
+type RecipeResponse {
+	errors: [ String ]
+	recipe: Recipe
+}
+
 type Query {
 	category(where: CategoryWhereUniqueInput): Category
   categories: [ Category! ]!
+
 	ingredient(where: IngredientWhereUniqueInput!): Ingredient
 	ingredients: [ Ingredient! ]!
 	ingredientAggregate: IngredientAggregate!
+
 	recipe(where: RecipeWhereUniqueInput!): Recipe
 	recipes: [ Recipe! ]!
 	recipeAggregate: RecipeAggregate!
+
 	tag(where: TagWhereUniqueInput!): Tag
 	tags: [ Tag! ]!
 }
-
 
 type Mutation {
   createCategory(evernoteGUID: String, name: String!): Category!
   deleteCategory(id: ID!): ID
   updateCategory(id: ID!): Category
 
-	createIngredient( parentID: ID,
-										parentName: String,
-										name: String!,
-										plural: String,
-										properties: PropertiesCreateInput,
-										alternateNames: [ String ],
-										relatedIngredients: [ String ],
-										substitutes: [ String ],
-										references: [ String ],
-										isValidated: Boolean,
-										isComposedIngredient: Boolean
-									): Ingredient!
-	deleteIngredient(ID: ID!): ID
-	updateIngredient( id: ID!,
-										# TODO parentID: ID,
-										# TODO parentName: String,
-										name: String,
-										plural: String,
-										properties: PropertiesUpdateOneRequiredInput,
-										propertyID: ID,
-										alternateNames_Create: [ String ],
-										alternateNames_Delete: [ String ],
-										relatedIngredients_Connect: [ ID ],
-										relatedIngredients_Disconnect: [ ID ],
-										substitutes_Connect: [ ID ],
-										substitutes_Disconnect: [ ID ],
-										# TODO references: [ ID ],
-										isValidated: Boolean,
-										isComposedIngredient: Boolean
-									): Ingredient!
+	createIngredient(data: IngredientCreateInput) : IngredientResponse!
+	deleteIngredient(ID: ID!): IngredientResponse!
+	updateIngredient(data: IngredientUpdateDataInput): IngredientResponse!
 
-	createRecipe( evernoteGUID: String,
-								image: String,
-								source: String,
-								title: String!,
-								categories: [ ID ],
-								tags: [ ID ]
-							): Recipe!
+	createRecipe(data: RecipeCreateInput): Recipe!
 	deleteRecipe(ID: ID!): ID
-	updateRecipe( id: ID!,
-								evernoteGUID: String,
-								image: String,
-								source: String,
-								title: String,
-								categoryConnections: [ ID! ],
-								categoryDisconnections: [ ID! ],
-								tagConnections: [ ID! ],
-								tagDisconnections: [ ID! ],
-								ingredientConnections: [ ID! ],
-								ingredientDisconnections: [ ID! ],
-								instructionConnections: [ ID! ],
-								instructionDisconnections: [ ID! ]
-							): Recipe!
-
-	createRecipeInstruction(blockIndex: Int!, reference: String!): RecipeInstruction!
+	updateRecipe(data: RecipeUpdateInput): Recipe!
 
 	createTag(evernoteGUID: String, name: String!): Tag!
 	deleteTag(id: ID!): ID

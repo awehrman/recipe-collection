@@ -76,7 +76,6 @@ export default {
 		ingredients: async (parent, args, ctx) => {
 			console.warn('ingredients');
 			const ingredients = await ctx.prisma.ingredients().$fragment(GET_ALL_INGREDIENT_FIELDS_FOR_VALIDATION);
-			console.log(ingredients.map(i => i.name));
 			return ingredients;
 		},
 	},
@@ -84,74 +83,21 @@ export default {
 	Mutation: {
 		createIngredient: async (parent, args, ctx, info) => {
 			console.log('createIngredient');
-			const {
-				alternateNames,
-				isComposedIngredient,
-				isValidated,
-				name,
-				parentID,
-				parentName,
-				plural,
-				properties,
-				relatedIngredients,
-				references,
-				substitutes,
-			} = args;
-
-			let ingredient = {
-				name: (name && (name.length > 0)) ? name.trim().toLowerCase() : '',
-				plural: (plural && (plural.length > 0)) ? plural.trim().toLowerCase() : null,
-				isValidated: isValidated || false,
-				isComposedIngredient: isComposedIngredient || false,
+			const response = {
+				__typename: 'IngredientResponse',
+				ingredient: null,
+				errors: [],
 			};
 
-			ingredient.properties = (!properties)
-				? {
-					create: {
-						meat: false,
-						poultry: false,
-						fish: false,
-						dairy: false,
-						soy: false,
-						gluten: false,
-					},
-				}
-				: { create: properties };
+			// TODO add in joi validation
 
-			if (parentID) {
-				ingredient.parent = { connect: { id: parentID } };
-			} else if (parentName) {
-				// TODO test with existing ingredient to make sure this doesn't duplicate
-				// if not found, then create ingredient with parent parentName
-				ingredient.parent = {
-					create: {
-						name: parentName,
-						properties: { create: properties },
-					},
-				};
-			}
-
-			if (alternateNames && alternateNames.length > 0) {
-				ingredient.alternateNames = { create: alternateNames.map(a => ({ name: (a && (a.length > 0)) ? a.toLowerCase() : '' })) };
-			}
-
-			if (relatedIngredients && relatedIngredients.length > 0) {
-				ingredient.relatedIngredients = { connect: relatedIngredients.map(i => ({ id: i })) };
-			}
-
-			if (substitutes && substitutes.length > 0) {
-				ingredient.substitutes = { connect: substitutes.map(i => ({ id: i })) };
-			}
-
-			if (references && references.length > 0) {
-				ingredient.references = { connect: references.map(i => ({ id: i })) };
-			}
+			const { data } = args;
 
 			try {
-				ingredient = await ctx.prisma.createIngredient({ ...ingredient }, info);
+				const ingredient = await ctx.prisma.createIngredient({ ...data }, info);
 				// TODO look into why prisma isn't returning properties
 				if (!ingredient.properties) {
-					ingredient.properties = (!properties)
+					ingredient.properties = (!data.properties.create)
 						? {
 							meat: false,
 							poultry: false,
@@ -160,14 +106,22 @@ export default {
 							soy: false,
 							gluten: false,
 						}
-						: { ...properties };
+						: { ...data.properties.create };
 				}
-
-				return ingredient;
+				response.ingredient = {
+					__typename: 'Ingredient',
+					...ingredient,
+				};
 			} catch (err) {
-				console.log(err);
+				const { result } = err;
+				const { errors } = result;
+				errors.forEach((error) => {
+					const { message } = error;
+					response.errors.push(message);
+				});
 			}
-			return null;
+			console.log(response);
+			return response;
 		},
 
 		deleteIngredient: async () => {
