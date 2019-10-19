@@ -5,7 +5,7 @@ const Image = ({ alt, value }) => {
 	if (!value) {
 		// display a placeholder
 		return (
-			<svg viewBox="0 0 16 9" width="100%" height="100%">
+			<svg viewBox="0 0 1600 900" width="100%" preserveAspectRatio="xMidYMid slice">
 				<rect
 					style={ { fill: '#eee' } }
 					width="100%"
@@ -17,7 +17,7 @@ const Image = ({ alt, value }) => {
 	}
 
 	return (
-		<svg viewBox="0 0 16 9" width="100%" height="100%">
+		<svg viewBox="0 0 16 9" width="100%" preserveAspectRatio="xMidYMid slice">
 			<image
 				xlinkHref={ value }
 				alt={ alt }

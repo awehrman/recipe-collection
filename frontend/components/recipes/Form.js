@@ -13,7 +13,8 @@ import Button from '../form/Button';
 import Image from '../form/Image';
 import Input from '../form/Input';
 import List from '../form/List';
-import ParserInput from '../form/ParserInput';
+import ParserInput from './ParserInput';
+import ParsedViewer from './ParsedViewer';
 import { GET_ALL_RECIPES_QUERY, GET_RECIPES_COUNT_QUERY } from '../../lib/apollo/queries';
 import { CREATE_RECIPE_MUTATION, UPDATE_RECIPE_MUTATION } from '../../lib/apollo/mutations';
 
@@ -56,14 +57,23 @@ const FormStyles = styled.form`
 `;
 
 const TopFormStyles = styled.div`
-	fieldset.plural {
-		height: 20px;
+	fieldset.source, fieldset.image, fieldset.evernoteGUID {
+		font-size: 12px;
+		margin-bottom: 0 !important;
+
+		span#highlight {
+			top: 22px !important;
+		}
+	}
+
+	fieldset.source input, fieldset.image input {
+		color: ${ props => props.theme.altGreen } !important;
+		text-overflow: ellipsis;
 	}
 
 	@media (min-width: ${ props => props.theme.desktopCardWidth }) {
 		display: flex;
 		justify-content: space-between;
-		margin-bottom: 20px;
 
 		.left {
 			flex-grow: 1;
@@ -78,36 +88,35 @@ const TopFormStyles = styled.div`
 
 const Left = styled.div`
 	flex: 1;
+	margin-right: 20px;
+	justify-content: start;
 `;
 
 const Right = styled.div`
 	flex: 1;
+	margin-left: 20px;
+	justify-content: start;
 `;
 
-const MiddleFormStyles = styled.div`
-	@media (min-width: ${ props => props.theme.desktopCardWidth }) {
-		display: flex;
-		justify-content: space-between;
-		margin-bottom: 20px;
+const Title = styled.h1`
+	font-size: 24px;
+	font-weight: 100;
+	margin-top: 0;
+`;
 
-		/* TEMP - go back and look and what's causing the differences between these svg icons here and in the create component */
-		button.add {
-			top: -1px;
-		}
+const Source = styled.div`
+	font-style: italic;
+	font-size: 12px;
+	color: ${ props => props.theme.altGreen } !important;
+	margin-top: 4px;
+`;
 
-		.right {
-			flex: 1;
+const Categories = styled.div`
+	margin-bottom: 8px;
+`;
 
-			ul.list {
-				max-height: 108px;
-				overflow-y: scroll;
-			}
-		}
-
-		.left {
-			flex: 1;
-		}
-	}
+const Tags = styled.div`
+	margin-bottom: 8px;
 `;
 
 const BottomFormStyles = styled.div`
@@ -334,6 +343,7 @@ class Form extends Component {
 
 	getPendingRecipe = () => {
 		const { pending } = this.state;
+		console.log({ pending });
 		const {
 			evernoteGUID,
 			id,
@@ -342,6 +352,7 @@ class Form extends Component {
 			title,
 			tags,
 			categories,
+			ingredients,
 			instructions,
 		} = this.props;
 
@@ -353,6 +364,7 @@ class Form extends Component {
 			title: pending.title || title,
 			categories: deepCopy(categories),
 			tags: deepCopy(tags),
+			ingredients: deepCopy(ingredients),
 			instructions: deepCopy(instructions),
 		};
 
@@ -399,6 +411,14 @@ class Form extends Component {
 				}
 			});
 		}
+		// TODO come back and clean this up, i'm just being lazy
+		if (hasProperty(pending, 'ingredients')) {
+			pending.ingredients.forEach((c) => {
+				if (!~rp.ingredients.indexOf(c)) {
+					rp.ingredients.push({ ...c });
+				}
+			});
+		}
 
 		// disconnect any disconnected ingredients
 		if (hasProperty(pending, 'ingredientsDisconnect')) {
@@ -411,6 +431,15 @@ class Form extends Component {
 		// connect any new instructions
 		if (hasProperty(pending, 'instructionsConnect')) {
 			pending.instructionsConnect.forEach((c) => {
+				if (!~rp.instructions.indexOf(c)) {
+					rp.instructions.push({ ...c });
+				}
+			});
+		}
+
+		// TODO come back and clean this up, i'm just being lazy
+		if (hasProperty(pending, 'instructions')) {
+			pending.instructions.forEach((c) => {
 				if (!~rp.instructions.indexOf(c)) {
 					rp.instructions.push({ ...c });
 				}
@@ -721,26 +750,40 @@ class Form extends Component {
 							suppressLocalWarnings
 							values={ pending.tags }
 						/>
+
+						{/* Recipe Content Editor */}
+						<ParserInput
+							loading={ loading }
+							onChange={ this.onParserInputChange }
+							onComplete={ this.onParserComplete }
+							placeholder="Recipe Content"
+						/>
 					</Left>
 
 					<Right>
-						{/* TODO Uploaded Image Placeholder */}
+						<Title>
+							{pending.title}
+						</Title>
+						{/* Uploaded Image Placeholder */}
 						<Image value={ pending.image } />
+						<Source>
+							{pending.source}
+						</Source>
+						<Categories>
+							{pending.categories}
+						</Categories>
+						<Tags>
+							{pending.tags}
+						</Tags>
+
+						{/* Recipe Parsed Display */}
+						<ParsedViewer
+							loading={ loading }
+							ingredients={ pending.ingredients }
+							instructions={ pending.instructions }
+						/>
 					</Right>
 				</TopFormStyles>
-
-				<MiddleFormStyles>
-					{/* Recipe Content Editor */}
-					<ParserInput
-						loading={ loading }
-						onChange={ this.onParserInputChange }
-						onComplete={ this.onParserComplete }
-						placeholder="Recipe Content"
-					/>
-
-					{/* TODO Recipe Parsed Display */}
-
-				</MiddleFormStyles>
 
 				<BottomFormStyles>
 					{/* Warnings */
@@ -798,7 +841,8 @@ Form.defaultProps = {
 	content: '',
 	evernoteGUID: null,
 	id: '-1',
-	image: '',
+	// eslint-disable-next-line
+	image: 'https://i.guim.co.uk/img/media/d05d90a20bdb74e9ca630063b312f05e32fe847e/0_625_3642_2185/master/3642.jpg?width=1920&quality=85&auto=format&fit=max&s=e02a30b079ab9d2ffde334177b715dc7',
 	ingredients: [],
 	instructions: [],
 	isEditMode: true,
@@ -810,8 +854,8 @@ Form.defaultProps = {
 	resetForm: () => {},
 	saveLabel: 'Save',
 	showCancelButton: false,
-	source: null,
-	title: null,
+	source: 'https://www.theguardian.com/lifeandstyle/2018/jan/06/aloo-paratha-recipe-quick-lemon-pickle-vegan-meera-sodha',
+	title: 'Aloo Paratha with Quick Lemon Pickle',
 	tags: [],
 };
 
@@ -863,7 +907,7 @@ Form.propTypes = {
 	saveLabel: PropTypes.string,
 	showCancelButton: PropTypes.bool,
 	source: PropTypes.string,
-	title: PropTypes.bool,
+	title: PropTypes.string,
 	tags: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string,
 		evernoteGUID: PropTypes.string,

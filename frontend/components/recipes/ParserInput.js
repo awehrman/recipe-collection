@@ -8,12 +8,16 @@ import styled from 'styled-components';
 import Parser from '../../../backend/src/lib/ingredientLineParser';
 import { GET_INGREDIENT_BY_VALUE_QUERY, GET_INGREDIENTS_COUNT_QUERY, GET_ALL_INGREDIENTS_QUERY } from '../../lib/apollo/queries';
 import { CREATE_INGREDIENT_MUTATION } from '../../lib/apollo/mutations';
-import Button from './Button';
+import Button from '../form/Button';
 
 const ParserInputStyles = styled.div`
-	margin: 20px 0;
 	display: flex;
 	width: 100%;
+	flex-direction: column;
+`;
+
+const EditorStyles = styled.div`
+	flex: 1;
 
 	.pell-actionbar {
 		display: none;
@@ -22,39 +26,37 @@ const ParserInputStyles = styled.div`
 	.pell-content {
 		flex: 1;
 		height: 100%;
-		min-height: 100px;
+		min-height: 300px;
 		border: 0;
 		padding: 10px;
 		font-size: 12px;
 		width: 90%;
 		background: white;
-	}
-
-	.display {
-		flex: 1;
-		font-size: 12px;
+		width: 100%;
 	}
 `;
 
-const Left = styled.div`
+const ParseButtonStyles = styled.div`
 	flex: 1;
+	margin: 0;
+	padding: 0;
 
-	button.parse {
-		margin: 10px 0;
-		float: right;
+	button {
+		background: ${ props => props.theme.highlight } !important;
+		color: white !important;
+		text-transform: uppercase;
+		font-weight: 900;
+		text-align: center;
+		padding: 6px 0 !important;
+		margin-top: 10px !important;
+		margin-bottom: 0 !important;
+		width: 100%;
+		height: 100%;
 	}
-`;
-
-const Right = styled.div`
-	flex: 1;
 `;
 
 class ParserInput extends React.Component {
-	state = {
-		domContent: '',
-		ingredients: [],
-		instructions: [],
-	};
+	state = { domContent: '' };
 
 	parseContent = async (e) => {
 		e.preventDefault();
@@ -71,13 +73,7 @@ class ParserInput extends React.Component {
 
 		// parse each ingredient line into its individual components
 		ingredientLines = ingredientLines.map(async line => this.parseIngredientLine(line));
-
-		Promise.all(ingredientLines).then((ingredients) => {
-			this.setState({
-				ingredients,
-				instructions,
-			}, () => onComplete(ingredients, instructions));
-		});
+		Promise.all(ingredientLines).then(ingredients => onComplete(ingredients, instructions));
 	};
 
 	parseHTML = (content) => {
@@ -271,54 +267,24 @@ class ParserInput extends React.Component {
 
 	render() {
 		const { onChange } = this.props;
-		const { domContent, ingredients, instructions } = this.state;
-
-		console.log({ ingredients });
+		const { domContent } = this.state;
 
 		return (
 			<ParserInputStyles>
-				<Left>
+				<EditorStyles>
 					<Editor
 						actions={ [] }
 						defaultContent={ domContent }
 						onChange={ c => this.setState({ domContent: c }, () => onChange(c)) }
 					/>
+				</EditorStyles>
+				<ParseButtonStyles>
 					<Button
-						className="parse"
 						label="Parse"
 						onClick={ e => this.parseContent(e) }
 						type="button"
 					/>
-				</Left>
-				<Right>
-					<div className="display">
-						<div className="ingredients">
-							<h1>Ingredients</h1>
-							<ul>
-								{
-									ingredients.map(i => (
-										<li key={ `parsed_ingredient_${ i.block }_${ i.line }` }>
-											{ i.reference }
-										</li>
-									))
-								}
-							</ul>
-						</div>
-
-						<div className="instructions">
-							<h1>Instructions</h1>
-							<ul>
-								{
-									instructions.map(i => (
-										<li key={ `parsed_instruction_${ i.block }` }>
-											{ i.reference }
-										</li>
-									))
-								}
-							</ul>
-						</div>
-					</div>
-				</Right>
+				</ParseButtonStyles>
 			</ParserInputStyles>
 		);
 	}
