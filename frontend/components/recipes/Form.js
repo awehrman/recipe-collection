@@ -220,7 +220,7 @@ class Form extends Component {
 		}
 	}
 
-	getNetworkRecipe = (type = 'create') => {
+	getNetworkRecipe = () => {
 		const recipe = this.getPendingRecipe();
 		const { pending } = this.state;
 		const data = {};
@@ -823,8 +823,7 @@ Form.propTypes = {
 	evernoteGUID: PropTypes.string,
 	id: PropTypes.string,
 	image: PropTypes.string,
-	/*
-	ingredients: PropTypes.arrayOf({
+	ingredients: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string,
 		blockIndex: PropTypes.number,
 		lineIndex: PropTypes.number,
@@ -840,13 +839,12 @@ Form.propTypes = {
 				name: PropTypes.string.isRequired,
 			}),
 		}),
-	}),
-	instructions: PropTypes.arrayOf({
+	})),
+	instructions: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string,
 		blockIndex: PropTypes.number,
 		reference: PropTypes.string.isRequired,
-	}),
-	*/
+	})),
 	isEditMode: PropTypes.bool,
 	isFormReset: PropTypes.bool,
 	loading: PropTypes.bool,

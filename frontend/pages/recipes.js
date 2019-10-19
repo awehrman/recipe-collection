@@ -3,7 +3,7 @@ import React from 'react';
 import { Query, withApollo } from 'react-apollo';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { GET_ALL_RECIPES_QUERY, GET_RECIPES_COUNT_QUERY } from '../lib/apollo/queries';
+import { GET_ALL_INGREDIENTS_QUERY, GET_ALL_RECIPES_QUERY, GET_RECIPES_COUNT_QUERY } from '../lib/apollo/queries';
 
 import AddNew from '../components/recipes/AddNew';
 import ErrorMessage from '../components/ErrorMessage';
@@ -11,6 +11,14 @@ import Loading from '../components/Loading';
 import Header from '../components/Header';
 
 const Composed = adopt({
+	// get ingredients for validation purposes if we don't already have this
+	// eslint-disable-next-line react/prop-types
+	getIngredients: ({ render }) => (
+		<Query query={ GET_ALL_INGREDIENTS_QUERY }>
+			{render}
+		</Query>
+	),
+
 	// eslint-disable-next-line react/prop-types
 	getRecipes: ({ render }) => (
 		<Query query={ GET_ALL_RECIPES_QUERY }>

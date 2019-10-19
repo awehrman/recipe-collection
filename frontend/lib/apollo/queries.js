@@ -123,6 +123,15 @@ export const GET_INGREDIENT_BY_VALUE_QUERY = gql`
   	ingredient(value: $value) @client {
 			id
 			name
+			properties {
+				meat
+			  poultry
+			  fish
+			  dairy
+			  soy
+			  gluten
+			}
+			isValidated
 		}
   }
 `;

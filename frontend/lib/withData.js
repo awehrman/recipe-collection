@@ -101,27 +101,31 @@ function createClient({ headers }) {
 						return containers;
 					},
 					ingredient(_, { value }) {
-						// console.warn('... [withData] ingredient');
-
+						console.warn(`... [withData] ingredient ${value}`);
 						// get all ingredients from the cache
-						let { ingredients } = cache.readQuery({ query: GET_ALL_INGREDIENTS_QUERY });
+						let { ingredients } = cache.readQuery({
+							query: GET_ALL_INGREDIENTS_QUERY,
+						});
 
 						// pare down the ingredient info to match the ContainerIngredient shape
 						ingredients = ingredients.filter((i) => {
 							// match on name
-							if (i.name === value) return i;
+							if (i.name === value.toLowerCase()) return i;
 							// match on plural
-							if (i.plural === value) return i;
+							if (i.plural === value.toLowerCase()) return i;
 							// match on altName
-							if (i.alternateNames.find(n => n.name === value)) return i;
+							if (i.alternateNames.find(n => n.name === value.toLowerCase())) return i;
 							return null;
 						});
+
 
 						if (ingredients && (ingredients.length === 1)) {
 							return {
 								__typename: 'ContainerIngredient',
 								id: ingredients[0].id,
 								name: ingredients[0].name,
+								properties: { ...ingredients[0].properties },
+								isValidated: ingredients[0].isValidated,
 							};
 						}
 

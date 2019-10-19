@@ -66,7 +66,7 @@ const IngredientsList = styled.ul`
 			font-style: italic;
 		}
 
-		+ .invalid a {
+		&.invalid > a {
 			color: silver;
 		}
 
