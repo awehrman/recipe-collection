@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import Button from './Button';
 import Input from './Input';
 import Suggestions from './Suggestions';
+import { hasProperty } from '../../lib/util';
 import { GET_SUGGESTED_INGREDIENTS_QUERY } from '../../lib/apollo/queries';
 
 const ListStyles = styled.fieldset`
@@ -158,28 +159,49 @@ class List extends Component {
 	}
 
 	onChange = (e) => {
+		console.warn('onChange');
 		const { value } = e.target;
 		const { fieldName, validate } = this.props;
+		console.log({ fieldName, validate, value, e });
 
-		this.setState({ value }, () => validate(fieldName, (typeof value === 'string') ? value : value.name));
+		if (e.key === 'Enter') {
+			console.log('Enter');
+			e.preventDefault();
+			// this is usually only utilized by the List component
+			this.onListChange(null, { name: value }, fieldName, false);
+		} else {
+			this.setState({ value }, () => validate(fieldName, (typeof value === 'string') ? value : value.name));
+		}
 	}
 
 	onListChange = (e, listItem, fieldName, removeListItem = false) => {
-		if (e) e.preventDefault();
+		console.warn('onListChange');
+		console.log({ e, listItem, fieldName, removeListItem, type: (typeof listItem) });
+		try {
+			if (e) e.preventDefault();
+		} catch (err) {
+			console.error({ err });
+		}
 		const { onListChange } = this.props;
 		let item;
 		if (typeof listItem === 'string') {
-			item = listItem;
-		} else {
+			console.log('A');
 			item = {
-				id: listItem.id || null,
+				id: null,
+				name: listItem,
+			};
+		} else {
+			console.log('B');
+			item = {
+				id: hasProperty(listItem, 'id') ? listItem.id : null,
 				name: listItem.name,
 			};
 		}
+		console.log({ item });
 		this.setState({
 			showInput: false,
 			value: '',
-		}, onListChange(item, fieldName, removeListItem));
+		}, () => onListChange(item, fieldName, removeListItem));
 	}
 
 	onSuggestPlural = (e, value) => {
@@ -259,7 +281,7 @@ class List extends Component {
 							list.map((i, index) => {
 								if (!i.name) return null;
 								const warningIndex = warnings.findIndex(w => (w.value === i.name));
-								const key = `${ type }_${ index }_${ i.id || i.name }`;
+								const key = `${ i.__typename }_${ index }_${ i.id || i.name }`;
 								return (
 									<li key={ key }>
 										{
@@ -286,7 +308,7 @@ class List extends Component {
 												: null
 										}
 
-										{/* delete button */
+										{
 											(isEditMode && isRemovable)
 												? (
 													<Button
@@ -302,7 +324,6 @@ class List extends Component {
 							})
 						}
 					</ul>
-
 					{/* New List Item Input look into value assignment here */
 						(showInput)
 							? (
@@ -320,7 +341,7 @@ class List extends Component {
 										loading={ loading }
 										onBlur={ this.onBlur }
 										onChange={ this.onChange }
-										onSubmit={ this.onListChange }
+										onSubmit={e => this.onListChange(e, value.name || value, fieldName) }
 										placeholder={ placeholder }
 										suppressLocalWarnings={ suppressLocalWarnings }
 										validate={ validate }
@@ -352,7 +373,10 @@ List.defaultProps = {
 	suggestionQuery: GET_SUGGESTED_INGREDIENTS_QUERY,
 	suppressLocalWarnings: false,
 	type: 'ingredients',
-	validate: () => {},
+	validate: () => {
+		console.log('validate!');
+		return true;
+	},
 	values: [],
 	warnings: [],
 };

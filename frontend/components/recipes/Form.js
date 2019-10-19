@@ -16,6 +16,7 @@ import Input from '../form/Input';
 import List from '../form/List';
 import ParserInput from './ParserInput';
 import ParsedViewer from './ParsedViewer';
+/* eslint-disable object-curly-newline */
 import {
 	GET_ALL_RECIPES_QUERY,
 	GET_RECIPES_COUNT_QUERY,
@@ -25,6 +26,7 @@ import {
 	GET_ALL_INGREDIENTS_QUERY,
 	GET_ALL_TAGS_QUERY,
 } from '../../lib/apollo/queries';
+/* eslint-enable object-curly-newline */
 import { CREATE_RECIPE_MUTATION, UPDATE_RECIPE_MUTATION } from '../../lib/apollo/mutations';
 
 
@@ -102,7 +104,7 @@ const TopFormStyles = styled.div`
 	}
 
 	fieldset.source input, fieldset.image input {
-		color: ${ props => props.theme.altGreen } !important;
+		color: #222!important;
 		text-overflow: ellipsis;
 	}
 
@@ -142,16 +144,42 @@ const Title = styled.h1`
 const Source = styled.div`
 	font-style: italic;
 	font-size: 12px;
-	color: ${ props => props.theme.altGreen } !important;
+	color: #bbb !important;
 	margin-top: 4px;
+	text-align: right;
 `;
 
-const Categories = styled.div`
-	margin-bottom: 8px;
+const Categories = styled.ul`
+	list-style: none;
+	display: inline-block;
+	color: ${ props => props.theme.altGreen };
+	width: 45%;
+	padding: 0;
+	margin: 15px 5px 0px 0;
+	font-size: 14px;
 `;
 
-const Tags = styled.div`
+const Tags = styled.ul`
 	margin-bottom: 8px;
+	list-style: none;
+	display: inline-block;
+	color: white;
+	width: 45%;
+	margin: 15px 10px 10px 0;
+	padding: 0;
+	float: right;
+	text-align: right;
+
+	li {
+		font-size: 12px;
+		padding: 4px 10px;
+		font-weight: 900;
+		display: inline;
+		background: ${ props => props.theme.altGreen };
+		border-radius: 50px;
+		width: 100%;
+		margin-left: 5px;
+	}
 `;
 
 const BottomFormStyles = styled.div`
@@ -806,16 +834,32 @@ class Form extends Component {
 									<Title>
 										{pending.title}
 									</Title>
+
 									{/* Uploaded Image Placeholder */}
 									<Image value={ pending.image } />
+
 									<Source>
 										{pending.source}
 									</Source>
+
 									<Categories>
-										{pending.categories}
+										{
+											pending.categories.map(c => (
+												<li key={`categories_${c.id}`}>
+													{c.name}
+												</li>
+											))
+										}
 									</Categories>
+
 									<Tags>
-										{pending.tags}
+										{
+											pending.tags.map(c => (
+												<li key={`tags_${c.id}`}>
+													{c.name}
+												</li>
+											))
+										}
 									</Tags>
 
 									{/* Recipe Parsed Display */}
@@ -881,7 +925,12 @@ class Form extends Component {
 }
 
 Form.defaultProps = {
-	categories: [],
+	categories: [
+		{
+			id: null,
+			name: 'stuffed flatbread',
+		},
+	],
 	className: '',
 	content: '',
 	evernoteGUID: null,
@@ -901,7 +950,16 @@ Form.defaultProps = {
 	showCancelButton: false,
 	source: 'https://www.theguardian.com/lifeandstyle/2018/jan/06/aloo-paratha-recipe-quick-lemon-pickle-vegan-meera-sodha',
 	title: 'Aloo Paratha with Quick Lemon Pickle',
-	tags: [],
+	tags: [
+		{
+			id: null,
+			name: 'indian',
+		},
+		{
+			id: null,
+			name: 'vegetarian',
+		},
+	],
 };
 
 Form.propTypes = {

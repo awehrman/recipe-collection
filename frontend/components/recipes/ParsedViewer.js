@@ -52,6 +52,8 @@ const Ingredients = styled.div`
 `;
 
 const Instructions = styled.div`
+	margin-bottom: 10px;
+
 	li {
 		margin-bottom: 8px;
 	}
@@ -93,7 +95,7 @@ const ParsedViewer = ({ ingredients, instructions }) => {
 																	}
 																</span>
 															)
-															: <span className="unparsed">{i.reference}</span>
+															: <span className="unparsed">{ i.reference }</span>
 													}
 												</li>
 											))

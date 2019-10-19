@@ -38,7 +38,7 @@ class Suggestions extends PureComponent {
 		if (e.key === 'Enter') {
 			e.preventDefault();
 			// this is usually only utilized by the List component
-			this.onSelectSuggestion(null, suggestion);
+			this.onSelectSuggestion(e, suggestion);
 		}
 	}
 
@@ -49,15 +49,14 @@ class Suggestions extends PureComponent {
 	}
 
 	render() {
-		console.warn('Suggestions');
 		const { children, isSuggestionEnabled, suggestionQuery, type, value } = this.props;
-
 		return (
 			// eslint-disable-next-line object-curly-newline
 			<Query query={ suggestionQuery } variables={ { type, value } }>
 				{
 					({ data }) => {
 						const { suggestions = [] } = data;
+						console.warn({ suggestions });
 						return (
 							<SuggestionStyles>
 								{/* input element */}
