@@ -4,17 +4,25 @@ import React from 'react';
 import pluralize from 'pluralize';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+
 import Parser from '../../../backend/src/lib/ingredientLineParser';
 import { GET_INGREDIENT_BY_VALUE_QUERY, GET_INGREDIENTS_COUNT_QUERY, GET_ALL_INGREDIENTS_QUERY } from '../../lib/apollo/queries';
 import { CREATE_INGREDIENT_MUTATION } from '../../lib/apollo/mutations';
+import Button from './Button';
 
 const ParserInputStyles = styled.div`
 	margin: 20px 0;
 	display: flex;
+	width: 100%;
+
+	.pell-actionbar {
+		display: none;
+	}
 
 	.pell-content {
 		flex: 1;
-		height: 600px;
+		height: 100%;
+		min-height: 100px;
 		border: 0;
 		padding: 10px;
 		font-size: 12px;
@@ -23,13 +31,18 @@ const ParserInputStyles = styled.div`
 	}
 
 	.display {
-			flex: 1;
+		flex: 1;
 		font-size: 12px;
 	}
 `;
 
 const Left = styled.div`
 	flex: 1;
+
+	button.parse {
+		margin: 10px 0;
+		float: right;
+	}
 `;
 
 const Right = styled.div`
@@ -37,26 +50,34 @@ const Right = styled.div`
 `;
 
 class ParserInput extends React.Component {
-	// TODO set this up in the backend and import this in
-	parseNoteContent = async (content, recipeID) => {
+	state = {
+		domContent: '',
+		ingredients: [],
+		instructions: [],
+	};
+
+	parseContent = async (e) => {
+		e.preventDefault();
+		const { onComplete } = this.props;
+		const { domContent } = this.state;
+
 		let ingredientLines = [];
 		let instructions = [];
 
 		// tease out the ingredient lines vs the instructions from the note content
-		if (content) {
-			[ ingredientLines, instructions ] = this.parseHTML(content);
+		if (domContent) {
+			[ ingredientLines, instructions ] = this.parseHTML(domContent);
 		}
 
 		// parse each ingredient line into its individual components
-		ingredientLines = ingredientLines.map(line => this.parseIngredientLine(line, recipeID));
+		ingredientLines = ingredientLines.map(async line => this.parseIngredientLine(line));
 
-		// eslint-disable-next-line
-		console.log({ ingredientLines, instructions });
-
-		return {
-			ingredientLines,
-			instructions,
-		};
+		Promise.all(ingredientLines).then((ingredients) => {
+			this.setState({
+				ingredients,
+				instructions,
+			}, () => onComplete(ingredients, instructions));
+		});
 	};
 
 	parseHTML = (content) => {
@@ -66,7 +87,6 @@ class ParserInput extends React.Component {
 
 		const dom = new DOMParser().parseFromString([ content ], 'text/html');
 		const children = [ ...dom.body.children ];
-		console.log({ children });
 
 		// go through the children of our root level div to look for new lines or actual text
 		// we may go one level deeper to look for these instances to handle some inconsistent HTML formatting on these notes
@@ -94,7 +114,7 @@ class ParserInput extends React.Component {
 
 		blocks.forEach((block, blockIndex) => {
 			// eslint-disable-next-line
-			console.warn({ block, blockIndex, length: block.length });
+			// console.warn({ block, blockIndex, length: block.length });
 			// add ingredient lines if its the first line, or if we have multiple lines per block
 			if ((blockIndex === 0) || (block.length > 1)) {
 				block.forEach((line, lineIndex) => {
@@ -115,21 +135,22 @@ class ParserInput extends React.Component {
 		});
 
 		// eslint-disable-next-line
-		console.log({ ingredients, instructions });
+		// console.log({ ingredients, instructions });
 		return [ ingredients, instructions ];
 	};
 
-	parseContent = async (dom) => {
-		await this.parseNoteContent(dom, '123');
-	}
-
 	parseIngredientLine = async (line) => {
 		const { client } = this.props;
-		let parsed;
+		let parsed = {
+			...line,
+			reference: line.reference.trim(),
+		};
 
 		try {
-			parsed = Parser.parse(line.reference);
-
+			parsed = {
+				...parsed,
+				...Parser.parse(parsed.reference),
+			};
 			// line: "~1 heaping cup (100 g) freshly-cut apples, washed"
 			/* should result in an object that looks like:
 				/* should result in an object that looks like:
@@ -151,10 +172,9 @@ class ParserInput extends React.Component {
 					]
 				}
 			*/
-
 			parsed.isParsed = true;
 			let createIng = false;
-			parsed.values = parsed.values.map(async (v) => {
+			const lookupIngredient = parsed.values.map(async (v) => {
 				const value = { ...v };
 				if (value.type === 'ingredient') {
 					const name = !pluralize.isPlural(value.value)
@@ -163,11 +183,15 @@ class ParserInput extends React.Component {
 					let plural = pluralize.isPlural(value.value)
 						? value.value
 						: null;
+
+					// attempt to pluralize the ingredient name
 					try {
 						plural = pluralize.plural(value.value);
 					} catch (err) {
 						//
 					}
+
+					// check if this is an existing ingredient
 					try {
 						const { data } = await client.query({
 							query: GET_INGREDIENT_BY_VALUE_QUERY,
@@ -175,10 +199,12 @@ class ParserInput extends React.Component {
 						});
 						const { ingredient } = data;
 						if (ingredient) {
-							value.id = ingredient.id;
-							value.name = ingredient.name;
-							value.properties = { ...ingredient.properties };
-							value.isValidated = ingredient.isValidated;
+							parsed.ingredient = {
+								id: ingredient.id,
+								name: ingredient.name,
+								properties: { ...ingredient.properties },
+								isValidated: ingredient.isValidated,
+							};
 							createIng = false;
 						} else {
 							createIng = true;
@@ -188,8 +214,10 @@ class ParserInput extends React.Component {
 						createIng = true;
 					}
 
+					// if not, create a new ingredient with this value
+					// TODO add some validation like it can't match a known unit name and mark as not parsed
 					if (createIng) {
-						console.log(`we should probably create ${ value.value }...`);
+						// console.log(`creating ${ value.value }...`);
 						// create the ingredient on the server
 						await client.mutate({
 							refetchQueries: [
@@ -215,7 +243,6 @@ class ParserInput extends React.Component {
 								},
 							},
 						}).then((res) => {
-							console.log(res.data.createIngredient.ingredient);
 							if (res.data.createIngredient.ingredient) {
 								value.id = res.data.createIngredient.ingredient.id;
 								value.name = res.data.createIngredient.ingredient.name;
@@ -226,53 +253,86 @@ class ParserInput extends React.Component {
 					}
 				}
 
-				console.log({ value });
 				return value;
 			});
-		} catch (err) {
-			console.log('failed to parse');
 
-			// let ingredient = new Ingredient(line.reference);
-			// ingredient.addReference(line.reference, recipeID);
-			// ingredientController.saveError({ associations: [], type: 'parsing' }, ingredient.encodeIngredient());
+			Promise.all(lookupIngredient).then((values) => {
+				parsed.values = values;
+			});
+		} catch (err) {
+			console.error('failed to parse');
+			console.log({ err });
+			// TODO handle?
+			parsed.isParsed = false;
 		}
 
-		return line;
+		return parsed;
 	};
 
 	render() {
-		const { defaultValue, isEditMode, value } = this.props;
+		const { onChange } = this.props;
+		const { domContent, ingredients, instructions } = this.state;
 
-		let inputValue = (isEditMode && (value !== undefined)) ? value : defaultValue;
-		inputValue = (!inputValue) ? '' : inputValue;
+		console.log({ ingredients });
 
 		return (
 			<ParserInputStyles>
 				<Left>
-					<Editor actions={ [] } onChange={ this.parseContent } />
+					<Editor
+						actions={ [] }
+						defaultContent={ domContent }
+						onChange={ c => this.setState({ domContent: c }, () => onChange(c)) }
+					/>
+					<Button
+						className="parse"
+						label="Parse"
+						onClick={ e => this.parseContent(e) }
+						type="button"
+					/>
 				</Left>
 				<Right>
-					<div className="display">{ inputValue }</div>
+					<div className="display">
+						<div className="ingredients">
+							<h1>Ingredients</h1>
+							<ul>
+								{
+									ingredients.map(i => (
+										<li key={ `parsed_ingredient_${ i.block }_${ i.line }` }>
+											{ i.reference }
+										</li>
+									))
+								}
+							</ul>
+						</div>
+
+						<div className="instructions">
+							<h1>Instructions</h1>
+							<ul>
+								{
+									instructions.map(i => (
+										<li key={ `parsed_instruction_${ i.block }` }>
+											{ i.reference }
+										</li>
+									))
+								}
+							</ul>
+						</div>
+					</div>
 				</Right>
 			</ParserInputStyles>
 		);
 	}
 }
 
-ParserInput.defaultProps = {
-	defaultValue: '',
-	isEditMode: false,
-	value: '',
-};
+ParserInput.defaultProps = {};
 
 ParserInput.propTypes = {
 	client: PropTypes.shape({
 		query: PropTypes.func,
 		mutate: PropTypes.func,
 	}).isRequired,
-	defaultValue: PropTypes.string,
-	isEditMode: PropTypes.bool,
-	value: PropTypes.string,
+	onChange: PropTypes.func.isRequired,
+	onComplete: PropTypes.func.isRequired,
 };
 
 export default withApollo(ParserInput);

@@ -7,11 +7,10 @@ import uuid from 'uuid';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/pro-regular-svg-icons';
-// import { faCodeMerge } from '@fortawesome/pro-light-svg-icons';
-// import { faExclamation } from '@fortawesome/pro-solid-svg-icons';
 
 import { deepCopy, hasProperty } from '../../lib/util';
 import Button from '../form/Button';
+import Image from '../form/Image';
 import Input from '../form/Input';
 import List from '../form/List';
 import ParserInput from '../form/ParserInput';
@@ -453,16 +452,25 @@ class Form extends Component {
 		});
 	}
 
-	onParserInputChange = (e) => {
-		const { value } = e.target;
+	onParserInputChange = (content) => {
 		const { pending } = this.state;
-
-		// TODO parse content into ingredients and instructions
 
 		this.setState({
 			pending: {
 				...deepCopy(pending),
-				...{ content: value },
+				...{ content },
+			},
+		});
+	}
+
+	onParserComplete = (ingredients, instructions) => {
+		const { pending } = this.state;
+
+		this.setState({
+			pending: {
+				...deepCopy(pending),
+				...{ ingredients },
+				...{ instructions },
 			},
 		});
 	}
@@ -505,7 +513,6 @@ class Form extends Component {
 	}
 
 	createRecipe = async () => {
-		console.warn('[Form] createRecipe');
 		const { client, onSaveCallback } = this.props;
 		const { warnings } = this.state;
 
@@ -613,11 +620,11 @@ class Form extends Component {
 
 	render() {
 		const {
-			categories, className, content, evernoteGUID, image, isEditMode, loading,
+			categories, className, evernoteGUID, image, isEditMode, loading,
 			onCancelClick, onEditClick, saveLabel, showCancelButton, source, tags, title,
 		} = this.props;
-		const { pending, warnings } = this.state;
-		const pendingRecipe = this.getPendingRecipe();
+		const { warnings } = this.state;
+		const pending = this.getPendingRecipe();
 
 		return (
 			<FormStyles className={ className }>
@@ -638,6 +645,36 @@ class Form extends Component {
 							warnings={ this.getWarning('title', warnings) || undefined }
 						/>
 
+						{/* Source */}
+						<Input
+							className="source"
+							defaultValue={ source }
+							fieldName="source"
+							isEditMode={ isEditMode }
+							isRequiredField
+							loading={ loading }
+							onChange={ this.onInputChange }
+							placeholder="source"
+							suppressLocalWarnings
+							value={ pending.source }
+							warnings={ this.getWarning('source', warnings) || undefined }
+						/>
+
+						{/* TODO Image Upload */}
+						<Input
+							className="image"
+							defaultValue={ image }
+							fieldName="image"
+							isEditMode={ isEditMode }
+							isRequiredField
+							loading={ loading }
+							onChange={ this.onInputChange }
+							placeholder="image"
+							suppressLocalWarnings
+							value={ pending.image }
+							warnings={ this.getWarning('image', warnings) || undefined }
+						/>
+
 						{/* Evernote GUID */}
 						<Input
 							className="evernoteGUID"
@@ -652,27 +689,7 @@ class Form extends Component {
 							value={ pending.evernoteGUID }
 							warnings={ this.getWarning('evernoteGUID', warnings) || undefined }
 						/>
-					</Left>
 
-					<Right>
-						<Input
-							className="image"
-							defaultValue={ image }
-							fieldName="image"
-							isEditMode={ isEditMode }
-							isRequiredField
-							loading={ loading }
-							onChange={ this.onInputChange }
-							placeholder="image"
-							suppressLocalWarnings
-							value={ pending.image }
-							warnings={ this.getWarning('image', warnings) || undefined }
-						/>
-					</Right>
-				</TopFormStyles>
-
-				<MiddleFormStyles>
-					<Left>
 						{/* Categories */}
 						<List
 							className="categories"
@@ -686,7 +703,7 @@ class Form extends Component {
 							onListChange={ this.onListChange }
 							placeholder="category name"
 							suppressLocalWarnings
-							values={ pendingRecipe.categories }
+							values={ pending.categories }
 						/>
 
 						{/* Tags */}
@@ -702,36 +719,27 @@ class Form extends Component {
 							onListChange={ this.onListChange }
 							placeholder="tags"
 							suppressLocalWarnings
-							values={ pendingRecipe.tags }
+							values={ pending.tags }
 						/>
 					</Left>
 
 					<Right>
-						{/* Source */}
-						<Input
-							className="source"
-							defaultValue={ source }
-							fieldName="source"
-							isEditMode={ isEditMode }
-							isRequiredField
-							loading={ loading }
-							onChange={ this.onInputChange }
-							placeholder="source"
-							suppressLocalWarnings
-							value={ pending.source }
-							warnings={ this.getWarning('source', warnings) || undefined }
-						/>
+						{/* TODO Uploaded Image Placeholder */}
+						<Image value={ pending.image } />
 					</Right>
+				</TopFormStyles>
 
-					{/* Recipe Content */}
+				<MiddleFormStyles>
+					{/* Recipe Content Editor */}
 					<ParserInput
-						defaultValue={ content }
-						isEditMode={ isEditMode }
 						loading={ loading }
 						onChange={ this.onParserInputChange }
+						onComplete={ this.onParserComplete }
 						placeholder="Recipe Content"
-						value={ pending.content }
 					/>
+
+					{/* TODO Recipe Parsed Display */}
+
 				</MiddleFormStyles>
 
 				<BottomFormStyles>
@@ -790,7 +798,7 @@ Form.defaultProps = {
 	content: '',
 	evernoteGUID: null,
 	id: '-1',
-	image: null,
+	image: '',
 	ingredients: [],
 	instructions: [],
 	isEditMode: true,

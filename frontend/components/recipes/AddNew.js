@@ -12,7 +12,7 @@ const AddNewStyles = styled.div`
 	left: 0px;
 	right: 0px;
 	box-shadow: 0 0 10px 0 rgba(115, 198, 182, .2) inset;
-  max-height: 60%;
+  max-height: 90%;
   overflow-y: scroll;
 	z-index: 600;
 
