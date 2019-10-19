@@ -59,7 +59,6 @@ const Instructions = styled.div`
 
 const ParsedViewer = ({ ingredients, instructions }) => {
 	const blocks = [ ...new Set(ingredients.map(i => i.block)) ];
-	console.log({ blocks });
 
 	return (
 		<ParsedViewerStyles>

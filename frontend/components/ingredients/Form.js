@@ -18,7 +18,7 @@ import CheckboxGroup from '../form/CheckboxGroup';
 import Input from '../form/Input';
 import List from '../form/List';
 import { CREATE_INGREDIENT_MUTATION, UPDATE_INGREDIENT_MUTATION } from '../../lib/apollo/mutations';
-import { GET_INGREDIENT_BY_VALUE_QUERY, GET_ALL_INGREDIENTS_QUERY, GET_INGREDIENTS_COUNT_QUERY } from '../../lib/apollo/queries';
+import { GET_INGREDIENT_BY_VALUE_QUERY, GET_ALL_INGREDIENTS_QUERY, GET_INGREDIENTS_COUNT_QUERY, GET_SUGGESTED_INGREDIENTS_QUERY } from '../../lib/apollo/queries';
 
 const FormStyles = styled.form`
 	flex-basis: 100%;
@@ -950,6 +950,7 @@ class Form extends Component {
 							onListChange={ this.onListChange }
 							onSuggestPlural={ this.onSuggestPlural }
 							placeholder="alternate name"
+							suggestionQuery={ GET_SUGGESTED_INGREDIENTS_QUERY }
 							suppressLocalWarnings
 							warnings={ this.getWarning('alternateNames', warnings) || undefined }
 							validate={ this.validate }
@@ -968,6 +969,7 @@ class Form extends Component {
 							loading={ loading }
 							onListChange={ this.onListChange }
 							placeholder="related ingredient"
+							suggestionQuery={ GET_SUGGESTED_INGREDIENTS_QUERY }
 							suppressLocalWarnings
 							validate={ this.validate }
 							values={ pendingIngredient.relatedIngredients }
@@ -985,6 +987,7 @@ class Form extends Component {
 							loading={ loading }
 							onListChange={ this.onListChange }
 							placeholder="substitutes"
+							suggestionQuery={ GET_SUGGESTED_INGREDIENTS_QUERY }
 							suppressLocalWarnings
 							validate={ this.validate }
 							values={ pendingIngredient.substitutes }

@@ -74,8 +74,14 @@ export const GET_VIEW_INGREDIENTS_QUERY = gql`
 `;
 
 export const GET_SUGGESTED_INGREDIENTS_QUERY = gql`
-	query GET_SUGGESTED_INGREDIENTS_QUERY($value: String) {
-		suggestions(value: $value) @client {
+	query GET_SUGGESTED_INGREDIENTS_QUERY(
+		$type: String
+		$value: String
+	) {
+		suggestions(
+			type: $type
+			value: $value
+		) @client {
 			id
 			name
 		}
@@ -204,9 +210,65 @@ export const GET_ALL_RECIPES_QUERY = gql`
   }
 `;
 
+/* Categories */
+export const GET_ALL_CATEGORIES_QUERY = gql`
+  query GET_ALL_CATEGORIES_QUERY {
+  	categories {
+  		id
+			evernoteGUID
+			name
+		}
+  }
+`;
+
+export const GET_SUGGESTED_CATEGORIES_QUERY = gql`
+	query GET_SUGGESTED_CATEGORIES_QUERY(
+		$type: String
+		$value: String
+	) {
+		suggestions(
+			type: $type
+			value: $value
+		) @client {
+			id
+			name
+		}
+	}
+`;
+
+/* Tags */
+export const GET_ALL_TAGS_QUERY = gql`
+  query GET_ALL_TAGS_QUERY {
+  	tags {
+  		id
+			evernoteGUID
+			name
+		}
+  }
+`;
+
+export const GET_SUGGESTED_TAGS_QUERY = gql`
+	query GET_SUGGESTED_TAGS_QUERY(
+		$type: String
+		$value: String
+	) {
+		suggestions(
+			type: $type
+			value: $value
+		) @client {
+			id
+			name
+		}
+	}
+`;
+
 export default [
 	GET_CONTAINER_QUERY,
 	GET_CONTAINERS_QUERY,
+	GET_ALL_CATEGORIES_QUERY,
+	GET_SUGGESTED_CATEGORIES_QUERY,
+	GET_ALL_TAGS_QUERY,
+	GET_SUGGESTED_TAGS_QUERY,
 	GET_VIEW_INGREDIENTS_QUERY,
 	GET_INGREDIENTS_COUNT_QUERY,
 	GET_INGREDIENT_BY_VALUE_QUERY,

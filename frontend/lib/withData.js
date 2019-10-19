@@ -1,7 +1,6 @@
 import ApolloClient, { InMemoryCache, IntrospectionFragmentMatcher } from 'apollo-boost';
 import gql from 'graphql-tag';
 import withApollo from 'next-with-apollo';
-import { GET_ALL_INGREDIENTS_QUERY, GET_VIEW_INGREDIENTS_QUERY } from './apollo/queries';
 import { CREATE_CONTAINERS_MUTATION } from './apollo/mutations';
 import typeDefs from './apollo/typeDefs';
 import { endpoint } from '../config';
@@ -12,6 +11,12 @@ import {
 	generateByProperty,
 	generateByRelationship,
 } from './generateContainers';
+import {
+	GET_ALL_CATEGORIES_QUERY,
+	GET_ALL_INGREDIENTS_QUERY,
+	GET_ALL_TAGS_QUERY,
+	GET_VIEW_INGREDIENTS_QUERY,
+} from './apollo/queries';
 /* eslint-enable object-curly-newline */
 
 function createClient({ headers }) {
@@ -101,11 +106,9 @@ function createClient({ headers }) {
 						return containers;
 					},
 					ingredient(_, { value }) {
-						console.warn(`... [withData] ingredient ${value}`);
+						console.warn(`... [withData] ingredient ${ value }`);
 						// get all ingredients from the cache
-						let { ingredients } = cache.readQuery({
-							query: GET_ALL_INGREDIENTS_QUERY,
-						});
+						let { ingredients } = cache.readQuery({ query: GET_ALL_INGREDIENTS_QUERY });
 
 						// pare down the ingredient info to match the ContainerIngredient shape
 						ingredients = ingredients.filter((i) => {
@@ -133,15 +136,22 @@ function createClient({ headers }) {
 						// proxy.data.delete('Ingredient');
 						return null;
 					},
-					suggestions(_, { value }) {
-						// console.warn(`... [withData](${ value }) suggestions query resolver`);
+					suggestions(_, { type, value }) {
+						// console.warn(`... [withData](${ type }, ${ value }) suggestions query resolver`);
 						let suggestions = [];
+
+						// determine the lookup query based on the type
+						let query = GET_ALL_INGREDIENTS_QUERY;
+						if (type === 'tags') {
+							query = GET_ALL_TAGS_QUERY;
+						} else if (type === 'categories') {
+							query = GET_ALL_CATEGORIES_QUERY;
+						}
 
 						if (value && value.length > 0) {
 							// get all ingredients from the cache
-							const { ingredients } = cache.readQuery({ query: GET_ALL_INGREDIENTS_QUERY });
-
-							suggestions = ingredients.filter(i => (
+							const data = cache.readQuery({ query });
+							suggestions = data[type].filter(i => (
 								// return partial matches
 								(i.name.indexOf(value) > -1)
 								// ... as long as they're not an exact match on our input
@@ -157,6 +167,7 @@ function createClient({ headers }) {
 								name: i.name,
 							}));
 						}
+
 						return suggestions;
 					},
 					viewIngredients(_, { view }) {

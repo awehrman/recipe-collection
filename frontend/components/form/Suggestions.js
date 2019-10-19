@@ -49,10 +49,12 @@ class Suggestions extends PureComponent {
 	}
 
 	render() {
-		const { children, isSuggestionEnabled, suggestionQuery, value } = this.props;
+		console.warn('Suggestions');
+		const { children, isSuggestionEnabled, suggestionQuery, type, value } = this.props;
 
 		return (
-			<Query query={ suggestionQuery } variables={ { value } }>
+			// eslint-disable-next-line object-curly-newline
+			<Query query={ suggestionQuery } variables={ { type, value } }>
 				{
 					({ data }) => {
 						const { suggestions = [] } = data;
@@ -99,6 +101,7 @@ Suggestions.propTypes = {
 	isSuggestionEnabled: PropTypes.bool,
 	onSelectSuggestion: PropTypes.func.isRequired,
 	suggestionQuery: PropTypes.shape({}).isRequired,
+	type: PropTypes.string.isRequired,
 	value: PropTypes.string,
 };
 

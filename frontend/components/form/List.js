@@ -223,7 +223,7 @@ class List extends Component {
 		const {
 			className, defaultValues, isEditMode, isPluralSuggestEnabled,
 			isRemovable, isSuggestionEnabled, label, loading, fieldName, onListItemClick,
-			placeholder, suppressLocalWarnings, type, warnings, validate, values,
+			placeholder, suggestionQuery, suppressLocalWarnings, type, warnings, validate, values,
 		} = this.props;
 		const { showInput, value } = this.state;
 		let list = (isEditMode && (values !== undefined)) ? values : defaultValues;
@@ -310,7 +310,8 @@ class List extends Component {
 									isSuggestionEnabled={ isSuggestionEnabled }
 									fieldName={ fieldName }
 									onSelectSuggestion={ this.onListChange }
-									suggestionQuery={ GET_SUGGESTED_INGREDIENTS_QUERY }
+									suggestionQuery={ suggestionQuery }
+									type={ type }
 									value={ value.name || value }
 								>
 									<Input
@@ -348,8 +349,9 @@ List.defaultProps = {
 	loading: false,
 	onListItemClick: e => e.preventDefault(),
 	placeholder: '',
+	suggestionQuery: GET_SUGGESTED_INGREDIENTS_QUERY,
 	suppressLocalWarnings: false,
-	type: 'static',
+	type: 'ingredients',
 	validate: () => {},
 	values: [],
 	warnings: [],
@@ -371,6 +373,7 @@ List.propTypes = {
 	onListChange: PropTypes.func.isRequired,
 	onListItemClick: PropTypes.func,
 	placeholder: PropTypes.string,
+	suggestionQuery: PropTypes.shape({}),
 	suppressLocalWarnings: PropTypes.bool,
 	type: PropTypes.string,
 	validate: PropTypes.func,
