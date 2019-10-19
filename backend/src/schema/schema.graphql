@@ -23,6 +23,7 @@ type TagResponse {
 type Query {
 	category(where: CategoryWhereUniqueInput): Category
   categories: [ Category! ]!
+  categoryAggregate: AggregateCategory!
 
 	ingredient(where: IngredientWhereUniqueInput!): Ingredient
 	ingredients: [ Ingredient! ]!
@@ -34,6 +35,7 @@ type Query {
 
 	tag(where: TagWhereUniqueInput!): Tag
 	tags: [ Tag! ]!
+	tagAggregate: AggregateTag!
 }
 
 type Mutation {
