@@ -18,7 +18,14 @@ import CheckboxGroup from '../form/CheckboxGroup';
 import Input from '../form/Input';
 import List from '../form/List';
 import { CREATE_INGREDIENT_MUTATION, UPDATE_INGREDIENT_MUTATION } from '../../lib/apollo/mutations';
-import { GET_INGREDIENT_BY_VALUE_QUERY, GET_ALL_INGREDIENTS_QUERY, GET_INGREDIENTS_COUNT_QUERY, GET_SUGGESTED_INGREDIENTS_QUERY } from '../../lib/apollo/queries';
+/* eslint-disable object-curly-newline */
+import {
+	GET_INGREDIENT_BY_VALUE_QUERY,
+	GET_ALL_INGREDIENTS_QUERY,
+	GET_INGREDIENTS_COUNT_QUERY,
+	GET_SUGGESTED_INGREDIENTS_QUERY,
+} from '../../lib/apollo/queries';
+/* eslint-enable object-curly-newline */
 
 const FormStyles = styled.form`
 	flex-basis: 100%;
@@ -356,7 +363,7 @@ class Form extends Component {
 		// TODO references: RecipeIngredientCreateManyInput || RecipeIngredientUpdateManyInput
 
 		return data;
-	}
+	};
 
 	getPendingIngredient = () => {
 		const { pending } = this.state;

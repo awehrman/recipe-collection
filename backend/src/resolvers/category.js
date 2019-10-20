@@ -4,14 +4,17 @@ export default {
 	Query: {
 		categoryAggregate: async (parent, args, ctx) => {
 			const categoriesCount = await ctx.prisma.categoriesConnection().aggregate().count();
-
-			return {
-				categoriesCount,
-				newIngredientsCount,
-			};
+			return { categoriesCount };
 		},
-		category: (parent, args, ctx) => ctx.prisma.category({ id: args.id }),
-		categories: (parent, args, ctx) => ctx.prisma.categories(),
+		category: async (parent, args, ctx) => {
+			const { where } = args || {};
+			const { id } = where || {};
+			return ctx.prisma.category({ id }).$fragment(GET_ALL_CATEGORY_FIELDS);
+		},
+		categories: async (parent, args, ctx) => {
+			const categories = await ctx.prisma.categories().$fragment(GET_ALL_CATEGORY_FIELDS);
+			return categories;
+		},
 	},
 
 	Mutation: {
@@ -19,7 +22,7 @@ export default {
 			console.log('createCategory');
 			const response = {
 				__typename: 'CategoryResponse',
-				ingredient: null,
+				category: null,
 				errors: [],
 			};
 

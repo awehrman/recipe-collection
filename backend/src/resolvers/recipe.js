@@ -2,10 +2,16 @@ import { GET_ALL_RECIPE_FIELDS_FOR_VALIDATION, GET_ALL_RECIPE_FIELDS } from '../
 
 export default {
 	Query: {
-		recipe: (parent, args, ctx) => ctx.prisma.recipe({ id: args.id }),
-		recipes: (parent, args, ctx) => ctx.prisma.recipes(),
+		recipe: async (parent, args, ctx) => {
+			const { where } = args || {};
+			const { id } = where || {};
+			return ctx.prisma.recipe({ id }).$fragment(GET_ALL_RECIPE_FIELDS);
+		},
+		recipes: async (parent, args, ctx) => {
+			const recipes = await ctx.prisma.recipes().$fragment(GET_ALL_RECIPE_FIELDS);
+			return recipes;
+		},
 		recipeAggregate: async (parent, args, ctx) => {
-			console.log('recipeAggregate');
 			const recipesCount = await ctx.prisma.recipesConnection().aggregate().count();
 			return { recipesCount };
 		},
@@ -13,7 +19,7 @@ export default {
 
 	Mutation: {
 		createRecipe: async (parent, args, ctx, info) => {
-			console.log('createRecipe');
+			console.log('createRecipe'.magenta);
 			const response = {
 				__typename: 'RecipeResponse',
 				recipe: null,
@@ -22,11 +28,12 @@ export default {
 
 			const { data } = args;
 			// TODO add in joi validation
+			console.log({ data });
 
 			try {
 				const { id } = await ctx.prisma.createRecipe({ ...data }, info);
 				const recipe = await ctx.prisma.recipe({ id }).$fragment(GET_ALL_RECIPE_FIELDS_FOR_VALIDATION);
-				response.ingredient = {
+				response.recipe = {
 					__typename: 'Recipe',
 					...recipe,
 				};

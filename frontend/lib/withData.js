@@ -51,6 +51,7 @@ function createClient({ headers }) {
 										id
 										isValidated
 										name
+										plural
 										properties {
 											meat
 											poultry
@@ -127,6 +128,7 @@ function createClient({ headers }) {
 								__typename: 'ContainerIngredient',
 								id: ingredients[0].id,
 								name: ingredients[0].name,
+								plural: ingredients[0].plural,
 								properties: { ...ingredients[0].properties },
 								isValidated: ingredients[0].isValidated,
 							};
@@ -190,6 +192,7 @@ function createClient({ headers }) {
 							id: i.id,
 							isValidated: i.isValidated,
 							name: i.name,
+							plural: i.plural,
 							properties: { ...i.properties },
 							referenceCount: 0,
 						}));

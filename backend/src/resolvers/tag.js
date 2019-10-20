@@ -4,14 +4,17 @@ export default {
 	Query: {
 		tagAggregate: async (parent, args, ctx) => {
 			const tagsCount = await ctx.prisma.tagsConnection().aggregate().count();
-
-			return {
-				tagsCount,
-				newIngredientsCount,
-			};
+			return { tagsCount };
 		},
-		tag: (parent, args, ctx) => ctx.prisma.tag({ id: args.id }),
-		tags: (parent, args, ctx) => ctx.prisma.tags(),
+		tag: async (parent, args, ctx) => {
+			const { where } = args || {};
+			const { id } = where || {};
+			return ctx.prisma.tag({ id }).$fragment(GET_ALL_TAG_FIELDS);
+		},
+		tags: async (parent, args, ctx) => {
+			const tags = await ctx.prisma.tags().$fragment(GET_ALL_TAG_FIELDS);
+			return tags;
+		},
 	},
 
 	Mutation: {
@@ -19,7 +22,7 @@ export default {
 			console.log('createTag');
 			const response = {
 				__typename: 'TagResponse',
-				ingredient: null,
+				tag: null,
 				errors: [],
 			};
 

@@ -596,6 +596,8 @@ export type RecipeIngredientOrderByInput =
   | "lineIndex_DESC"
   | "reference_ASC"
   | "reference_DESC"
+  | "rule_ASC"
+  | "rule_DESC"
   | "isParsed_ASC"
   | "isParsed_DESC";
 
@@ -1109,6 +1111,7 @@ export interface RecipeIngredientUpdateInput {
   blockIndex?: Maybe<Int>;
   lineIndex?: Maybe<Int>;
   reference?: Maybe<String>;
+  rule?: Maybe<String>;
   isParsed?: Maybe<Boolean>;
   parsed?: Maybe<ParsedSegmentUpdateManyInput>;
 }
@@ -1129,6 +1132,7 @@ export interface RecipeIngredientCreateInput {
   blockIndex: Int;
   lineIndex: Int;
   reference: String;
+  rule?: Maybe<String>;
   isParsed?: Maybe<Boolean>;
   parsed?: Maybe<ParsedSegmentCreateManyInput>;
 }
@@ -1717,6 +1721,20 @@ export interface RecipeIngredientWhereInput {
   reference_not_starts_with?: Maybe<String>;
   reference_ends_with?: Maybe<String>;
   reference_not_ends_with?: Maybe<String>;
+  rule?: Maybe<String>;
+  rule_not?: Maybe<String>;
+  rule_in?: Maybe<String[] | String>;
+  rule_not_in?: Maybe<String[] | String>;
+  rule_lt?: Maybe<String>;
+  rule_lte?: Maybe<String>;
+  rule_gt?: Maybe<String>;
+  rule_gte?: Maybe<String>;
+  rule_contains?: Maybe<String>;
+  rule_not_contains?: Maybe<String>;
+  rule_starts_with?: Maybe<String>;
+  rule_not_starts_with?: Maybe<String>;
+  rule_ends_with?: Maybe<String>;
+  rule_not_ends_with?: Maybe<String>;
   isParsed?: Maybe<Boolean>;
   isParsed_not?: Maybe<Boolean>;
   parsed_every?: Maybe<ParsedSegmentWhereInput>;
@@ -1845,6 +1863,7 @@ export interface RecipeIngredientUpdateDataInput {
   blockIndex?: Maybe<Int>;
   lineIndex?: Maybe<Int>;
   reference?: Maybe<String>;
+  rule?: Maybe<String>;
   isParsed?: Maybe<Boolean>;
   parsed?: Maybe<ParsedSegmentUpdateManyInput>;
 }
@@ -2227,6 +2246,20 @@ export interface RecipeIngredientScalarWhereInput {
   reference_not_starts_with?: Maybe<String>;
   reference_ends_with?: Maybe<String>;
   reference_not_ends_with?: Maybe<String>;
+  rule?: Maybe<String>;
+  rule_not?: Maybe<String>;
+  rule_in?: Maybe<String[] | String>;
+  rule_not_in?: Maybe<String[] | String>;
+  rule_lt?: Maybe<String>;
+  rule_lte?: Maybe<String>;
+  rule_gt?: Maybe<String>;
+  rule_gte?: Maybe<String>;
+  rule_contains?: Maybe<String>;
+  rule_not_contains?: Maybe<String>;
+  rule_starts_with?: Maybe<String>;
+  rule_not_starts_with?: Maybe<String>;
+  rule_ends_with?: Maybe<String>;
+  rule_not_ends_with?: Maybe<String>;
   isParsed?: Maybe<Boolean>;
   isParsed_not?: Maybe<Boolean>;
   AND?: Maybe<
@@ -2332,6 +2365,7 @@ export interface RecipeIngredientUpdateManyDataInput {
   blockIndex?: Maybe<Int>;
   lineIndex?: Maybe<Int>;
   reference?: Maybe<String>;
+  rule?: Maybe<String>;
   isParsed?: Maybe<Boolean>;
 }
 
@@ -2616,6 +2650,7 @@ export interface RecipeIngredientUpdateManyMutationInput {
   blockIndex?: Maybe<Int>;
   lineIndex?: Maybe<Int>;
   reference?: Maybe<String>;
+  rule?: Maybe<String>;
   isParsed?: Maybe<Boolean>;
 }
 
@@ -3649,6 +3684,7 @@ export interface RecipeIngredient {
   blockIndex: Int;
   lineIndex: Int;
   reference: String;
+  rule?: String;
   isParsed: Boolean;
 }
 
@@ -3659,6 +3695,7 @@ export interface RecipeIngredientPromise
   blockIndex: () => Promise<Int>;
   lineIndex: () => Promise<Int>;
   reference: () => Promise<String>;
+  rule: () => Promise<String>;
   isParsed: () => Promise<Boolean>;
   parsed: <T = FragmentableArray<ParsedSegment>>(args?: {
     where?: ParsedSegmentWhereInput;
@@ -3678,6 +3715,7 @@ export interface RecipeIngredientSubscription
   blockIndex: () => Promise<AsyncIterator<Int>>;
   lineIndex: () => Promise<AsyncIterator<Int>>;
   reference: () => Promise<AsyncIterator<String>>;
+  rule: () => Promise<AsyncIterator<String>>;
   isParsed: () => Promise<AsyncIterator<Boolean>>;
   parsed: <T = Promise<AsyncIterator<ParsedSegmentSubscription>>>(args?: {
     where?: ParsedSegmentWhereInput;
@@ -3697,6 +3735,7 @@ export interface RecipeIngredientNullablePromise
   blockIndex: () => Promise<Int>;
   lineIndex: () => Promise<Int>;
   reference: () => Promise<String>;
+  rule: () => Promise<String>;
   isParsed: () => Promise<Boolean>;
   parsed: <T = FragmentableArray<ParsedSegment>>(args?: {
     where?: ParsedSegmentWhereInput;
@@ -4133,6 +4172,7 @@ export interface RecipeIngredientPreviousValues {
   blockIndex: Int;
   lineIndex: Int;
   reference: String;
+  rule?: String;
   isParsed: Boolean;
 }
 
@@ -4143,6 +4183,7 @@ export interface RecipeIngredientPreviousValuesPromise
   blockIndex: () => Promise<Int>;
   lineIndex: () => Promise<Int>;
   reference: () => Promise<String>;
+  rule: () => Promise<String>;
   isParsed: () => Promise<Boolean>;
 }
 
@@ -4153,6 +4194,7 @@ export interface RecipeIngredientPreviousValuesSubscription
   blockIndex: () => Promise<AsyncIterator<Int>>;
   lineIndex: () => Promise<AsyncIterator<Int>>;
   reference: () => Promise<AsyncIterator<String>>;
+  rule: () => Promise<AsyncIterator<String>>;
   isParsed: () => Promise<AsyncIterator<Boolean>>;
 }
 

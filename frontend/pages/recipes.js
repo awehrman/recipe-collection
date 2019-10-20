@@ -53,7 +53,9 @@ class Recipes extends React.PureComponent {
 						const { recipeAggregate } = data || {};
 						const { recipesCount } = recipeAggregate || {};
 						const { data: { recipes = [] } } = getRecipes;
+						console.warn({ recipes });
 
+						// TODO install an actual view here
 						return (
 							<RecipesStyles>
 								<Header pageHeader="Recipes" />
@@ -70,7 +72,25 @@ class Recipes extends React.PureComponent {
 													{
 														recipes.map(r => (
 															<li key={ r.id }>
-																{ r.title }
+																<div>
+																	<h1>{ r.title }</h1>
+																	<ul>
+																		{
+																			r.ingredients && r.ingredients.map((i, index) => (
+																				// eslint-disable-next-line
+																				<li key={ `rp_${ r.id }ing_${ index }` }>
+																					{ i.reference }
+																					<br />
+																					{ i.isParsed }
+																					<br />
+																					{/* eslint-disable-next-line */}
+																					{i.parsed.map((p, pIndex) => <div key={`rp_ing_${pIndex }` }>{ `${ p.type }: ${ p.value }`}</div>) }
+																					<br />
+																				</li>
+																			))
+																		}
+																	</ul>
+																</div>
 															</li>
 														))
 													}

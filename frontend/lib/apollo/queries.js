@@ -129,6 +129,7 @@ export const GET_INGREDIENT_BY_VALUE_QUERY = gql`
   	ingredient(value: $value) @client {
 			id
 			name
+			plural
 			properties {
 				meat
 			  poultry
@@ -205,6 +206,27 @@ export const GET_ALL_RECIPES_QUERY = gql`
 			tags {
 				id
 				name
+			}
+			ingredients {
+				id
+				blockIndex
+				lineIndex
+				reference
+				rule
+				isParsed
+				parsed {
+					rule
+					type
+					value
+					ingredient {
+						id
+						name
+					}
+				}
+			}
+			instructions {
+				blockIndex
+				reference
 			}
 		}
   }

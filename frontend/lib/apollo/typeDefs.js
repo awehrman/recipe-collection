@@ -26,6 +26,7 @@ export default gql`
 		id: String!
 		isValidated: Boolean!
 		name: String!
+		plural: String
 		properties: Properties!
 		referenceCount: Int!
 	}

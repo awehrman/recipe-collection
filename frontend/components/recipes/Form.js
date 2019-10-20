@@ -2,6 +2,7 @@ import { adopt } from 'react-adopt';
 import { Query, withApollo } from 'react-apollo';
 import { Component } from 'react';
 import { darken } from 'polished';
+import pluralize from 'pluralize';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import uuid from 'uuid';
@@ -18,17 +19,17 @@ import ParserInput from './ParserInput';
 import ParsedViewer from './ParsedViewer';
 /* eslint-disable object-curly-newline */
 import {
-	GET_ALL_RECIPES_QUERY,
-	GET_RECIPES_COUNT_QUERY,
 	GET_ALL_CATEGORIES_QUERY,
+	GET_ALL_INGREDIENTS_QUERY,
+	GET_ALL_RECIPES_QUERY,
+	GET_ALL_TAGS_QUERY,
+	GET_INGREDIENT_BY_VALUE_QUERY,
+	GET_RECIPES_COUNT_QUERY,
 	GET_SUGGESTED_CATEGORIES_QUERY,
 	GET_SUGGESTED_TAGS_QUERY,
-	GET_ALL_INGREDIENTS_QUERY,
-	GET_ALL_TAGS_QUERY,
 } from '../../lib/apollo/queries';
 /* eslint-enable object-curly-newline */
 import { CREATE_RECIPE_MUTATION, UPDATE_RECIPE_MUTATION } from '../../lib/apollo/mutations';
-
 
 const Composed = adopt({
 	// eslint-disable-next-line react/prop-types
@@ -53,7 +54,6 @@ const Composed = adopt({
 	),
 
 });
-
 
 const FormStyles = styled.form`
 	flex-basis: 100%;
@@ -330,7 +330,6 @@ class Form extends Component {
 			if (data.categories.connect.length === 0) delete data.categories.connect;
 			if (data.categories.disconnect.length === 0) delete data.categories.disconnect;
 		}
-
 		// tags: TagCreateManyInput || TagUpdateManyInput
 		if (recipe.tags) {
 			data.tags = {
@@ -362,44 +361,77 @@ class Form extends Component {
 
 		// TODO ingredients: RecipeIngredientCreateManyInput || RecipeIngredientUpdateManyInput
 		if (recipe.ingredients) {
-			data.ingredients = {
-				create: [],
-				delete: [],
-			};
-			recipe.ingredients.forEach((r) => {
-				data.ingredients.create.push({ ...r });
-				// TODO check this shape
+			data.ingredients = { create: [] };
+			recipe.ingredients.forEach((line) => {
+				const { blockIndex, isParsed, lineIndex, parsed, reference, rule } = line;
+				// RecipeIngredientCreateInput
+				const ingredientLine = {
+					blockIndex,
+					isParsed,
+					lineIndex,
+					reference,
+					rule,
+				};
+
+				// TODO handle multiple ingredients per line (this might require a data model update too)
+				// if we parsed this line, go through its values and update the ingredient
+				if (isParsed && parsed && (parsed.length > 0)) {
+					ingredientLine.parsed = {
+						create: parsed.map((p) => {
+							if (p.type === 'ingredient' ) {
+								if (p.ingredient && p.ingredient.id) {
+									return {
+										...p,
+										ingredient: { connect: { id: p.ingredient.id } },
+									};
+								}
+
+								console.log({ p });
+								return {
+									...p,
+									ingredient: {
+										create: {
+											name: p.ingredient.name,
+											plural: p.ingredient.plural,
+											properties: {
+												create: {
+													meat: false,
+													poultry: false,
+													fish: false,
+													dairy: false,
+													soy: false,
+													gluten: false,
+												},
+											},
+										},
+									},
+								};
+							}
+							return { ...p };
+						}),
+					};
+				}
+
+				// create recipe ingredient lines
+				data.ingredients.create.push(ingredientLine);
 			});
 
-			if (pending.ingredientsDelete) {
-				pending.ingredientsDelete.forEach((r) => {
-					data.ingredients.delete.push({ ...r });
-				});
-			}
 
 			if (data.ingredients.create.length === 0) delete data.ingredients.create;
-			if (data.ingredients.delete.length === 0) delete data.ingredients.delete;
 		}
 
 		// TODO instructions: RecipeInstructionCreateManyInput || RecipeInstructionUpdateManyInput
 		if (recipe.instructions) {
-			data.instructions = {
-				create: [],
-				delete: [],
-			};
+			data.instructions = { create: [] };
+
 			recipe.instructions.forEach((r) => {
 				data.instructions.create.push({ ...r });
 			});
 
-			if (pending.instructionsDelete) {
-				pending.instructionsDelete.forEach((r) => {
-					data.instructions.delete.push({ ...r });
-				});
-			}
-
 			if (data.instructions.create.length === 0) delete data.instructions.create;
-			if (data.instructions.delete.length === 0) delete data.instructions.delete;
 		}
+
+		console.log({ data });
 
 		return data;
 	}
@@ -515,7 +547,6 @@ class Form extends Component {
 				if (index !== -1) { rp.instructions.splice(index, 1); }
 			});
 		}
-
 		return rp;
 	}
 
@@ -529,6 +560,58 @@ class Form extends Component {
 		}
 
 		return fieldNameWarnings;
+	}
+
+	lookupIngredients = async (lines) => {
+		const { client } = this.props;
+
+		const ingredientNames = lines.filter(l => l.isParsed && l.parsed && (l.parsed.length > 0))
+			.map(l => l.parsed.filter(p => p.type === 'ingredient').map(p => p.value)).flat();
+
+		const ingredients = ingredientNames.map(async (n) => {
+			// n: 'ginger'
+
+			// determine pluralization
+			const name = !pluralize.isPlural(n) ? n : pluralize.singular(n);
+			let plural = pluralize.isPlural(n) ? n : null;
+
+			if (!plural) {
+				// attempt to pluralize the ingredient name
+				try {
+					plural = pluralize.plural(n);
+				} catch (err) {
+					//
+				}
+			}
+
+			let ingredient = {};
+			// check if this is an existing ingredient
+			try {
+				const { data } = await client.query({
+					query: GET_INGREDIENT_BY_VALUE_QUERY,
+					variables: { value: name },
+				});
+				({ ingredient } = data);
+				delete ingredient.__typename;
+			} catch (err) {
+				console.error(`didn't find a matching ingredient for ${ name }`);
+			}
+
+			if (!ingredient) {
+				ingredient = {
+					isValidated: false,
+					name: n.toLowerCase(),
+				};
+
+				if (plural) {
+					ingredient.plural = plural;
+				}
+			}
+
+			return ingredient;
+		});
+
+		return Promise.all(ingredients).then(data => data);
 	}
 
 	onInputChange = (e) => {
@@ -554,16 +637,44 @@ class Form extends Component {
 		});
 	}
 
-	onParserComplete = (ingredients, instructions) => {
+	onParserComplete = async (ingredientLines, instructions) => {
 		const { pending } = this.state;
 
-		this.setState({
-			pending: {
-				...deepCopy(pending),
-				...{ ingredients },
-				...{ instructions },
-			},
-		});
+		// TODO lookup any ingredients identified
+		await this.lookupIngredients(ingredientLines)
+			.then((ingData) => {
+				const ingredients = ingredientLines.map((line) => {
+					console.warn({ line, ingData });
+					if (line.isParsed && line.parsed && (line.parsed.length > 0)) {
+						const parsed = line.parsed.map((p) => {
+							if (p.type === 'ingredient') {
+								const ing = {
+									...p,
+									ingredient: ingData.find(i => (i.name === p.value) || (i.plural === p.value)),
+								};
+								console.log({ p, ing });
+								return ing;
+							}
+							return { ...p };
+						});
+
+						return {
+							...line,
+							parsed,
+						};
+					}
+					return { ...line };
+				});
+
+				console.warn({ ingredients });
+				this.setState({
+					pending: {
+						...deepCopy(pending),
+						...{ ingredients },
+						...{ instructions },
+					},
+				});
+			});
 	}
 
 	onListChange = (listItem, fieldName, removeListItem = false) => {
@@ -831,38 +942,42 @@ class Form extends Component {
 								</Left>
 
 								<Right>
+									{/* Title Preview */}
 									<Title>
 										{pending.title}
 									</Title>
 
-									{/* Uploaded Image Placeholder */}
+									{/* Image Preview */}
 									<Image value={ pending.image } />
 
+									{/* Source Preview */}
 									<Source>
 										{pending.source}
 									</Source>
 
+									{/* Categories Preview */}
 									<Categories>
 										{
 											pending.categories.map(c => (
-												<li key={`categories_${c.id}`}>
+												<li key={ `categories_display_${ c.id }_${ c.name }` }>
 													{c.name}
 												</li>
 											))
 										}
 									</Categories>
 
+									{/* Tags Preview */}
 									<Tags>
 										{
 											pending.tags.map(c => (
-												<li key={`tags_${c.id}`}>
-													{c.name}
+												<li key={ `tags_display_${ c.id }_${ c.name }` }>
+													{ c.name }
 												</li>
 											))
 										}
 									</Tags>
 
-									{/* Recipe Parsed Display */}
+									{/* Parsed Recipe Preview */}
 									<ParsedViewer
 										loading={ loading }
 										ingredients={ pending.ingredients }

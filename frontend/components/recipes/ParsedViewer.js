@@ -60,7 +60,7 @@ const Instructions = styled.div`
 `;
 
 const ParsedViewer = ({ ingredients, instructions }) => {
-	const blocks = [ ...new Set(ingredients.map(i => i.block)) ];
+	const blocks = [ ...new Set(ingredients.map(i => i.blockIndex)) ];
 
 	return (
 		<ParsedViewerStyles>
@@ -72,24 +72,24 @@ const ParsedViewer = ({ ingredients, instructions }) => {
 			<Ingredients>
 				<ul className="ingredients">
 					{
-						blocks.map(block => (
-							<li key={ `block_${ block }` } className="block">
+						blocks.map(blockIndex => (
+							<li key={ `block_${ blockIndex }` } className="block">
 								<ul className="blocks">
 									{
-										ingredients.filter(i => i.block === block)
+										ingredients.filter(i => i.blockIndex === blockIndex)
 											.map(i => (
-												<li key={ `parsed_ingredient_${ i.block }_${ i.line }` }>
+												<li key={ `parsed_ingredient_${ i.blockIndex }_${ i.lineIndex }` }>
 													{
 														i.isParsed
 															? (
 																<span className="parsed">
 																	{
-																		i.values.map(v => (
+																		i.parsed.map(v => (
 																			<span
 																				className={ v.type }
-																				key={ `${ i.block }_${ i.line }_${ v.value }` }
+																				key={ `${ i.blockIndex }_${ i.lineIndex }_${ v.value }` }
 																			>
-																				{v.value}
+																				{ v.value }
 																			</span>
 																		))
 																	}
@@ -115,8 +115,8 @@ const ParsedViewer = ({ ingredients, instructions }) => {
 				<ul className="instructions">
 					{
 						instructions.map(i => (
-							<li key={ `parsed_instruction_${ i.block }` }>
-								{i.reference}
+							<li key={ `parsed_instruction_${ i.blockIndex }` }>
+								{ i.reference }
 							</li>
 						))
 					}
@@ -138,16 +138,18 @@ ParsedViewer.propTypes = {
 		lineIndex: PropTypes.number,
 		reference: PropTypes.string.isRequired,
 		isParsed: PropTypes.bool,
-		parsed: PropTypes.shape({
-			id: PropTypes.string,
-			rule: PropTypes.string.isRequired,
-			type: PropTypes.string.isRequired,
-			value: PropTypes.string.isRequired,
-			ingredient: PropTypes.shape({
+		parsed: PropTypes.arrayOf(
+			PropTypes.shape({
 				id: PropTypes.string,
-				name: PropTypes.string.isRequired,
+				rule: PropTypes.string.isRequired,
+				type: PropTypes.string.isRequired,
+				value: PropTypes.string.isRequired,
+				ingredient: PropTypes.shape({
+					id: PropTypes.string,
+					name: PropTypes.string.isRequired,
+				}),
 			}),
-		}),
+		),
 	})),
 	instructions: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string,

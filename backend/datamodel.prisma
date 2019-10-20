@@ -77,8 +77,9 @@
 		blockIndex: Int!
 		lineIndex: Int!
 		reference: String!
+		rule: String
 		isParsed: Boolean! @default(value: false)
-		parsed: [ ParsedSegment! ] @relation(name: "ParsedSegments")
+		parsed: [ ParsedSegment! ] @relation(name: "ParsedSegments" onDelete: CASCADE)
 	}
 
 	type ParsedSegment {

@@ -1619,6 +1619,7 @@ type RecipeIngredient {
   blockIndex: Int!
   lineIndex: Int!
   reference: String!
+  rule: String
   isParsed: Boolean!
   parsed(where: ParsedSegmentWhereInput, orderBy: ParsedSegmentOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [ParsedSegment!]
 }
@@ -1634,6 +1635,7 @@ input RecipeIngredientCreateInput {
   blockIndex: Int!
   lineIndex: Int!
   reference: String!
+  rule: String
   isParsed: Boolean
   parsed: ParsedSegmentCreateManyInput
 }
@@ -1657,6 +1659,8 @@ enum RecipeIngredientOrderByInput {
   lineIndex_DESC
   reference_ASC
   reference_DESC
+  rule_ASC
+  rule_DESC
   isParsed_ASC
   isParsed_DESC
 }
@@ -1666,6 +1670,7 @@ type RecipeIngredientPreviousValues {
   blockIndex: Int!
   lineIndex: Int!
   reference: String!
+  rule: String
   isParsed: Boolean!
 }
 
@@ -1714,6 +1719,20 @@ input RecipeIngredientScalarWhereInput {
   reference_not_starts_with: String
   reference_ends_with: String
   reference_not_ends_with: String
+  rule: String
+  rule_not: String
+  rule_in: [String!]
+  rule_not_in: [String!]
+  rule_lt: String
+  rule_lte: String
+  rule_gt: String
+  rule_gte: String
+  rule_contains: String
+  rule_not_contains: String
+  rule_starts_with: String
+  rule_not_starts_with: String
+  rule_ends_with: String
+  rule_not_ends_with: String
   isParsed: Boolean
   isParsed_not: Boolean
   AND: [RecipeIngredientScalarWhereInput!]
@@ -1743,6 +1762,7 @@ input RecipeIngredientUpdateDataInput {
   blockIndex: Int
   lineIndex: Int
   reference: String
+  rule: String
   isParsed: Boolean
   parsed: ParsedSegmentUpdateManyInput
 }
@@ -1751,6 +1771,7 @@ input RecipeIngredientUpdateInput {
   blockIndex: Int
   lineIndex: Int
   reference: String
+  rule: String
   isParsed: Boolean
   parsed: ParsedSegmentUpdateManyInput
 }
@@ -1759,6 +1780,7 @@ input RecipeIngredientUpdateManyDataInput {
   blockIndex: Int
   lineIndex: Int
   reference: String
+  rule: String
   isParsed: Boolean
 }
 
@@ -1778,6 +1800,7 @@ input RecipeIngredientUpdateManyMutationInput {
   blockIndex: Int
   lineIndex: Int
   reference: String
+  rule: String
   isParsed: Boolean
 }
 
@@ -1842,6 +1865,20 @@ input RecipeIngredientWhereInput {
   reference_not_starts_with: String
   reference_ends_with: String
   reference_not_ends_with: String
+  rule: String
+  rule_not: String
+  rule_in: [String!]
+  rule_not_in: [String!]
+  rule_lt: String
+  rule_lte: String
+  rule_gt: String
+  rule_gte: String
+  rule_contains: String
+  rule_not_contains: String
+  rule_starts_with: String
+  rule_not_starts_with: String
+  rule_ends_with: String
+  rule_not_ends_with: String
   isParsed: Boolean
   isParsed_not: Boolean
   parsed_every: ParsedSegmentWhereInput
