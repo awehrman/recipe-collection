@@ -6,7 +6,7 @@ import styled from 'styled-components';
 
 import Container from './Container';
 import ErrorMessage from '../ErrorMessage';
-import { GET_CONTAINERS_QUERY } from '../../lib/apollo/queries';
+import { GET_ALL_CONTAINERS_QUERY } from '../../lib/apollo/queries';
 
 const ContainerStyles = styled.div`
 	display: flex;
@@ -32,7 +32,7 @@ const Composed = adopt({
 	// eslint-disable-next-line react/prop-types
 	getContainers: ({ group, ingredientID, render, view }) => (
 		// eslint-disable-next-line object-curly-newline
-		<Query fetchPolicy="network-only" notifyOnNetworkStatusChange query={ GET_CONTAINERS_QUERY } variables={ { group, ingredientID, view } }>
+		<Query fetchPolicy="network-only" notifyOnNetworkStatusChange query={ GET_ALL_CONTAINERS_QUERY } variables={ { group, ingredientID, view } }>
 			{ render }
 		</Query>
 	),
@@ -45,7 +45,7 @@ class Containers extends React.Component {
 
 		await client.query({
 			fetchPolicy: 'network-only',
-			query: GET_CONTAINERS_QUERY,
+			query: GET_ALL_CONTAINERS_QUERY,
 			variables: {
 				group,
 				ingredientID,
@@ -55,6 +55,7 @@ class Containers extends React.Component {
 	}
 
 	render() {
+		console.warn('[Containers] render');
 		const { group, ingredientID, view } = this.props;
 		const message = (view === 'new') ? 'There are no new ingredients to review.' : 'There are no ingredients yet.';
 
@@ -67,6 +68,7 @@ class Containers extends React.Component {
 						if (loading) return null;
 						if (error) return <ErrorMessage error={ error } />;
 						const { containers } = data;
+						console.log({ containers });
 
 						return (
 							<ContainerStyles>

@@ -34,7 +34,7 @@ function createClient({ headers }) {
 			resolvers: {
 				Query: {
 					container(_, { id }, { client, getCacheKey }) {
-						// console.warn(`... [withData](${ id }) container query resolver`);
+						console.warn(`... [withData](${ id }) container query resolver`);
 
 						// TODO move fragments into their own file
 						const container = client.readFragment({
@@ -71,7 +71,7 @@ function createClient({ headers }) {
 						return container;
 					},
 					async containers(_, { group, ingredientID, view }, { client }) {
-						// console.warn(`... [withData](${ group }, ${ view }) containers query resolver`);
+						console.warn(`... [withData](${ group }, ${ view }) containers query resolver`);
 						let containers = [];
 						let ingredients = [];
 
@@ -173,7 +173,7 @@ function createClient({ headers }) {
 						return suggestions;
 					},
 					viewIngredients(_, { view }) {
-						// console.warn(`... [withData](${ view }) viewIngredients query resolver`);
+						console.warn(`... [withData](${ view }) viewIngredients query resolver`);
 						// get all ingredients from the cache
 						let { ingredients } = cache.readQuery({ query: GET_ALL_INGREDIENTS_QUERY });
 

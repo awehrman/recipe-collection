@@ -20,11 +20,12 @@ import ParsedViewer from './ParsedViewer';
 /* eslint-disable object-curly-newline */
 import {
 	GET_ALL_CATEGORIES_QUERY,
-	GET_ALL_INGREDIENTS_QUERY,
 	GET_ALL_RECIPES_QUERY,
+	GET_RECIPES_COUNT_QUERY,
+	GET_ALL_INGREDIENTS_QUERY,
+	GET_INGREDIENTS_COUNT_QUERY,
 	GET_ALL_TAGS_QUERY,
 	GET_INGREDIENT_BY_VALUE_QUERY,
-	GET_RECIPES_COUNT_QUERY,
 	GET_SUGGESTED_CATEGORIES_QUERY,
 	GET_SUGGESTED_TAGS_QUERY,
 } from '../../lib/apollo/queries';
@@ -313,6 +314,7 @@ class Form extends Component {
 				disconnect: [],
 			};
 			recipe.categories.forEach((r) => {
+				console.log({ r });
 				if (r.id) {
 					data.categories.connect.push({ ...r });
 				} else {
@@ -330,6 +332,7 @@ class Form extends Component {
 			if (data.categories.connect.length === 0) delete data.categories.connect;
 			if (data.categories.disconnect.length === 0) delete data.categories.disconnect;
 		}
+
 		// tags: TagCreateManyInput || TagUpdateManyInput
 		if (recipe.tags) {
 			data.tags = {
@@ -359,7 +362,7 @@ class Form extends Component {
 		// image: String
 		data.image = recipe.image;
 
-		// TODO ingredients: RecipeIngredientCreateManyInput || RecipeIngredientUpdateManyInput
+		// ingredients: RecipeIngredientCreateManyInput || RecipeIngredientUpdateManyInput
 		if (recipe.ingredients) {
 			data.ingredients = { create: [] };
 			recipe.ingredients.forEach((line) => {
@@ -378,7 +381,7 @@ class Form extends Component {
 				if (isParsed && parsed && (parsed.length > 0)) {
 					ingredientLine.parsed = {
 						create: parsed.map((p) => {
-							if (p.type === 'ingredient' ) {
+							if (p.type === 'ingredient') {
 								if (p.ingredient && p.ingredient.id) {
 									return {
 										...p,
@@ -386,7 +389,6 @@ class Form extends Component {
 									};
 								}
 
-								console.log({ p });
 								return {
 									...p,
 									ingredient: {
@@ -420,7 +422,7 @@ class Form extends Component {
 			if (data.ingredients.create.length === 0) delete data.ingredients.create;
 		}
 
-		// TODO instructions: RecipeInstructionCreateManyInput || RecipeInstructionUpdateManyInput
+		// instructions: RecipeInstructionCreateManyInput || RecipeInstructionUpdateManyInput
 		if (recipe.instructions) {
 			data.instructions = { create: [] };
 
@@ -432,6 +434,7 @@ class Form extends Component {
 		}
 
 		console.log({ data });
+		console.log('-------------');
 
 		return data;
 	}
@@ -472,6 +475,15 @@ class Form extends Component {
 			});
 		}
 
+		// TODO come back and clean this up, i'm just being lazy
+		if (hasProperty(pending, 'categories')) {
+			pending.categories.forEach((c) => {
+				if (!~rp.categories.indexOf(c)) {
+					rp.categories.push({ ...c });
+				}
+			});
+		}
+
 		// disconnect any disconnected categories
 		if (hasProperty(pending, 'categoriesDisconnect')) {
 			pending.categoriesDisconnect.forEach((d) => {
@@ -483,6 +495,15 @@ class Form extends Component {
 		// connect any new tags
 		if (hasProperty(pending, 'tagsConnect')) {
 			pending.tagsConnect.forEach((c) => {
+				if (!~rp.tags.indexOf(c)) {
+					rp.tags.push({ ...c });
+				}
+			});
+		}
+
+		// TODO come back and clean this up, i'm just being lazy
+		if (hasProperty(pending, 'tags')) {
+			pending.tags.forEach((c) => {
 				if (!~rp.tags.indexOf(c)) {
 					rp.tags.push({ ...c });
 				}
@@ -547,6 +568,7 @@ class Form extends Component {
 				if (index !== -1) { rp.instructions.splice(index, 1); }
 			});
 		}
+		console.log({ rp });
 		return rp;
 	}
 
@@ -572,7 +594,7 @@ class Form extends Component {
 			// n: 'ginger'
 
 			// determine pluralization
-			const name = !pluralize.isPlural(n) ? n : pluralize.singular(n);
+			const name = !pluralize.isPlural(n) ? pluralize.singular(n) : n;
 			let plural = pluralize.isPlural(n) ? n : null;
 
 			if (!plural) {
@@ -583,6 +605,7 @@ class Form extends Component {
 					//
 				}
 			}
+			console.warn({ name, plural });
 
 			let ingredient = {};
 			// check if this is an existing ingredient
@@ -640,11 +663,10 @@ class Form extends Component {
 	onParserComplete = async (ingredientLines, instructions) => {
 		const { pending } = this.state;
 
-		// TODO lookup any ingredients identified
+		// lookup any ingredients identified
 		await this.lookupIngredients(ingredientLines)
 			.then((ingData) => {
 				const ingredients = ingredientLines.map((line) => {
-					console.warn({ line, ingData });
 					if (line.isParsed && line.parsed && (line.parsed.length > 0)) {
 						const parsed = line.parsed.map((p) => {
 							if (p.type === 'ingredient') {
@@ -652,7 +674,6 @@ class Form extends Component {
 									...p,
 									ingredient: ingData.find(i => (i.name === p.value) || (i.plural === p.value)),
 								};
-								console.log({ p, ing });
 								return ing;
 							}
 							return { ...p };
@@ -666,7 +687,6 @@ class Form extends Component {
 					return { ...line };
 				});
 
-				console.warn({ ingredients });
 				this.setState({
 					pending: {
 						...deepCopy(pending),
@@ -726,6 +746,8 @@ class Form extends Component {
 			refetchQueries: [
 				{ query: GET_ALL_RECIPES_QUERY },
 				{ query: GET_RECIPES_COUNT_QUERY },
+				{ query: GET_ALL_INGREDIENTS_QUERY },
+				{ query: GET_INGREDIENTS_COUNT_QUERY },
 			],
 			mutation: CREATE_RECIPE_MUTATION,
 			variables: { data },
@@ -778,6 +800,8 @@ class Form extends Component {
 			refetchQueries: [
 				{ query: GET_ALL_RECIPES_QUERY },
 				{ query: GET_RECIPES_COUNT_QUERY },
+				{ query: GET_ALL_INGREDIENTS_QUERY },
+				{ query: GET_INGREDIENTS_COUNT_QUERY },
 			],
 			mutation: UPDATE_RECIPE_MUTATION,
 			variables: {
@@ -1042,7 +1066,7 @@ class Form extends Component {
 Form.defaultProps = {
 	categories: [
 		{
-			id: null,
+			id: 'ck1zhqfmhq2ul0b40800ha87d',
 			name: 'stuffed flatbread',
 		},
 	],
@@ -1067,11 +1091,11 @@ Form.defaultProps = {
 	title: 'Aloo Paratha with Quick Lemon Pickle',
 	tags: [
 		{
-			id: null,
+			id: 'ck1zhqfmiq2um0b40sg6g8z5m',
 			name: 'indian',
 		},
 		{
-			id: null,
+			id: 'ck1zhqfmkq2un0b40c1ooiojo',
 			name: 'vegetarian',
 		},
 	],

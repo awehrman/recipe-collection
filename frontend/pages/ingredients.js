@@ -48,7 +48,7 @@ class Ingredients extends React.PureComponent {
 	}
 
 	render() {
-		// console.warn('[ingredients] render');
+		console.warn('[ingredients] render');
 		const { query } = this.props;
 		const { group = 'name', id = null, view = 'all' } = query;
 
@@ -60,6 +60,8 @@ class Ingredients extends React.PureComponent {
 						const { data } = getIngredientsCount || {};
 						const { ingredientAggregate } = data || {};
 						const { ingredientsCount, newIngredientsCount } = ingredientAggregate || {};
+
+						console.log({ ingredientsCount });
 
 						return (
 							<IngredientsPageStyles>

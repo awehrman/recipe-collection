@@ -11,6 +11,7 @@ export const GET_CONTAINER_QUERY = gql`
 				id
 				isValidated
 				name
+				plural
 				properties {
 					meat
 					poultry
@@ -27,8 +28,8 @@ export const GET_CONTAINER_QUERY = gql`
 	}
 `;
 
-export const GET_CONTAINERS_QUERY = gql`
-	query GET_CONTAINERS_QUERY($group: String, $ingredientID: String, $view: String) {
+export const GET_ALL_CONTAINERS_QUERY = gql`
+	query GET_ALL_CONTAINERS_QUERY($group: String, $ingredientID: String, $view: String) {
 		containers(group: $group, ingredientID: $ingredientID, view: $view) @client {
 			id
 			ingredientID
@@ -37,6 +38,7 @@ export const GET_CONTAINERS_QUERY = gql`
 				id
 				isValidated
 				name
+				plural
 				properties {
 					meat
 					poultry
@@ -60,6 +62,7 @@ export const GET_VIEW_INGREDIENTS_QUERY = gql`
 			id
 			isValidated
 			name
+			plural
 			properties {
 				meat
 				poultry
@@ -286,7 +289,7 @@ export const GET_SUGGESTED_TAGS_QUERY = gql`
 
 export default [
 	GET_CONTAINER_QUERY,
-	GET_CONTAINERS_QUERY,
+	GET_ALL_CONTAINERS_QUERY,
 	GET_ALL_CATEGORIES_QUERY,
 	GET_SUGGESTED_CATEGORIES_QUERY,
 	GET_ALL_TAGS_QUERY,
