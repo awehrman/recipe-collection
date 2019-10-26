@@ -14,6 +14,10 @@ type AggregateIngredientAggregate {
   count: Int!
 }
 
+type AggregateNote {
+  count: Int!
+}
+
 type AggregateParsedSegment {
   count: Int!
 }
@@ -978,6 +982,12 @@ type Mutation {
   upsertIngredientAggregate(where: IngredientAggregateWhereUniqueInput!, create: IngredientAggregateCreateInput!, update: IngredientAggregateUpdateInput!): IngredientAggregate!
   deleteIngredientAggregate(where: IngredientAggregateWhereUniqueInput!): IngredientAggregate
   deleteManyIngredientAggregates(where: IngredientAggregateWhereInput): BatchPayload!
+  createNote(data: NoteCreateInput!): Note!
+  updateNote(data: NoteUpdateInput!, where: NoteWhereUniqueInput!): Note
+  updateManyNotes(data: NoteUpdateManyMutationInput!, where: NoteWhereInput): BatchPayload!
+  upsertNote(where: NoteWhereUniqueInput!, create: NoteCreateInput!, update: NoteUpdateInput!): Note!
+  deleteNote(where: NoteWhereUniqueInput!): Note
+  deleteManyNotes(where: NoteWhereInput): BatchPayload!
   createParsedSegment(data: ParsedSegmentCreateInput!): ParsedSegment!
   updateParsedSegment(data: ParsedSegmentUpdateInput!, where: ParsedSegmentWhereUniqueInput!): ParsedSegment
   updateManyParsedSegments(data: ParsedSegmentUpdateManyMutationInput!, where: ParsedSegmentWhereInput): BatchPayload!
@@ -1030,6 +1040,213 @@ enum MutationType {
 
 interface Node {
   id: ID!
+}
+
+type Note {
+  id: ID!
+  evernoteGUID: String
+  title: String!
+  source: String
+  categories: [String!]!
+  tags: [String!]!
+  image: String
+  content: String!
+}
+
+type NoteConnection {
+  pageInfo: PageInfo!
+  edges: [NoteEdge]!
+  aggregate: AggregateNote!
+}
+
+input NoteCreatecategoriesInput {
+  set: [String!]
+}
+
+input NoteCreateInput {
+  id: ID
+  evernoteGUID: String
+  title: String!
+  source: String
+  categories: NoteCreatecategoriesInput
+  tags: NoteCreatetagsInput
+  image: String
+  content: String!
+}
+
+input NoteCreatetagsInput {
+  set: [String!]
+}
+
+type NoteEdge {
+  node: Note!
+  cursor: String!
+}
+
+enum NoteOrderByInput {
+  id_ASC
+  id_DESC
+  evernoteGUID_ASC
+  evernoteGUID_DESC
+  title_ASC
+  title_DESC
+  source_ASC
+  source_DESC
+  image_ASC
+  image_DESC
+  content_ASC
+  content_DESC
+}
+
+type NotePreviousValues {
+  id: ID!
+  evernoteGUID: String
+  title: String!
+  source: String
+  categories: [String!]!
+  tags: [String!]!
+  image: String
+  content: String!
+}
+
+type NoteSubscriptionPayload {
+  mutation: MutationType!
+  node: Note
+  updatedFields: [String!]
+  previousValues: NotePreviousValues
+}
+
+input NoteSubscriptionWhereInput {
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: NoteWhereInput
+  AND: [NoteSubscriptionWhereInput!]
+  OR: [NoteSubscriptionWhereInput!]
+  NOT: [NoteSubscriptionWhereInput!]
+}
+
+input NoteUpdatecategoriesInput {
+  set: [String!]
+}
+
+input NoteUpdateInput {
+  evernoteGUID: String
+  title: String
+  source: String
+  categories: NoteUpdatecategoriesInput
+  tags: NoteUpdatetagsInput
+  image: String
+  content: String
+}
+
+input NoteUpdateManyMutationInput {
+  evernoteGUID: String
+  title: String
+  source: String
+  categories: NoteUpdatecategoriesInput
+  tags: NoteUpdatetagsInput
+  image: String
+  content: String
+}
+
+input NoteUpdatetagsInput {
+  set: [String!]
+}
+
+input NoteWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  evernoteGUID: String
+  evernoteGUID_not: String
+  evernoteGUID_in: [String!]
+  evernoteGUID_not_in: [String!]
+  evernoteGUID_lt: String
+  evernoteGUID_lte: String
+  evernoteGUID_gt: String
+  evernoteGUID_gte: String
+  evernoteGUID_contains: String
+  evernoteGUID_not_contains: String
+  evernoteGUID_starts_with: String
+  evernoteGUID_not_starts_with: String
+  evernoteGUID_ends_with: String
+  evernoteGUID_not_ends_with: String
+  title: String
+  title_not: String
+  title_in: [String!]
+  title_not_in: [String!]
+  title_lt: String
+  title_lte: String
+  title_gt: String
+  title_gte: String
+  title_contains: String
+  title_not_contains: String
+  title_starts_with: String
+  title_not_starts_with: String
+  title_ends_with: String
+  title_not_ends_with: String
+  source: String
+  source_not: String
+  source_in: [String!]
+  source_not_in: [String!]
+  source_lt: String
+  source_lte: String
+  source_gt: String
+  source_gte: String
+  source_contains: String
+  source_not_contains: String
+  source_starts_with: String
+  source_not_starts_with: String
+  source_ends_with: String
+  source_not_ends_with: String
+  image: String
+  image_not: String
+  image_in: [String!]
+  image_not_in: [String!]
+  image_lt: String
+  image_lte: String
+  image_gt: String
+  image_gte: String
+  image_contains: String
+  image_not_contains: String
+  image_starts_with: String
+  image_not_starts_with: String
+  image_ends_with: String
+  image_not_ends_with: String
+  content: String
+  content_not: String
+  content_in: [String!]
+  content_not_in: [String!]
+  content_lt: String
+  content_lte: String
+  content_gt: String
+  content_gte: String
+  content_contains: String
+  content_not_contains: String
+  content_starts_with: String
+  content_not_starts_with: String
+  content_ends_with: String
+  content_not_ends_with: String
+  AND: [NoteWhereInput!]
+  OR: [NoteWhereInput!]
+  NOT: [NoteWhereInput!]
+}
+
+input NoteWhereUniqueInput {
+  id: ID
 }
 
 type PageInfo {
@@ -1459,6 +1676,9 @@ type Query {
   ingredientAggregate(where: IngredientAggregateWhereUniqueInput!): IngredientAggregate
   ingredientAggregates(where: IngredientAggregateWhereInput, orderBy: IngredientAggregateOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [IngredientAggregate]!
   ingredientAggregatesConnection(where: IngredientAggregateWhereInput, orderBy: IngredientAggregateOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): IngredientAggregateConnection!
+  note(where: NoteWhereUniqueInput!): Note
+  notes(where: NoteWhereInput, orderBy: NoteOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Note]!
+  notesConnection(where: NoteWhereInput, orderBy: NoteOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): NoteConnection!
   parsedSegment(where: ParsedSegmentWhereUniqueInput!): ParsedSegment
   parsedSegments(where: ParsedSegmentWhereInput, orderBy: ParsedSegmentOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [ParsedSegment]!
   parsedSegmentsConnection(where: ParsedSegmentWhereInput, orderBy: ParsedSegmentOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ParsedSegmentConnection!
@@ -2239,6 +2459,7 @@ type Subscription {
   category(where: CategorySubscriptionWhereInput): CategorySubscriptionPayload
   ingredient(where: IngredientSubscriptionWhereInput): IngredientSubscriptionPayload
   ingredientAggregate(where: IngredientAggregateSubscriptionWhereInput): IngredientAggregateSubscriptionPayload
+  note(where: NoteSubscriptionWhereInput): NoteSubscriptionPayload
   parsedSegment(where: ParsedSegmentSubscriptionWhereInput): ParsedSegmentSubscriptionPayload
   properties(where: PropertiesSubscriptionWhereInput): PropertiesSubscriptionPayload
   recipe(where: RecipeSubscriptionWhereInput): RecipeSubscriptionPayload

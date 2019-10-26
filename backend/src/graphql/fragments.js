@@ -43,6 +43,10 @@ export const GET_ALL_INGREDIENT_FIELDS = `
 			id
 			name
 		}
+		references {
+			id
+			reference
+		}
 	}
 `;
 

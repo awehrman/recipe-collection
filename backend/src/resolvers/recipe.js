@@ -1,4 +1,4 @@
-import { GET_ALL_RECIPE_FIELDS_FOR_VALIDATION, GET_ALL_RECIPE_FIELDS } from '../graphql/fragments';
+import { GET_ALL_INGREDIENT_FIELDS, GET_ALL_RECIPE_FIELDS } from '../graphql/fragments';
 
 export default {
 	Query: {
@@ -28,15 +28,43 @@ export default {
 
 			const { data } = args;
 			// TODO add in joi validation
-			console.log({ data });
 
 			try {
 				const { id } = await ctx.prisma.createRecipe({ ...data }, info);
-				const recipe = await ctx.prisma.recipe({ id }).$fragment(GET_ALL_RECIPE_FIELDS_FOR_VALIDATION);
+				const recipe = await ctx.prisma.recipe({ id }).$fragment(GET_ALL_RECIPE_FIELDS);
 				response.recipe = {
 					__typename: 'Recipe',
 					...recipe,
 				};
+
+				// update ingredients with this recipe reference
+				const ingredients = recipe.ingredients
+					.map(line => line.parsed.filter(p => p.type === 'ingredient')
+						.map(i => ({ ...i.ingredient, lineID: line.id })))
+					.flat();
+				const updateIngredients = ingredients.map(async (i) => {
+					// references: RecipeIngredientUpdateManyInput
+					const ingData = { references: { connect: [ { id: i.lineID } ] } }; // this is the recipeInstruction index
+					const where = { id: i.id };
+
+					// update ingredients with recipe info
+					try {
+						const ing = await ctx.prisma.updateIngredient({
+							data: ingData,
+							where,
+						}, info);
+						await ctx.prisma.ingredient({ id: ing.id }).$fragment(GET_ALL_INGREDIENT_FIELDS);
+					} catch (err) {
+						console.log(err);
+						const { result } = err;
+						const { errors } = result;
+						errors.forEach((error) => {
+							const { message } = error;
+							response.errors.push(message);
+						});
+					}
+				});
+				await Promise.all(updateIngredients);
 			} catch (err) {
 				console.log(err);
 				const { result } = err;

@@ -56,7 +56,6 @@
 		evernoteGUID: String
 		title: String!
 		source: String
-		# TODO
 
 		categories: [ Category! ]! @relation(link: TABLE, name: "RecipeCategories")
 		tags: [ Tag! ]! @relation(link: TABLE, name: "RecipeTags")
@@ -89,6 +88,21 @@
 		type: String!
 		value: String!
 		ingredient: Ingredient @relation(name: "ParsedSegmentIngredient")
+	}
+
+## Note Models 
+
+	type Note {
+		id: ID! @id
+		evernoteGUID: String
+		title: String!
+		source: String
+
+		categories: [ String ] @scalarList(strategy: RELATION)
+		tags: [ String ] @scalarList(strategy: RELATION)
+
+		image: String
+		content: String! # String values are currently limited to 256KB
 	}
 
 ## Attribute Models

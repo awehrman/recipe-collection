@@ -14,7 +14,8 @@ export default {
 		ingredient: async (parent, args, ctx) => {
 			const { where } = args || {};
 			const { id } = where || {};
-			return ctx.prisma.ingredient({ id }).$fragment(GET_ALL_INGREDIENT_FIELDS);
+			const ingredient = await ctx.prisma.ingredient({ id }).$fragment(GET_ALL_INGREDIENT_FIELDS);
+			return ingredient;
 		},
 		ingredients: async (parent, args, ctx) => {
 			const ingredients = await ctx.prisma.ingredients().$fragment(GET_ALL_INGREDIENT_FIELDS_FOR_VALIDATION);

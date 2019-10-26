@@ -33,6 +33,10 @@ var models = [
     embedded: false
   },
   {
+    name: "Note",
+    embedded: false
+  },
+  {
     name: "Category",
     embedded: false
   },
