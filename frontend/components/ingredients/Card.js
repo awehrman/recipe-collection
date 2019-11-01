@@ -74,7 +74,7 @@ class Card extends React.PureComponent {
 						const { ingredient } = data || {};
 						const {
 							alternateNames, isComposedIngredient, name, plural, properties,
-							relatedIngredients, substitutes,
+							relatedIngredients, substitutes, references,
 						} = ingredient || {};
 						if (error) return <ErrorMessage error={ error } />;
 
@@ -95,6 +95,7 @@ class Card extends React.PureComponent {
 									properties={ properties }
 									showCancelButton
 									relatedIngredients={ relatedIngredients }
+									references={ references }
 									substitutes={ substitutes }
 								/>
 							</CardStyles>

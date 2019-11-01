@@ -50,7 +50,7 @@ const ListStyles = styled.fieldset`
 		padding: 4px 0 10px;
 
 		li {
-			font-size: 14px;
+			font-size: 12px;
 			color: #222;
 			padding-top: 2px;
 
@@ -159,13 +159,10 @@ class List extends Component {
 	}
 
 	onChange = (e) => {
-		console.warn('onChange');
 		const { value } = e.target;
 		const { fieldName, validate } = this.props;
-		console.log({ fieldName, validate, value, e });
 
 		if (e.key === 'Enter') {
-			console.log('Enter');
 			e.preventDefault();
 			// this is usually only utilized by the List component
 			this.onListChange(null, { name: value }, fieldName, false);
@@ -175,29 +172,24 @@ class List extends Component {
 	}
 
 	onListChange = (e, listItem, fieldName, removeListItem = false) => {
-		console.warn('onListChange');
-		console.log({ e, listItem, fieldName, removeListItem, type: (typeof listItem) });
 		try {
 			if (e) e.preventDefault();
 		} catch (err) {
-			console.error({ err });
+			//
 		}
 		const { onListChange } = this.props;
 		let item;
 		if (typeof listItem === 'string') {
-			console.log('A');
 			item = {
 				id: null,
 				name: listItem,
 			};
 		} else {
-			console.log('B');
 			item = {
 				id: hasProperty(listItem, 'id') ? listItem.id : null,
 				name: listItem.name,
 			};
 		}
-		console.log({ item });
 		this.setState({
 			showInput: false,
 			value: '',
@@ -341,7 +333,7 @@ class List extends Component {
 										loading={ loading }
 										onBlur={ this.onBlur }
 										onChange={ this.onChange }
-										onSubmit={e => this.onListChange(e, value.name || value, fieldName) }
+										onSubmit={ e => this.onListChange(e, value.name || value, fieldName) }
 										placeholder={ placeholder }
 										suppressLocalWarnings={ suppressLocalWarnings }
 										validate={ validate }
@@ -369,14 +361,12 @@ List.defaultProps = {
 	label: '',
 	loading: false,
 	onListItemClick: e => e.preventDefault(),
+	onListChange: e => e.preventDefault(),
 	placeholder: '',
 	suggestionQuery: GET_SUGGESTED_INGREDIENTS_QUERY,
 	suppressLocalWarnings: false,
 	type: 'ingredients',
-	validate: () => {
-		console.log('validate!');
-		return true;
-	},
+	validate: () => true,
 	values: [],
 	warnings: [],
 };
@@ -394,7 +384,7 @@ List.propTypes = {
 	isSuggestionEnabled: PropTypes.bool,
 	label: PropTypes.string,
 	loading: PropTypes.bool,
-	onListChange: PropTypes.func.isRequired,
+	onListChange: PropTypes.func,
 	onListItemClick: PropTypes.func,
 	placeholder: PropTypes.string,
 	suggestionQuery: PropTypes.shape({}),

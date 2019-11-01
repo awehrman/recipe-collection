@@ -403,7 +403,10 @@ class Form extends Component {
 			isValidated,
 			parentID, // TODO getPendingIngredient parentID
 			parentName, // TODO getPendingIngredient parentName
-			references, // TODO getPendingIngredient references
+			references: references.map(r => ({
+				id: r.id,
+				name: r.reference,
+			})), // rename for List component
 		};
 
 		// add in any new alternate names
@@ -584,7 +587,6 @@ class Form extends Component {
 			}
 		}
 
-		console.log({ data });
 		this.setState({ pending: data }, () => this.validate(fieldName, listItem, isRemoved));
 	}
 
@@ -605,13 +607,11 @@ class Form extends Component {
 	}
 
 	createIngredient = async () => {
-		console.warn('[Form] createIngredient');
 		const { client, onSaveCallback } = this.props;
 		const { warnings } = this.state;
 
 		const data = this.getNetworkIngredient('create');
 
-		console.log({ data });
 		// create the ingredient on the server
 		await client.mutate({
 			refetchQueries: [
@@ -646,7 +646,6 @@ class Form extends Component {
 					});
 				});
 			}
-			console.log(errorWarnings.length === 0);
 
 			if (errorWarnings.length === 0) return onSaveCallback();
 
@@ -655,7 +654,6 @@ class Form extends Component {
 	}
 
 	updateIngredient = async () => {
-		console.warn('[Form] updateIngredient');
 		const { client, onSaveCallback } = this.props;
 		const { warnings } = this.state;
 		const { id } = this.props;
@@ -663,7 +661,6 @@ class Form extends Component {
 		const data = this.getNetworkIngredient('update');
 		const where = { id };
 
-		console.log({ data });
 		// create the ingredient on the server
 		await client.mutate({
 			refetchQueries: [
@@ -676,7 +673,6 @@ class Form extends Component {
 				where,
 			},
 		}).then((res) => {
-			console.warn({ res });
 			const { errors } = res;
 			// eslint-disable-next-line
 			const errorWarnings = [];
@@ -703,7 +699,6 @@ class Form extends Component {
 					});
 				});
 			}
-			console.log(errorWarnings.length === 0);
 
 			if (errorWarnings.length === 0) return onSaveCallback();
 
@@ -860,7 +855,7 @@ class Form extends Component {
 	render() {
 		const {
 			alternateNames, className, id, isComposedIngredient, isEditMode, loading, name, onCancelClick,
-			onEditClick, plural, properties, relatedIngredients, saveLabel, showCancelButton, substitutes,
+			onEditClick, plural, properties, references, relatedIngredients, saveLabel, showCancelButton, substitutes,
 		} = this.props;
 		const { pending, warnings } = this.state;
 		// cleanup properties data
@@ -999,6 +994,19 @@ class Form extends Component {
 							validate={ this.validate }
 							values={ pendingIngredient.substitutes }
 						/>
+
+						{/* References */}
+						<List
+							className="references"
+							defaultValues={ pendingIngredient.references }
+							fieldName="references"
+							isEditMode={ false }
+							label="References"
+							loading={ loading }
+							placeholder="references"
+							suppressLocalWarnings
+							values={ pendingIngredient.references }
+						/>
 					</Left>
 
 					<Right />
@@ -1116,7 +1124,10 @@ Form.propTypes = {
 		poultry: PropTypes.bool.isRequired,
 		soy: PropTypes.bool.isRequired,
 	}),
-	references: PropTypes.arrayOf(PropTypes.shape({})),
+	references: PropTypes.arrayOf(PropTypes.shape({
+		id: PropTypes.string.isRequired,
+		reference: PropTypes.string.isRequired,
+	})),
 	relatedIngredients: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string, /* if the id is left blank, its a new ingredient */
 		name: PropTypes.string.isRequired,

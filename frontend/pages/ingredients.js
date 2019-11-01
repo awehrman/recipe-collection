@@ -17,14 +17,14 @@ const Composed = adopt({
 	// eslint-disable-next-line react/prop-types
 	getIngredients: ({ render }) => (
 		<Query query={ GET_ALL_INGREDIENTS_QUERY }>
-			{render}
+			{ render }
 		</Query>
 	),
 
 	// eslint-disable-next-line react/prop-types
 	getIngredientsCount: ({ render }) => (
 		<Query query={ GET_INGREDIENTS_COUNT_QUERY }>
-			{render}
+			{ render }
 		</Query>
 	),
 });
@@ -34,7 +34,6 @@ const IngredientsPageStyles = styled.article`
 
 class Ingredients extends React.PureComponent {
 	refreshContainers = () => {
-		console.warn('refreshContainers');
 		const { client } = this.props;
 
 		const queries = [
@@ -48,7 +47,6 @@ class Ingredients extends React.PureComponent {
 	}
 
 	render() {
-		console.warn('[ingredients] render');
 		const { query } = this.props;
 		const { group = 'name', id = null, view = 'all' } = query;
 
@@ -60,8 +58,6 @@ class Ingredients extends React.PureComponent {
 						const { data } = getIngredientsCount || {};
 						const { ingredientAggregate } = data || {};
 						const { ingredientsCount, newIngredientsCount } = ingredientAggregate || {};
-
-						console.log({ ingredientsCount });
 
 						return (
 							<IngredientsPageStyles>

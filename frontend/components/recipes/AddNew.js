@@ -68,7 +68,7 @@ class AddNew extends React.PureComponent {
 		super(props);
 
 		this.state = {
-			isExpanded: false, // TEMP
+			isExpanded: false,
 			isFormReset: false,
 		};
 	}

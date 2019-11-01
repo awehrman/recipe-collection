@@ -56,7 +56,6 @@ class Suggestions extends PureComponent {
 				{
 					({ data }) => {
 						const { suggestions = [] } = data;
-						console.warn({ suggestions });
 						return (
 							<SuggestionStyles>
 								{/* input element */}

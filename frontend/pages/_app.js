@@ -1,4 +1,5 @@
 import { ApolloProvider } from 'react-apollo';
+import { ApolloProvider as ApolloHooksProvider } from '@apollo/react-hooks'
 import App from 'next/app';
 
 import Page from '../components/Page';

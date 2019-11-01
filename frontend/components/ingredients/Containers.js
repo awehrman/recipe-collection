@@ -55,7 +55,6 @@ class Containers extends React.Component {
 	}
 
 	render() {
-		console.warn('[Containers] render');
 		const { group, ingredientID, view } = this.props;
 		const message = (view === 'new') ? 'There are no new ingredients to review.' : 'There are no ingredients yet.';
 
@@ -68,7 +67,6 @@ class Containers extends React.Component {
 						if (loading) return null;
 						if (error) return <ErrorMessage error={ error } />;
 						const { containers } = data;
-						console.log({ containers });
 
 						return (
 							<ContainerStyles>

@@ -1,3 +1,4 @@
+
 // import { GET_ALL_INGREDIENT_FIELDS_FOR_VALIDATION, GET_ALL_INGREDIENT_FIELDS } from '../graphql/fragments';
 
 export default {
@@ -7,11 +8,6 @@ export default {
 			console.log('note');
 			console.log({ ctx });
 			const note = [];
-			let { evernoteAuthToken } = args;
-			if (!evernoteAuthToken) {
-				// TODO authenticate mutation
-				// evernoteAuthToken = = await ctx.prisma.evernote().$fragment(GET_ALL_INGREDIENT_FIELDS_FOR_VALIDATION);
-			}
 
 			// TODO get note from evernote
 
@@ -19,22 +15,37 @@ export default {
 			return note;
 		},
 		// get notes from evernote
-		notes: async (parent, args, ctx) => {
+		notes: (parent, args, ctx) => {
 			console.log('notes'.red);
-			const { req } = ctx;
-			const notes = [];
+			const { res } = ctx;
 
-			console.log(req);
+			return res.redirect('http://localhost:3001/evernote/');
+
 			// TODO authenticate mutation;
 
-			// TODO get notes from evernote
+			// TODO attempt puppeteer example:
+			/*
+				const screenshot = 'github.png';
+				(async () => {
+					const browser = await puppeteer.launch({headless: true})
+					const page = await browser.newPage()
+					await page.goto('https://github.com/login')
+					await page.type('#login_field', process.env.GITHUB_USER)
+					await page.type('#password', process.env.GITHUB_PWD)
+					await page.click('[name="commit"]')
+					await page.waitForNavigation()
+					await page.screenshot({ path: screenshot })
+					browser.close()
+					console.log('See screenshot: ' + screenshot)
+				})()
+			*/
 
-			return notes;
+			// TODO get notes from evernote
 		},
 	},
 
 	Mutation: {
-		parseNotes: async (parent, args, ctx, info) => {
+		parseNotes: async () => {
 			console.log('parseNotes');
 			// TODO parse notes
 			const response = {};

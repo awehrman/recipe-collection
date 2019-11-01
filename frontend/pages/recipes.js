@@ -128,7 +128,6 @@ class Recipes extends React.PureComponent {
 						const { recipeAggregate } = data || {};
 						const { recipesCount } = recipeAggregate || {};
 						const { data: { recipes = [] } } = getRecipes;
-						console.warn({ recipes });
 
 						// TODO install an actual view here
 						return (
@@ -145,10 +144,10 @@ class Recipes extends React.PureComponent {
 										(loading)
 											? <Loading name="recipes" />
 											: recipes.map(r => (
-												<TempCardStyles key={ `${ r }` }>
+												<TempCardStyles key={ `${ r.id }` }>
 													{/* Title Preview */}
 													<Title>
-														{ r.title}
+														{ r.title }
 													</Title>
 
 													{/* Image Preview */}
@@ -156,7 +155,7 @@ class Recipes extends React.PureComponent {
 
 													{/* Source Preview */}
 													<Source>
-														{ r.source}
+														{ r.source }
 													</Source>
 
 													{/* Categories Preview */}
@@ -164,7 +163,7 @@ class Recipes extends React.PureComponent {
 														{
 															r.categories.map(c => (
 																<li key={ `categories_display_${ c.id }_${ c.name }` }>
-																	{c.name}
+																	{ c.name }
 																</li>
 															))
 														}
@@ -175,7 +174,7 @@ class Recipes extends React.PureComponent {
 														{
 															r.tags.map(c => (
 																<li key={ `tags_display_${ c.id }_${ c.name }` }>
-																	{c.name}
+																	{ c.name }
 																</li>
 															))
 														}

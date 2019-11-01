@@ -104,8 +104,8 @@ const TopFormStyles = styled.div`
 		}
 	}
 
-	fieldset.source input, fieldset.image input {
-		color: #222!important;
+	fieldset.title, input, fieldset.source input, fieldset.image input {
+		color: #222! important;
 		text-overflow: ellipsis;
 	}
 
@@ -122,18 +122,21 @@ const TopFormStyles = styled.div`
 			flex-shrink: 2;
 		}
 	}
+
+	flex-wrap: wrap;
+	justify-content: space-between;
 `;
 
 const Left = styled.div`
-	flex: 1;
-	margin-right: 20px;
+	flex-basis: 49%;
 	justify-content: start;
+	min-height: 300px;
 `;
 
 const Right = styled.div`
-	flex: 1;
-	margin-left: 20px;
+	flex-basis: 49%;
 	justify-content: start;
+	min-height: 300px;
 `;
 
 const Title = styled.h1`
@@ -314,7 +317,6 @@ class Form extends Component {
 				disconnect: [],
 			};
 			recipe.categories.forEach((r) => {
-				console.log({ r });
 				if (r.id) {
 					data.categories.connect.push({ ...r });
 				} else {
@@ -385,7 +387,13 @@ class Form extends Component {
 								if (p.ingredient && p.ingredient.id) {
 									return {
 										...p,
-										ingredient: { connect: { id: p.ingredient.id } },
+										ingredient: {
+											connect: {
+												id: p.ingredient.id,
+												name: p.ingredient.name,
+												plural: p.ingredient.plural,
+											},
+										},
 									};
 								}
 
@@ -413,7 +421,6 @@ class Form extends Component {
 						}),
 					};
 				}
-
 				// create recipe ingredient lines
 				data.ingredients.create.push(ingredientLine);
 			});
@@ -432,9 +439,6 @@ class Form extends Component {
 
 			if (data.instructions.create.length === 0) delete data.instructions.create;
 		}
-
-		console.log({ data });
-		console.log('-------------');
 
 		return data;
 	}
@@ -568,7 +572,7 @@ class Form extends Component {
 				if (index !== -1) { rp.instructions.splice(index, 1); }
 			});
 		}
-		console.log({ rp });
+
 		return rp;
 	}
 
@@ -594,18 +598,26 @@ class Form extends Component {
 			// n: 'ginger'
 
 			// determine pluralization
-			const name = !pluralize.isPlural(n) ? pluralize.singular(n) : n;
+			let name = pluralize.isSingular(n) ? n : null;
 			let plural = pluralize.isPlural(n) ? n : null;
+
+			if (!name) {
+				// attempt to pluralize the ingredient name
+				try {
+					name = pluralize.singular(n);
+				} catch (err) {
+					name = n; // just use n otherwise;
+				}
+			}
 
 			if (!plural) {
 				// attempt to pluralize the ingredient name
 				try {
-					plural = pluralize.plural(n);
+					plural = (pluralize.plural(n) !== name) ? pluralize.plural(n) : null;
 				} catch (err) {
 					//
 				}
 			}
-			console.warn({ name, plural });
 
 			let ingredient = {};
 			// check if this is an existing ingredient
@@ -617,17 +629,17 @@ class Form extends Component {
 				({ ingredient } = data);
 				delete ingredient.__typename;
 			} catch (err) {
-				console.error(`didn't find a matching ingredient for ${ name }`);
+				// didn't find an existing ingredient
 			}
 
 			if (!ingredient) {
 				ingredient = {
 					isValidated: false,
-					name: n.toLowerCase(),
+					name: name.toLowerCase(),
 				};
 
 				if (plural) {
-					ingredient.plural = plural;
+					ingredient.plural = plural.toLowerCase();
 				}
 			}
 
@@ -635,6 +647,28 @@ class Form extends Component {
 		});
 
 		return Promise.all(ingredients).then(data => data);
+	}
+
+	onImageUpload = async (e) => {
+		const { files } = e.target;
+		const { pending } = this.state;
+		const data = new FormData();
+		data.append('file', files[0]);
+		data.append('upload_preset', 'rp_collection');
+
+		const res = await fetch(process.env.REACT_APP_CLOUDINARY_API_URL, {
+			method: 'POST',
+			body: data,
+		});
+
+		const file = await res.json();
+
+		this.setState({
+			pending: {
+				...deepCopy(pending),
+				...{ image: file.secure_url },
+			},
+		});
 	}
 
 	onInputChange = (e) => {
@@ -740,7 +774,6 @@ class Form extends Component {
 
 		const data = this.getNetworkRecipe('create');
 
-		console.log({ data });
 		// create the recipe on the server
 		await client.mutate({
 			refetchQueries: [
@@ -777,7 +810,6 @@ class Form extends Component {
 					});
 				});
 			}
-			console.log(errorWarnings.length === 0);
 
 			if (errorWarnings.length === 0) return onSaveCallback();
 
@@ -786,7 +818,6 @@ class Form extends Component {
 	}
 
 	updateRecipe = async () => {
-		console.warn('[Form] updateRecipe');
 		const { client, onSaveCallback } = this.props;
 		const { warnings } = this.state;
 		const { id } = this.props;
@@ -794,7 +825,6 @@ class Form extends Component {
 		const data = this.getNetworkRecipe('update');
 		const where = { id };
 
-		console.log({ data });
 		// create the recipe on the server
 		await client.mutate({
 			refetchQueries: [
@@ -809,7 +839,6 @@ class Form extends Component {
 				where,
 			},
 		}).then((res) => {
-			console.warn({ res });
 			const { errors } = res;
 			// eslint-disable-next-line
 			const errorWarnings = [];
@@ -836,7 +865,6 @@ class Form extends Component {
 					});
 				});
 			}
-			console.log(errorWarnings.length === 0);
 
 			if (errorWarnings.length === 0) return onSaveCallback();
 
@@ -846,12 +874,11 @@ class Form extends Component {
 
 	render() {
 		const {
-			categories, className, evernoteGUID, image, isEditMode, loading,
+			categories, className, evernoteGUID, isEditMode, loading,
 			onCancelClick, onEditClick, saveLabel, showCancelButton, source, tags, title,
 		} = this.props;
 		const { warnings } = this.state;
 		const pending = this.getPendingRecipe();
-
 		// go ahead and fetch our lookup queries for validation even though we're not concerned with showing it
 		return (
 			<Composed>
@@ -890,7 +917,7 @@ class Form extends Component {
 										warnings={ this.getWarning('source', warnings) || undefined }
 									/>
 
-									{/* TODO Image Upload */}
+									{/* TODO Image Upload
 									<Input
 										className="image"
 										defaultValue={ image }
@@ -903,6 +930,13 @@ class Form extends Component {
 										suppressLocalWarnings
 										value={ pending.image }
 										warnings={ this.getWarning('image', warnings) || undefined }
+									/> TODO adjust input component to accept type 'file' */}
+									<input
+										type="file"
+										className="image"
+										defaultValue={ pending.image }
+										onChange={ this.onImageUpload }
+										placeholder="upload an image"
 									/>
 
 									{/* Evernote GUID */}
@@ -955,7 +989,24 @@ class Form extends Component {
 										type="tags"
 										values={ pending.tags }
 									/>
+								</Left>
 
+								<Right>
+									{/* Title Preview */}
+									<Title>
+										{ pending.title }
+									</Title>
+
+									{/* Image Preview */}
+									<Image value={ pending.image } />
+
+									{/* Source Preview */}
+									<Source>
+										{pending.source}
+									</Source>
+								</Right>
+
+								<Left>
 									{/* Recipe Content Editor */}
 									<ParserInput
 										loading={ loading }
@@ -966,25 +1017,12 @@ class Form extends Component {
 								</Left>
 
 								<Right>
-									{/* Title Preview */}
-									<Title>
-										{pending.title}
-									</Title>
-
-									{/* Image Preview */}
-									<Image value={ pending.image } />
-
-									{/* Source Preview */}
-									<Source>
-										{pending.source}
-									</Source>
-
 									{/* Categories Preview */}
 									<Categories>
 										{
 											pending.categories.map(c => (
-												<li key={ `categories_display_${ c.id }_${ c.name }` }>
-													{c.name}
+												<li key={ `categories_display_${ c.id }_${ pending.id }` }>
+													{ c.name }
 												</li>
 											))
 										}
@@ -994,7 +1032,7 @@ class Form extends Component {
 									<Tags>
 										{
 											pending.tags.map(c => (
-												<li key={ `tags_display_${ c.id }_${ c.name }` }>
+												<li key={ `tags_display_${ c.id }_${ pending.id }` }>
 													{ c.name }
 												</li>
 											))
@@ -1064,18 +1102,12 @@ class Form extends Component {
 }
 
 Form.defaultProps = {
-	categories: [
-		{
-			id: 'ck1zhqfmhq2ul0b40800ha87d',
-			name: 'stuffed flatbread',
-		},
-	],
+	categories: [],
 	className: '',
 	content: '',
 	evernoteGUID: null,
 	id: '-1',
-	// eslint-disable-next-line
-	image: 'https://i.guim.co.uk/img/media/d05d90a20bdb74e9ca630063b312f05e32fe847e/0_625_3642_2185/master/3642.jpg?width=1920&quality=85&auto=format&fit=max&s=e02a30b079ab9d2ffde334177b715dc7',
+	image: '',
 	ingredients: [],
 	instructions: [],
 	isEditMode: true,
@@ -1087,18 +1119,9 @@ Form.defaultProps = {
 	resetForm: () => {},
 	saveLabel: 'Save',
 	showCancelButton: false,
-	source: 'https://www.theguardian.com/lifeandstyle/2018/jan/06/aloo-paratha-recipe-quick-lemon-pickle-vegan-meera-sodha',
-	title: 'Aloo Paratha with Quick Lemon Pickle',
-	tags: [
-		{
-			id: 'ck1zhqfmiq2um0b40sg6g8z5m',
-			name: 'indian',
-		},
-		{
-			id: 'ck1zhqfmkq2un0b40c1ooiojo',
-			name: 'vegetarian',
-		},
-	],
+	source: '',
+	title: '',
+	tags: [],
 };
 
 Form.propTypes = {

@@ -1,4 +1,5 @@
 import ApolloClient, { InMemoryCache, IntrospectionFragmentMatcher } from 'apollo-boost';
+import axios from 'axios';
 import gql from 'graphql-tag';
 import withApollo from 'next-with-apollo';
 import { CREATE_CONTAINERS_MUTATION } from './apollo/mutations';
@@ -30,11 +31,12 @@ function createClient({ headers }) {
 			headers,
 		}),
 		cache,
+		credentials: 'same-origin',
 		clientState: {
 			resolvers: {
 				Query: {
 					container(_, { id }, { client, getCacheKey }) {
-						console.warn(`... [withData](${ id }) container query resolver`);
+						// console.warn(`... [withData](${ id }) container query resolver`);
 
 						// TODO move fragments into their own file
 						const container = client.readFragment({
@@ -71,7 +73,7 @@ function createClient({ headers }) {
 						return container;
 					},
 					async containers(_, { group, ingredientID, view }, { client }) {
-						console.warn(`... [withData](${ group }, ${ view }) containers query resolver`);
+						// console.warn(`... [withData](${ group }, ${ view }) containers query resolver`);
 						let containers = [];
 						let ingredients = [];
 
@@ -107,7 +109,7 @@ function createClient({ headers }) {
 						return containers;
 					},
 					ingredient(_, { value }) {
-						console.warn(`... [withData] ingredient ${ value }`);
+						// console.warn(`... [withData] ingredient ${ value }`);
 						// get all ingredients from the cache
 						let { ingredients } = cache.readQuery({ query: GET_ALL_INGREDIENTS_QUERY });
 
@@ -136,6 +138,25 @@ function createClient({ headers }) {
 
 						// TODO partial store resets aren't coming until 3.0, we can try to clear out the proxy on a mutation update with:
 						// proxy.data.delete('Ingredient');
+						return null;
+					},
+					async notes(_, { group, ingredientID, view }, { client }) {
+						console.warn('... [withData] notes query resolver');
+
+						// TODO check if we have an access token in our cache
+
+						// TODO if we don't, issue a GET request to 3001/evernote/authenticate
+						// but this doesn't work with fucking CORS OH RIGHT
+						/*
+						await axios.get('http://localhost:3001/auth/evernote')
+							.then((res) => {
+								console.warn(res);
+								// TODO save token to cache
+							});
+							*/
+						// window.open('http://localhost:3001/evernote/authenticate', '_blank');
+
+						// TODO query notes from the server with our auth token and return results
 						return null;
 					},
 					suggestions(_, { type, value }) {
@@ -173,7 +194,7 @@ function createClient({ headers }) {
 						return suggestions;
 					},
 					viewIngredients(_, { view }) {
-						console.warn(`... [withData](${ view }) viewIngredients query resolver`);
+						// console.warn(`... [withData](${ view }) viewIngredients query resolver`);
 						// get all ingredients from the cache
 						let { ingredients } = cache.readQuery({ query: GET_ALL_INGREDIENTS_QUERY });
 

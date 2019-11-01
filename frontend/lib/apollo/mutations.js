@@ -85,6 +85,7 @@ export const CREATE_INGREDIENT_MUTATION = gql`
 				}
 				references {
 					id
+					reference
 				}
 			}
 		}
@@ -141,7 +142,7 @@ export const UPDATE_INGREDIENT_MUTATION = gql`
 
 // TODO add in ingredients and instructions
 export const CREATE_RECIPE_MUTATION = gql`
-	mutation createRecipe($data: RecipeCreateInput!) {
+	mutation CREATE_RECIPE_MUTATION($data: RecipeCreateInput!) {
 		createRecipe(
 			data: $data
 		) {
@@ -207,6 +208,51 @@ export const UPDATE_RECIPE_MUTATION = gql`
   }
 `;
 
+export const PARSE_NOTES_MUTATION = gql`
+	mutation PARSE_NOTES_MUTATION($evernoteAuthToken: String) {
+		parseNotes(evernoteAuthToken: $evernoteAuthToken) {
+			errors
+			recipes {
+				id
+				evernoteGUID
+				title
+				source
+				categories {
+					id
+					name
+				}
+				tags {
+					id
+					name
+				}
+				image
+				ingredients {
+					id
+					blockIndex
+					lineIndex
+					reference
+					isParsed
+					parsed {
+						id
+						rule
+						type
+						value
+						ingredient {
+							id
+							name
+						}
+					}
+				}
+				instructions {
+					id
+					blockIndex
+					reference
+				}
+			}
+		}
+	}
+`;
+
 export default [
 	CREATE_CONTAINERS_MUTATION,
 	UPDATE_CONTAINER_INGREDIENT_ID_MUTATION,
@@ -215,4 +261,5 @@ export default [
 	UPDATE_INGREDIENT_MUTATION,
 	CREATE_RECIPE_MUTATION,
 	UPDATE_RECIPE_MUTATION,
+	PARSE_NOTES_MUTATION,
 ];
