@@ -2547,6 +2547,7 @@ export interface IngredientUpdateManyWithWhereNestedInput {
 
 export type NoteWhereUniqueInput = AtLeastOne<{
   id: Maybe<ID_Input>;
+  evernoteGUID?: Maybe<String>;
 }>;
 
 export interface IngredientUpdateManyDataInput {

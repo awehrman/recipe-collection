@@ -1,4 +1,8 @@
 import Evernote from 'evernote';
+import imagemin from 'imagemin';
+import imageminJpegtran from 'imagemin-jpegtran';
+import imageminPngquant from 'imagemin-pngquant';
+import fetch from 'node-fetch';
 
 // move this into a util file
 const getNoteStore = (token) => {
@@ -17,8 +21,6 @@ const findNotesMeta = async (ctx, store, config) => {
 	console.log('findNotesMeta'.cyan);
 	const { filter, offset, totalCount } = config;
 	console.log({ offset, totalCount });
-
-	const notes = [];
 
 	// limit the number of notes to lookup
 	const maxResults = process.env.DOWNLOAD_LIMIT;
@@ -40,10 +42,11 @@ const findNotesMeta = async (ctx, store, config) => {
 
 	const rejectedNoteCount = 0;
 	console.log('fetching metadata...');
-	return await store.findNotesMetadata(filter, offset, maxResults, spec)
+	const notes = await store.findNotesMetadata(filter, offset, maxResults, spec)
 		.then(result => {
 			const { notes } = result;
 			const createNotes = notes
+				// only grab valid notes
 				.filter(n => {
 					// reject note if we've already imported it
 					const importedGUID = (process.env.SANDBOX)
@@ -65,6 +68,7 @@ const findNotesMeta = async (ctx, store, config) => {
 
 					return true;
 				})
+				// just the fields we need
 				.map(n => ({
 					evernoteGUID: n.guid,
 					title: n.title,
@@ -72,26 +76,83 @@ const findNotesMeta = async (ctx, store, config) => {
 					categories: { set: [ n.notebookGuid ] },
 					tags: (n.tagGuids) ? { set: [ ...n.tagGuids ] } : null,
 				}))
+				// create the note in prisma
 				.map(async data => {
-					console.log({ data });
-					const { id } = await ctx.prisma.createNote({ ...data }, config.info);
-					console.log({ id });
-					return id;
-				})
+					const { evernoteGUID } = await ctx.prisma.createNote({ ...data }, config.info);
+					return evernoteGUID;
+				});
 
-				return Promise.all(createNotes).then(notes => console.log(notes));
+				return Promise.all(createNotes).then(notes => notes);
 		})
 		.catch(err => console.log(err));
 
 		if (rejectedNoteCount > 0) {
 			console.log({ rejectedNoteCount });
 			// TODO then increment the offset by that amount call this function again, until we hit 10
-
 		}
+
+		return notes;
 };
 
-const getNoteContent = async (store, config, notes) => {
+const getNoteContent = async (ctx, store, config, notes) => {
 	console.log('getNoteContent'.cyan);
+
+	const spec = new Evernote.NoteStore.NoteResultSpec({
+		includeContent: true,
+		includeResourcesData: true,
+		includeResourcesRecognition: false,
+		includeResourcesAlternateData: false,
+		includeSharedNotes: false,
+		includeNoteAppDataValues: true,
+		includeResourceAppDataValues: true,
+		includeAccountLimits: false,
+	});
+
+	const resolveNoteContent = notes.map(async (evernoteGUID) => {
+		const note = await store.getNoteWithResultSpec(evernoteGUID, spec)
+			.then(data => {
+				const { content, guid, resources } = data;
+				// TODO save image
+				// minify image data
+				/*
+				try {
+					const optimizedImage = await imagemin.buffer(resources[0].data.body, {
+						plugins: [
+							imageminJpegtran(),
+							imageminPngquant({ quality: [ 0.7, 0.8 ] })
+						]
+					}).catch(err => {
+						console.log(err);
+					});
+					console.log('uploading to cloudinary...');
+					// save it out from the note
+						const res = await fetch(process.env.CLOUDINARY_API_URL, {
+							method: 'POST',
+							body: optimizedImage,
+						});
+
+					console.log({ res });
+					// const file = await res.json();
+				} catch { }
+				*/
+
+				return {
+					content,
+					evernoteGUID: guid,
+					image: 'temp.jpg',
+				};
+			})
+			// create the note in prisma
+			.then(async data => {
+				console.log({ data, where: { evernoteGUID: data.evernoteGUID } });
+				const { evernoteGUID } = await ctx.prisma.updateNote({ data, where: { evernoteGUID: data.evernoteGUID } }, config.info);
+				return evernoteGUID;
+			})
+			.catch(err => console.log(err));
+		return evernoteGUID;
+	});
+
+	return Promise.all(resolveNoteContent).then(notes => notes);
 };
 
 export default {
@@ -168,7 +229,7 @@ export default {
 						]
 					}
 				*/
-				// .then(notes => getNoteContent(ctx, store, config, notes))
+				.then(notes => getNoteContent(ctx, store, config, notes))
 				.then((notes) => {
 
 					// update increment

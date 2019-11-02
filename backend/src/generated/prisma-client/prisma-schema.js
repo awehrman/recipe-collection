@@ -1252,6 +1252,7 @@ input NoteWhereInput {
 
 input NoteWhereUniqueInput {
   id: ID
+  evernoteGUID: String
 }
 
 type PageInfo {

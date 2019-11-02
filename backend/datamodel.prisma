@@ -94,7 +94,7 @@
 
 	type Note {
 		id: ID! @id
-		evernoteGUID: String
+		evernoteGUID: String @unique
 		title: String!
 		source: String
 
