@@ -9,15 +9,15 @@ import PropTypes from 'prop-types';
 import Button from '../components/form/Button';
 import Header from '../components/Header';
 import ErrorMessage from '../components/ErrorMessage';
-import { GET_NOTES_QUERY, GET_EVERNOTE_AUTH_TOKEN_QUERY } from '../lib/apollo/queries';
+import { GET_NOTES_QUERY, IS_EVERNOTE_AUTHENTICATED_QUERY } from '../lib/apollo/queries';
 import { PARSE_NOTES_MUTATION } from '../lib/apollo/mutations';
 
 import { hasProperty } from '../lib/util';
 
 const Composed = adopt({
 	// eslint-disable-next-line react/prop-types
-	evernoteAuthToken: ({ render }) => (
-		<Query query={ GET_EVERNOTE_AUTH_TOKEN_QUERY }>
+	isEvernoteAuthenticated: ({ render }) => (
+		<Query query={ IS_EVERNOTE_AUTHENTICATED_QUERY } ssr={ false }>
 			{ render }
 		</Query>
 	),
@@ -35,7 +35,6 @@ const ImportStyles = styled.article`
 
 class Import extends React.PureComponent {
 	componentDidMount() {
-		console.warn('componentDidMount');
 		const { client, router, query } = this.props;
 
 		if (hasProperty(query, 'oauth_token') && hasProperty(query, 'oauth_verifier')) {
@@ -47,14 +46,11 @@ class Import extends React.PureComponent {
 			// eslint-disable-next-line camelcase
 			const url = `http://localhost:3001/evernote/auth?oauthVerifier=${ oauth_verifier }`;
 			axios(url, { withCredentials: true })
-				.then(({ data }) => {
-					const { evernoteAuthToken } = data;
-					console.warn({ evernoteAuthToken });
-
-					// update the cache with our token
+				.then((data) => {
+					// update our auth status
 					client.writeQuery({
-						data: { evernoteAuthToken },
-						query: GET_EVERNOTE_AUTH_TOKEN_QUERY,
+						data: { isEvernoteAuthenticated: true },
+						query: IS_EVERNOTE_AUTHENTICATED_QUERY,
 					});
 
 					// update url
@@ -67,27 +63,25 @@ class Import extends React.PureComponent {
 	authenticate = () => {
 		console.warn('authenticate');
 		const { client } = this.props;
-		let evernoteAuthToken;
-		try {
-			({ evernoteAuthToken } = client.readQuery({ query: GET_EVERNOTE_AUTH_TOKEN_QUERY }));
-		} catch (err) {
-			// not in the cache yet
-			console.log({ err });
-		}
 
-		if (!evernoteAuthToken) {
-			console.log('requesting token...');
-			// request the temporary requestToken with our callback from evernote
-			axios('http://localhost:3001/evernote/auth', { withCredentials: true }).then(({ data }) => {
-				const { evernoteAuthToken, tokenLink } = data;
-				// redirect us to evernote to sign in
-				if (tokenLink) {
-					window.open(tokenLink, '_self');
-				}
-			}).catch((err) => {
-				console.error(err);
-			});
-		}
+		console.log('requesting token...');
+		// request the temporary requestToken with our callback from evernote
+		axios('http://localhost:3001/evernote/auth', { withCredentials: true }).then(({ data }) => {
+			const { authURL, isAuthenticated } = data;
+			// redirect us to evernote to sign in
+			if (authURL) {
+				window.open(authURL, '_self');
+			}
+
+			if (isAuthenticated) {
+				client.writeQuery({
+					data: { isEvernoteAuthenticated: true },
+					query: IS_EVERNOTE_AUTHENTICATED_QUERY,
+				});
+			}
+		}).catch((err) => {
+			console.error(err);
+		});
 	}
 
 	getNotes = () => {
@@ -103,16 +97,17 @@ class Import extends React.PureComponent {
 				<section>
 					<Composed>
 						{
-							({ evernoteAuthToken, parseNotes }) => {
-								console.log({ evernoteAuthToken });
-								const { error, data, loading } = evernoteAuthToken;
+							({ isEvernoteAuthenticated, parseNotes }) => {
+								const { error, data } = isEvernoteAuthenticated;
 								if (error) return <ErrorMessage error={ error } />;
+								const isAuthenticated = (data) ? Boolean(data.isEvernoteAuthenticated) : false;
+								console.log({ isAuthenticated });
 
 								return (
 									<>
 										<div>
 											{
-												(!data || !data.evernoteAuthToken)
+												(!isAuthenticated)
 													? (
 														<Button
 															type="button"

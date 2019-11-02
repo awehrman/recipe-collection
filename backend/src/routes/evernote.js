@@ -12,26 +12,18 @@ const client = new Evernote.Client({
 
 router.get('/auth', (req, res) => {
 	console.log('/auth'.cyan);
+	const { oauthVerifier } = req.query;
 	const {
 		authToken,
 		authTokenSecret,
 		requestToken,
 		requestTokenSecret,
 	} = req.session;
-	const { oauthVerifier } = req.query;
-
-	console.log({
-		authToken,
-		authTokenSecret,
-		requestToken,
-		requestTokenSecret,
-		oauthVerifier,
-	});
 
 	// if we already have an auth token in our session, just pass that back
 	if (authToken) {
 		console.log('Found an existing auth token!'.green);
-		return res.json({ evernoteAuthToken: authToken });
+		return res.json({ isAuthenticated: true });
 	}
 
 	// if we don't have a requestToken, then generate one to kick off the authentication process
@@ -45,16 +37,12 @@ router.get('/auth', (req, res) => {
 			req.session.requestTokenSecret = requestTokenSecret;
 
 			req.session.save();
-			console.log(req.session);
 			// ensure that our session saves and pass back the generated evernote authentication url
-			return res.send({ tokenLink: client.getAuthorizeUrl(requestToken) });
+			return res.send({ authURL: client.getAuthorizeUrl(requestToken) });
 		});
 	} else if (oauthVerifier) {
 		// otherwise finish the authentication process and save the auth token
 		console.log('getAccessToken'.magenta);
-		console.log(requestToken);
-		console.log(requestTokenSecret);
-		console.log(oauthVerifier);
 		// get our actual auth token that we'll use in requests
 		client.getAccessToken(requestToken, requestTokenSecret, oauthVerifier, (err, authToken, authTokenSecret) => {
 			if (err) console.log(err);
@@ -66,9 +54,7 @@ router.get('/auth', (req, res) => {
 
 			req.session.save();
 
-			console.log(req.session);
-			// return res.redirect('http://localhost:3000/import');
-			return res.json({ evernoteAuthToken: authToken });
+			return res.json({ isAuthenticated: true });
 		});
 	}
 
@@ -77,7 +63,6 @@ router.get('/auth', (req, res) => {
 router.get('/clear', (req, res) => {
 	console.log('/clear'.cyan);
 	req.session.destroy();
-	console.log(req.session);
 	res.json({ status: 'Session cleared' });
 });
 

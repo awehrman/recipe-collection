@@ -17,6 +17,8 @@ import {
 	GET_ALL_INGREDIENTS_QUERY,
 	GET_ALL_TAGS_QUERY,
 	GET_VIEW_INGREDIENTS_QUERY,
+	IS_EVERNOTE_AUTHENTICATED_QUERY,
+	IS_EVERNOTE_AUTHENTICATED_NETWORK_QUERY,
 } from './apollo/queries';
 /* eslint-enable object-curly-newline */
 
@@ -139,6 +141,18 @@ function createClient({ headers }) {
 						// TODO partial store resets aren't coming until 3.0, we can try to clear out the proxy on a mutation update with:
 						// proxy.data.delete('Ingredient');
 						return null;
+					},
+					async isEvernoteAuthenticated(_, vars, { client }) {
+						let isEvernoteAuthenticated = false;
+						try {
+							({ isEvernoteAuthenticated } = cache.readQuery({ query: IS_EVERNOTE_AUTHENTICATED_QUERY }));
+						} catch (err) {
+							console.warn('!!!!!!');
+							// if we didn't find anything in our cache, look it up from the server
+							const { data } = await client.query({ query: IS_EVERNOTE_AUTHENTICATED_NETWORK_QUERY });
+							isEvernoteAuthenticated = data.isEvernoteAuthenticated;
+						}
+						return isEvernoteAuthenticated;
 					},
 					async notes(_, { group, ingredientID, view }, { client }) {
 						console.warn('... [withData] notes query resolver');

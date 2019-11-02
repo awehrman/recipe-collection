@@ -1,12 +1,11 @@
 export default {
 	Query: {
-		evernoteAuthToken: async (parent, args, ctx) => {
-			console.log('evernoteAuthToken'.cyan);
-			const evernoteAuthToken = null;
+		isEvernoteAuthenticated: async (parent, args, ctx) => {
+			console.log('isEvernoteAuthenticated'.cyan);
 			const { req } = ctx;
-			console.log(req.session);
-
-			return evernoteAuthToken;
+			const isEvernoteAuthenticated = Boolean(req.session.authToken);
+			console.log(req.session.authToken);
+			return isEvernoteAuthenticated;
 		},
 	},
 };
