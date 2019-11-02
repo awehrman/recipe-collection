@@ -10,87 +10,51 @@ const client = new Evernote.Client({
 	china: (process.env.CHINA === true),
 });
 
-router.get('/', (req, res) => {
-	console.log('/evernote/'.yellow);
-	// TODO check if we already have a token in our session, if not re-request one
+router.get('/auth', (req, res) => {
+	const {
+		authToken,
+		authTokenSecret,
+		requestToken,
+		requestTokenSecret,
+	} = req.session;
 
-	/*
-	if (req.session && req.session.oauthToken && req.session.oauthTokenSecret) {
-		res.send({ evernoteAuthToken: req.session.oauthToken });
+	// if we already have an auth token in our session, just pass that back
+	if (authToken && authTokenSecret) {
+		console.log('Found an existing auth token!'.green);
+		res.send({ evernoteAuthToken: authToken });
 	}
-	*/
 
-	//req.session.reload(() => {
-		// if (!req.session.oauthToken || !req.session.oauthTokenSecret) {
-			console.log('getRequestToken'.yellow);
-			client.getRequestToken(process.env.OAuthCallback, (error, oauthToken, oauthTokenSecret) => {
-				if (error) {
-					console.log(`${ JSON.stringify(error) }`.red);
-					res.sendStatus(500);
-				}
+	// if we don't have a requestToken, then generate one to kick off the authentication process
+	if (!requestToken || !requestTokenSecret) {
+		console.log('requesting a token!'.yellow);
+		// generate a request token from evernote with a callback to our front-end
+		client.getRequestToken(process.env.OAuthCallback, (err, requestToken, requestTokenSecret) => {
+			if (err) console.log(err);
 
-				req.session.oauthToken = oauthToken;
-				req.session.oauthTokenSecret = oauthTokenSecret;
+			req.session.requestToken = requestToken;
+			req.session.requestTokenSecret = requestTokenSecret;
+			console.log(`${ requestToken }`.red);
 
-				req.session.save((err) => {
-					if (err) console.log(err);
-					// es.send({ tokenLink: client.getAuthorizeUrl(oauthToken) });
-					res.redirect(client.getAuthorizeUrl(oauthToken));
-				});
-			});
-			/*
-		} else {
-			console.log('getAccessToken'.yellow);
-			const { oauthVerifier } = req.query;
+			// ensure that our session saves and pass back the generated evernote authentication url
+			res.send({ tokenLink: client.getAuthorizeUrl(requestToken) });
+		});
+	} else {
+		// otherwise finish the authentication process and save the auth token
+		console.log('getAccessToken'.magenta);
+		const { oauthVerifier } = req.query;
+		console.log(requestToken);
+		console.log(requestTokenSecret);
+		console.log(oauthVerifier);
+		// get our actual auth token that we'll use in requests
+		client.getAccessToken(requestToken, requestTokenSecret, oauthVerifier, (err, authToken, authTokenSecret) => {
+			if (err) console.log(err);
 
-			// req.query.oauth_verifier
-			if (req.session.oauthToken && req.session.oauthTokenSecret && oauthVerifier) {
-				client.getAccessToken(req.session.oauthToken, req.session.oauthTokenSecret, oauthVerifier, (error, oauthToken, oauthTokenSecret) => {
-					if (error) {
-						console.log(`${ JSON.stringify(error) }`.red);
-						return res.sendStatus(500);
-					}
-					// store the access token in the session
-					req.session.oauthToken = oauthToken;
-					req.session.oauthTokenSecret = oauthTokenSecret;
+			req.session.authToken = authToken;
+			req.session.authTokenSecret = authTokenSecret;
+			req.session.requestToken = null;
+			req.session.requestTokenSecret = null;
 
-					req.session.save((err) => {
-						if (err) console.log(err);
-					});
-
-					console.log({ oauthToken });
-					res.send({ evernoteAuthToken: oauthToken });
-				});
-			}
-		}
-		*/
-	//});
-});
-
-router.get('/callback', (req, res) => {
-	console.log('/evernote/callback'.yellow);
-	console.log('getAccessToken'.yellow);
-	const { oauthVerifier } = req.query;
-
-	console.log(req.session);
-	// req.query.oauth_verifier
-	if (req.session.oauthToken && req.session.oauthTokenSecret && req.query.oauth_verifier) {
-		client.getAccessToken(req.session.oauthToken, req.session.oauthTokenSecret, req.query.oauth_verifier, (error, oauthToken, oauthTokenSecret) => {
-			if (error) {
-				console.log(`${ JSON.stringify(error) }`.red);
-				return res.sendStatus(500);
-			}
-			// store the access token in the session
-			req.session.oauthToken = oauthToken;
-			req.session.oauthTokenSecret = oauthTokenSecret;
-
-			req.session.save((err) => {
-				if (err) console.log(err);
-			});
-
-			console.log({ oauthToken });
-			res.redirect('http://localhost:3000/import');
-			// res.send({ evernoteAuthToken: oauthToken });
+			console.log(`${authToken}`.magenta);
 		});
 	}
 });

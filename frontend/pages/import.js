@@ -30,6 +30,7 @@ const ImportStyles = styled.article`
 class Import extends React.PureComponent {
 	componentDidMount() {
 		console.warn('componentDidMount');
+
 		const { client, router, query } = this.props;
 
 		if (hasProperty(query, 'oauth_token') && hasProperty(query, 'oauth_verifier')) {
@@ -39,7 +40,7 @@ class Import extends React.PureComponent {
 			console.log({ oauth_token, oauth_verifier });
 			// go back to our server with our verifier string to receive our actual access token
 			// eslint-disable-next-line camelcase
-			const url = `http://localhost:3001/evernote?oauthVerifier=${ oauth_verifier }`;
+			const url = `http://localhost:3001/evernote/auth?oauthVerifier=${ oauth_verifier }`;
 			console.log({ url });
 			axios(url, { withCredentials: true })
 				.then(({ data }) => {
@@ -48,7 +49,7 @@ class Import extends React.PureComponent {
 					if (evernoteAuthToken) {
 						client.writeQuery({
 							data: { evernoteAuthToken },
-							query: { GET_EVERNOTE_AUTH_TOKEN_QUERY },
+							query: GET_EVERNOTE_AUTH_TOKEN_QUERY,
 						});
 						router.replace('/import', '/import', { shallow: true });
 					}
@@ -61,7 +62,6 @@ class Import extends React.PureComponent {
 			this.authenticate();
 		}
 	}
-
 	authenticate = () => {
 		const { client } = this.props;
 		let token;
@@ -75,7 +75,7 @@ class Import extends React.PureComponent {
 
 		if (!token) {
 			// request the temporary requestToken with our callback from evernote
-			axios('http://localhost:3001/evernote/', { withCredentials: true }).then(({ data }) => {
+			axios('http://localhost:3001/evernote/auth', { withCredentials: true }).then(({ data }) => {
 				const { evernoteAuthToken, tokenLink } = data;
 				// redirect us to evernote to sign in
 				if (tokenLink) {
@@ -86,7 +86,7 @@ class Import extends React.PureComponent {
 				if (evernoteAuthToken) {
 					client.writeQuery({
 						data: { evernoteAuthToken },
-						query: { GET_EVERNOTE_AUTH_TOKEN_QUERY },
+						query: GET_EVERNOTE_AUTH_TOKEN_QUERY,
 					});
 				}
 			}).catch((err) => {
@@ -101,6 +101,7 @@ class Import extends React.PureComponent {
 		client.query({ query: GET_NOTES_QUERY });
 	}
 
+
 	render() {
 		return (
 			<ImportStyles>
@@ -113,24 +114,12 @@ class Import extends React.PureComponent {
 								// eslint-disable-next-line
 								if (error) return <ErrorMessage error={ error } />;
 								if (loading) return <Loading />;
-								// TODO display getNotes response
-								// TODO display parseNotes response
 
 								return (
 									<>
 										<div>
-											<Button
-												type="button"
-												label="Get Notes"
-												onClick={ this.getNotes }
-											/>
-											<Button
-												type="button"
-												label="Parse Notes"
-												onClick={ parseNotes }
-											/>
+
 										</div>
-										{/* <iframe href={ href } width="900" height="500" title="janky authentication test" /> */}
 									</>
 								);
 							}

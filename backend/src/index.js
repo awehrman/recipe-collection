@@ -8,10 +8,6 @@ import express from 'express';
 import evernoteRoute from './routes/evernote';
 import createServer from './createServer';
 
-// const proxy = require('express-http-proxy');
-// const proxy = require('http-proxy-middleware');
-
-// const request = require('request');
 const session = require('express-session');
 
 const app = express();
@@ -27,8 +23,9 @@ const whitelist = [
 ];
 
 const corsOptions = {
+	allowedHeaders: ["Content-Type", "Authorization", "Access-Control-Allow-Methods", "Access-Control-Request-Headers", "Access-Control-Allow-Origin"],
 	credentials: true,
-	optionsSuccessStatus: 200,
+	enablePreflight: true,
 	origin: (origin, callback) => {
 		// NOTE: graphQL playground sends 'null' as its origin
 		if ((whitelist.indexOf(origin) !== -1) || !origin || (origin === 'null') || (origin === undefined)) {
@@ -37,18 +34,24 @@ const corsOptions = {
 			callback(new Error('Not allowed by CORS'));
 		}
 	},
-	methods: 'GET, POST',
-	// allowedHeaders: [ 'Origin', 'X-Requested-With', 'Content-Type', 'Accept' ],
 };
 
 app.use(cors(corsOptions));
-// app.options('*', cors());
+// app.options('*', cors(corsOptions));
 /*
 app.options('/evernote/callback', (req, res) => {
 	res.header('Access-Control-Allow-Origin', '*');
 	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
 	res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, // X-Requested-With');
 	res.send(200);
+});
+
+app.all('*', (req, res, next) => {
+  let origin = req.get('origin');
+  res.header('Access-Control-Allow-Origin', origin);
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  next();
 });
 
 app.use((req, res, next) => {
