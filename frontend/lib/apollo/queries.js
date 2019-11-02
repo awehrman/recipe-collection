@@ -291,14 +291,17 @@ export const GET_SUGGESTED_TAGS_QUERY = gql`
 export const GET_NOTES_QUERY = gql`
   query GET_NOTES_QUERY {
   	notes {
-			id
-			evernoteGUID
-			title
-			source
-			image
-			content
-			categories
-			tags
+			errors
+			notes {
+				id
+				evernoteGUID
+				title
+				source
+				image
+				content
+				categories
+				tags
+			}
 		}
   }
 `;

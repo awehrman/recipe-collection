@@ -2735,7 +2735,7 @@ export interface NoteCreateInput {
   categories?: Maybe<NoteCreatecategoriesInput>;
   tags?: Maybe<NoteCreatetagsInput>;
   image?: Maybe<String>;
-  content: String;
+  content?: Maybe<String>;
 }
 
 export interface RecipeInstructionUpdateManyInput {
@@ -3678,7 +3678,7 @@ export interface NotePreviousValues {
   categories: String[];
   tags: String[];
   image?: String;
-  content: String;
+  content?: String;
 }
 
 export interface NotePreviousValuesPromise
@@ -4408,7 +4408,7 @@ export interface Note {
   categories: String[];
   tags: String[];
   image?: String;
-  content: String;
+  content?: String;
 }
 
 export interface NotePromise extends Promise<Note>, Fragmentable {

@@ -64,6 +64,24 @@ export default gql`
 		recipe: Recipe
 	}
 
+	type EvernoteResponse {
+		errors: [ String ]
+		notes: [ Note ]
+	}
+
+	type Note {
+		id: ID!
+		evernoteGUID: String
+		title: String!
+		source: String
+
+		categories: [ String ]
+		tags: [ String ]
+
+		image: String
+		content: String!
+	}
+
 	type ParsedSegment {
 		id: ID!
 		rule: String!

@@ -6,8 +6,8 @@ const router = express.Router();
 const client = new Evernote.Client({
 	consumerKey: process.env.API_CONSUMER_KEY,
 	consumerSecret: process.env.API_CONSUMER_SECRET,
-	sandbox: (process.env.SANDBOX === true),
-	china: (process.env.CHINA === true),
+	sandbox: process.env.SANDBOX,
+	china: process.env.CHINA,
 });
 
 router.get('/auth', (req, res) => {
@@ -36,7 +36,7 @@ router.get('/auth', (req, res) => {
 			req.session.requestToken = requestToken;
 			req.session.requestTokenSecret = requestTokenSecret;
 
-			req.session.save();
+			// req.session.save();
 			// ensure that our session saves and pass back the generated evernote authentication url
 			return res.send({ authURL: client.getAuthorizeUrl(requestToken) });
 		});
@@ -52,17 +52,18 @@ router.get('/auth', (req, res) => {
 			req.session.requestToken = null;
 			req.session.requestTokenSecret = null;
 
-			req.session.save();
+			// req.session.save();
 
 			return res.json({ isAuthenticated: true });
 		});
 	}
-
 });
 
 router.get('/clear', (req, res) => {
 	console.log('/clear'.cyan);
-	req.session.destroy();
+	// req.session.destroy();
+	req.session = null;
+	console.log(req.session);
 	res.json({ status: 'Session cleared' });
 });
 

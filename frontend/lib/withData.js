@@ -147,7 +147,6 @@ function createClient({ headers }) {
 						try {
 							({ isEvernoteAuthenticated } = cache.readQuery({ query: IS_EVERNOTE_AUTHENTICATED_QUERY }));
 						} catch (err) {
-							console.warn('!!!!!!');
 							// if we didn't find anything in our cache, look it up from the server
 							const { data } = await client.query({ query: IS_EVERNOTE_AUTHENTICATED_NETWORK_QUERY });
 							isEvernoteAuthenticated = data.isEvernoteAuthenticated;
@@ -157,20 +156,6 @@ function createClient({ headers }) {
 					async notes(_, { group, ingredientID, view }, { client }) {
 						console.warn('... [withData] notes query resolver');
 
-						// TODO check if we have an access token in our cache
-
-						// TODO if we don't, issue a GET request to 3001/evernote/authenticate
-						// but this doesn't work with fucking CORS OH RIGHT
-						/*
-						await axios.get('http://localhost:3001/auth/evernote')
-							.then((res) => {
-								console.warn(res);
-								// TODO save token to cache
-							});
-							*/
-						// window.open('http://localhost:3001/evernote/authenticate', '_blank');
-
-						// TODO query notes from the server with our auth token and return results
 						return null;
 					},
 					suggestions(_, { type, value }) {

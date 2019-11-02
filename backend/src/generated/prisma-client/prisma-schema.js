@@ -1055,7 +1055,7 @@ type Note {
   categories: [String!]!
   tags: [String!]!
   image: String
-  content: String!
+  content: String
 }
 
 type NoteConnection {
@@ -1076,7 +1076,7 @@ input NoteCreateInput {
   categories: NoteCreatecategoriesInput
   tags: NoteCreatetagsInput
   image: String
-  content: String!
+  content: String
 }
 
 input NoteCreatetagsInput {
@@ -1111,7 +1111,7 @@ type NotePreviousValues {
   categories: [String!]!
   tags: [String!]!
   image: String
-  content: String!
+  content: String
 }
 
 type NoteSubscriptionPayload {

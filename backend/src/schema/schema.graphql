@@ -13,9 +13,9 @@ type EvernoteAuthenticationResponse {
 	isSandbox: Boolean
 }
 
-type ParsedNoteResponse {
+type EvernoteResponse {
 	errors: [ String ]
-	note: Note
+	notes: [ Note ]
 }
 
 type ParsedNotesResponse {
@@ -49,8 +49,8 @@ type Query {
 	ingredients: [ Ingredient! ]!
 	ingredientAggregate: IngredientAggregate!
 
-	note(where: NoteWhereUniqueInput!): Note
-	notes: [ Note! ]!
+	note(where: NoteWhereUniqueInput!): EvernoteResponse!
+	notes: EvernoteResponse!
 
 	recipe(where: RecipeWhereUniqueInput!): Recipe
 	recipes: [ Recipe! ]!

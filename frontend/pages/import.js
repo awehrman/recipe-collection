@@ -38,13 +38,12 @@ class Import extends React.PureComponent {
 		const { client, router, query } = this.props;
 
 		if (hasProperty(query, 'oauth_token') && hasProperty(query, 'oauth_verifier')) {
-			console.log('passing back to server to finalize auth!');
 			// eslint-disable-next-line camelcase
 			const { oauth_token, oauth_verifier } = query;
 
 			// go back to our server with our verifier string to receive our actual access token
 			// eslint-disable-next-line camelcase
-			const url = `http://localhost:3001/evernote/auth?oauthVerifier=${ oauth_verifier }`;
+			const url = `${ process.env.EVERNOTE_AUTH_URL }?oauthVerifier=${ oauth_verifier }`;
 			axios(url, { withCredentials: true })
 				.then((data) => {
 					// update our auth status
@@ -61,12 +60,10 @@ class Import extends React.PureComponent {
 	}
 
 	authenticate = () => {
-		console.warn('authenticate');
 		const { client } = this.props;
 
-		console.log('requesting token...');
 		// request the temporary requestToken with our callback from evernote
-		axios('http://localhost:3001/evernote/auth', { withCredentials: true }).then(({ data }) => {
+		axios(process.env.EVERNOTE_AUTH_URL, { withCredentials: true }).then(({ data }) => {
 			const { authURL, isAuthenticated } = data;
 			// redirect us to evernote to sign in
 			if (authURL) {
@@ -87,7 +84,10 @@ class Import extends React.PureComponent {
 	getNotes = () => {
 		console.warn('getNotes');
 		const { client } = this.props;
-		client.query({ query: GET_NOTES_QUERY });
+		client.query({
+			fetchPolicy: 'network-only',
+			query: GET_NOTES_QUERY },
+		);
 	}
 
 	render() {
@@ -101,7 +101,6 @@ class Import extends React.PureComponent {
 								const { error, data } = isEvernoteAuthenticated;
 								if (error) return <ErrorMessage error={ error } />;
 								const isAuthenticated = (data) ? Boolean(data.isEvernoteAuthenticated) : false;
-								console.log({ isAuthenticated });
 
 								return (
 									<>
