@@ -43,6 +43,8 @@ type Query {
   categories: [ Category! ]!
   categoryAggregate: AggregateCategory!
 
+	evernoteAuthToken: String
+
 	ingredient(where: IngredientWhereUniqueInput!): Ingredient
 	ingredients: [ Ingredient! ]!
 	ingredientAggregate: IngredientAggregate!

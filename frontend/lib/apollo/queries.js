@@ -305,7 +305,7 @@ export const GET_NOTES_QUERY = gql`
 
 export const GET_EVERNOTE_AUTH_TOKEN_QUERY = gql`
   query GET_EVERNOTE_AUTH_TOKEN_QUERY {
-  	evernoteAuthToken @client
+  	evernoteAuthToken
   }
 `;
 

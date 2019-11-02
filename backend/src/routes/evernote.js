@@ -11,17 +11,27 @@ const client = new Evernote.Client({
 });
 
 router.get('/auth', (req, res) => {
+	console.log('/auth'.cyan);
 	const {
 		authToken,
 		authTokenSecret,
 		requestToken,
 		requestTokenSecret,
 	} = req.session;
+	const { oauthVerifier } = req.query;
+
+	console.log({
+		authToken,
+		authTokenSecret,
+		requestToken,
+		requestTokenSecret,
+		oauthVerifier,
+	});
 
 	// if we already have an auth token in our session, just pass that back
-	if (authToken && authTokenSecret) {
+	if (authToken) {
 		console.log('Found an existing auth token!'.green);
-		res.send({ evernoteAuthToken: authToken });
+		return res.json({ evernoteAuthToken: authToken });
 	}
 
 	// if we don't have a requestToken, then generate one to kick off the authentication process
@@ -33,15 +43,15 @@ router.get('/auth', (req, res) => {
 
 			req.session.requestToken = requestToken;
 			req.session.requestTokenSecret = requestTokenSecret;
-			console.log(`${ requestToken }`.red);
 
+			req.session.save();
+			console.log(req.session);
 			// ensure that our session saves and pass back the generated evernote authentication url
-			res.send({ tokenLink: client.getAuthorizeUrl(requestToken) });
+			return res.send({ tokenLink: client.getAuthorizeUrl(requestToken) });
 		});
-	} else {
+	} else if (oauthVerifier) {
 		// otherwise finish the authentication process and save the auth token
 		console.log('getAccessToken'.magenta);
-		const { oauthVerifier } = req.query;
 		console.log(requestToken);
 		console.log(requestTokenSecret);
 		console.log(oauthVerifier);
@@ -54,14 +64,20 @@ router.get('/auth', (req, res) => {
 			req.session.requestToken = null;
 			req.session.requestTokenSecret = null;
 
-			console.log(`${authToken}`.magenta);
+			req.session.save();
+
+			console.log(req.session);
+			// return res.redirect('http://localhost:3000/import');
+			return res.json({ evernoteAuthToken: authToken });
 		});
 	}
+
 });
 
 router.get('/clear', (req, res) => {
-	// req.session = {};
+	console.log('/clear'.cyan);
 	req.session.destroy();
+	console.log(req.session);
 	res.json({ status: 'Session cleared' });
 });
 
