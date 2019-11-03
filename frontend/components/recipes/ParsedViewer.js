@@ -23,6 +23,19 @@ const ParsedViewerStyles = styled.div`
 		margin: 0;
 		padding: 0;
 	}
+
+	&.left {
+		display: flex;
+		flex-wrap: wrap;
+
+		hr {
+			flex-basis: 50%;
+		}
+
+		div {
+			flex-basis: 50%;
+		}
+	}
 `;
 
 const Ingredients = styled.div`
@@ -59,17 +72,17 @@ const Instructions = styled.div`
 	}
 `;
 
-const ParsedViewer = ({ ingredients, instructions }) => {
+const ParsedViewer = ({ className, id, ingredients, instructions }) => {
 	const blocks = [ ...new Set(ingredients.map((i) => i.blockIndex)) ];
 
 	return (
-		<ParsedViewerStyles>
-			{
-				(ingredients && (ingredients.length > 0))
-					? <hr />
-					: null
-			}
+		<ParsedViewerStyles className={ className }>
 			<Ingredients>
+				{
+					(ingredients && (ingredients.length > 0) && (className !== 'left'))
+						? <hr />
+						: null
+				}
 				<ul className="ingredients">
 					{
 						blocks.map((blockIndex) => (
@@ -84,10 +97,11 @@ const ParsedViewer = ({ ingredients, instructions }) => {
 															? (
 																<span className="parsed">
 																	{
-																		i.parsed.map((v) => (
+																		i.parsed.map((v, index) => (
 																			<span
 																				className={ v.type }
-																				key={ `${ i.blockIndex }_${ i.lineIndex }_${ v.value }` }
+																				// eslint-disable-next-line
+																				key={ `${ index }${ id }_${ i.blockIndex }_${ i.lineIndex }_${ v.value }` }
 																			>
 																				{ v.value }
 																			</span>
@@ -106,12 +120,12 @@ const ParsedViewer = ({ ingredients, instructions }) => {
 					}
 				</ul>
 			</Ingredients>
-			{
-				(instructions && (instructions.length > 0))
-					? <hr />
-					: null
-			}
 			<Instructions>
+				{
+					(instructions && (instructions.length > 0) && (className !== 'left'))
+						? <hr />
+						: null
+				}
 				<ul className="instructions">
 					{
 						instructions.map((i) => (
@@ -127,11 +141,15 @@ const ParsedViewer = ({ ingredients, instructions }) => {
 };
 
 ParsedViewer.defaultProps = {
+	className: '',
+	id: '0',
 	ingredients: [],
 	instructions: [],
 };
 
 ParsedViewer.propTypes = {
+	className: PropTypes.string,
+	id: PropTypes.string,
 	ingredients: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string,
 		blockIndex: PropTypes.number,

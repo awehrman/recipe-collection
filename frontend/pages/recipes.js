@@ -127,7 +127,7 @@ class Recipes extends React.PureComponent {
 						const { data } = getRecipesCount || {};
 						const { recipeAggregate } = data || {};
 						const { recipesCount } = recipeAggregate || {};
-						const { data: { recipes = [] } } = getRecipes;
+						const { recipes = [] } = getRecipes.data || {};
 
 						// TODO install an actual view here
 						return (

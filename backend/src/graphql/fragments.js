@@ -24,6 +24,51 @@ export const GET_ALL_NOTE_FIELDS = `
 		tags
 		image
 		content
+		ingredients {
+			blockIndex
+			id
+			reference
+			isParsed
+			parsed {
+				type
+				value
+				ingredient {
+					id
+					name
+				}
+			}
+		}
+		instructions {
+			id
+			blockIndex
+			reference
+		}
+	}
+`;
+
+export const GET_NOTE_CONTENT_FIELDS = `
+	{
+		id
+		content
+		title
+		ingredients {
+			blockIndex
+			id
+			reference
+			isParsed
+			parsed {
+				value
+				ingredient {
+					id
+					name
+				}
+			}
+		}
+		instructions {
+			id
+			blockIndex
+			reference
+		}
 	}
 `;
 
@@ -136,11 +181,11 @@ export const GET_ALL_RECIPE_FIELDS_FOR_VALIDATION = `
 	}
 `;
 
-
 export default [
 	GET_ALL_CATEGORY_FIELDS,
 	GET_ALL_TAG_FIELDS,
 	GET_ALL_NOTE_FIELDS,
+	GET_NOTE_CONTENT_FIELDS,
 	GET_ALL_INGREDIENT_FIELDS,
 	GET_ALL_INGREDIENT_FIELDS_FOR_VALIDATION,
 	GET_ALL_RECIPE_FIELDS,

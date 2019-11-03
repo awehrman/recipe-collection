@@ -9,8 +9,10 @@ import PropTypes from 'prop-types';
 import Button from '../components/form/Button';
 import Header from '../components/Header';
 import ErrorMessage from '../components/ErrorMessage';
+import Loading from '../components/Loading';
+import ParsedViewer from '../components/recipes/ParsedViewer';
 import { GET_NOTES_COUNT_QUERY, GET_ALL_NOTES_QUERY, IS_EVERNOTE_AUTHENTICATED_QUERY } from '../lib/apollo/queries';
-import { IMPORT_NOTES_MUTATION, PARSE_NOTES_MUTATION } from '../lib/apollo/mutations';
+import { CREATE_RECIPE_MUTATION, IMPORT_NOTES_MUTATION, PARSE_NOTES_MUTATION } from '../lib/apollo/mutations';
 
 import { hasProperty } from '../lib/util';
 
@@ -37,17 +39,78 @@ const Composed = adopt({
 	),
 
 	// eslint-disable-next-line react/prop-types
+	importNotes: ({ render }) => (
+		<Mutation
+			refetchQueries={ [
+				{ query: GET_ALL_NOTES_QUERY },
+				{ query: GET_NOTES_COUNT_QUERY },
+			] }
+			mutation={ IMPORT_NOTES_MUTATION }
+		>
+			{ render }
+		</Mutation>
+	),
+
+	// eslint-disable-next-line react/prop-types
 	parseNotes: ({ render }) => (
 		<Mutation mutation={ PARSE_NOTES_MUTATION }>
+			{ render }
+		</Mutation>
+	),
+
+	// eslint-disable-next-line react/prop-types
+	createRecipe: ({ render }) => (
+		<Mutation mutation={ CREATE_RECIPE_MUTATION }>
 			{ render }
 		</Mutation>
 	),
 });
 
 const ImportStyles = styled.article`
+	button {
+		cursor: pointer;
+		border: 0;
+		color: white;
+		background: ${ (props) => props.theme.altGreen };
+		border-radius: 5px;
+		padding: 6px 10px;
+		font-size: 16px;
+		font-weight: 600;
+		margin: 0 10px 10px;
+	}
+`;
+
+const ActionBar = styled.div`
+`;
+
+const NotesViewer = styled.div`
+	margin: 20px 0;
+	max-width: 950px;
+`;
+
+const Note = styled.div`
+	background: #E8F6F3;
+	border-radius: 5px;
+	margin-bottom: 20px;
+	padding: 40px 60px;
+
+	h1 {
+		font-weight: 100;
+		font-size: 18px;
+		margin: 0 0 20px;
+	}
 `;
 
 class Import extends React.PureComponent {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			isParsing: false,
+			parsedNotes: [],
+		};
+	}
+
 	componentDidMount() {
 		const { client, router, query } = this.props;
 
@@ -95,93 +158,140 @@ class Import extends React.PureComponent {
 		});
 	}
 
-	getNotes = () => {
-		console.warn('getNotes');
+	parseNotes = (e) => {
+		e.preventDefault();
 		const { client } = this.props;
-		client.mutate({
-			refetchQueries: [
-				{ query: GET_NOTES_COUNT_QUERY },
-				{ query: GET_ALL_NOTES_QUERY },
-			],
-			mutation: IMPORT_NOTES_MUTATION,
+		this.setState({ isParsing: true }, () => {
+			// TODO instead of refetching these queries, we could just update the cache manually with the response
+			client.mutate({
+				refetchQueries: [
+					{ query: GET_ALL_NOTES_QUERY },
+					{ query: GET_NOTES_COUNT_QUERY },
+				],
+				mutation: PARSE_NOTES_MUTATION,
+				update: () => this.setState({ isParsing: false }),
+			});
 		});
 	}
 
+	saveRecipe = (e) => {
+		e.preventDefault();
+
+		// TODO go through parsed notes and issue a create mutate for each
+		/* client.mutate({
+			mutation: CREATE_RECIPE_MUTATION,
+			data,
+		})
+		*/
+	}
+
 	render() {
+		const { isParsing, parsedNotes } = this.state;
 		return (
 			<ImportStyles>
 				<Header pageHeader="Import" />
-				<section>
-					<Composed>
-						{
-							({ isEvernoteAuthenticated, getNotes, getNotesCount, parseNotes }) => {
-								const { error, data } = isEvernoteAuthenticated;
-								if (error) return <ErrorMessage error={ error } />;
-								const isAuthenticated = (data) ? Boolean(data.isEvernoteAuthenticated) : false;
-								const { count } = (getNotesCount && getNotesCount.data)
-									? getNotesCount.data.noteAggregate
-									: 0;
-								const { notes = [] } = (getNotes && getNotes.data) ? getNotes.data : {};
-								return (
-									<>
-										<div className="sub-header">
-											{
-												(!isAuthenticated)
-													? (
-														<Button
-															type="button"
-															label="Authenticate Evernote"
-															onClick={ this.authenticate }
-														/>
-													)
-													: (
-														<>
-															<Button
-																type="button"
-																label="Get Notes"
-																onClick={ this.getNotes }
-															/>
+				<Composed>
+					{
+						({
+							isEvernoteAuthenticated,
+							getNotes,
+							getNotesCount,
+							importNotes,
+						}) => {
+							const { error, data } = isEvernoteAuthenticated;
+							if (error) return <ErrorMessage error={ error } />;
+							const isAuthenticated = (data) ? Boolean(data.isEvernoteAuthenticated) : false;
+							const { count } = (getNotesCount && getNotesCount.data)
+								? getNotesCount.data.noteAggregate
+								: 0;
+							const { notes = [] } = (getNotes && getNotes.data) ? getNotes.data : {};
+
+							return (
+								<section>
+									<ActionBar>
+										{/* Authenticate Evernote */}
+										{
+											(!isAuthenticated)
+												? (
+													<Button
+														label="Authenticate Evernote"
+														onClick={ this.authenticate }
+														type="button"
+													/>
+												) : null
+										}
+
+										{/* Import Notes from Evernote */}
+										{
+											(isAuthenticated)
+												? (
+													<Button
+														label="Import Notes"
+														onClick={ importNotes }
+														type="button"
+													/>
+												) : null
+										}
+
+										{/* Parse Notes */}
+										{/* TODO update with count of just unparsed notes */
+											(isAuthenticated && (count > 0))
+												? (
+													<Button
+														label={ `Parse ${ count } Note${ (count === 1) ? '' : 's' }` }
+														onClick={ (e) => this.parseNotes(e) }
+														type="button"
+													/>
+												) : null
+										}
+
+										{/* Save Recipes */}
+										{
+											(isAuthenticated && parsedNotes && (parsedNotes.length > 0))
+												? (
+													<Button
+														label="Save Recipes"
+														onClick={ (e) => this.saveRecipes(e) }
+														type="button"
+													/>
+												) : null
+										}
+									</ActionBar>
+									<NotesViewer>
+										{
+											(notes)
+												? (
+													notes.map((n, index) => (
+														// eslint-disable-next-line
+														<Note key={ `${ index }_${ n.id }` }>
+															<h1>{ n.title }</h1>
 															{
-																(count > 0)
-																	? (
-																		<Button
-																			type="button"
-																			label={ `Parse ${ count } Notes` }
-																			onClick={ parseNotes }
-																		/>
-																	)
+																(isParsing)
+																	? <Loading />
 																	: null
 															}
-														</>
-													)
-											}
-										</div>
-										<div className="notes">
-											{
-												(notes)
-													? (
-														<ul>
 															{
-																notes.map((n) => (
-																	<li key={ n.id }>
-																		{ n.title }
-																		<div className="content">
-																			{ n.content }
-																		</div>
-																	</li>
-																))
+																(n.ingredients || n.instructions)
+																	? (
+																		<ParsedViewer
+																			className="left"
+																			id={ n.id }
+																			ingredients={ n.ingredients }
+																			instructions={ n.instructions }
+																		/>
+																	) : null
 															}
-														</ul>
-													)
-													: null
-											}
-										</div>
-									</>
-								);
-							}
+														</Note>
+													))
+												)
+												: null
+										}
+									</NotesViewer>
+								</section>
+							);
 						}
-					</Composed>
-				</section>
+					}
+				</Composed>
 			</ImportStyles>
 		);
 	}

@@ -307,6 +307,25 @@ export const GET_ALL_NOTES_QUERY = gql`
 			tags
 			image
 			content
+			ingredients {
+				id
+				reference
+				isParsed
+				blockIndex
+				parsed {
+					type
+					value
+					ingredient {
+						id
+						name
+					}
+				}
+			}
+			instructions {
+				id
+				blockIndex
+				reference
+			}
 		}
   }
 `;

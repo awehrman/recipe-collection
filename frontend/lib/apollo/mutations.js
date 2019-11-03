@@ -212,42 +212,8 @@ export const PARSE_NOTES_MUTATION = gql`
 	mutation PARSE_NOTES_MUTATION {
 		parseNotes {
 			errors
-			recipes {
+			notes {
 				id
-				evernoteGUID
-				title
-				source
-				categories {
-					id
-					name
-				}
-				tags {
-					id
-					name
-				}
-				image
-				ingredients {
-					id
-					blockIndex
-					lineIndex
-					reference
-					isParsed
-					parsed {
-						id
-						rule
-						type
-						value
-						ingredient {
-							id
-							name
-						}
-					}
-				}
-				instructions {
-					id
-					blockIndex
-					reference
-				}
 			}
 		}
 	}
@@ -266,10 +232,28 @@ export const IMPORT_NOTES_MUTATION = gql`
 				tags
 				image
 				content
+				ingredients {
+					id
+					reference
+					isParsed
+					parsed {
+						value
+						ingredient {
+							id
+							name
+						}
+					}
+				}
+				instructions {
+					id
+					blockIndex
+					reference
+				}
 			}
 		}
 	}
 `;
+
 export default [
 	CREATE_CONTAINERS_MUTATION,
 	UPDATE_CONTAINER_INGREDIENT_ID_MUTATION,

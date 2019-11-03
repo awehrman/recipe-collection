@@ -1051,6 +1051,8 @@ type Note {
   tags: [String!]!
   image: String
   content: String
+  ingredients(where: RecipeIngredientWhereInput, orderBy: RecipeIngredientOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [RecipeIngredient!]
+  instructions(where: RecipeInstructionWhereInput, orderBy: RecipeInstructionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [RecipeInstruction!]
 }
 
 type NoteConnection {
@@ -1072,6 +1074,8 @@ input NoteCreateInput {
   tags: NoteCreatetagsInput
   image: String
   content: String
+  ingredients: RecipeIngredientCreateManyInput
+  instructions: RecipeInstructionCreateManyInput
 }
 
 input NoteCreatetagsInput {
@@ -1139,6 +1143,8 @@ input NoteUpdateInput {
   tags: NoteUpdatetagsInput
   image: String
   content: String
+  ingredients: RecipeIngredientUpdateManyInput
+  instructions: RecipeInstructionUpdateManyInput
 }
 
 input NoteUpdateManyMutationInput {
@@ -1240,6 +1246,12 @@ input NoteWhereInput {
   content_not_starts_with: String
   content_ends_with: String
   content_not_ends_with: String
+  ingredients_every: RecipeIngredientWhereInput
+  ingredients_some: RecipeIngredientWhereInput
+  ingredients_none: RecipeIngredientWhereInput
+  instructions_every: RecipeInstructionWhereInput
+  instructions_some: RecipeInstructionWhereInput
+  instructions_none: RecipeInstructionWhereInput
   AND: [NoteWhereInput!]
   OR: [NoteWhereInput!]
   NOT: [NoteWhereInput!]

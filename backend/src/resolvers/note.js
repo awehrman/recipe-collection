@@ -4,7 +4,8 @@ import imagemin from 'imagemin';
 import imageminJpegtran from 'imagemin-jpegtran';
 import imageminPngquant from 'imagemin-pngquant';
 
-import { GET_ALL_NOTE_FIELDS } from '../graphql/fragments';
+import { parseHTML } from '../lib/parser';
+import { GET_ALL_NOTE_FIELDS, GET_NOTE_CONTENT_FIELDS } from '../graphql/fragments';
 
 cloudinary.config({
 	cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -46,7 +47,6 @@ const findNotesMeta = async (ctx, store, config) => {
 	});
 
 	let rejectedNoteCount = 0;
-	console.log('fetching metadata...');
 	const notesMeta = await store.findNotesMetadata(filter, offset, maxResults, spec)
 		.then((result) => {
 			const { notes } = result;
@@ -112,8 +112,6 @@ const uploadStream = (fileBuffer, options) => (
 );
 
 const getNoteContent = async (ctx, store, config, notes) => {
-	console.log('getNoteContent'.cyan);
-
 	const spec = new Evernote.NoteStore.NoteResultSpec({
 		includeContent: true,
 		includeResourcesData: true,
@@ -137,7 +135,6 @@ const getNoteContent = async (ctx, store, config, notes) => {
 					],
 				}).catch((err) => console.log(err));
 
-				console.log('uploading to cloudinary...');
 				const options = { folder: 'recipes' };
 				const result = await uploadStream(optimizedImage, options);
 
@@ -153,7 +150,6 @@ const getNoteContent = async (ctx, store, config, notes) => {
 					data,
 					where: { evernoteGUID: data.evernoteGUID },
 				}, config.info);
-				console.log(`updated ${ evernoteGUID }!`);
 				return evernoteGUID;
 			})
 			.catch((err) => console.log(err));
@@ -168,7 +164,6 @@ export default {
 	Query: {
 		noteAggregate: async (parent, args, ctx) => {
 			const count = await ctx.prisma.notesConnection().aggregate().count();
-			console.log({ count });
 			return { count };
 		},
 		note: async (parent, args, ctx) => {
@@ -179,13 +174,13 @@ export default {
 		},
 		notes: async (parent, args, ctx) => {
 			const notes = await ctx.prisma.notes().$fragment(GET_ALL_NOTE_FIELDS);
+			console.log({ notes });
 			return notes;
 		},
 	},
 
 	Mutation: {
 		importNotes: async (parent, args, ctx, info) => {
-			console.log('importNotes'.cyan);
 			const { req } = ctx;
 			const { authToken, offset } = req.session;
 			const response = {
@@ -238,10 +233,123 @@ export default {
 					return response;
 				});
 		},
-		parseNotes: async (/* parent, args, ctx, info */) => {
-			console.log('parseNotes');
-			// TODO parse notes
-			const response = {};
+		parseNotes: async (parent, args, ctx, info) => {
+			console.log('parseNotes'.cyan);
+			// get note content
+			const notes = await ctx.prisma.notes().$fragment(GET_NOTE_CONTENT_FIELDS);
+			const response = {
+				__typename: 'EvernoteResponse',
+				errors: [],
+				notes: [],
+			};
+
+			// parse note content into ingredients and instructions
+			const updateNotes = notes.map(async (n) => {
+				let lines = {};
+				if (n.content) {
+					lines = parseHTML(n.content);
+				}
+				const { ingredients, instructions } = lines;
+				console.log(`finishing parsing ${ n.id }`);
+				const data = {};
+				// TODO make a generic util between the client and here
+				if (ingredients) {
+					data.ingredients = { create: [] };
+					ingredients.forEach((line) => {
+						const { blockIndex, isParsed, lineIndex, parsed, reference, rule } = line;
+						// RecipeIngredientCreateInput
+						const ingredientLine = {
+							blockIndex,
+							isParsed,
+							lineIndex,
+							reference,
+							rule,
+						};
+
+						// TODO handle multiple ingredients per line (this might require a data model update too)
+						// if we parsed this line, go through its values and update the ingredient
+						if (isParsed && parsed && (parsed.length > 0)) {
+							ingredientLine.parsed = {
+								create: parsed.map((p) => {
+									if (p.type === 'ingredient') {
+										if (p.ingredient && p.ingredient.id) {
+											return {
+												...p,
+												ingredient: {
+													connect: {
+														id: p.ingredient.id,
+														name: p.ingredient.name,
+														plural: p.ingredient.plural,
+													},
+												},
+											};
+										}
+
+										/* TODO when we're ready to save the note we'll call this
+										return {
+											...p,
+											ingredient: {
+												create: {
+													name: p.ingredient.name,	// TODO
+													plural: p.ingredient.plural, // TODO
+													properties: {
+														create: {
+															meat: false,
+															poultry: false,
+															fish: false,
+															dairy: false,
+															soy: false,
+															gluten: false,
+														},
+													},
+												},
+											},
+										};
+										*/
+									}
+									return { ...p };
+								}),
+							};
+						}
+						// create recipe ingredient lines
+						data.ingredients.create.push(ingredientLine);
+					});
+
+					if (data.ingredients.create.length === 0) delete data.ingredients.create;
+				}
+
+				// instructions: RecipeInstructionCreateManyInput || RecipeInstructionUpdateManyInput
+				if (instructions) {
+					data.instructions = { create: [] };
+
+					instructions.forEach((r) => {
+						data.instructions.create.push({ ...r });
+					});
+
+					if (data.instructions.create.length === 0) delete data.instructions.create;
+				}
+
+				const where = { id: n.id };
+
+				console.log({
+					data,
+					where,
+				});
+
+				// update prisma with new note info
+				await ctx.prisma.updateNote({
+					data,
+					where,
+				}, info);
+
+				return {
+					id: n.id,
+					...data,
+				};
+			});
+
+			response.notes = Promise.all(updateNotes).then((n) => n);
+
 			return response;
 		},
 	},

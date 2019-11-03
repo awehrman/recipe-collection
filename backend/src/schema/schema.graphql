@@ -67,7 +67,7 @@ type Mutation {
 	clear: EvernoteAuthenticationResponse!
 
 	importNotes: EvernoteResponse!
-	parseNotes: ParsedNotesResponse!
+	parseNotes: EvernoteResponse!
 
   createCategory(data: CategoryCreateInput): CategoryResponse!
   deleteCategory(where: CategoryWhereUniqueInput!): CategoryResponse!
