@@ -41,7 +41,7 @@ class Ingredients extends React.PureComponent {
 			{ query: GET_INGREDIENTS_COUNT_QUERY },
 		];
 
-		return Promise.all(queries.map(q => client.query(
+		return Promise.all(queries.map((q) => client.query(
 			Object.assign({}, q, { fetchPolicy: 'network-only' }),
 		)));
 	}

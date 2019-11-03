@@ -7,11 +7,11 @@ import GlobalStyles from '../styles/global.style';
 export default class MyDocument extends Document {
 	static getInitialProps({ renderPage }) {
 		const sheet = new ServerStyleSheet();
-		const page = renderPage(App => props => sheet.collectStyles(
-			<React.Fragment>
+		const page = renderPage((App) => (props) => sheet.collectStyles(
+			<>
 				<GlobalStyles />
 				<App { ...props } />
-			</React.Fragment>,
+			</>,
 		));
 		const styleTags = sheet.getStyleElement();
 

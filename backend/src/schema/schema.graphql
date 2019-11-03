@@ -49,8 +49,9 @@ type Query {
 	ingredients: [ Ingredient! ]!
 	ingredientAggregate: IngredientAggregate!
 
-	note(where: NoteWhereUniqueInput!): EvernoteResponse!
-	notes: EvernoteResponse!
+	note(where: NoteWhereUniqueInput!): Note
+	notes: [ Note! ]!
+	noteAggregate: AggregateNote!
 
 	recipe(where: RecipeWhereUniqueInput!): Recipe
 	recipes: [ Recipe! ]!
@@ -62,10 +63,11 @@ type Query {
 }
 
 type Mutation {
-	# this won't actually return anything
 	requestToken: EvernoteAuthenticationResponse
 	clear: EvernoteAuthenticationResponse!
-	parseNotes(evernoteAuthToken: String): ParsedNotesResponse!
+
+	importNotes: EvernoteResponse!
+	parseNotes: ParsedNotesResponse!
 
   createCategory(data: CategoryCreateInput): CategoryResponse!
   deleteCategory(where: CategoryWhereUniqueInput!): CategoryResponse!

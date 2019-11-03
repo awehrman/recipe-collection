@@ -288,24 +288,28 @@ export const GET_SUGGESTED_TAGS_QUERY = gql`
 `;
 
 /* Evernote */
-export const GET_NOTES_QUERY = gql`
-  query GET_NOTES_QUERY {
-  	notes {
-			errors
-			notes {
-				id
-				evernoteGUID
-				title
-				source
-				image
-				content
-				categories
-				tags
-			}
+export const GET_NOTES_COUNT_QUERY = gql`
+  query GET_NOTES_COUNT_QUERY {
+  	noteAggregate {
+	  	count
 		}
   }
 `;
 
+export const GET_ALL_NOTES_QUERY = gql`
+  query GET_ALL_NOTES_QUERY {
+  	notes {
+  		id
+			evernoteGUID
+			title
+			source
+			categories
+			tags
+			image
+			content
+		}
+  }
+`;
 export const IS_EVERNOTE_AUTHENTICATED_QUERY = gql`
   query IS_EVERNOTE_AUTHENTICATED_QUERY {
   	isEvernoteAuthenticated @client
@@ -333,7 +337,8 @@ export default [
 	GET_SUGGESTED_INGREDIENTS_QUERY,
 	GET_RECIPES_COUNT_QUERY,
 	GET_ALL_RECIPES_QUERY,
-	GET_NOTES_QUERY,
+	GET_NOTES_COUNT_QUERY,
+	GET_ALL_NOTES_QUERY,
 	IS_EVERNOTE_AUTHENTICATED_QUERY,
 	IS_EVERNOTE_AUTHENTICATED_NETWORK_QUERY,
 ];

@@ -8,8 +8,6 @@ import cookieSession from 'cookie-session';
 import evernoteRoute from './routes/evernote';
 import createServer from './createServer';
 
-// const session = require('express-session');
-
 const app = express();
 const server = createServer();
 
@@ -20,7 +18,13 @@ const whitelist = [
 ];
 
 const corsOptions = {
-	allowedHeaders: ["Content-Type", "Authorization", "Access-Control-Allow-Methods", "Access-Control-Request-Headers", "Access-Control-Allow-Origin"],
+	allowedHeaders: [
+		'Content-Type',
+		'Authorization',
+		'Access-Control-Allow-Methods',
+		'Access-Control-Request-Headers',
+		'Access-Control-Allow-Origin',
+	],
 	credentials: true,
 	enablePreflight: true,
 	origin: (origin, callback) => {
@@ -34,19 +38,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
-/*
-	app.use(session({
-		secret: 'keyboard cat',
-		resave: false,
-		saveUninitialized: false,
-		cookie: {
-			maxAge: 60000,
-			sameSite: 'lax',
-			secure: false,
-		},
-	}));
-*/
 
 app.use(cookieSession({
 	name: 'session',

@@ -63,7 +63,7 @@ const Source = styled.div`
 const Categories = styled.ul`
 	list-style: none;
 	display: inline-block;
-	color: ${ props => props.theme.altGreen };
+	color: ${ (props) => props.theme.altGreen };
 	width: 45%;
 	padding: 0;
 	margin: 15px 5px 0px 0;
@@ -86,7 +86,7 @@ const Tags = styled.ul`
 		padding: 4px 10px;
 		font-weight: 900;
 		display: inline;
-		background: ${ props => props.theme.altGreen };
+		background: ${ (props) => props.theme.altGreen };
 		border-radius: 50px;
 		width: 100%;
 		margin-left: 5px;
@@ -113,7 +113,7 @@ class Recipes extends React.PureComponent {
 			{ query: GET_RECIPES_COUNT_QUERY },
 		];
 
-		return Promise.all(queries.map(q => client.query(
+		return Promise.all(queries.map((q) => client.query(
 			Object.assign({}, q, { fetchPolicy: 'network-only' }),
 		)));
 	}
@@ -143,7 +143,7 @@ class Recipes extends React.PureComponent {
 									{
 										(loading)
 											? <Loading name="recipes" />
-											: recipes.map(r => (
+											: recipes.map((r) => (
 												<TempCardStyles key={ `${ r.id }` }>
 													{/* Title Preview */}
 													<Title>
@@ -161,7 +161,7 @@ class Recipes extends React.PureComponent {
 													{/* Categories Preview */}
 													<Categories>
 														{
-															r.categories.map(c => (
+															r.categories.map((c) => (
 																<li key={ `categories_display_${ c.id }_${ c.name }` }>
 																	{ c.name }
 																</li>
@@ -172,7 +172,7 @@ class Recipes extends React.PureComponent {
 													{/* Tags Preview */}
 													<Tags>
 														{
-															r.tags.map(c => (
+															r.tags.map((c) => (
 																<li key={ `tags_display_${ c.id }_${ c.name }` }>
 																	{ c.name }
 																</li>

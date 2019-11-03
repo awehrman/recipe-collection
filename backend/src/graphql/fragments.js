@@ -14,6 +14,19 @@ export const GET_ALL_TAG_FIELDS = `
 	}
 `;
 
+export const GET_ALL_NOTE_FIELDS = `
+	{
+		id
+		evernoteGUID
+		title
+		source
+		categories
+		tags
+		image
+		content
+	}
+`;
+
 export const GET_ALL_INGREDIENT_FIELDS = `
 	{
 		alternateNames {
@@ -127,6 +140,7 @@ export const GET_ALL_RECIPE_FIELDS_FOR_VALIDATION = `
 export default [
 	GET_ALL_CATEGORY_FIELDS,
 	GET_ALL_TAG_FIELDS,
+	GET_ALL_NOTE_FIELDS,
 	GET_ALL_INGREDIENT_FIELDS,
 	GET_ALL_INGREDIENT_FIELDS_FOR_VALIDATION,
 	GET_ALL_RECIPE_FIELDS,

@@ -39,8 +39,11 @@ export default {
 
 				// update ingredients with this recipe reference
 				const ingredients = recipe.ingredients
-					.map(line => line.parsed.filter(p => p.type === 'ingredient')
-						.map(i => ({ ...i.ingredient, lineID: line.id })))
+					.map((line) => line.parsed.filter((p) => p.type === 'ingredient')
+						.map((i) => ({
+							...i.ingredient,
+							lineID: line.id,
+						})))
 					.flat();
 				const updateIngredients = ingredients.map(async (i) => {
 					// references: RecipeIngredientUpdateManyInput

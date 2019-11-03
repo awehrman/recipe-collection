@@ -209,8 +209,8 @@ export const UPDATE_RECIPE_MUTATION = gql`
 `;
 
 export const PARSE_NOTES_MUTATION = gql`
-	mutation PARSE_NOTES_MUTATION($evernoteAuthToken: String) {
-		parseNotes(evernoteAuthToken: $evernoteAuthToken) {
+	mutation PARSE_NOTES_MUTATION {
+		parseNotes {
 			errors
 			recipes {
 				id
@@ -253,6 +253,23 @@ export const PARSE_NOTES_MUTATION = gql`
 	}
 `;
 
+export const IMPORT_NOTES_MUTATION = gql`
+	mutation IMPORT_NOTES_MUTATION {
+		importNotes {
+			errors
+			notes {
+				id
+				evernoteGUID
+				title
+				source
+				categories
+				tags
+				image
+				content
+			}
+		}
+	}
+`;
 export default [
 	CREATE_CONTAINERS_MUTATION,
 	UPDATE_CONTAINER_INGREDIENT_ID_MUTATION,
@@ -262,4 +279,5 @@ export default [
 	CREATE_RECIPE_MUTATION,
 	UPDATE_RECIPE_MUTATION,
 	PARSE_NOTES_MUTATION,
+	IMPORT_NOTES_MUTATION,
 ];

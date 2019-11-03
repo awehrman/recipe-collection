@@ -1,5 +1,4 @@
 import ApolloClient, { InMemoryCache, IntrospectionFragmentMatcher } from 'apollo-boost';
-import axios from 'axios';
 import gql from 'graphql-tag';
 import withApollo from 'next-with-apollo';
 import { CREATE_CONTAINERS_MUTATION } from './apollo/mutations';
@@ -28,7 +27,7 @@ function createClient({ headers }) {
 
 	return new ApolloClient({
 		uri: process.env.NODE_ENV === 'development' ? endpoint : endpoint,
-		request: operation => operation.setContext({
+		request: (operation) => operation.setContext({
 			fetchOptions: { credentials: 'include' },
 			headers,
 		}),
@@ -122,7 +121,7 @@ function createClient({ headers }) {
 							// match on plural
 							if (i.plural === value.toLowerCase()) return i;
 							// match on altName
-							if (i.alternateNames.find(n => n.name === value.toLowerCase())) return i;
+							if (i.alternateNames.find((n) => n.name === value.toLowerCase())) return i;
 							return null;
 						});
 
@@ -153,11 +152,6 @@ function createClient({ headers }) {
 						}
 						return isEvernoteAuthenticated;
 					},
-					async notes(_, { group, ingredientID, view }, { client }) {
-						console.warn('... [withData] notes query resolver');
-
-						return null;
-					},
 					suggestions(_, { type, value }) {
 						// console.warn(`... [withData](${ type }, ${ value }) suggestions query resolver`);
 						let suggestions = [];
@@ -173,7 +167,7 @@ function createClient({ headers }) {
 						if (value && value.length > 0) {
 							// get all ingredients from the cache
 							const data = cache.readQuery({ query });
-							suggestions = data[type].filter(i => (
+							suggestions = data[type].filter((i) => (
 								// return partial matches
 								(i.name.indexOf(value) > -1)
 								// ... as long as they're not an exact match on our input
@@ -183,7 +177,7 @@ function createClient({ headers }) {
 							suggestions.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 							suggestions = suggestions.slice(0, 5);
 
-							suggestions = suggestions.map(i => ({
+							suggestions = suggestions.map((i) => ({
 								__typename: 'Suggestion',
 								id: i.id,
 								name: i.name,
@@ -199,14 +193,14 @@ function createClient({ headers }) {
 
 						// filter ingredients based on the view
 						if (view === 'new') {
-							ingredients = ingredients.filter(i => !i.isValidated);
+							ingredients = ingredients.filter((i) => !i.isValidated);
 						}
 						if (view === 'search') {
 							// TODO
 						}
 
 						// pare down the ingredient info to match the ContainerIngredient shape
-						ingredients = ingredients.map(i => ({
+						ingredients = ingredients.map((i) => ({
 							__typename: 'ContainerIngredient',
 							hasParent: Boolean(i.parent),
 							id: i.id,

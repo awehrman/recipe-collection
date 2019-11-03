@@ -15,7 +15,6 @@ router.get('/auth', (req, res) => {
 	const { oauthVerifier } = req.query;
 	const {
 		authToken,
-		authTokenSecret,
 		requestToken,
 		requestTokenSecret,
 	} = req.session;
@@ -30,11 +29,11 @@ router.get('/auth', (req, res) => {
 	if (!requestToken || !requestTokenSecret) {
 		console.log('requesting a token!'.yellow);
 		// generate a request token from evernote with a callback to our front-end
-		client.getRequestToken(process.env.OAuthCallback, (err, requestToken, requestTokenSecret) => {
+		client.getRequestToken(process.env.OAuthCallback, (err, reqToken, reqTokenSecret) => {
 			if (err) console.log(err);
 
-			req.session.requestToken = requestToken;
-			req.session.requestTokenSecret = requestTokenSecret;
+			req.session.requestToken = reqToken;
+			req.session.requestTokenSecret = reqTokenSecret;
 
 			// req.session.save();
 			// ensure that our session saves and pass back the generated evernote authentication url
@@ -44,11 +43,11 @@ router.get('/auth', (req, res) => {
 		// otherwise finish the authentication process and save the auth token
 		console.log('getAccessToken'.magenta);
 		// get our actual auth token that we'll use in requests
-		client.getAccessToken(requestToken, requestTokenSecret, oauthVerifier, (err, authToken, authTokenSecret) => {
+		client.getAccessToken(requestToken, requestTokenSecret, oauthVerifier, (err, token, tokenSecret) => {
 			if (err) console.log(err);
 
-			req.session.authToken = authToken;
-			req.session.authTokenSecret = authTokenSecret;
+			req.session.authToken = token;
+			req.session.authTokenSecret = tokenSecret;
 			req.session.requestToken = null;
 			req.session.requestTokenSecret = null;
 
@@ -57,13 +56,14 @@ router.get('/auth', (req, res) => {
 			return res.json({ isAuthenticated: true });
 		});
 	}
+
+	// TODO return a better status code if we end up down here
+	return res.status(200);
 });
 
 router.get('/clear', (req, res) => {
 	console.log('/clear'.cyan);
-	// req.session.destroy();
 	req.session = null;
-	console.log(req.session);
 	res.json({ status: 'Session cleared' });
 });
 
