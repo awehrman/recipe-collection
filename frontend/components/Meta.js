@@ -6,7 +6,12 @@ const Meta = () => (
 		<meta charSet="utf-8" />
 		<link rel="shortcut icon" href="/static/favicon.ico" />
 		<link rel="stylesheet" type="text/css" href="/static/nprogress.css" />
-		<link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.1/css/all.css" integrity="sha384-y++enYq9sdV7msNmXr08kJdkX4zEI1gMjjkw0l9ttOepH7fMdhb7CePwuRQCfwCr" crossOrigin="anonymous" />
+		<link
+			crossOrigin="anonymous"
+			href="https://pro.fontawesome.com/releases/v5.10.1/css/all.css"
+			integrity="sha384-y++enYq9sdV7msNmXr08kJdkX4zEI1gMjjkw0l9ttOepH7fMdhb7CePwuRQCfwCr"
+			rel="stylesheet"
+		/>
 		<title>Recipe Collection</title>
 	</Head>
 );

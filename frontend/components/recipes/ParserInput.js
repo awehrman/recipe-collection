@@ -38,7 +38,7 @@ const ParseButtonStyles = styled.div`
 	padding: 0;
 
 	button {
-		background: ${ props => props.theme.highlight } !important;
+		background: ${ (props) => props.theme.highlight } !important;
 		color: white !important;
 		text-transform: uppercase;
 		font-weight: 900;
@@ -52,7 +52,10 @@ const ParseButtonStyles = styled.div`
 `;
 
 class ParserInput extends React.Component {
-	state = { domContent: '' };
+	constructor(props) {
+		super(props);
+		this.state = { domContent: '' };
+	}
 
 	onChange = (domContent) => {
 		const { onChange } = this.props;
@@ -61,7 +64,9 @@ class ParserInput extends React.Component {
 		const children = (parsed.body.children && (parsed.body.children.length > 0))
 			? [ ...parsed.body.children ]
 			: [ ...new DOMParser().parseFromString(`<div>${ parsed.body.innerText }</div>`, 'text/html').body.children ];
-		const domHasActualContent = children.filter(c => c && c.innerText && (c.innerText.length > 0)).map(c => c.innerText).length > 0;
+		const domHasActualContent = children
+			.filter((c) => c && c.innerText && (c.innerText.length > 0))
+			.map((c) => c.innerText).length > 0;
 
 		const dom = domHasActualContent ? domContent : '';
 		this.setState({ domContent: dom }, () => onChange(dom));
@@ -81,7 +86,7 @@ class ParserInput extends React.Component {
 		}
 
 		// parse each ingredient line into its individual components
-		const parsedIngredientLines = ingredientLines.map(line => this.parseIngredientLine(line));
+		const parsedIngredientLines = ingredientLines.map((line) => this.parseIngredientLine(line));
 
 		onComplete(parsedIngredientLines, instructions);
 	};
@@ -197,7 +202,7 @@ class ParserInput extends React.Component {
 			parsed = Parser.parse(ingredientLine.reference);
 			ingredientLine.isParsed = true;
 			ingredientLine.rule = parsed.rule;
-			ingredientLine.parsed = parsed.values.map(v => ({ ...v }));
+			ingredientLine.parsed = parsed.values.map((v) => ({ ...v }));
 		} catch (err) {
 			console.error('failed to parse');
 			console.log({ err });
@@ -222,7 +227,7 @@ class ParserInput extends React.Component {
 				<ParseButtonStyles>
 					<Button
 						label="Parse"
-						onClick={ e => this.parseContent(e) }
+						onClick={ (e) => this.parseContent(e) }
 						type="button"
 					/>
 				</ParseButtonStyles>

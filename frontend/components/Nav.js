@@ -9,14 +9,14 @@ import ButtonLink from './form/ButtonLink';
 
 const NavStyles = styled.nav`
 	/* mobile top nav */
-	background: ${ props => props.theme.menuBackground };
+	background: ${ (props) => props.theme.menuBackground };
 	position: fixed;
 	top: 0;
 	width: 100%;
 	z-index: 1000; /* we want this higher than the nprogress bar*/
 
 	.navigationIcon {
-		color: ${ props => props.theme.menuColor };
+		color: ${ (props) => props.theme.menuColor };
 		cursor: pointer;
 		display: block;
 		padding: 10px;
@@ -33,12 +33,12 @@ const NavStyles = styled.nav`
 		}
 
 		&:hover {
-			color: ${ props => lighten(0.1, props.theme.menuColor) };
+			color: ${ (props) => lighten(0.1, props.theme.menuColor) };
 		}
 	}
 
 	ul {
-		display: ${ props => (props.expanded ? 'block' : 'none') };
+		display: ${ (props) => (props.expanded ? 'block' : 'none') };
 		list-style-type: none;
 		padding: 0;
 		margin: 20px;
@@ -55,12 +55,12 @@ const NavStyles = styled.nav`
 				background: transparent;
 				cursor: pointer;
 				text-decoration: none;
-				color: ${ props => props.theme.menuColor };
+				color: ${ (props) => props.theme.menuColor };
 				font-size: .875em;
 				font-weight: 400;
 
 				&:hover {
-					color: ${ props => lighten(0.1, props.theme.menuColor) };
+					color: ${ (props) => lighten(0.1, props.theme.menuColor) };
 				}
 
 				svg {
@@ -72,9 +72,9 @@ const NavStyles = styled.nav`
 	}
 
 	/* tablet and larger moves the nav to the left */
-	@media (min-width: ${ props => props.theme.tablet }) {
-		width: ${ props => props.theme.menuWidth };
-		left: -${ props => (props.expanded ? 0 : props.theme.menuOffset) };
+	@media (min-width: ${ (props) => props.theme.tablet }) {
+		width: ${ (props) => props.theme.menuWidth };
+		left: -${ (props) => (props.expanded ? 0 : props.theme.menuOffset) };
 		bottom: 0;
 		transition: .2s ease-out;
 
@@ -87,7 +87,7 @@ const NavStyles = styled.nav`
 
 			&:focus {
 				outline-width: 0;
-				color: ${ props => props.theme.highlight };
+				color: ${ (props) => props.theme.highlight };
 			}
 		}
 	}
@@ -164,7 +164,7 @@ class Nav extends React.PureComponent {
 					ref={ this.navigationIcon }
 					type="button"
 				>
-					{<FontAwesomeIcon icon={ faEllipsisV } />}
+					<FontAwesomeIcon icon={ faEllipsisV } />
 				</button>
 				<ul>
 					{/* Home */}

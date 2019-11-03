@@ -35,7 +35,7 @@ const HeaderStyles = styled.div`
 	cursor: pointer;
 
 	.count {
-		color: ${ props => props.theme.lighterGrey };
+		color: ${ (props) => props.theme.lighterGrey };
 		text-align: right;
 	}
 `;
@@ -84,7 +84,7 @@ const IngredientsList = styled.ul`
 			display: inline-block; /* need to give these links height for the scroll! */
 
 			&:hover {
-				color: ${ props => props.theme.highlight };
+				color: ${ (props) => props.theme.highlight };
 			}
 		}
 	}
@@ -98,7 +98,7 @@ const IngredientsList = styled.ul`
 		column-count: 3;
 	}
 
-	@media (min-width: ${ props => props.theme.desktopCardWidth }) {
+	@media (min-width: ${ (props) => props.theme.desktopCardWidth }) {
 		padding: 10px 0;
 
 		/* swing the ingredient list over to the left */
@@ -172,8 +172,8 @@ class Container extends React.PureComponent {
 
 		// otherwise we'll add in headers to separate letter groups
 		let ingListWithHeaders = [];
-		const hasSymbols = ingList.map(i => i.name.charAt(0)).filter(char => !char.match(/[a-z]/i)).length > 0;
-		const letters = ingList.map(i => i.name.charAt(0)).filter((char, index, self) => self.indexOf(char) === index && char.match(/[a-z]/i));
+		const hasSymbols = ingList.map((i) => i.name.charAt(0)).filter((char) => !char.match(/[a-z]/i)).length > 0;
+		const letters = ingList.map((i) => i.name.charAt(0)).filter((char, index, self) => self.indexOf(char) === index && char.match(/[a-z]/i));
 
 		if (hasSymbols) {
 			// push header symbol
@@ -184,7 +184,7 @@ class Container extends React.PureComponent {
 			});
 
 			// push all ingredients that start with a non-alphanumeric value
-			ingListWithHeaders = ingListWithHeaders.concat(...ingList.filter(i => !i.name.charAt(0).match(/[a-z]/i)));
+			ingListWithHeaders = ingListWithHeaders.concat(...ingList.filter((i) => !i.name.charAt(0).match(/[a-z]/i)));
 		}
 
 		// loop through the used letters and push their ingredient groups
@@ -198,7 +198,7 @@ class Container extends React.PureComponent {
 
 				// push ingredients under that letter group
 				const array = grouping.concat(
-					...ingredients.filter(i => i.name.charAt(0) === char)
+					...ingredients.filter((i) => i.name.charAt(0) === char)
 						.sort((a, b) => {
 							if (a.name < b.name) { return -1; }
 							if (a.name > b.name) { return 1; }
@@ -270,7 +270,7 @@ class Container extends React.PureComponent {
 
 						return (
 							<ContainerStyles className={ (isExpanded) ? 'expanded' : '' }>
-								<HeaderStyles onClick={ e => this.onHeaderClick(e, setContainerIsExpanded, id, isExpanded) }>
+								<HeaderStyles onClick={ (e) => this.onHeaderClick(e, setContainerIsExpanded, id, isExpanded) }>
 									{label}
 									<span className="count">{ referenceCount }</span>
 								</HeaderStyles>
@@ -290,7 +290,7 @@ class Container extends React.PureComponent {
 
 								<IngredientsList className={ listClassName }>
 									{
-										ingList.map(i => (
+										ingList.map((i) => (
 											<li className={ i.className } key={ i.id }>
 												{
 													(i.type === 'header')
@@ -298,8 +298,8 @@ class Container extends React.PureComponent {
 														: (
 															<a
 																id={ i.id }
-																onClick={ e => this.onIngredientClick(e, currentIngredientID) }
-																onKeyPress={ e => this.onIngredientClick(e, currentIngredientID) }
+																onClick={ (e) => this.onIngredientClick(e, currentIngredientID) }
+																onKeyPress={ (e) => this.onIngredientClick(e, currentIngredientID) }
 																role="link"
 																tabIndex="0"
 															>
@@ -322,7 +322,7 @@ class Container extends React.PureComponent {
 
 Container.propTypes = {
 	client: PropTypes.shape({ mutate: PropTypes.func }).isRequired,
-	group: PropTypes.oneOf([ 'name', 'property', 'relationship', 'count' ]).isRequired,
+	// group: PropTypes.oneOf([ 'name', 'property', 'relationship', 'count' ]).isRequired,
 	id: PropTypes.string.isRequired,
 	view: PropTypes.oneOf([ 'all', 'new' ]).isRequired,
 };

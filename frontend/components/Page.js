@@ -29,7 +29,7 @@ const Wrapper = styled.div`
 
 	@media (min-width: ${ theme.tablet }) {
 		top: 0;
-		left: ${ (theme.expaned ? theme.menuOffset : theme.minMenuWidth) };
+		left: ${ (theme.expanded ? theme.menuOffset : theme.minMenuWidth) };
 
 		section {
 			margin-right: 40px;

@@ -49,7 +49,7 @@ const FormStyles = styled.form`
 	 	border-bottom: 0;
 	}
 
-	@media (min-width: ${ props => props.theme.desktopCardWidth }) {
+	@media (min-width: ${ (props) => props.theme.desktopCardWidth }) {
 		fieldset {
 			margin-bottom: 6px;
 		}
@@ -70,7 +70,7 @@ const TopFormStyles = styled.div`
 		height: 20px;
 	}
 
-	@media (min-width: ${ props => props.theme.desktopCardWidth }) {
+	@media (min-width: ${ (props) => props.theme.desktopCardWidth }) {
 		display: flex;
 		justify-content: space-between;
 		margin-bottom: 20px;
@@ -103,7 +103,7 @@ const Right = styled.div`
 `;
 
 const MiddleFormStyles = styled.div`
-	@media (min-width: ${ props => props.theme.desktopCardWidth }) {
+	@media (min-width: ${ (props) => props.theme.desktopCardWidth }) {
 		display: flex;
 		justify-content: space-between;
 		margin-bottom: 20px;
@@ -135,7 +135,7 @@ const BottomFormStyles = styled.div`
 		flex-basis: 100%;
 		text-align: right;
 		font-size: .875em;
-		color: ${ props => props.theme.red };
+		color: ${ (props) => props.theme.red };
 		list-style-type: none;
 		margin: 0;
 		padding: 0;
@@ -149,7 +149,7 @@ const BottomFormStyles = styled.div`
 		border: 0;
 		background: transparent;
 		cursor: pointer;
-		color: ${ props => props.theme.highlight };
+		color: ${ (props) => props.theme.highlight };
 		font-weight: 600;
 		font-size: 14px;
 
@@ -166,22 +166,22 @@ const BottomFormStyles = styled.div`
 	}
 
 	button.save {
-		background: ${ props => props.theme.altGreen };
+		background: ${ (props) => props.theme.altGreen };
 		color: white;
 		border-radius: 5px;
 		padding: 4px 10px;
 
 		&:hover {
-			background: ${ props => darken(0.1, props.theme.altGreen) };
+			background: ${ (props) => darken(0.1, props.theme.altGreen) };
 		}
 	}
 
 	button.merge {
-		color: ${ props => props.theme.highlight };
+		color: ${ (props) => props.theme.highlight };
 	}
 
 	button.parent {
-		color: ${ props => props.theme.orange };
+		color: ${ (props) => props.theme.orange };
 	}
 
 	button.parsingError {
@@ -202,7 +202,7 @@ const BottomFormStyles = styled.div`
 		}
 	}
 
-	@media (min-width: ${ props => props.theme.desktopCardWidth }) {
+	@media (min-width: ${ (props) => props.theme.desktopCardWidth }) {
 		display: flex;
 		justify-content: flex-end;
 
@@ -228,7 +228,10 @@ class Form extends Component {
 		warnings: [],
 	};
 
-	state = this.initialState;
+	constructor(props) {
+		super(props);
+		this.state = this.initialState;
+	}
 
 	componentDidUpdate() {
 		const { isFormReset, resetForm } = this.props;
@@ -257,10 +260,10 @@ class Form extends Component {
 				data.alternateNames = { create: [ ...ingredient.alternateNames ] };
 			} else if (type === 'update') {
 				if (pending.alternateNamesCreate) {
-					data.alternateNames = { create: pending.alternateNamesCreate.map(n => ({ name: n })) };
+					data.alternateNames = { create: pending.alternateNamesCreate.map((n) => ({ name: n })) };
 				}
 				if (pending.alternateNamesDelete) {
-					data.alternateNames = { delete: pending.alternateNamesDelete.map(n => ({ name: n })) };
+					data.alternateNames = { delete: pending.alternateNamesDelete.map((n) => ({ name: n })) };
 				}
 			}
 		}
@@ -403,7 +406,7 @@ class Form extends Component {
 			isValidated,
 			parentID, // TODO getPendingIngredient parentID
 			parentName, // TODO getPendingIngredient parentName
-			references: references.map(r => ({
+			references: references.map((r) => ({
 				id: r.id,
 				name: r.reference,
 			})), // rename for List component
@@ -421,7 +424,7 @@ class Form extends Component {
 		// remove any deleted alternate names
 		if (hasProperty(pending, 'alternateNamesDelete')) {
 			pending.alternateNamesDelete.forEach((d) => {
-				const index = ing.alternateNames.findIndex(item => item.name === d);
+				const index = ing.alternateNames.findIndex((item) => item.name === d);
 				if (index !== -1) { ing.alternateNames.splice(index, 1); }
 			});
 		}
@@ -438,7 +441,7 @@ class Form extends Component {
 		// disconnect any disconnected related ingredients
 		if (hasProperty(pending, 'relatedIngredientsDisconnect')) {
 			pending.relatedIngredientsDisconnect.forEach((d) => {
-				const index = ing.relatedIngredients.findIndex(item => item.name === d.name);
+				const index = ing.relatedIngredients.findIndex((item) => item.name === d.name);
 				if (index !== -1) { ing.relatedIngredients.splice(index, 1); }
 			});
 		}
@@ -455,7 +458,7 @@ class Form extends Component {
 		// disconnect any disconnected substitutes
 		if (hasProperty(pending, 'substitutesDisconnect')) {
 			pending.substitutesDisconnect.forEach((d) => {
-				const index = ing.substitutes.findIndex(item => item.name === d.name);
+				const index = ing.substitutes.findIndex((item) => item.name === d.name);
 				if (index !== -1) { ing.substitutes.splice(index, 1); }
 			});
 		}
@@ -468,7 +471,7 @@ class Form extends Component {
 
 		if (warnings && warnings.length > 0) {
 			const warn = [ ...warnings ];
-			fieldNameWarnings = warn.filter(w => w.fieldName === fieldName);
+			fieldNameWarnings = warn.filter((w) => w.fieldName === fieldName);
 			fieldNameWarnings = (fieldNameWarnings.length > 0) ? fieldNameWarnings : null;
 		}
 
@@ -573,17 +576,17 @@ class Form extends Component {
 		};
 
 		if (hasProperty(data, 'alternateNamesCreate')) {
-			data.alternateNamesCreate = data.alternateNamesCreate.map(n => n.name || n);
+			data.alternateNamesCreate = data.alternateNamesCreate.map((n) => n.name || n);
 		}
 
 		if (hasProperty(data, 'alternateNamesDelete')) {
 			// if this value is in the associated alternateNamesCreate list, then just remove both instances
 			// eslint-disable-next-line max-len
-			if (hasProperty(data, 'alternateNamesCreate') && data.alternateNamesCreate.find(n => n === listItem.name || n === listItem || n.name === listItem.name)) {
+			if (hasProperty(data, 'alternateNamesCreate') && data.alternateNamesCreate.find((n) => n === listItem.name || n === listItem || n.name === listItem.name)) {
 				// remove it from data.alternateNamesCreate
-				data.alternateNamesCreate = data.alternateNamesCreate.filter(n => n !== listItem.name);
+				data.alternateNamesCreate = data.alternateNamesCreate.filter((n) => n !== listItem.name);
 			} else {
-				data.alternateNamesDelete = data.alternateNamesDelete.map(n => n.name || n);
+				data.alternateNamesDelete = data.alternateNamesDelete.map((n) => n.name || n);
 			}
 		}
 
@@ -597,7 +600,7 @@ class Form extends Component {
 
 		await this.validate('name', (pending.name || name), false);
 		// if we don't have any problematic errors, allow to create or update the ingredient
-		if (warnings.filter(w => w.preventSave).length === 0) {
+		if (warnings.filter((w) => w.preventSave).length === 0) {
 			if (!id || (`${ id }` === '-1')) {
 				this.createIngredient();
 			} else {
@@ -758,14 +761,14 @@ class Form extends Component {
 		}
 
 		if ((fieldName !== 'alternateNames') && (ing.alternateNames.length > 0)) {
-			const promises = ing.alternateNames.map(async w => this.validateField('alternateNames', w.name, isRemoved, currentIngredientID));
+			const promises = ing.alternateNames.map(async (w) => this.validateField('alternateNames', w.name, isRemoved, currentIngredientID));
 			const resolvedPromises = await Promise.all(promises);
 			warnings = warnings.concat(resolvedPromises);
 		}
 
 		// filter duplicate messages
 		warnings = warnings.reduce((acc, current) => {
-			const x = acc.find(w => w.message === current.message);
+			const x = acc.find((w) => w.message === current.message);
 			if (!x || current.preventSave) {
 				return acc.concat([ current ]);
 			}
@@ -796,7 +799,7 @@ class Form extends Component {
 		// if we found this value used on another ingredient, add a warning, but allow save
 		// saving will trigger a merge on these two ingredients
 		const isNotCurrentIngredient = ingredient && (currentIngredientID !== ingredient.id);
-		if (isNotCurrentIngredient && ingredient && (!~warnings.findIndex(w => w.value === nameValue))) {
+		if (isNotCurrentIngredient && ingredient && (!~warnings.findIndex((w) => w.value === nameValue))) {
 			warnings.push({
 				id: uuid.v4(),
 				fieldName,
@@ -810,7 +813,7 @@ class Form extends Component {
 		// so if you're changing 'name' field of 'buttr' to 'butter'. we need to check plural and alt names
 		// for instances of 'butter'
 		const ing = this.getPendingIngredient();
-		const validationFields = [ 'name', 'plural', 'alternateNames' ].filter(f => f !== fieldName);
+		const validationFields = [ 'name', 'plural', 'alternateNames' ].filter((f) => f !== fieldName);
 
 		// first, check the local fields on this ingredient to see if this new value is used
 		// ex: plural and alternateNames for our 'butter' example
@@ -838,7 +841,7 @@ class Form extends Component {
 			}
 
 			// if we find any matches within the alternateNames, add a warning
-			if (nameValue && ing[f] && (typeof ing[f] === 'object') && (!ing[f].findIndex(n => n.name.toLowerCase() === nameValue.toLowerCase()))) {
+			if (nameValue && ing[f] && (typeof ing[f] === 'object') && (!ing[f].findIndex((n) => n.name.toLowerCase() === nameValue.toLowerCase()))) {
 				warnings.push({
 					id: uuid.v4(),
 					fieldName,
@@ -855,7 +858,7 @@ class Form extends Component {
 	render() {
 		const {
 			alternateNames, className, id, isComposedIngredient, isEditMode, loading, name, onCancelClick,
-			onEditClick, plural, properties, references, relatedIngredients, saveLabel, showCancelButton, substitutes,
+			onEditClick, plural, properties, relatedIngredients, saveLabel, showCancelButton, substitutes,
 		} = this.props;
 		const { pending, warnings } = this.state;
 		// cleanup properties data
@@ -897,7 +900,7 @@ class Form extends Component {
 								isPluralSuggestEnabled
 								loading={ loading }
 								onChange={ this.onInputChange }
-								onSuggestPlural={ e => this.onSuggestPlural(e, name) }
+								onSuggestPlural={ (e) => this.onSuggestPlural(e, name) }
 								placeholder="plural"
 								pluralBasis={ name }
 								suppressLocalWarnings
@@ -916,8 +919,8 @@ class Form extends Component {
 							loading={ loading }
 							key={ `card_properties_${ id }` }
 							keys={ [ ...Object.keys(checkboxes) ] }
-							onChange={ e => this.onCheckboxChange(e, 'properties', properties) }
-							onKeyDown={ e => this.onCheckboxKeyDown(e, 'properties', properties) }
+							onChange={ (e) => this.onCheckboxChange(e, 'properties', properties) }
+							onKeyDown={ (e) => this.onCheckboxKeyDown(e, 'properties', properties) }
 							values={ [ ...Object.values(checkboxes) ] }
 						/>
 
@@ -929,8 +932,8 @@ class Form extends Component {
 							loading={ loading }
 							key={ `card_isComposed_${ id }` }
 							keys={ [ 'Recipe Ingredient' ] }
-							onChange={ e => this.onCheckboxChange(e, 'isComposedIngredient', isComposedIngredient) }
-							onKeyDown={ e => this.onCheckboxKeyDown(e, 'isComposedIngredient', isComposedIngredient) }
+							onChange={ (e) => this.onCheckboxChange(e, 'isComposedIngredient', isComposedIngredient) }
+							onKeyDown={ (e) => this.onCheckboxKeyDown(e, 'isComposedIngredient', isComposedIngredient) }
 							values={ [ (isEditMode && hasProperty(pending, 'isComposedIngredient'))
 								? pending.isComposedIngredient : isComposedIngredient ] }
 						/>
@@ -1034,7 +1037,7 @@ class Form extends Component {
 								<Button
 									className="cancel"
 									label="Cancel"
-									onClick={ e => onCancelClick(e) }
+									onClick={ (e) => onCancelClick(e) }
 								/>
 							) : null
 					}
@@ -1046,13 +1049,13 @@ class Form extends Component {
 									className="edit"
 									icon={ <FontAwesomeIcon icon={ faEdit } /> }
 									label="Edit"
-									onClick={ e => onEditClick(e) }
+									onClick={ (e) => onEditClick(e) }
 								/>
 							) : (
 								<Button
 									className="save"
 									label={ saveLabel }
-									onClick={ e => this.onSaveIngredient(e) }
+									onClick={ (e) => this.onSaveIngredient(e) }
 								/>
 							)
 					}

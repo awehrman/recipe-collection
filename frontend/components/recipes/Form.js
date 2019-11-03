@@ -78,7 +78,7 @@ const FormStyles = styled.form`
 	 	border-bottom: 0;
 	}
 
-	@media (min-width: ${ props => props.theme.desktopCardWidth }) {
+	@media (min-width: ${ (props) => props.theme.desktopCardWidth }) {
 		fieldset {
 			margin-bottom: 6px;
 		}
@@ -109,7 +109,7 @@ const TopFormStyles = styled.div`
 		text-overflow: ellipsis;
 	}
 
-	@media (min-width: ${ props => props.theme.desktopCardWidth }) {
+	@media (min-width: ${ (props) => props.theme.desktopCardWidth }) {
 		display: flex;
 		justify-content: space-between;
 
@@ -156,7 +156,7 @@ const Source = styled.div`
 const Categories = styled.ul`
 	list-style: none;
 	display: inline-block;
-	color: ${ props => props.theme.altGreen };
+	color: ${ (props) => props.theme.altGreen };
 	width: 45%;
 	padding: 0;
 	margin: 15px 5px 0px 0;
@@ -179,7 +179,7 @@ const Tags = styled.ul`
 		padding: 4px 10px;
 		font-weight: 900;
 		display: inline;
-		background: ${ props => props.theme.altGreen };
+		background: ${ (props) => props.theme.altGreen };
 		border-radius: 50px;
 		width: 100%;
 		margin-left: 5px;
@@ -193,7 +193,7 @@ const BottomFormStyles = styled.div`
 		flex-basis: 100%;
 		text-align: right;
 		font-size: .875em;
-		color: ${ props => props.theme.red };
+		color: ${ (props) => props.theme.red };
 		list-style-type: none;
 		margin: 0;
 		padding: 0;
@@ -207,7 +207,7 @@ const BottomFormStyles = styled.div`
 		border: 0;
 		background: transparent;
 		cursor: pointer;
-		color: ${ props => props.theme.highlight };
+		color: ${ (props) => props.theme.highlight };
 		font-weight: 600;
 		font-size: 14px;
 
@@ -224,22 +224,22 @@ const BottomFormStyles = styled.div`
 	}
 
 	button.save {
-		background: ${ props => props.theme.altGreen };
+		background: ${ (props) => props.theme.altGreen };
 		color: white;
 		border-radius: 5px;
 		padding: 4px 10px;
 
 		&:hover {
-			background: ${ props => darken(0.1, props.theme.altGreen) };
+			background: ${ (props) => darken(0.1, props.theme.altGreen) };
 		}
 	}
 
 	button.merge {
-		color: ${ props => props.theme.highlight };
+		color: ${ (props) => props.theme.highlight };
 	}
 
 	button.parent {
-		color: ${ props => props.theme.orange };
+		color: ${ (props) => props.theme.orange };
 	}
 
 	button.parsingError {
@@ -260,7 +260,7 @@ const BottomFormStyles = styled.div`
 		}
 	}
 
-	@media (min-width: ${ props => props.theme.desktopCardWidth }) {
+	@media (min-width: ${ (props) => props.theme.desktopCardWidth }) {
 		display: flex;
 		justify-content: flex-end;
 
@@ -285,7 +285,10 @@ class Form extends Component {
 		warnings: [],
 	};
 
-	state = this.initialState;
+	constructor(props) {
+		super(props);
+		this.state = this.initialState;
+	}
 
 	componentDidUpdate() {
 		const { isFormReset, resetForm } = this.props;
@@ -491,7 +494,7 @@ class Form extends Component {
 		// disconnect any disconnected categories
 		if (hasProperty(pending, 'categoriesDisconnect')) {
 			pending.categoriesDisconnect.forEach((d) => {
-				const index = rp.categories.findIndex(item => item.name === d.name);
+				const index = rp.categories.findIndex((item) => item.name === d.name);
 				if (index !== -1) { rp.categories.splice(index, 1); }
 			});
 		}
@@ -517,7 +520,7 @@ class Form extends Component {
 		// disconnect any disconnected tags
 		if (hasProperty(pending, 'tagsDisconnect')) {
 			pending.tagsDisconnect.forEach((d) => {
-				const index = rp.tags.findIndex(item => item.name === d.name);
+				const index = rp.tags.findIndex((item) => item.name === d.name);
 				if (index !== -1) { rp.tags.splice(index, 1); }
 			});
 		}
@@ -542,7 +545,7 @@ class Form extends Component {
 		// disconnect any disconnected ingredients
 		if (hasProperty(pending, 'ingredientsDisconnect')) {
 			pending.ingredientsDisconnect.forEach((d) => {
-				const index = rp.ingredients.findIndex(item => item.id === d.id);
+				const index = rp.ingredients.findIndex((item) => item.id === d.id);
 				if (index !== -1) { rp.ingredients.splice(index, 1); }
 			});
 		}
@@ -568,7 +571,7 @@ class Form extends Component {
 		// disconnect any disconnected instructions
 		if (hasProperty(pending, 'instructionsDisconnect')) {
 			pending.instructionsDisconnect.forEach((d) => {
-				const index = rp.instructions.findIndex(item => item.id === d.id);
+				const index = rp.instructions.findIndex((item) => item.id === d.id);
 				if (index !== -1) { rp.instructions.splice(index, 1); }
 			});
 		}
@@ -581,7 +584,7 @@ class Form extends Component {
 
 		if (warnings && warnings.length > 0) {
 			const warn = [ ...warnings ];
-			fieldNameWarnings = warn.filter(w => w.fieldName === fieldName);
+			fieldNameWarnings = warn.filter((w) => w.fieldName === fieldName);
 			fieldNameWarnings = (fieldNameWarnings.length > 0) ? fieldNameWarnings : null;
 		}
 
@@ -591,8 +594,8 @@ class Form extends Component {
 	lookupIngredients = async (lines) => {
 		const { client } = this.props;
 
-		const ingredientNames = lines.filter(l => l.isParsed && l.parsed && (l.parsed.length > 0))
-			.map(l => l.parsed.filter(p => p.type === 'ingredient').map(p => p.value)).flat();
+		const ingredientNames = lines.filter((l) => l.isParsed && l.parsed && (l.parsed.length > 0))
+			.map((l) => l.parsed.filter((p) => p.type === 'ingredient').map((p) => p.value)).flat();
 
 		const ingredients = ingredientNames.map(async (n) => {
 			// n: 'ginger'
@@ -646,7 +649,7 @@ class Form extends Component {
 			return ingredient;
 		});
 
-		return Promise.all(ingredients).then(data => data);
+		return Promise.all(ingredients).then((data) => data);
 	}
 
 	onImageUpload = async (e) => {
@@ -706,7 +709,7 @@ class Form extends Component {
 							if (p.type === 'ingredient') {
 								const ing = {
 									...p,
-									ingredient: ingData.find(i => (i.name === p.value) || (i.plural === p.value)),
+									ingredient: ingData.find((i) => (i.name === p.value) || (i.plural === p.value)),
 								};
 								return ing;
 							}
@@ -759,7 +762,7 @@ class Form extends Component {
 		const { id } = this.props;
 		const { warnings } = this.state;
 
-		if (warnings.filter(w => w.preventSave).length === 0) {
+		if (warnings.filter((w) => w.preventSave).length === 0) {
 			if (!id || (`${ id }` === '-1')) {
 				this.createRecipe();
 			} else {
@@ -1020,7 +1023,7 @@ class Form extends Component {
 									{/* Categories Preview */}
 									<Categories>
 										{
-											pending.categories.map(c => (
+											pending.categories.map((c) => (
 												<li key={ `categories_display_${ c.id }_${ pending.id }` }>
 													{ c.name }
 												</li>
@@ -1031,7 +1034,7 @@ class Form extends Component {
 									{/* Tags Preview */}
 									<Tags>
 										{
-											pending.tags.map(c => (
+											pending.tags.map((c) => (
 												<li key={ `tags_display_${ c.id }_${ pending.id }` }>
 													{ c.name }
 												</li>
@@ -1070,7 +1073,7 @@ class Form extends Component {
 											<Button
 												className="cancel"
 												label="Cancel"
-												onClick={ e => onCancelClick(e) }
+												onClick={ (e) => onCancelClick(e) }
 											/>
 										) : null
 								}
@@ -1082,13 +1085,13 @@ class Form extends Component {
 												className="edit"
 												icon={ <FontAwesomeIcon icon={ faEdit } /> }
 												label="Edit"
-												onClick={ e => onEditClick(e) }
+												onClick={ (e) => onEditClick(e) }
 											/>
 										) : (
 											<Button
 												className="save"
 												label={ saveLabel }
-												onClick={ e => this.onSaveRecipe(e) }
+												onClick={ (e) => this.onSaveRecipe(e) }
 											/>
 										)
 								}
@@ -1104,7 +1107,6 @@ class Form extends Component {
 Form.defaultProps = {
 	categories: [],
 	className: '',
-	content: '',
 	evernoteGUID: null,
 	id: '-1',
 	image: '',
@@ -1136,7 +1138,6 @@ Form.propTypes = {
 		query: PropTypes.func,
 		mutate: PropTypes.func,
 	}).isRequired,
-	content: PropTypes.string,
 	evernoteGUID: PropTypes.string,
 	id: PropTypes.string,
 	image: PropTypes.string,

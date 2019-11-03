@@ -60,7 +60,7 @@ const Instructions = styled.div`
 `;
 
 const ParsedViewer = ({ ingredients, instructions }) => {
-	const blocks = [ ...new Set(ingredients.map(i => i.blockIndex)) ];
+	const blocks = [ ...new Set(ingredients.map((i) => i.blockIndex)) ];
 
 	return (
 		<ParsedViewerStyles>
@@ -72,19 +72,19 @@ const ParsedViewer = ({ ingredients, instructions }) => {
 			<Ingredients>
 				<ul className="ingredients">
 					{
-						blocks.map(blockIndex => (
+						blocks.map((blockIndex) => (
 							<li key={ `block_${ blockIndex }` } className="block">
 								<ul className="blocks">
 									{
-										ingredients.filter(i => i.blockIndex === blockIndex)
-											.map(i => (
+										ingredients.filter((i) => i.blockIndex === blockIndex)
+											.map((i) => (
 												<li key={ `parsed_ingredient_${ i.blockIndex }_${ i.lineIndex }` }>
 													{
 														i.isParsed
 															? (
 																<span className="parsed">
 																	{
-																		i.parsed.map(v => (
+																		i.parsed.map((v) => (
 																			<span
 																				className={ v.type }
 																				key={ `${ i.blockIndex }_${ i.lineIndex }_${ v.value }` }
@@ -114,7 +114,7 @@ const ParsedViewer = ({ ingredients, instructions }) => {
 			<Instructions>
 				<ul className="instructions">
 					{
-						instructions.map(i => (
+						instructions.map((i) => (
 							<li key={ `parsed_instruction_${ i.blockIndex }` }>
 								{ i.reference }
 							</li>

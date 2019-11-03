@@ -19,7 +19,7 @@ const ListStyles = styled.fieldset`
 	button.add {
 		display: inline-block;
 		border: 0;
-		color: ${ props => props.theme.altGreen };
+		color: ${ (props) => props.theme.altGreen };
 		text-decoration: underline;
 		padding: 0;
 		margin: 0 !important;
@@ -36,7 +36,7 @@ const ListStyles = styled.fieldset`
 		}
 
 		&:focus {
-			outline: ${ props => props.theme.altGreen } auto 3px;
+			outline: ${ (props) => props.theme.altGreen } auto 3px;
 		}
 
 		&:hover {
@@ -99,7 +99,7 @@ const ListStyles = styled.fieldset`
 			button.list {
 				border: 0;
 				background: transparent;
-				color: ${ props => props.theme.altGreen };
+				color: ${ (props) => props.theme.altGreen };
 				text-decoration: underline;
 				padding: 0;
 				cursor: pointer;
@@ -119,7 +119,7 @@ const ListStyles = styled.fieldset`
 				height: 18px;
 
 				&:hover {
-					color: ${ props => props.theme.altGreen };
+					color: ${ (props) => props.theme.altGreen };
 				}
 
 				&:hover + button.delete {
@@ -137,10 +137,13 @@ const ListStyles = styled.fieldset`
 
 // TODO replace this with react-window at some point
 class List extends Component {
-	state = {
-		showInput: false,
-		value: '',				// input value
-	};
+	constructor(props) {
+		super(props);
+		this.state = {
+			showInput: false,
+			value: '',
+		};
+	}
 
 	onAddButtonClick = (e) => {
 		e.preventDefault();
@@ -227,7 +230,7 @@ class List extends Component {
 
 		// only show if the plural value exists and its not already in this list
 		if (plural) {
-			showPlural = (plural && !~list.findIndex(l => l.name === plural));
+			showPlural = (plural && !~list.findIndex((l) => l.name === plural));
 		}
 
 		return showPlural;
@@ -261,7 +264,7 @@ class List extends Component {
 								<Button
 									className="add"
 									icon={ <FontAwesomeIcon icon={ faPlus } /> }
-									onClick={ e => this.onAddButtonClick(e) }
+									onClick={ (e) => this.onAddButtonClick(e) }
 								/>
 							)
 							: null
@@ -272,7 +275,7 @@ class List extends Component {
 						{
 							list.map((i, index) => {
 								if (!i.name) return null;
-								const warningIndex = warnings.findIndex(w => (w.value === i.name));
+								const warningIndex = warnings.findIndex((w) => (w.value === i.name));
 								const key = `${ i.__typename }_${ index }_${ i.id || i.name }`;
 								return (
 									<li key={ key }>
@@ -281,7 +284,7 @@ class List extends Component {
 												? (
 													<Button
 														className="list"
-														onClick={ e => onListItemClick(e, i) }
+														onClick={ (e) => onListItemClick(e, i) }
 														label={ i.name || i }
 													/>
 												)
@@ -294,7 +297,7 @@ class List extends Component {
 													<FontAwesomeIcon
 														className={ (!isEditMode) ? 'disabled' : '' }
 														icon={ faMagic }
-														onClick={ e => this.onSuggestPlural(e, i, list) }
+														onClick={ (e) => this.onSuggestPlural(e, i, list) }
 													/>
 												)
 												: null
@@ -305,7 +308,7 @@ class List extends Component {
 												? (
 													<Button
 														className="delete"
-														onClick={ e => this.onListChange(e, { name: i.name }, fieldName, true) }
+														onClick={ (e) => this.onListChange(e, { name: i.name }, fieldName, true) }
 														icon={ <FontAwesomeIcon icon={ faTimes } /> }
 													/>
 												)
@@ -333,7 +336,7 @@ class List extends Component {
 										loading={ loading }
 										onBlur={ this.onBlur }
 										onChange={ this.onChange }
-										onSubmit={ e => this.onListChange(e, value.name || value, fieldName) }
+										onSubmit={ (e) => this.onListChange(e, value.name || value, fieldName) }
 										placeholder={ placeholder }
 										suppressLocalWarnings={ suppressLocalWarnings }
 										validate={ validate }
@@ -360,8 +363,8 @@ List.defaultProps = {
 	isSuggestionEnabled: false,
 	label: '',
 	loading: false,
-	onListItemClick: e => e.preventDefault(),
-	onListChange: e => e.preventDefault(),
+	onListItemClick: (e) => e.preventDefault(),
+	onListChange: (e) => e.preventDefault(),
 	placeholder: '',
 	suggestionQuery: GET_SUGGESTED_INGREDIENTS_QUERY,
 	suppressLocalWarnings: false,

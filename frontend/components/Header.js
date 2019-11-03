@@ -3,7 +3,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 const HeaderStyles = styled.div`
-	background: ${ props => props.theme.headerBackground };
+	background: ${ (props) => props.theme.headerBackground };
 	margin: 0;
 	display: flex;
 	align-items: center;
@@ -14,7 +14,7 @@ const HeaderStyles = styled.div`
 		margin: 0;
 		font-weight: 300;
 		font-size: 2em;
-		color: ${ props => props.theme.headerColor };
+		color: ${ (props) => props.theme.headerColor };
 	}
 `;
 

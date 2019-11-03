@@ -19,7 +19,6 @@ line-height: 1.8;
 `;
 
 class Modal extends Component {
-	state = {};
 	// associated: [],
 	// type: 'semantic',
 	// warning: null
@@ -42,13 +41,13 @@ class Modal extends Component {
 
 						<Button
 							className="cancel"
-							onClick={ e => onCancel(e) }
+							onClick={ (e) => onCancel(e) }
 							label="Cancel"
 						/>
 
 						<Button
 							className="save"
-							onClick={ e => this.onSave(e) }
+							onClick={ (e) => this.onSave(e) }
 							label={ label }
 						/>
 					</div>

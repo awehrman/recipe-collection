@@ -31,7 +31,7 @@ const Checkbox = styled.div`
 			&:checked + span::after {
 		    position: absolute;
 		    top: 0;
-				color: ${ props => props.theme.altGreen };
+				color: ${ (props) => props.theme.altGreen };
 				display: block;
 				font-style: normal;
 				font-variant: normal;
@@ -64,7 +64,7 @@ const Checkbox = styled.div`
 
 		/* apply fake focus highlighting */
 	&.editable > input:focus + label::before {
-    outline: ${ props => props.theme.altGreen } auto 3px;
+    outline: ${ (props) => props.theme.altGreen } auto 3px;
 	}
 `;
 
@@ -96,7 +96,7 @@ class CheckboxGroup extends Component {
 											id={ k }
 											checked={ values[i] }
 											onChange={ this.onChange }
-											onKeyDown={ (isEditMode) ? e => onKeyDown(e, fieldName) : e => e.preventDefault() }
+											onKeyDown={ (isEditMode) ? (e) => onKeyDown(e, fieldName) : (e) => e.preventDefault() }
 											value={ k }
 										/>
 										<span>{ k }</span>
@@ -105,7 +105,7 @@ class CheckboxGroup extends Component {
 							);
 						}
 						return null;
-					}).filter(c => c)
+					}).filter((c) => c)
 				}
 			</FieldSet>
 		);

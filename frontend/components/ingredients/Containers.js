@@ -71,8 +71,8 @@ class Containers extends React.Component {
 						return (
 							<ContainerStyles>
 								{
-									containers && containers.filter(ctn => ctn.ingredients && (ctn.ingredients.length > 0))
-										.map(c => (
+									containers && containers.filter((ctn) => ctn.ingredients && (ctn.ingredients.length > 0))
+										.map((c) => (
 											<Container
 												group={ group }
 												id={ c.id }

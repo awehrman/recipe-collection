@@ -19,7 +19,7 @@ const Composed = adopt({
 });
 
 const CardStyles = styled.div`
-	max-height: ${ props => (props.theme.mobileCardHeight) };
+	max-height: ${ (props) => (props.theme.mobileCardHeight) };
 	padding: 20px;
 	border-bottom: 1px solid #ddd;
 	width: 100%;
@@ -30,11 +30,11 @@ const CardStyles = styled.div`
 		display: none;
 	}
 
-	@media (min-width: ${ props => (props.theme.desktopCardWidth) }) {
+	@media (min-width: ${ (props) => (props.theme.desktopCardWidth) }) {
 		flex-basis: 70%;
 		flex-grow: 2;
 		order: 1;
-		max-height: ${ props => (props.theme.desktopCardHeight) };
+		max-height: ${ (props) => (props.theme.desktopCardHeight) };
 		border-left: 1px solid #ddd;
 		border-bottom: 0;
 	}
@@ -43,8 +43,11 @@ const CardStyles = styled.div`
 class Card extends React.PureComponent {
 	initialState = { isEditMode: false };
 
-	// eslint-disable-next-line react/destructuring-assignment
-	state = { isEditMode: (this.props.view === 'new') };
+	constructor(props) {
+		super(props);
+		const { view } = props;
+		this.state = { isEditMode: (view === 'new') };
+	}
 
 	onCancelClick = (e) => {
 		e.preventDefault();

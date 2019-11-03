@@ -12,7 +12,7 @@ const SuggestionStyles = styled.div`
 		overflow-y: hidden;
 
 		a {
-			color: ${ props => props.theme.altGreen };
+			color: ${ (props) => props.theme.altGreen };
 			display: inline-block;
 			margin-right: 10px;
 			padding-bottom: 2px;
@@ -25,10 +25,10 @@ const SuggestionStyles = styled.div`
 		}
 
 		a.active, a:active, a:focus {
-			color: ${ props => props.theme.highlight };
+			color: ${ (props) => props.theme.highlight };
 			font-weight: 600;
 			outline: 0;
-			border-bottom: 2px solid ${ props => props.theme.highlight };
+			border-bottom: 2px solid ${ (props) => props.theme.highlight };
 		}
 	}
 `;
@@ -63,14 +63,14 @@ class Suggestions extends PureComponent {
 								<ul className="suggestions">
 									{
 										(isSuggestionEnabled && (value.length > 0))
-											? suggestions.map(s => (
+											? suggestions.map((s) => (
 												<a
 													href="#"
 													id={ s.id }
 													key={ s.id }
-													onClick={ e => this.onSelectSuggestion(e, s) }
-													onKeyDown={ e => this.onKeyDown(e, s) }
-													onMouseDown={ e => this.onSelectSuggestion(e, s) }
+													onClick={ (e) => this.onSelectSuggestion(e, s) }
+													onKeyDown={ (e) => this.onKeyDown(e, s) }
+													onMouseDown={ (e) => this.onSelectSuggestion(e, s) }
 													value={ s.name }
 												>
 													<li>{ s.name }</li>

@@ -165,6 +165,9 @@ class Import extends React.PureComponent {
 																notes.map((n) => (
 																	<li key={ n.id }>
 																		{ n.title }
+																		<div className="content">
+																			{ n.content }
+																		</div>
 																	</li>
 																))
 															}

@@ -30,7 +30,7 @@ ButtonLink.defaultProps = {
 	disabled: false,
 	icon: null,
 	label: null,
-	onClick: e => e.preventDefault(),
+	onClick: (e) => e.preventDefault(),
 	type: 'button',
 };
 

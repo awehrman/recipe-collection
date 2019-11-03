@@ -19,7 +19,7 @@ const FilterStyles = styled.div`
 			color: #222;
 
 			+.new {
-				color: ${ props => props.theme.highlight };
+				color: ${ (props) => props.theme.highlight };
 			}
 		}
 
@@ -37,7 +37,7 @@ const FilterStyles = styled.div`
 				text-decoration: none;
 				margin-left: 16px;
 				text-transform: capitalize; /* TODO well this sure isn't working */
-				color: ${ props => props.theme.lighterGrey };
+				color: ${ (props) => props.theme.lighterGrey };
 				font-size: 1em;
 				padding: 0;
 				cursor: pointer;
@@ -57,7 +57,7 @@ class Filters extends React.PureComponent {
 					<Link href={ { pathname: '/ingredients', query: { view: 'all', group } } }>
 						<a
 							className={ (view === 'all') ? 'active' : '' }
-							onKeyPress={ e => e.preventDefault() }
+							onKeyPress={ (e) => e.preventDefault() }
 							role="button"
 							tabIndex="0"
 						>
@@ -69,7 +69,7 @@ class Filters extends React.PureComponent {
 					<Link href={ { pathname: '/ingredients', query: { view: 'new', group } } }>
 						<a
 							className={ (view === 'new') ? 'active' : '' }
-							onKeyPress={ e => e.preventDefault() }
+							onKeyPress={ (e) => e.preventDefault() }
 							role="button"
 							tabIndex="0"
 						>
@@ -85,7 +85,7 @@ class Filters extends React.PureComponent {
 						{/* eslint-disable-next-line object-curly-newline */}
 						<Link href={ { pathname: '/ingredients', query: { view, group: getNextIngredientGroup(group) } } }>
 							<a
-								onKeyPress={ e => e.preventDefault() }
+								onKeyPress={ (e) => e.preventDefault() }
 								role="button"
 								tabIndex="0"
 							>

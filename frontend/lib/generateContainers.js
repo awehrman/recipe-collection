@@ -6,12 +6,12 @@ export const generateByCount = (ingredientID = null, ingredients = []) => {
 
 	// get the largest reference count from the bunch
 	const upperBound = ingredients
-		.map(i => i.referenceCount)
+		.map((i) => i.referenceCount)
 		.reduce((prev, current) => ((prev > current) ? prev : current));
 
 	// determine exception categories for ingredients with 0 and/or 1 references
-	const noReferences = (ingredients.filter(i => i.referenceCount === 0).length > 0) ? 1 : 0;
-	const singularReference = (ingredients.filter(i => i.referenceCount === 1).length > 0) ? 1 : 0;
+	const noReferences = (ingredients.filter((i) => i.referenceCount === 0).length > 0) ? 1 : 0;
+	const singularReference = (ingredients.filter((i) => i.referenceCount === 1).length > 0) ? 1 : 0;
 
 	// determine number of groups needed outside of our two exception groups
 	let containerSize = (upperBound > 1) ? Math.ceil(upperBound / 10) : 0;
@@ -26,7 +26,7 @@ export const generateByCount = (ingredientID = null, ingredients = []) => {
 
 		// 0 References
 		if ((index === 0) && noReferences) {
-			containerIngredients = ingredients.filter(i => i.referenceCount === 0);
+			containerIngredients = ingredients.filter((i) => i.referenceCount === 0);
 			return {
 				__typename: 'Container',
 				id: uuidv1(),
@@ -40,7 +40,7 @@ export const generateByCount = (ingredientID = null, ingredients = []) => {
 
 		// 1 Reference
 		if ((index === 0 && !noReferences) || (index === 1 && noReferences)) {
-			containerIngredients = ingredients.filter(i => i.referenceCount === 1);
+			containerIngredients = ingredients.filter((i) => i.referenceCount === 1);
 
 			return {
 				__typename: 'Container',
@@ -61,7 +61,7 @@ export const generateByCount = (ingredientID = null, ingredients = []) => {
 			rangeEnd = (adjustedIndex * 10) + 10;
 		}
 
-		containerIngredients = ingredients.filter(i => i.referenceCount >= rangeStart && i.referenceCount <= rangeEnd);
+		containerIngredients = ingredients.filter((i) => i.referenceCount >= rangeStart && i.referenceCount <= rangeEnd);
 
 		return {
 			__typename: 'Container',
@@ -72,7 +72,7 @@ export const generateByCount = (ingredientID = null, ingredients = []) => {
 			label: `${ rangeStart }-${ rangeEnd } References`,
 			referenceCount: containerIngredients.length,
 		};
-	}).filter(c => c.ingredients.length > 0);
+	}).filter((c) => c.ingredients.length > 0);
 
 	return containers;
 };
@@ -97,18 +97,21 @@ export const generateByName = (ingredientID = null, ingredients = [], view) => {
 	// otherwise break up into containers by letter
 	} else {
 		// create an array of unique letters used
-		pagerLabels = ingredients.map(i => i.name.charAt(0))
+		pagerLabels = ingredients.map((i) => i.name.charAt(0))
 			.filter((char, index, self) => self.indexOf(char) === index && char.match(/[a-z]/i));
 
-		const containsSymbols = ingredients.map(i => i.name.charAt(0)).filter(char => !char.match(/[a-z]/i)).length > 0;
+		const containsSymbols = ingredients
+			.map((i) => i.name.charAt(0))
+			.filter((char) => !char.match(/[a-z]/i)).length > 0;
+
 		if (containsSymbols) {
 			pagerLabels.unshift('@');
 		}
 
 		containers = pagerLabels.map((char) => {
 			const containerIngredients = (char === '@')
-				? ingredients.filter(i => !i.name.charAt(0).match(/[a-z]/i))
-				: ingredients.filter(i => i.name.charAt(0) === char);
+				? ingredients.filter((i) => !i.name.charAt(0).match(/[a-z]/i))
+				: ingredients.filter((i) => i.name.charAt(0) === char);
 
 			return {
 				__typename: 'Container',
@@ -122,7 +125,7 @@ export const generateByName = (ingredientID = null, ingredients = [], view) => {
 		});
 	}
 
-	containers = containers.filter(c => (c.ingredients && c.ingredients.length > 0));
+	containers = containers.filter((c) => (c.ingredients && c.ingredients.length > 0));
 	return containers;
 };
 
@@ -133,10 +136,10 @@ export const generateByProperty = (ingredientID = null, ingredients = []) => {
 		let containerIngredients = [];
 
 		if (label !== 'other') {
-			containerIngredients = ingredients.filter(i => hasProperty(i.properties, label) && i.properties[label]);
+			containerIngredients = ingredients.filter((i) => hasProperty(i.properties, label) && i.properties[label]);
 		} else {
-			containerIngredients = ingredients.filter(i => Object.values(i.properties)
-				.filter(value => (value !== 'Properties') && value).length === 0);
+			containerIngredients = ingredients.filter((i) => Object.values(i.properties)
+				.filter((value) => (value !== 'Properties') && value).length === 0);
 		}
 
 		if (containerIngredients.length > 0) {
@@ -150,13 +153,13 @@ export const generateByProperty = (ingredientID = null, ingredients = []) => {
 				referenceCount: containerIngredients.length,
 			};
 		} return null;
-	}).filter(c => c);
+	}).filter((c) => c);
 };
 
 export const generateByRelationship = (ingredientID = null, ingredients = []) => {
 	const containers = [];
-	const parentIngredients = ingredients.filter(i => !i.hasParent);
-	const childIngredients = ingredients.filter(i => i.hasParent);
+	const parentIngredients = ingredients.filter((i) => !i.hasParent);
+	const childIngredients = ingredients.filter((i) => i.hasParent);
 
 	if (childIngredients.length > 0) {
 		containers.push({

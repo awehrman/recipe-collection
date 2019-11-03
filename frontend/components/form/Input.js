@@ -26,7 +26,7 @@ const FieldSet = styled.fieldset`
 		border: none;
 		outline: none;
 		border-bottom: 3px solid #ddd;
-		font-family: ${ props => props.theme.fontFamily };
+		font-family: ${ (props) => props.theme.fontFamily };
 		cursor: default;
 		caret-color: transparent; /* hide the input cursor when not in edit mode */
 		margin-bottom: 5px; /* you'll want at least the height of the span border */
@@ -51,7 +51,7 @@ const FieldSet = styled.fieldset`
 		/*width: 100%; SET BACK TO MAX-WIDTH AFTER TESTING!!!! */
 		height: 0;
 		color: transparent;
-		font-family: ${ props => props.theme.fontFamily };
+		font-family: ${ (props) => props.theme.fontFamily };
 		overflow: hidden;
 
 		&.warning {
@@ -92,13 +92,13 @@ const FieldSet = styled.fieldset`
 				/* the ends look trash with this enabled; you could look into an svg or fa solution */
 				/* border-style: dotted !important; */
 				/* TODO this needs to pull from Input props; for Cards this will need to be highlight */
-				border-top: 3px solid ${ props => props.theme.altGreen };
+				border-top: 3px solid ${ (props) => props.theme.altGreen };
 				max-width: 100% !important;
 				width: auto !important;
 			}
 
 			& + span#highlight.warning {
-				border-top: 3px solid ${ props => props.theme.red };
+				border-top: 3px solid ${ (props) => props.theme.red };
 			}
 		}
 	}
@@ -114,7 +114,7 @@ const FieldSet = styled.fieldset`
 		z-index: 1;
 
 		&:hover {
-			color: ${ props => props.theme.altGreen };
+			color: ${ (props) => props.theme.altGreen };
 		}
 
 		~ input {
@@ -175,7 +175,7 @@ class Input extends Component {
 		inputValue = (!inputValue) ? '' : inputValue;
 
 		let highlightClassName = (inputValue.length > 0) ? 'enabled' : '';
-		const warningIndex = warnings.findIndex(w => (w.value === inputValue));
+		const warningIndex = warnings.findIndex((w) => (w.value === inputValue));
 		highlightClassName += (warningIndex > -1) ? ' warning' : '';
 
 		return (
@@ -191,7 +191,7 @@ class Input extends Component {
 								<FontAwesomeIcon
 									className={ (!isEditMode) ? 'disabled' : '' }
 									icon={ faMagic }
-									onClick={ e => onSuggestPlural(e, pluralBasis) }
+									onClick={ (e) => onSuggestPlural(e, pluralBasis) }
 								/>
 							) : null
 					}
@@ -204,8 +204,8 @@ class Input extends Component {
 						id={ fieldName }
 						name={ fieldName }
 						onBlur={ onBlur }
-						onChange={ e => onChange(e) }
-						onKeyDown={ e => this.onKeyDown(e) }
+						onChange={ (e) => onChange(e) }
+						onKeyDown={ (e) => this.onKeyDown(e) }
 						placeholder={ placeholder }
 						required={ isRequiredField }
 						spellCheck={ isEditMode }
@@ -220,7 +220,7 @@ class Input extends Component {
 					</span>
 
 					{/* validation warnings */}
-					{ (!suppressLocalWarnings && warnings && (warnings.length > 0)) ? warnings.map(w => <Warning>{ w.message }</Warning>) : null }
+					{ (!suppressLocalWarnings && warnings && (warnings.length > 0)) ? warnings.map((w) => <Warning>{ w.message }</Warning>) : null }
 				</label>
 			</FieldSet>
 		);
@@ -238,8 +238,8 @@ Input.defaultProps = {
 	loading: false,
 	onBlur: () => {},
 	onChange: () => {},
-	onSubmit: e => e.preventDefault(),
-	onSuggestPlural: e => e.preventDefault(),
+	onSubmit: (e) => e.preventDefault(),
+	onSuggestPlural: (e) => e.preventDefault(),
 	placeholder: '',
 	pluralBasis: null,
 	suppressLocalWarnings: false,

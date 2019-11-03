@@ -5,7 +5,7 @@ import Button from '../form/Button';
 import Form from './Form';
 
 const AddNewStyles = styled.div`
-	background: ${ props => props.theme.greenBackground };
+	background: ${ (props) => props.theme.greenBackground };
 	padding: 16px 40px 6px;
 	position: fixed;
 	bottom: 0;
@@ -18,7 +18,7 @@ const AddNewStyles = styled.div`
 
 	*:focus {
 		/* for whatever reason its not picking up a passed props.theme value here */
-		outline: 2px dotted ${ props => props.theme.altGreen };
+		outline: 2px dotted ${ (props) => props.theme.altGreen };
 	}
 
 	.add-new-btn {
@@ -46,7 +46,7 @@ const AddNewStyles = styled.div`
 		cursor: pointer;
 		border: 0;
 		background: transparent;
-		color: ${ props => props.theme.altGreen };
+		color: ${ (props) => props.theme.altGreen };
 		font-size: 16px;
 		font-weight: 600;
 		margin: 0 0 10px;
@@ -58,7 +58,7 @@ const AddNewStyles = styled.div`
 		}
 	}
 
-	@media (min-width: ${ props => props.theme.tablet }) {
+	@media (min-width: ${ (props) => props.theme.tablet }) {
 		left: 40px;
 	}
 `;
@@ -96,7 +96,7 @@ class AddNew extends React.PureComponent {
 					className="add-new-btn"
 					isEditMode
 					label="Add New Recipe"
-					onClick={ e => this.onToggleAddNew(e) }
+					onClick={ (e) => this.onToggleAddNew(e) }
 				/>
 				{
 					(isExpanded)
