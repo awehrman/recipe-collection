@@ -177,6 +177,7 @@ export const GET_INGREDIENT_BY_ID_QUERY = gql`
 			}
 			references {
 				id
+				recipeID
 				reference
 			}
 			isValidated
@@ -198,10 +199,6 @@ export const GET_ALL_RECIPES_QUERY = gql`
   query GET_ALL_RECIPES_QUERY {
   	recipes {
   		id
-			evernoteGUID
-			image
-			source
-			title
 			categories {
 				id
 				name
@@ -210,22 +207,28 @@ export const GET_ALL_RECIPES_QUERY = gql`
 				id
 				name
 			}
+			evernoteGUID
+			image
+			source
+			title
 			ingredients {
 				id
 				blockIndex
-				lineIndex
-				reference
-				rule
 				isParsed
+				lineIndex
 				parsed {
+					id
+					ingredient {
+						id
+						isValidated
+						name
+					}
 					rule
 					type
 					value
-					ingredient {
-						id
-						name
-					}
 				}
+				reference
+				rule
 			}
 			instructions {
 				blockIndex
@@ -300,25 +303,23 @@ export const GET_ALL_NOTES_QUERY = gql`
   query GET_ALL_NOTES_QUERY {
   	notes {
   		id
-			evernoteGUID
 			title
-			source
-			categories
-			tags
-			image
-			content
 			ingredients {
 				id
 				reference
 				isParsed
 				blockIndex
+				lineIndex
 				parsed {
-					type
-					value
+					id
 					ingredient {
 						id
+						isValidated
 						name
 					}
+					rule
+					type
+					value
 				}
 			}
 			instructions {
@@ -329,15 +330,14 @@ export const GET_ALL_NOTES_QUERY = gql`
 		}
   }
 `;
+
 export const IS_EVERNOTE_AUTHENTICATED_QUERY = gql`
   query IS_EVERNOTE_AUTHENTICATED_QUERY {
-  	isEvernoteAuthenticated @client
-  }
-`;
-
-export const IS_EVERNOTE_AUTHENTICATED_NETWORK_QUERY = gql`
-  query IS_EVERNOTE_AUTHENTICATED_NETWORK_QUERY {
-  	isEvernoteAuthenticated
+  	isEvernoteAuthenticated {
+  		errors
+			isAuthenticationPending
+			isAuthenticated
+  	}
   }
 `;
 
@@ -359,5 +359,4 @@ export default [
 	GET_NOTES_COUNT_QUERY,
 	GET_ALL_NOTES_QUERY,
 	IS_EVERNOTE_AUTHENTICATED_QUERY,
-	IS_EVERNOTE_AUTHENTICATED_NETWORK_QUERY,
 ];

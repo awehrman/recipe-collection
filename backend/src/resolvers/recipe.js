@@ -47,7 +47,8 @@ export default {
 					.flat();
 				const updateIngredients = ingredients.map(async (i) => {
 					// references: RecipeIngredientUpdateManyInput
-					const ingData = { references: { connect: [ { id: i.lineID } ] } }; // this is the recipeInstruction index
+					// TODO i think this is wrong now
+					const ingData = { references: { create: [ { id: i.lineID } ] } }; // this is the recipeInstruction index
 					const where = { id: i.id };
 
 					// update ingredients with recipe info

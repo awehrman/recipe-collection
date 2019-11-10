@@ -1,26 +1,21 @@
 # import * from '../generated/prisma.graphql'
 
 # TODO move response types into their own file
+type AuthenticationResponse {
+	errors: [ String ]
+	isAuthenticationPending: Boolean
+	isAuthenticated: Boolean
+	authURL: String
+}
+
 type CategoryResponse {
 	category: Category
 	errors: [ String ]
 }
 
-type EvernoteAuthenticationResponse {
-	errors: [ String ]
-	evernoteAuthToken: String
-	evernoteRequestToken: String
-	isSandbox: Boolean
-}
-
 type EvernoteResponse {
 	errors: [ String ]
 	notes: [ Note ]
-}
-
-type ParsedNotesResponse {
-	errors: [ String ]
-	recipes: [ Recipe! ]!
 }
 
 type IngredientResponse {
@@ -33,6 +28,11 @@ type RecipeResponse {
 	recipe: Recipe
 }
 
+type RecipesResponse {
+	errors: [ String ]
+	recipes: [ Recipe ]
+}
+
 type TagResponse {
 	errors: [ String ]
 	tag: Tag
@@ -43,7 +43,7 @@ type Query {
   categories: [ Category! ]!
   categoryAggregate: AggregateCategory!
 
-	isEvernoteAuthenticated: Boolean
+	isEvernoteAuthenticated: AuthenticationResponse!
 
 	ingredient(where: IngredientWhereUniqueInput!): Ingredient
 	ingredients: [ Ingredient! ]!
@@ -63,9 +63,10 @@ type Query {
 }
 
 type Mutation {
-	requestToken: EvernoteAuthenticationResponse
-	clear: EvernoteAuthenticationResponse!
+	authenticate(oauthVerifier: String): AuthenticationResponse
+	clearAuthentication: AuthenticationResponse
 
+	convertNotes: RecipesResponse!
 	importNotes: EvernoteResponse!
 	parseNotes: EvernoteResponse!
 

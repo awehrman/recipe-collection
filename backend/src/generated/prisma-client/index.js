@@ -9,6 +9,10 @@ var models = [
     embedded: false
   },
   {
+    name: "RecipeReference",
+    embedded: false
+  },
+  {
     name: "AlternateName",
     embedded: false
   },

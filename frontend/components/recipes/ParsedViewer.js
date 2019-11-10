@@ -45,6 +45,15 @@ const Ingredients = styled.div`
 
 			&.ingredient {
 				font-weight: 900;
+				color: orange;
+
+				&.valid {
+					color: #222;
+				}
+
+				&.invalid {
+					color: ${ (props) => props.theme.altGreen };
+				}
 			}
 		}
 	}
@@ -97,15 +106,21 @@ const ParsedViewer = ({ className, id, ingredients, instructions }) => {
 															? (
 																<span className="parsed">
 																	{
-																		i.parsed.map((v, index) => (
-																			<span
-																				className={ v.type }
-																				// eslint-disable-next-line
-																				key={ `${ index }${ id }_${ i.blockIndex }_${ i.lineIndex }_${ v.value }` }
-																			>
-																				{ v.value }
-																			</span>
-																		))
+																		i.parsed.map((v, index) => {
+																			let ingClassName = '';
+																			if (v.ingredient) {
+																				ingClassName = (v.ingredient.isValidated) ? ' valid' : ' invalid';
+																			}
+																			return (
+																				<span
+																					className={ `${ v.type } ${ ingClassName }` }
+																					// eslint-disable-next-line
+																					key={ `${ index }${ id }_${ i.blockIndex }_${ i.lineIndex }_${ v.value }` }
+																				>
+																					{ v.value }
+																				</span>
+																			);
+																		})
 																	}
 																</span>
 															)
@@ -159,7 +174,7 @@ ParsedViewer.propTypes = {
 		parsed: PropTypes.arrayOf(
 			PropTypes.shape({
 				id: PropTypes.string,
-				rule: PropTypes.string.isRequired,
+				rule: PropTypes.string,
 				type: PropTypes.string.isRequired,
 				value: PropTypes.string.isRequired,
 				ingredient: PropTypes.shape({

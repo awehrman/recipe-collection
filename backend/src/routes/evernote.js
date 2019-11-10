@@ -10,6 +10,7 @@ const client = new Evernote.Client({
 	china: process.env.CHINA,
 });
 
+// TODO since we settled on just passing back the link; we can move this back in a query as long as the session is still accessible
 router.get('/auth', (req, res) => {
 	console.log('/auth'.cyan);
 	const { oauthVerifier } = req.query;
@@ -19,6 +20,11 @@ router.get('/auth', (req, res) => {
 		requestTokenSecret,
 	} = req.session;
 
+	console.log({
+		authToken,
+		requestToken,
+		requestTokenSecret,
+	});
 	// if we already have an auth token in our session, just pass that back
 	if (authToken) {
 		console.log('Found an existing auth token!'.green);
@@ -35,9 +41,8 @@ router.get('/auth', (req, res) => {
 			req.session.requestToken = reqToken;
 			req.session.requestTokenSecret = reqTokenSecret;
 
-			// req.session.save();
 			// ensure that our session saves and pass back the generated evernote authentication url
-			return res.send({ authURL: client.getAuthorizeUrl(requestToken) });
+			return res.send({ authURL: client.getAuthorizeUrl(reqToken) });
 		});
 	} else if (oauthVerifier) {
 		// otherwise finish the authentication process and save the auth token

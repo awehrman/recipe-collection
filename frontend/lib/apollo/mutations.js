@@ -85,6 +85,7 @@ export const CREATE_INGREDIENT_MUTATION = gql`
 				}
 				references {
 					id
+					recipeID
 					reference
 				}
 			}
@@ -131,6 +132,7 @@ export const UPDATE_INGREDIENT_MUTATION = gql`
 				}
 				references {
 					id
+					recipeID
 					reference
 				}
 				isValidated
@@ -140,7 +142,6 @@ export const UPDATE_INGREDIENT_MUTATION = gql`
   }
 `;
 
-// TODO add in ingredients and instructions
 export const CREATE_RECIPE_MUTATION = gql`
 	mutation CREATE_RECIPE_MUTATION($data: RecipeCreateInput!) {
 		createRecipe(
@@ -172,31 +173,25 @@ export const UPDATE_RECIPE_MUTATION = gql`
 				evernoteGUID
 				title
 				source
-				categories {
-					id
-					name
-				}
-				tags {
-					id
-					name
-				}
 				image
 				ingredients {
 					id
 					blockIndex
-					lineIndex
-					reference
 					isParsed
+					lineIndex
 					parsed {
 						id
+						ingredient {
+							id
+							isValidated
+							name
+						}
 						rule
 						type
 						value
-						ingredient {
-							id
-							name
-						}
 					}
+					reference
+					rule
 				}
 				instructions {
 					id
@@ -214,6 +209,31 @@ export const PARSE_NOTES_MUTATION = gql`
 			errors
 			notes {
 				id
+				ingredients {
+					id
+					blockIndex
+					isParsed
+					lineIndex
+					parsed {
+						id
+						ingredient {
+							id
+							isValidated
+							name
+						}
+						rule
+						type
+						value
+					}
+					reference
+					rule
+				}
+				instructions {
+					id
+					blockIndex
+					reference
+				}
+				title
 			}
 		}
 	}
@@ -225,31 +245,47 @@ export const IMPORT_NOTES_MUTATION = gql`
 			errors
 			notes {
 				id
-				evernoteGUID
 				title
-				source
-				categories
-				tags
-				image
-				content
 				ingredients {
 					id
-					reference
-					isParsed
-					parsed {
-						value
-						ingredient {
-							id
-							name
-						}
-					}
 				}
 				instructions {
 					id
-					blockIndex
-					reference
 				}
 			}
+		}
+	}
+`;
+
+export const CONVERT_NOTES_MUTATION = gql`
+	mutation CONVERT_NOTES_MUTATION {
+		convertNotes {
+			errors
+			recipes {
+				id
+			}
+		}
+	}
+`;
+
+export const AUTHENTICATE_EVERNOTE_MUTATION = gql`
+	mutation AUTHENTICATE_EVERNOTE_MUTATION($oauthVerifier: String) {
+		authenticate(oauthVerifier: $oauthVerifier) {
+			errors
+			isAuthenticationPending
+			isAuthenticated
+			authURL
+		}
+	}
+`;
+
+export const CLEAR_EVERNOTE_AUTH_MUTATION = gql`
+	mutation CLEAR_EVERNOTE_AUTH_MUTATION {
+		clearAuthentication {
+			errors
+			isAuthenticationPending
+			isAuthenticated
+			authURL
 		}
 	}
 `;
@@ -264,4 +300,7 @@ export default [
 	UPDATE_RECIPE_MUTATION,
 	PARSE_NOTES_MUTATION,
 	IMPORT_NOTES_MUTATION,
+	CONVERT_NOTES_MUTATION,
+	AUTHENTICATE_EVERNOTE_MUTATION,
+	CLEAR_EVERNOTE_AUTH_MUTATION,
 ];

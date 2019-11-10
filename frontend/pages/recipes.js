@@ -161,7 +161,7 @@ class Recipes extends React.PureComponent {
 													{/* Categories Preview */}
 													<Categories>
 														{
-															r.categories.map((c) => (
+															r.categories && r.categories.map((c) => (
 																<li key={ `categories_display_${ c.id }_${ c.name }` }>
 																	{ c.name }
 																</li>
@@ -172,7 +172,7 @@ class Recipes extends React.PureComponent {
 													{/* Tags Preview */}
 													<Tags>
 														{
-															r.tags.map((c) => (
+															r.tags && r.tags.map((c) => (
 																<li key={ `tags_display_${ c.id }_${ c.name }` }>
 																	{ c.name }
 																</li>

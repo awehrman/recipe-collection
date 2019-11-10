@@ -20,7 +20,13 @@
 		parent: Ingredient @relation(name: "ParentIngredient")
 		relatedIngredients: [ Ingredient! ]! @relation(name: "RelatedIngredients")
 		substitutes: [ Ingredient! ]! @relation(name: "Substitues")
-		references: [ RecipeIngredient! ]! @relation(name: "RecipeReferences")
+		references: [ RecipeReference! ]! @relation(name: "RecipeReferences")
+	}
+
+	type RecipeReference {
+		id: ID! @id
+		recipeID: ID!
+		reference: String!
 	}
 
 	# TODO 1.33: kill this with fire
@@ -76,7 +82,7 @@
 		blockIndex: Int!
 		lineIndex: Int!
 		reference: String!
-		rule: String
+		rule: String!
 		isParsed: Boolean! @default(value: false)
 		parsed: [ ParsedSegment! ] @relation(name: "ParsedSegments" onDelete: CASCADE)
 	}

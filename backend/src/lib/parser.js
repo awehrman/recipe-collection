@@ -39,7 +39,7 @@ export const parseIngredientLine = (line) => {
 		ingredientLine.rule = parsed.rule;
 		ingredientLine.parsed = parsed.values.map((v) => ({ ...v }));
 	} catch (err) {
-		console.log(`failed to parse lineIndex: ${ ingredientLine.reference }`);
+		console.log(`failed to parse lineIndex: ${ ingredientLine.reference }`.red);
 		// TODO log failures to db
 	}
 
@@ -54,7 +54,11 @@ export const parseHTML = (content) => {
 
 	// we'll use cheerio to help translate our content string into a traversable DOM structure
 	const $ = cheerio.load(content);
+
 	const body = $('body').children();
+	const { children } = body[0];
+
+	// TODO this needs to be re-attended to; and any spans encountered need to be skipped
 
 	// we're going to run with some basic assumptions on how recipe data
 	// is formatted to differentiate between ingredient lines and instructions
@@ -102,13 +106,76 @@ export const parseHTML = (content) => {
    *
    */
 
-
-	// go through the children of our root level div to look for new lines or actual text
+		// go through the children of our root level div to look for new lines or actual text
 	// we may go one level deeper to look for these instances to handle some inconsistent HTML formatting on these notes
+	let currentBlock = [];
 
-	body[0].children.forEach((rootEl) => {
+	// TODO watch out for spans; flag or skip these
+	children.forEach((div) => {
+		const numChildren = (div.children && div.children.length) ? div.children.length : 0;
+		const firstChild = (numChildren > 0) ? div.children[0] : null;
+
+		if (numChildren > 1) {
+			console.log(`${ JSON.stringify(div, null, 2) }`.red);
+			// TODO throw an error or log elsewhere
+		}
+
+		const hasContent = Boolean(firstChild.data);
+
+		if (!hasContent && (currentBlock.length > 0)) {
+			blocks.push(currentBlock);
+			currentBlock = [];
+		} else if (firstChild.data && (firstChild.data.length > 0)) {
+			currentBlock.push(firstChild.data);
+		}
+	});
+
+
+	blocks.forEach((block, blockIndex) => {
+		// add ingredient lines if its the first line, or if we have multiple lines per block
+		if ((blockIndex === 0) || (block.length > 1)) {
+			block.forEach((line, lineIndex) => {
+				ingredients.push({
+					blockIndex,
+					lineIndex,
+					reference: line,
+				});
+			});
+		} else if (block.length === 1) {
+			// add ingredient lines if our block only has a single line
+			instructions.push({
+				blockIndex,
+				reference: block[0],
+			});
+		}
+	});
+
+	// this occurs if we have a single line, useful mostly for testing
+	if ((blocks.length === 0) && (currentBlock.length > 0)) {
+		currentBlock.forEach((line, lineIndex) => {
+			ingredients.push({
+				blockIndex: 0,
+				lineIndex,
+				reference: line,
+			});
+		});
+	}
+
+	// if we still have leftovers in the current block and blocks is populated, then its a leftover instruction
+	if ((blocks.length > 0) && (currentBlock.length > 0)) {
+		currentBlock.forEach((line) => {
+			instructions.push({
+				blockIndex: blocks.length,
+				reference: line,
+			});
+		});
+	}
+
+/*
+	children.forEach((rootEl) => {
 		if (rootEl.children) {
 			rootEl.children.forEach((childEl) => {
+				// console.log({ name: childEl.name, type: childEl.type, data: childEl.data });
 				// if we found a new line, create a new block
 				if (childEl.name === 'br') {
 					blocks = [];
@@ -120,6 +187,7 @@ export const parseHTML = (content) => {
 					// if we found more children, then we'll have to dip a bit deeper
 					// TODO we could probably make this recursive, but in reality these notes don't get that complicated so eh...
 					childEl.children.forEach((grandChildEl) => {
+						// console.log({ name: grandChildEl.name, type: grandChildEl.type, data: grandChildEl.data });
 						// if we found a new line, create a new block
 						if (grandChildEl.name === 'br') {
 							blocks = [];
@@ -181,9 +249,11 @@ export const parseHTML = (content) => {
 			}
 		}
 	}
+	*/
 
 	// parse each ingredient line into its individual components
 	ingredients = ingredients.map((line) => parseIngredientLine(line));
+
 
 	return {
 		ingredients,

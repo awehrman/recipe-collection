@@ -15,8 +15,8 @@ export default () => new ApolloServer({
 		res,
 		prisma,
 	}),
-	tracing: true,
-	introspection: true,
+	// tracing: true,
+	// introspection: true,
 	playground: {
 		settings: {
 			'editor.theme': 'light',

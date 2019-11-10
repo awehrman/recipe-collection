@@ -600,6 +600,7 @@ class Form extends Component {
 		const ingredients = ingredientNames.map(async (n) => {
 			// n: 'ginger'
 
+			// TODO move this into a util file
 			// determine pluralization
 			let name = pluralize.isSingular(n) ? n : null;
 			let plural = pluralize.isPlural(n) ? n : null;
@@ -1144,9 +1145,8 @@ Form.propTypes = {
 	ingredients: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string,
 		blockIndex: PropTypes.number,
-		lineIndex: PropTypes.number,
-		reference: PropTypes.string.isRequired,
 		isParsed: PropTypes.bool,
+		lineIndex: PropTypes.number,
 		parsed: PropTypes.shape({
 			id: PropTypes.string,
 			rule: PropTypes.string.isRequired,
@@ -1157,6 +1157,8 @@ Form.propTypes = {
 				name: PropTypes.string.isRequired,
 			}),
 		}),
+		reference: PropTypes.string.isRequired,
+		rule: PropTypes.string.isRequired,
 	})),
 	instructions: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string,

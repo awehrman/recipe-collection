@@ -3,9 +3,10 @@ import Evernote from 'evernote';
 import imagemin from 'imagemin';
 import imageminJpegtran from 'imagemin-jpegtran';
 import imageminPngquant from 'imagemin-pngquant';
+import pluralize from 'pluralize';
 
 import { parseHTML } from '../lib/parser';
-import { GET_ALL_NOTE_FIELDS, GET_NOTE_CONTENT_FIELDS } from '../graphql/fragments';
+import { GET_ALL_RECIPE_FIELDS, GET_ALL_NOTE_FIELDS, GET_NOTE_CONTENT_FIELDS, GET_BASIC_INGREDIENT_FIELDS } from '../graphql/fragments';
 
 cloudinary.config({
 	cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -13,7 +14,7 @@ cloudinary.config({
 	api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// move this into a util file
+// TODO move these into their own files
 const getNoteStore = (token) => {
 	const client = new Evernote.Client({
 		token,
@@ -27,6 +28,7 @@ const getNoteStore = (token) => {
 
 const findNotesMeta = async (ctx, store, config) => {
 	const { filter, offset } = config;
+	console.log({ offset });
 
 	// limit the number of notes to lookup
 	const maxResults = process.env.DOWNLOAD_LIMIT;
@@ -57,6 +59,7 @@ const findNotesMeta = async (ctx, store, config) => {
 					const importedGUID = (process.env.SANDBOX)
 						? process.env.SANDBOX_BOOKMARKED_NOTEBOOK_GUID
 						: process.env.PROD_BOOKMARKED_NOTEBOOK_GUID;
+
 					if (n.tagGuids && n.tagGuids.includes(importedGUID)) {
 						rejectedNoteCount += 1;
 						return false;
@@ -66,6 +69,7 @@ const findNotesMeta = async (ctx, store, config) => {
 					const bookmarkedGUID = (process.env.SANDBOX)
 						? process.env.SANDBOX_BOOKMARKED_NOTEBOOK_GUID
 						: process.env.PROD_BOOKMARKED_NOTEBOOK_GUID;
+
 					if (n.notebookGuid === bookmarkedGUID) {
 						rejectedNoteCount += 1;
 						return false;
@@ -83,8 +87,12 @@ const findNotesMeta = async (ctx, store, config) => {
 				}))
 				// create the note in prisma
 				.map(async (data) => {
-					const { evernoteGUID } = await ctx.prisma.createNote({ ...data }, config.info);
-					return evernoteGUID;
+					const { id, evernoteGUID } = await ctx.prisma.createNote({ ...data }, config.info);
+					return {
+						id,
+						evernoteGUID,
+						title: data.title,
+					};
 				});
 
 			return Promise.all(createNotes).then((n) => n);
@@ -123,11 +131,11 @@ const getNoteContent = async (ctx, store, config, notes) => {
 		includeAccountLimits: false,
 	});
 
-	const resolveNoteContent = notes.map(async (noteGUID) => {
-		await store.getNoteWithResultSpec(noteGUID, spec)
+	const resolveNoteContent = notes.map(async (note) => {
+		await store.getNoteWithResultSpec(note.evernoteGUID, spec)
+			// minify and upload image
 			.then(async (data) => {
-				const { content, guid, resources } = data;
-				// minify image data
+				const { content, resources } = data;
 				const optimizedImage = await imagemin.buffer(resources[0].data.body, {
 					plugins: [
 						imageminJpegtran(),
@@ -139,25 +147,165 @@ const getNoteContent = async (ctx, store, config, notes) => {
 				const result = await uploadStream(optimizedImage, options);
 
 				return {
+					evernoteGUID: note.evernoteGUID,
 					content,
-					evernoteGUID: guid,
 					image: result.secure_url,
 				};
 			})
 			// create the note in prisma
-			.then(async (data) => {
-				const { evernoteGUID } = await ctx.prisma.updateNote({
-					data,
-					where: { evernoteGUID: data.evernoteGUID },
-				}, config.info);
-				return evernoteGUID;
-			})
+			.then((data) => ctx.prisma.updateNote({
+				data,
+				where: { evernoteGUID: data.evernoteGUID },
+			}, config.info))
 			.catch((err) => console.log(err));
 
-		return noteGUID;
+		return {
+			__typename: 'Note',
+			id: note.id,
+			title: note.title,
+		};
 	});
 
 	return Promise.all(resolveNoteContent).then((n) => n);
+};
+
+const lookupIngredient = async (ctx, info, value, isCreateIngredient = false, recipeID = null, reference = null) => {
+	console.log(`looking up ingredient ${ value }; ${ isCreateIngredient }`);
+	// determine pluralization
+	let name = pluralize.isSingular(value) ? value : null;
+	let plural = pluralize.isPlural(value) ? value : null;
+
+	if (!name) {
+		// attempt to pluralize the ingredient name
+		try {
+			name = pluralize.singular(value);
+		} catch (err) {
+			name = value; // just use n otherwise;
+		}
+	}
+
+	if (!plural) {
+		// attempt to pluralize the ingredient name
+		try {
+			plural = (pluralize.plural(value) !== name) ? pluralize.plural(value) : null;
+		} catch (err) {
+			//
+		}
+	}
+
+	const values = [ ...new Set([
+		name,
+		plural,
+		value,
+	]) ];
+
+	const where = {
+		OR: [
+			{ name_in: values },
+			{ plural_in: values },
+			{ alternateNames_some: { name_in: values } },
+		],
+	};
+
+	const existing = await ctx.prisma.ingredients({ where })
+		.$fragment(GET_BASIC_INGREDIENT_FIELDS)
+		.catch((err) => { console.log(err); });
+	let connect;
+	// if we're ready to create this ingredient and it doesn't exist
+	if (isCreateIngredient && (!existing || (existing.length === 0))) {
+		console.log(`creating ingredient "${ name }"`.red);
+		const data = {
+			name,
+			plural,
+			properties: {
+				create: {
+					meat: false,
+					poultry: false,
+					fish: false,
+					dairy: false,
+					soy: false,
+					gluten: false,
+				},
+			},
+			references: {
+				create: [
+					{
+						recipeID,
+						reference,
+					},
+				],
+			},
+		};
+
+		// instead we'll create the ingredient here
+		const { id } = await ctx.prisma.createIngredient({ ...data }, info);
+		connect = { id };
+	}
+
+	if (!isCreateIngredient && existing && (existing.length > 0)) {
+		connect = {
+			id: existing[0].id,
+			name: existing[0].name,
+			plural: existing[0].plural || plural,
+		};
+
+		return { connect };
+	}
+
+	return null;
+};
+
+const parseNote = async (ctx, info, note, isCreateIngredient = false, recipeID = null) => {
+	console.log(`parseNote; ${ isCreateIngredient }`.yellow);
+
+	// parse content into ingredient lines and instruction lines
+	const { ingredients, instructions } = parseHTML(note.content);
+	const parseIngredientLines = ingredients.map(async (line) => {
+		const createInput = {
+			blockIndex: line.blockIndex,
+			lineIndex: line.lineIndex,
+			reference: line.reference,
+			rule: line.rule,
+			isParsed: line.isParsed,
+		};
+
+		// return the line as is if it isn't parsed
+		if (!createInput.isParsed) {
+			return createInput;
+		}
+
+		// otherwise we'll need to create new input
+		const createParsed = line.parsed.map(async (parsed) => {
+			if (parsed.type === 'ingredient') {
+				const ingredient = await lookupIngredient(ctx, info, parsed.value, isCreateIngredient, recipeID, line.reference)
+					.catch((err) => { throw err; });
+
+				if (ingredient) {
+					return {
+						...parsed,
+						ingredient,
+					};
+				}
+			}
+
+			return { ...parsed };
+		});
+
+		createInput.parsed = {
+			create: await Promise.all(createParsed)
+				.catch((err) => { throw err; }),
+		};
+
+		return createInput;
+	});
+
+	const ingredientLines = await Promise.all(parseIngredientLines)
+		.catch((err) => { throw err; });
+
+	return {
+		ingredients: { create: ingredientLines },
+		instructions: { create: instructions },
+	};
 };
 
 export default {
@@ -174,13 +322,13 @@ export default {
 		},
 		notes: async (parent, args, ctx) => {
 			const notes = await ctx.prisma.notes().$fragment(GET_ALL_NOTE_FIELDS);
-			console.log({ notes });
 			return notes;
 		},
 	},
 
 	Mutation: {
 		importNotes: async (parent, args, ctx, info) => {
+			console.log('importNotes'.cyan);
 			const { req } = ctx;
 			const { authToken, offset } = req.session;
 			const response = {
@@ -196,16 +344,15 @@ export default {
 
 			const store = getNoteStore(authToken);
 
-			req.session.offset = offset || 0;
-
 			// fetch the number of total notes in evernote
 			const filter = new Evernote.NoteStore.NoteFilter();
 			const counts = await store.findNoteCounts(filter, false);
 			const { notebookCounts } = counts;
 
 			let totalCount = 0;
-			// remove the bookmarks from the total count
 			Object.values(notebookCounts).forEach((v) => { totalCount += v; });
+
+			req.session.offset = (!offset || (offset > totalCount)) ? 0 : offset;
 
 			const config = {
 				info,
@@ -213,7 +360,6 @@ export default {
 				offset: req.session.offset,
 				totalCount,
 			};
-
 			// get notes from evernote
 			return findNotesMeta(ctx, store, config)
 				.then((notes) => getNoteContent(ctx, store, config, notes))
@@ -226,7 +372,8 @@ export default {
 						req.session.offset = 0;
 					}
 
-					return notes;
+					response.notes = notes;
+					return response;
 				})
 				.catch((err) => {
 					response.errors.push(err);
@@ -235,120 +382,108 @@ export default {
 		},
 		parseNotes: async (parent, args, ctx, info) => {
 			console.log('parseNotes'.cyan);
-			// get note content
-			const notes = await ctx.prisma.notes().$fragment(GET_NOTE_CONTENT_FIELDS);
 			const response = {
 				__typename: 'EvernoteResponse',
 				errors: [],
 				notes: [],
 			};
 
-			// parse note content into ingredients and instructions
-			const updateNotes = notes.map(async (n) => {
-				let lines = {};
-				if (n.content) {
-					lines = parseHTML(n.content);
-				}
-				const { ingredients, instructions } = lines;
-				console.log(`finishing parsing ${ n.id }`);
-				const data = {};
-				// TODO make a generic util between the client and here
-				if (ingredients) {
-					data.ingredients = { create: [] };
-					ingredients.forEach((line) => {
-						const { blockIndex, isParsed, lineIndex, parsed, reference, rule } = line;
-						// RecipeIngredientCreateInput
-						const ingredientLine = {
-							blockIndex,
-							isParsed,
-							lineIndex,
-							reference,
-							rule,
-						};
+			console.log('fetching notes...');
+			await ctx.prisma.notes().$fragment(GET_NOTE_CONTENT_FIELDS)
+				.then(async (notes) => {
+					console.log(`${ notes.length } notes found!`);
+					const parseNotes = notes.map(async (note) => {
+						// parse note into ingredients and instructions
+						const data = await parseNote(ctx, info, { content: note.content });
 
-						// TODO handle multiple ingredients per line (this might require a data model update too)
-						// if we parsed this line, go through its values and update the ingredient
-						if (isParsed && parsed && (parsed.length > 0)) {
-							ingredientLine.parsed = {
-								create: parsed.map((p) => {
-									if (p.type === 'ingredient') {
-										if (p.ingredient && p.ingredient.id) {
-											return {
-												...p,
-												ingredient: {
-													connect: {
-														id: p.ingredient.id,
-														name: p.ingredient.name,
-														plural: p.ingredient.plural,
-													},
-												},
-											};
-										}
+						// save these parsed updates to prisma
+						const where = { id: note.id };
 
-										/* TODO when we're ready to save the note we'll call this
-										return {
-											...p,
-											ingredient: {
-												create: {
-													name: p.ingredient.name,	// TODO
-													plural: p.ingredient.plural, // TODO
-													properties: {
-														create: {
-															meat: false,
-															poultry: false,
-															fish: false,
-															dairy: false,
-															soy: false,
-															gluten: false,
-														},
-													},
-												},
-											},
-										};
-										*/
-									}
-									return { ...p };
-								}),
-							};
-						}
-						// create recipe ingredient lines
-						data.ingredients.create.push(ingredientLine);
+						let noteRes = await ctx.prisma.updateNote({
+							data: {
+								ingredients: { deleteMany: { id_not: null } },
+								instructions: { deleteMany: { id_not: null } },
+							},
+							where,
+						}, info).$fragment(GET_NOTE_CONTENT_FIELDS);
+
+						// update prisma with new note info
+						noteRes = await ctx.prisma.updateNote({
+							data,
+							where,
+						}, info).$fragment(GET_NOTE_CONTENT_FIELDS);
+
+						// return the clean notes response
+						return noteRes;
 					});
 
-					if (data.ingredients.create.length === 0) delete data.ingredients.create;
-				}
-
-				// instructions: RecipeInstructionCreateManyInput || RecipeInstructionUpdateManyInput
-				if (instructions) {
-					data.instructions = { create: [] };
-
-					instructions.forEach((r) => {
-						data.instructions.create.push({ ...r });
-					});
-
-					if (data.instructions.create.length === 0) delete data.instructions.create;
-				}
-
-				const where = { id: n.id };
-
-				console.log({
-					data,
-					where,
+					await Promise.all(parseNotes)
+						.then((notesRes) => {
+							response.notes = notesRes;
+						})
+						.catch((err) => { throw err; });
+				})
+				.catch((err) => {
+					response.errors.push(err);
 				});
 
-				// update prisma with new note info
-				await ctx.prisma.updateNote({
-					data,
-					where,
-				}, info);
+			console.log('returning response!'.red);
+			console.log(`${ JSON.stringify(response, null, 2) }`.green);
 
-				return {
-					id: n.id,
-					...data,
-				};
-			});
+			return response;
+		},
+		convertNotes: async (parent, args, ctx, info) => {
+			console.log('convertNotes'.cyan);
+			// get all imported notes
+			const response = {
+				__typename: 'RecipesResponse',
+				errors: [],
+				recipes: [],
+			};
 
-			response.notes = Promise.all(updateNotes).then((n) => n);
+			console.log('fetching notes...');
+			await ctx.prisma.notes().$fragment(GET_ALL_NOTE_FIELDS)
+				.then(async (notes) => {
+					console.log(`${ notes.length } notes found!`);
+					const parseNotes = notes.map(async (note) => {
+						const data = {};
+						// create ingredients and instructions
+						data.image = note.image;
+						data.source = note.source;
+						data.title = note.title;
+						data.evernoteGUID = note.evernoteGUID;
+						data.tags = []; // TODO tags
+						data.categories = []; // TODO categories
+
+						// update prisma with new note info
+						const recipeRes = await ctx.prisma.createRecipe({ ...data }, info).$fragment(GET_ALL_RECIPE_FIELDS);
+						console.log(`created recipe ${ recipeRes.id }!`.magenta);
+						// then go back and add in our ingredients/instructions now that we have our recipeID
+						const parsedLines = await parseNote(ctx, info, { content: note.content }, true, recipeRes.id);
+
+						// update the recipe with our parsed content lines
+						const updated = await ctx.prisma.updateRecipe({
+							data: { ...parsedLines },
+							where: { id: recipeRes.id },
+						}, info).$fragment(GET_ALL_RECIPE_FIELDS);
+						console.log(`updated recipe ${ recipeRes.id }!`.magenta);
+						// return the clean notes response
+						return updated;
+					});
+
+					await Promise.all(parseNotes)
+						.then((recipeRes) => {
+							response.recipes = recipeRes;
+						})
+						.catch((err) => { throw err; });
+				})
+				.catch((err) => {
+					response.errors.push(err);
+				});
+
+			console.log('returning response!'.red);
+			console.log(`${ JSON.stringify(response, null, 2) }`.green);
+
 
 			return response;
 		},

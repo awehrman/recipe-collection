@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { withRouter } from 'next/router';
 import React from 'react';
 import { adopt } from 'react-adopt';
@@ -11,14 +10,25 @@ import Header from '../components/Header';
 import ErrorMessage from '../components/ErrorMessage';
 import Loading from '../components/Loading';
 import ParsedViewer from '../components/recipes/ParsedViewer';
-import { GET_NOTES_COUNT_QUERY, GET_ALL_NOTES_QUERY, IS_EVERNOTE_AUTHENTICATED_QUERY } from '../lib/apollo/queries';
-import { CREATE_RECIPE_MUTATION, IMPORT_NOTES_MUTATION, PARSE_NOTES_MUTATION } from '../lib/apollo/mutations';
+/* eslint-disable object-curly-newline */
+import {
+	GET_NOTES_COUNT_QUERY,
+	GET_ALL_NOTES_QUERY,
+	IS_EVERNOTE_AUTHENTICATED_QUERY,
+} from '../lib/apollo/queries';
+import {
+	IMPORT_NOTES_MUTATION,
+	PARSE_NOTES_MUTATION,
+	AUTHENTICATE_EVERNOTE_MUTATION,
+	CONVERT_NOTES_MUTATION,
+} from '../lib/apollo/mutations';
+/* eslint-enable object-curly-newline */
 
 import { hasProperty } from '../lib/util';
 
 const Composed = adopt({
 	// eslint-disable-next-line react/prop-types
-	isEvernoteAuthenticated: ({ render }) => (
+	authentication: ({ render }) => (
 		<Query query={ IS_EVERNOTE_AUTHENTICATED_QUERY } ssr={ false }>
 			{ render }
 		</Query>
@@ -42,25 +52,27 @@ const Composed = adopt({
 	importNotes: ({ render }) => (
 		<Mutation
 			refetchQueries={ [
-				{ query: GET_ALL_NOTES_QUERY },
 				{ query: GET_NOTES_COUNT_QUERY },
 			] }
 			mutation={ IMPORT_NOTES_MUTATION }
+			update={
+				(cache, { data }) => {
+					const { importNotes } = data;
+					const { errors } = importNotes;
+					// TODO handle errors
+					if (errors && (errors.length > 0)) {
+						console.error({ errors });
+					}
+					const { notes } = cache.readQuery({ query: GET_ALL_NOTES_QUERY });
+					const updated = { notes: notes.concat([ importNotes.notes ]).flat() };
+
+					cache.writeQuery({
+						query: GET_ALL_NOTES_QUERY,
+						data: updated,
+					});
+				}
+			}
 		>
-			{ render }
-		</Mutation>
-	),
-
-	// eslint-disable-next-line react/prop-types
-	parseNotes: ({ render }) => (
-		<Mutation mutation={ PARSE_NOTES_MUTATION }>
-			{ render }
-		</Mutation>
-	),
-
-	// eslint-disable-next-line react/prop-types
-	createRecipe: ({ render }) => (
-		<Mutation mutation={ CREATE_RECIPE_MUTATION }>
 			{ render }
 		</Mutation>
 	),
@@ -105,10 +117,7 @@ class Import extends React.PureComponent {
 	constructor(props) {
 		super(props);
 
-		this.state = {
-			isParsing: false,
-			parsedNotes: [],
-		};
+		this.state = { isParsing: false };
 	}
 
 	componentDidMount() {
@@ -119,42 +128,33 @@ class Import extends React.PureComponent {
 			const { oauth_verifier } = query;
 
 			// go back to our server with our verifier string to receive our actual access token
-			// eslint-disable-next-line camelcase
-			const url = `${ process.env.EVERNOTE_AUTH_URL }?oauthVerifier=${ oauth_verifier }`;
-			axios(url, { withCredentials: true })
-				.then(() => {
-					// update our auth status
-					client.writeQuery({
-						data: { isEvernoteAuthenticated: true },
-						query: IS_EVERNOTE_AUTHENTICATED_QUERY,
-					});
-
+			client.mutate({
+				refetchQueries: [ { query: IS_EVERNOTE_AUTHENTICATED_QUERY } ],
+				mutation: AUTHENTICATE_EVERNOTE_MUTATION,
+				update: () => {
+					// TODO consider updating the cache directly instead of refetching
 					// update url
 					router.replace('/import', '/import', { shallow: true });
-				})
-				.catch((err) => console.error(err));
+				},
+				variables: { oauthVerifier: oauth_verifier },
+			});
 		}
 	}
 
 	authenticate = () => {
 		const { client } = this.props;
 
-		// request the temporary requestToken with our callback from evernote
-		axios(process.env.EVERNOTE_AUTH_URL, { withCredentials: true }).then(({ data }) => {
-			const { authURL, isAuthenticated } = data;
-			// redirect us to evernote to sign in
-			if (authURL) {
-				window.open(authURL, '_self');
-			}
+		// call the authentication mutation to receive the request token
+		client.mutate({
+			mutation: AUTHENTICATE_EVERNOTE_MUTATION,
+			update: (cache, { data }) => {
+				const { authenticate } = data;
+				const { authURL } = authenticate;
 
-			if (isAuthenticated) {
-				client.writeQuery({
-					data: { isEvernoteAuthenticated: true },
-					query: IS_EVERNOTE_AUTHENTICATED_QUERY,
-				});
-			}
-		}).catch((err) => {
-			console.error(err);
+				if (authURL) {
+					window.open(authURL, '_self');
+				}
+			},
 		});
 	}
 
@@ -165,42 +165,73 @@ class Import extends React.PureComponent {
 			// TODO instead of refetching these queries, we could just update the cache manually with the response
 			client.mutate({
 				refetchQueries: [
-					{ query: GET_ALL_NOTES_QUERY },
 					{ query: GET_NOTES_COUNT_QUERY },
 				],
 				mutation: PARSE_NOTES_MUTATION,
-				update: () => this.setState({ isParsing: false }),
+				update: (cache, { data }) => {
+					const { parseNotes } = data;
+					const { errors } = parseNotes;
+					// TODO handle errors
+					if (errors && (errors.length > 0)) {
+						console.error({ errors });
+					}
+					const { notes } = parseNotes;
+					console.warn({ notes });
+					cache.writeQuery({
+						query: GET_ALL_NOTES_QUERY,
+						data: { notes },
+					});
+
+					this.setState({ isParsing: false });
+				},
 			});
 		});
 	}
 
-	saveRecipe = (e) => {
+	convertNotes = (e) => {
 		e.preventDefault();
+		const { client } = this.props;
+		this.setState({ isParsing: true }, () => {
+			client.mutate({
+				refetchQueries: [
+					{ query: GET_NOTES_COUNT_QUERY },
+				],
+				mutation: CONVERT_NOTES_MUTATION,
+				update: (cache, { data }) => {
+					const { convertNotes } = data;
+					const { errors } = convertNotes;
+					// TODO handle errors
+					if (errors && (errors.length > 0)) {
+						console.error({ errors });
+					}
 
-		// TODO go through parsed notes and issue a create mutate for each
-		/* client.mutate({
-			mutation: CREATE_RECIPE_MUTATION,
-			data,
-		})
-		*/
+					cache.writeQuery({
+						query: GET_ALL_NOTES_QUERY,
+						data: { notes: [] },
+					});
+				},
+			});
+		});
 	}
 
 	render() {
-		const { isParsing, parsedNotes } = this.state;
+		const { isParsing } = this.state;
+
 		return (
 			<ImportStyles>
 				<Header pageHeader="Import" />
 				<Composed>
 					{
 						({
-							isEvernoteAuthenticated,
+							authentication,
 							getNotes,
 							getNotesCount,
 							importNotes,
 						}) => {
-							const { error, data } = isEvernoteAuthenticated;
+							const { error, data } = authentication;
 							if (error) return <ErrorMessage error={ error } />;
-							const isAuthenticated = (data) ? Boolean(data.isEvernoteAuthenticated) : false;
+							const { isAuthenticated = false } = (data && data.isEvernoteAuthenticated) ? data.isEvernoteAuthenticated : {};
+							const { isAuthenticationPending = false } = (data && data.isEvernoteAuthenticated) ? data.isEvernoteAuthenticated : {};
 							const { count } = (getNotesCount && getNotesCount.data)
 								? getNotesCount.data.noteAggregate
 								: 0;
@@ -211,7 +242,7 @@ class Import extends React.PureComponent {
 									<ActionBar>
 										{/* Authenticate Evernote */}
 										{
-											(!isAuthenticated)
+											(!isAuthenticated && !isAuthenticationPending)
 												? (
 													<Button
 														label="Authenticate Evernote"
@@ -247,11 +278,11 @@ class Import extends React.PureComponent {
 
 										{/* Save Recipes */}
 										{
-											(isAuthenticated && parsedNotes && (parsedNotes.length > 0))
+											(isAuthenticated && (count > 0))
 												? (
 													<Button
 														label="Save Recipes"
-														onClick={ (e) => this.saveRecipes(e) }
+														onClick={ (e) => this.convertNotes(e) }
 														type="button"
 													/>
 												) : null
@@ -301,10 +332,12 @@ Import.defaultProps = { query: null };
 
 Import.propTypes = {
 	client: PropTypes.shape({
-		readQuery: PropTypes.func,
-		query: PropTypes.func,
+		cache: PropTypes.shape({
+			readQuery: PropTypes.func,
+			writeQuery: PropTypes.func,
+		}),
 		mutate: PropTypes.func,
-		writeQuery: PropTypes.func,
+		query: PropTypes.func,
 	}).isRequired,
 	router: PropTypes.shape({ replace: PropTypes.func }).isRequired,
 	query: PropTypes.shape({

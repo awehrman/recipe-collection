@@ -47,6 +47,10 @@ type AggregateRecipeInstruction {
   count: Int!
 }
 
+type AggregateRecipeReference {
+  count: Int!
+}
+
 type AggregateTag {
   count: Int!
 }
@@ -449,7 +453,7 @@ type Ingredient {
   parent: Ingredient
   relatedIngredients(where: IngredientWhereInput, orderBy: IngredientOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Ingredient!]
   substitutes(where: IngredientWhereInput, orderBy: IngredientOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Ingredient!]
-  references(where: RecipeIngredientWhereInput, orderBy: RecipeIngredientOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [RecipeIngredient!]
+  references(where: RecipeReferenceWhereInput, orderBy: RecipeReferenceOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [RecipeReference!]
 }
 
 type IngredientAggregate {
@@ -575,7 +579,7 @@ input IngredientCreateInput {
   parent: IngredientCreateOneWithoutParentInput
   relatedIngredients: IngredientCreateManyWithoutRelatedIngredientsInput
   substitutes: IngredientCreateManyWithoutSubstitutesInput
-  references: RecipeIngredientCreateManyInput
+  references: RecipeReferenceCreateManyInput
 }
 
 input IngredientCreateManyWithoutRelatedIngredientsInput {
@@ -608,7 +612,7 @@ input IngredientCreateWithoutParentInput {
   isValidated: Boolean
   relatedIngredients: IngredientCreateManyWithoutRelatedIngredientsInput
   substitutes: IngredientCreateManyWithoutSubstitutesInput
-  references: RecipeIngredientCreateManyInput
+  references: RecipeReferenceCreateManyInput
 }
 
 input IngredientCreateWithoutRelatedIngredientsInput {
@@ -621,7 +625,7 @@ input IngredientCreateWithoutRelatedIngredientsInput {
   isValidated: Boolean
   parent: IngredientCreateOneWithoutParentInput
   substitutes: IngredientCreateManyWithoutSubstitutesInput
-  references: RecipeIngredientCreateManyInput
+  references: RecipeReferenceCreateManyInput
 }
 
 input IngredientCreateWithoutSubstitutesInput {
@@ -634,7 +638,7 @@ input IngredientCreateWithoutSubstitutesInput {
   isValidated: Boolean
   parent: IngredientCreateOneWithoutParentInput
   relatedIngredients: IngredientCreateManyWithoutRelatedIngredientsInput
-  references: RecipeIngredientCreateManyInput
+  references: RecipeReferenceCreateManyInput
 }
 
 type IngredientEdge {
@@ -743,7 +747,7 @@ input IngredientUpdateDataInput {
   parent: IngredientUpdateOneWithoutParentInput
   relatedIngredients: IngredientUpdateManyWithoutRelatedIngredientsInput
   substitutes: IngredientUpdateManyWithoutSubstitutesInput
-  references: RecipeIngredientUpdateManyInput
+  references: RecipeReferenceUpdateManyInput
 }
 
 input IngredientUpdateInput {
@@ -756,7 +760,7 @@ input IngredientUpdateInput {
   parent: IngredientUpdateOneWithoutParentInput
   relatedIngredients: IngredientUpdateManyWithoutRelatedIngredientsInput
   substitutes: IngredientUpdateManyWithoutSubstitutesInput
-  references: RecipeIngredientUpdateManyInput
+  references: RecipeReferenceUpdateManyInput
 }
 
 input IngredientUpdateManyDataInput {
@@ -829,7 +833,7 @@ input IngredientUpdateWithoutParentDataInput {
   isValidated: Boolean
   relatedIngredients: IngredientUpdateManyWithoutRelatedIngredientsInput
   substitutes: IngredientUpdateManyWithoutSubstitutesInput
-  references: RecipeIngredientUpdateManyInput
+  references: RecipeReferenceUpdateManyInput
 }
 
 input IngredientUpdateWithoutRelatedIngredientsDataInput {
@@ -841,7 +845,7 @@ input IngredientUpdateWithoutRelatedIngredientsDataInput {
   isValidated: Boolean
   parent: IngredientUpdateOneWithoutParentInput
   substitutes: IngredientUpdateManyWithoutSubstitutesInput
-  references: RecipeIngredientUpdateManyInput
+  references: RecipeReferenceUpdateManyInput
 }
 
 input IngredientUpdateWithoutSubstitutesDataInput {
@@ -853,7 +857,7 @@ input IngredientUpdateWithoutSubstitutesDataInput {
   isValidated: Boolean
   parent: IngredientUpdateOneWithoutParentInput
   relatedIngredients: IngredientUpdateManyWithoutRelatedIngredientsInput
-  references: RecipeIngredientUpdateManyInput
+  references: RecipeReferenceUpdateManyInput
 }
 
 input IngredientUpdateWithWhereUniqueWithoutRelatedIngredientsInput {
@@ -946,9 +950,9 @@ input IngredientWhereInput {
   substitutes_every: IngredientWhereInput
   substitutes_some: IngredientWhereInput
   substitutes_none: IngredientWhereInput
-  references_every: RecipeIngredientWhereInput
-  references_some: RecipeIngredientWhereInput
-  references_none: RecipeIngredientWhereInput
+  references_every: RecipeReferenceWhereInput
+  references_some: RecipeReferenceWhereInput
+  references_none: RecipeReferenceWhereInput
   AND: [IngredientWhereInput!]
   OR: [IngredientWhereInput!]
   NOT: [IngredientWhereInput!]
@@ -1029,6 +1033,12 @@ type Mutation {
   upsertRecipeInstruction(where: RecipeInstructionWhereUniqueInput!, create: RecipeInstructionCreateInput!, update: RecipeInstructionUpdateInput!): RecipeInstruction!
   deleteRecipeInstruction(where: RecipeInstructionWhereUniqueInput!): RecipeInstruction
   deleteManyRecipeInstructions(where: RecipeInstructionWhereInput): BatchPayload!
+  createRecipeReference(data: RecipeReferenceCreateInput!): RecipeReference!
+  updateRecipeReference(data: RecipeReferenceUpdateInput!, where: RecipeReferenceWhereUniqueInput!): RecipeReference
+  updateManyRecipeReferences(data: RecipeReferenceUpdateManyMutationInput!, where: RecipeReferenceWhereInput): BatchPayload!
+  upsertRecipeReference(where: RecipeReferenceWhereUniqueInput!, create: RecipeReferenceCreateInput!, update: RecipeReferenceUpdateInput!): RecipeReference!
+  deleteRecipeReference(where: RecipeReferenceWhereUniqueInput!): RecipeReference
+  deleteManyRecipeReferences(where: RecipeReferenceWhereInput): BatchPayload!
   createTag(data: TagCreateInput!): Tag!
   updateTag(data: TagUpdateInput!, where: TagWhereUniqueInput!): Tag
   updateManyTags(data: TagUpdateManyMutationInput!, where: TagWhereInput): BatchPayload!
@@ -1715,6 +1725,9 @@ type Query {
   recipeInstruction(where: RecipeInstructionWhereUniqueInput!): RecipeInstruction
   recipeInstructions(where: RecipeInstructionWhereInput, orderBy: RecipeInstructionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [RecipeInstruction]!
   recipeInstructionsConnection(where: RecipeInstructionWhereInput, orderBy: RecipeInstructionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): RecipeInstructionConnection!
+  recipeReference(where: RecipeReferenceWhereUniqueInput!): RecipeReference
+  recipeReferences(where: RecipeReferenceWhereInput, orderBy: RecipeReferenceOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [RecipeReference]!
+  recipeReferencesConnection(where: RecipeReferenceWhereInput, orderBy: RecipeReferenceOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): RecipeReferenceConnection!
   tag(where: TagWhereUniqueInput!): Tag
   tags(where: TagWhereInput, orderBy: TagOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Tag]!
   tagsConnection(where: TagWhereInput, orderBy: TagOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): TagConnection!
@@ -1852,7 +1865,7 @@ type RecipeIngredient {
   blockIndex: Int!
   lineIndex: Int!
   reference: String!
-  rule: String
+  rule: String!
   isParsed: Boolean!
   parsed(where: ParsedSegmentWhereInput, orderBy: ParsedSegmentOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [ParsedSegment!]
 }
@@ -1868,7 +1881,7 @@ input RecipeIngredientCreateInput {
   blockIndex: Int!
   lineIndex: Int!
   reference: String!
-  rule: String
+  rule: String!
   isParsed: Boolean
   parsed: ParsedSegmentCreateManyInput
 }
@@ -1903,7 +1916,7 @@ type RecipeIngredientPreviousValues {
   blockIndex: Int!
   lineIndex: Int!
   reference: String!
-  rule: String
+  rule: String!
   isParsed: Boolean!
 }
 
@@ -2344,6 +2357,215 @@ type RecipePreviousValues {
   image: String
 }
 
+type RecipeReference {
+  id: ID!
+  recipeID: ID!
+  reference: String!
+}
+
+type RecipeReferenceConnection {
+  pageInfo: PageInfo!
+  edges: [RecipeReferenceEdge]!
+  aggregate: AggregateRecipeReference!
+}
+
+input RecipeReferenceCreateInput {
+  id: ID
+  recipeID: ID!
+  reference: String!
+}
+
+input RecipeReferenceCreateManyInput {
+  create: [RecipeReferenceCreateInput!]
+  connect: [RecipeReferenceWhereUniqueInput!]
+}
+
+type RecipeReferenceEdge {
+  node: RecipeReference!
+  cursor: String!
+}
+
+enum RecipeReferenceOrderByInput {
+  id_ASC
+  id_DESC
+  recipeID_ASC
+  recipeID_DESC
+  reference_ASC
+  reference_DESC
+}
+
+type RecipeReferencePreviousValues {
+  id: ID!
+  recipeID: ID!
+  reference: String!
+}
+
+input RecipeReferenceScalarWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  recipeID: ID
+  recipeID_not: ID
+  recipeID_in: [ID!]
+  recipeID_not_in: [ID!]
+  recipeID_lt: ID
+  recipeID_lte: ID
+  recipeID_gt: ID
+  recipeID_gte: ID
+  recipeID_contains: ID
+  recipeID_not_contains: ID
+  recipeID_starts_with: ID
+  recipeID_not_starts_with: ID
+  recipeID_ends_with: ID
+  recipeID_not_ends_with: ID
+  reference: String
+  reference_not: String
+  reference_in: [String!]
+  reference_not_in: [String!]
+  reference_lt: String
+  reference_lte: String
+  reference_gt: String
+  reference_gte: String
+  reference_contains: String
+  reference_not_contains: String
+  reference_starts_with: String
+  reference_not_starts_with: String
+  reference_ends_with: String
+  reference_not_ends_with: String
+  AND: [RecipeReferenceScalarWhereInput!]
+  OR: [RecipeReferenceScalarWhereInput!]
+  NOT: [RecipeReferenceScalarWhereInput!]
+}
+
+type RecipeReferenceSubscriptionPayload {
+  mutation: MutationType!
+  node: RecipeReference
+  updatedFields: [String!]
+  previousValues: RecipeReferencePreviousValues
+}
+
+input RecipeReferenceSubscriptionWhereInput {
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: RecipeReferenceWhereInput
+  AND: [RecipeReferenceSubscriptionWhereInput!]
+  OR: [RecipeReferenceSubscriptionWhereInput!]
+  NOT: [RecipeReferenceSubscriptionWhereInput!]
+}
+
+input RecipeReferenceUpdateDataInput {
+  recipeID: ID
+  reference: String
+}
+
+input RecipeReferenceUpdateInput {
+  recipeID: ID
+  reference: String
+}
+
+input RecipeReferenceUpdateManyDataInput {
+  recipeID: ID
+  reference: String
+}
+
+input RecipeReferenceUpdateManyInput {
+  create: [RecipeReferenceCreateInput!]
+  update: [RecipeReferenceUpdateWithWhereUniqueNestedInput!]
+  upsert: [RecipeReferenceUpsertWithWhereUniqueNestedInput!]
+  delete: [RecipeReferenceWhereUniqueInput!]
+  connect: [RecipeReferenceWhereUniqueInput!]
+  set: [RecipeReferenceWhereUniqueInput!]
+  disconnect: [RecipeReferenceWhereUniqueInput!]
+  deleteMany: [RecipeReferenceScalarWhereInput!]
+  updateMany: [RecipeReferenceUpdateManyWithWhereNestedInput!]
+}
+
+input RecipeReferenceUpdateManyMutationInput {
+  recipeID: ID
+  reference: String
+}
+
+input RecipeReferenceUpdateManyWithWhereNestedInput {
+  where: RecipeReferenceScalarWhereInput!
+  data: RecipeReferenceUpdateManyDataInput!
+}
+
+input RecipeReferenceUpdateWithWhereUniqueNestedInput {
+  where: RecipeReferenceWhereUniqueInput!
+  data: RecipeReferenceUpdateDataInput!
+}
+
+input RecipeReferenceUpsertWithWhereUniqueNestedInput {
+  where: RecipeReferenceWhereUniqueInput!
+  update: RecipeReferenceUpdateDataInput!
+  create: RecipeReferenceCreateInput!
+}
+
+input RecipeReferenceWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  recipeID: ID
+  recipeID_not: ID
+  recipeID_in: [ID!]
+  recipeID_not_in: [ID!]
+  recipeID_lt: ID
+  recipeID_lte: ID
+  recipeID_gt: ID
+  recipeID_gte: ID
+  recipeID_contains: ID
+  recipeID_not_contains: ID
+  recipeID_starts_with: ID
+  recipeID_not_starts_with: ID
+  recipeID_ends_with: ID
+  recipeID_not_ends_with: ID
+  reference: String
+  reference_not: String
+  reference_in: [String!]
+  reference_not_in: [String!]
+  reference_lt: String
+  reference_lte: String
+  reference_gt: String
+  reference_gte: String
+  reference_contains: String
+  reference_not_contains: String
+  reference_starts_with: String
+  reference_not_starts_with: String
+  reference_ends_with: String
+  reference_not_ends_with: String
+  AND: [RecipeReferenceWhereInput!]
+  OR: [RecipeReferenceWhereInput!]
+  NOT: [RecipeReferenceWhereInput!]
+}
+
+input RecipeReferenceWhereUniqueInput {
+  id: ID
+}
+
 type RecipeSubscriptionPayload {
   mutation: MutationType!
   node: Recipe
@@ -2484,6 +2706,7 @@ type Subscription {
   recipeAggregate(where: RecipeAggregateSubscriptionWhereInput): RecipeAggregateSubscriptionPayload
   recipeIngredient(where: RecipeIngredientSubscriptionWhereInput): RecipeIngredientSubscriptionPayload
   recipeInstruction(where: RecipeInstructionSubscriptionWhereInput): RecipeInstructionSubscriptionPayload
+  recipeReference(where: RecipeReferenceSubscriptionWhereInput): RecipeReferenceSubscriptionPayload
   tag(where: TagSubscriptionWhereInput): TagSubscriptionPayload
 }
 

@@ -17,32 +17,35 @@ export const GET_ALL_TAG_FIELDS = `
 export const GET_ALL_NOTE_FIELDS = `
 	{
 		id
-		evernoteGUID
-		title
-		source
-		categories
-		tags
-		image
 		content
+		evernoteGUID
+		image
 		ingredients {
 			blockIndex
+			lineIndex
 			id
-			reference
 			isParsed
 			parsed {
-				type
-				value
+				id
 				ingredient {
 					id
+					isValidated
 					name
 				}
+				rule
+				type
+				value
 			}
+			reference
+			rule
 		}
 		instructions {
 			id
 			blockIndex
 			reference
 		}
+		source
+		title
 	}
 `;
 
@@ -52,17 +55,23 @@ export const GET_NOTE_CONTENT_FIELDS = `
 		content
 		title
 		ingredients {
-			blockIndex
 			id
-			reference
+			blockIndex
 			isParsed
+			lineIndex
 			parsed {
-				value
+				id
 				ingredient {
 					id
+					isValidated
 					name
 				}
+				rule
+				type
+				value
 			}
+			reference
+			rule
 		}
 		instructions {
 			id
@@ -103,8 +112,17 @@ export const GET_ALL_INGREDIENT_FIELDS = `
 		}
 		references {
 			id
+			recipeID
 			reference
 		}
+	}
+`;
+
+export const GET_BASIC_INGREDIENT_FIELDS = `
+	{
+		id
+		name
+		isValidated
 	}
 `;
 
@@ -138,31 +156,25 @@ export const GET_ALL_RECIPE_FIELDS = `
 		evernoteGUID
 		title
 		source
-		categories {
-			id
-			name
-		}
-		tags {
-			id
-			name
-		}
 		image
 		ingredients {
 			id
 			blockIndex
-			lineIndex
-			reference
 			isParsed
+			lineIndex
 			parsed {
 				id
+				ingredient {
+					id
+					isValidated
+					name
+				}
 				rule
 				type
 				value
-				ingredient {
-					id
-					name
-				}
 			}
+			rule
+			reference
 		}
 		instructions {
 			id
@@ -186,6 +198,7 @@ export default [
 	GET_ALL_TAG_FIELDS,
 	GET_ALL_NOTE_FIELDS,
 	GET_NOTE_CONTENT_FIELDS,
+	GET_BASIC_INGREDIENT_FIELDS,
 	GET_ALL_INGREDIENT_FIELDS,
 	GET_ALL_INGREDIENT_FIELDS_FOR_VALIDATION,
 	GET_ALL_RECIPE_FIELDS,
