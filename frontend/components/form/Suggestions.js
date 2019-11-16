@@ -55,7 +55,7 @@ class Suggestions extends PureComponent {
 			<Query query={ suggestionQuery } variables={ { type, value } }>
 				{
 					({ data }) => {
-						const { suggestions = [] } = data;
+						const { suggestions = [] } = data || {};
 						return (
 							<SuggestionStyles>
 								{/* input element */}

@@ -111,15 +111,18 @@ function createClient({ headers }) {
 						// console.warn(`... [withData] ingredient ${ value }`);
 						// get all ingredients from the cache
 						let { ingredients } = cache.readQuery({ query: GET_ALL_INGREDIENTS_QUERY });
+						if (!value || value === '') return null;
+						const adjusted = value.toLowerCase();
+						console.warn({ adjusted });
 
 						// pare down the ingredient info to match the ContainerIngredient shape
 						ingredients = ingredients.filter((i) => {
 							// match on name
-							if (i.name === value.toLowerCase()) return i;
+							if (i.name === adjusted) return i;
 							// match on plural
-							if (i.plural === value.toLowerCase()) return i;
+							if (i.plural === adjusted) return i;
 							// match on altName
-							if (i.alternateNames.find((n) => n.name === value.toLowerCase())) return i;
+							if (i.alternateNames.find((n) => n.name === adjusted)) return i;
 							return null;
 						});
 
@@ -161,7 +164,8 @@ function createClient({ headers }) {
 								&& (i.name !== value)
 							));
 
-							suggestions.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+							console.warn({ suggestions });
+							suggestions.sort((a, b) => a.name.localeCompare(b.name));
 							suggestions = suggestions.slice(0, 5);
 
 							suggestions = suggestions.map((i) => ({

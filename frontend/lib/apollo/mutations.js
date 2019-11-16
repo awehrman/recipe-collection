@@ -85,8 +85,12 @@ export const CREATE_INGREDIENT_MUTATION = gql`
 				}
 				references {
 					id
-					recipeID
-					reference
+					recipe {
+						id
+					}
+					line {
+						reference
+					}
 				}
 			}
 		}
@@ -132,8 +136,12 @@ export const UPDATE_INGREDIENT_MUTATION = gql`
 				}
 				references {
 					id
-					recipeID
-					reference
+					recipe {
+						id
+					}
+					line {
+						reference
+					}
 				}
 				isValidated
 				isComposedIngredient

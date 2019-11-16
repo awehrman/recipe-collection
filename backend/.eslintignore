@@ -1,5 +1,5 @@
-/src/generated/
-/src/lib/ingredientLineParser.js
-/src/lib/ingredientLineParser.pegjs
 /node_modules/
+/src/generated/
+/src/util/ingredientLineParser.js
+/src/util/pegjs/ingredientLineParser.pegjs
 

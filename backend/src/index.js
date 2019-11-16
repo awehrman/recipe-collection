@@ -5,7 +5,6 @@ import cors from 'cors';
 import express from 'express';
 import cookieSession from 'cookie-session';
 
-import evernoteRoute from './routes/evernote';
 import createServer from './createServer';
 
 const app = express();
@@ -47,7 +46,6 @@ app.use(cookieSession({
 	maxAge: 24 * 60 * 60 * 1000,
 }));
 
-app.use('/evernote', evernoteRoute);
 app.set('trust proxy', 1);
 
 server.applyMiddleware({

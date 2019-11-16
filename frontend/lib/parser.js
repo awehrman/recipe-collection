@@ -1,5 +1,4 @@
-import Parser from '../../backend/src/lib/ingredientLineParser';
-
+import Parser from '../../backend/src/util/ingredientLineParser';
 
 export const parseIngredientLine = (line) => {
 	const ingredientLine = {

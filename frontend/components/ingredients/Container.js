@@ -165,7 +165,7 @@ class Container extends React.PureComponent {
 		});
 
 		// sort alphabetically
-		ingList.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+		ingList.sort((a, b) => a.name.localeCompare(b.name));
 
 		// if we have less than 100 ingredients in this container, return the result as is
 		if (ingList.length < 100) return ingList;

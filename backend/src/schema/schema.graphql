@@ -51,7 +51,7 @@ type Query {
 
 	note(where: NoteWhereUniqueInput!): Note
 	notes: [ Note! ]!
-	noteAggregate: AggregateNote!
+	noteAggregate: NoteAggregate!
 
 	recipe(where: RecipeWhereUniqueInput!): Recipe
 	recipes: [ Recipe! ]!

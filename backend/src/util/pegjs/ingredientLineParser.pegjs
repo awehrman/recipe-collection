@@ -1,12 +1,12 @@
 // compile me in the cmd prompt:
-// pegjs -O speed lib/ingredientLineParser.pegjs
+// pegjs -O speed util/pegjs/ingredientLineParser.pegjs
 
 // for codepen repo:
 // pegjs --format globals -e Parser -O size ingredientLineParser.pegjs
 
 // for running in cli
-// node --require ./lib/ingredientLineParser
-//> var Parser = require('./lib/ingredientLineParser');
+// node --require ./util/ingredientLineParser
+//> var Parser = require('./util/ingredientLineParser');
 
 /* format keyword lists
   // sort the list by length, then alphabetically

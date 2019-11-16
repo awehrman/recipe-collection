@@ -1,15 +1,15 @@
 import { withRouter } from 'next/router';
 import React from 'react';
 import { adopt } from 'react-adopt';
-import { Mutation, Query, withApollo } from 'react-apollo';
+import { Query, withApollo } from 'react-apollo';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 
 import Button from '../components/form/Button';
 import Header from '../components/Header';
 import ErrorMessage from '../components/ErrorMessage';
-import Loading from '../components/Loading';
-import ParsedViewer from '../components/recipes/ParsedViewer';
+// import Loading from '../components/Loading';
+// import ParsedViewer from '../components/recipes/ParsedViewer';
 /* eslint-disable object-curly-newline */
 import {
 	GET_NOTES_COUNT_QUERY,
@@ -47,35 +47,6 @@ const Composed = adopt({
 			{ render }
 		</Query>
 	),
-
-	// eslint-disable-next-line react/prop-types
-	importNotes: ({ render }) => (
-		<Mutation
-			refetchQueries={ [
-				{ query: GET_NOTES_COUNT_QUERY },
-			] }
-			mutation={ IMPORT_NOTES_MUTATION }
-			update={
-				(cache, { data }) => {
-					const { importNotes } = data;
-					const { errors } = importNotes;
-					// TODO handle errors
-					if (errors && (errors.length > 0)) {
-						console.error({ errors });
-					}
-					const { notes } = cache.readQuery({ query: GET_ALL_NOTES_QUERY });
-					const updated = { notes: notes.concat([ importNotes.notes ]).flat() };
-
-					cache.writeQuery({
-						query: GET_ALL_NOTES_QUERY,
-						data: updated,
-					});
-				}
-			}
-		>
-			{ render }
-		</Mutation>
-	),
 });
 
 const ImportStyles = styled.article`
@@ -93,33 +64,31 @@ const ImportStyles = styled.article`
 `;
 
 const ActionBar = styled.div`
+	button:first-of-type {
+		margin-left: 0;
+	}
 `;
 
 const NotesViewer = styled.div`
 	margin: 20px 0;
-	max-width: 950px;
+	max-width: 850px;
 `;
 
 const Note = styled.div`
-	background: #E8F6F3;
-	border-radius: 5px;
-	margin-bottom: 20px;
-	padding: 40px 60px;
+	background: ${ (props) => props.theme.headerBackground };
+	padding: 10px;
+	margin-bottom: 8px;
 
 	h1 {
 		font-weight: 100;
-		font-size: 18px;
-		margin: 0 0 20px;
+		font-size: 16px;
+		margin: 0;
+		padding: 0;
 	}
+
 `;
 
 class Import extends React.PureComponent {
-	constructor(props) {
-		super(props);
-
-		this.state = { isParsing: false };
-	}
-
 	componentDidMount() {
 		const { client, router, query } = this.props;
 
@@ -158,65 +127,110 @@ class Import extends React.PureComponent {
 		});
 	}
 
-	parseNotes = (e) => {
-		e.preventDefault();
-		const { client } = this.props;
-		this.setState({ isParsing: true }, () => {
-			// TODO instead of refetching these queries, we could just update the cache manually with the response
-			client.mutate({
-				refetchQueries: [
-					{ query: GET_NOTES_COUNT_QUERY },
-				],
-				mutation: PARSE_NOTES_MUTATION,
-				update: (cache, { data }) => {
-					const { parseNotes } = data;
-					const { errors } = parseNotes;
-					// TODO handle errors
-					if (errors && (errors.length > 0)) {
-						console.error({ errors });
-					}
-					const { notes } = parseNotes;
-					console.warn({ notes });
-					cache.writeQuery({
-						query: GET_ALL_NOTES_QUERY,
-						data: { notes },
-					});
-
-					this.setState({ isParsing: false });
-				},
-			});
-		});
-	}
-
 	convertNotes = (e) => {
 		e.preventDefault();
 		const { client } = this.props;
-		this.setState({ isParsing: true }, () => {
-			client.mutate({
-				refetchQueries: [
-					{ query: GET_NOTES_COUNT_QUERY },
-				],
-				mutation: CONVERT_NOTES_MUTATION,
-				update: (cache, { data }) => {
-					const { convertNotes } = data;
-					const { errors } = convertNotes;
-					// TODO handle errors
-					if (errors && (errors.length > 0)) {
-						console.error({ errors });
-					}
+		client.mutate({
+			refetchQueries: [
+				{ query: GET_NOTES_COUNT_QUERY },
+			],
+			mutation: CONVERT_NOTES_MUTATION,
+			update: (cache, { data }) => {
+				const { convertNotes } = data;
+				const { errors } = convertNotes;
+				// TODO handle errors
+				if (errors && (errors.length > 0)) {
+					console.error({ errors });
+				}
 
-					cache.writeQuery({
-						query: GET_ALL_NOTES_QUERY,
-						data: { notes: [] },
-					});
-				},
-			});
+				cache.writeQuery({
+					query: GET_ALL_NOTES_QUERY,
+					data: { notes: [] },
+				});
+			},
+		});
+	}
+
+	importNotes = async (e, importDefault = 0) => {
+		console.warn('importNotes');
+		console.log({ importDefault });
+		e.preventDefault();
+		const { client } = this.props;
+
+		await client.mutate({
+			refetchQueries: [
+				{ query: GET_NOTES_COUNT_QUERY },
+			],
+			mutation: IMPORT_NOTES_MUTATION,
+			optimisticResponse: () => {
+				console.warn('OPTIMISTIC');
+				console.log({ importDefault });
+				const response = {
+					__typename: 'Mutation',
+					importNotes: {
+						__typename: 'EvernoteResponse',
+						errors: [],
+						notes: new Array(importDefault).fill(0).map((_, index) => ({
+							__typename: 'Note',
+							id: `-1_${ index }`,
+							title: 'Loading Note...',
+							ingredients: [],
+							instructions: [],
+						})),
+					},
+				};
+				console.log({ response });
+				return response;
+			},
+			update: (cache, { data }) => {
+				console.warn('UPDATE');
+				const { importNotes } = data;
+				const { errors } = importNotes;
+				// TODO handle errors
+				if (errors && (errors.length > 0)) {
+					console.error({ errors });
+				}
+				const { notes } = cache.readQuery({ query: GET_ALL_NOTES_QUERY });
+				console.log({ notes });
+				// TODO remove the ones with -1 as an id?
+				const updated = { notes: notes.concat([ importNotes.notes ]).flat() };
+				console.log({ updated });
+
+				cache.writeQuery({
+					query: GET_ALL_NOTES_QUERY,
+					data: updated,
+				});
+			},
+		});
+	}
+
+	parseNotes = (e) => {
+		e.preventDefault();
+		const { client } = this.props;
+		// TODO instead of refetching these queries, we could just update the cache manually with the response
+		client.mutate({
+			refetchQueries: [
+				{ query: GET_NOTES_COUNT_QUERY },
+			],
+			mutation: PARSE_NOTES_MUTATION,
+			update: (cache, { data }) => {
+				const { parseNotes } = data;
+				const { errors } = parseNotes;
+				// TODO handle errors
+				if (errors && (errors.length > 0)) {
+					console.error({ errors });
+				}
+				const { notes } = parseNotes;
+				console.warn({ notes });
+				cache.writeQuery({
+					query: GET_ALL_NOTES_QUERY,
+					data: { notes },
+				});
+			},
 		});
 	}
 
 	render() {
-		const { isParsing } = this.state;
-
 		return (
 			<ImportStyles>
 				<Header pageHeader="Import" />
@@ -226,15 +240,15 @@ class Import extends React.PureComponent {
 							authentication,
 							getNotes,
 							getNotesCount,
-							importNotes,
 						}) => {
 							const { error, data } = authentication;
 							if (error) return <ErrorMessage error={ error } />;
 							const { isAuthenticated = false } = (data && data.isEvernoteAuthenticated) ? data.isEvernoteAuthenticated : {};
 							const { isAuthenticationPending = false } = (data && data.isEvernoteAuthenticated) ? data.isEvernoteAuthenticated : {};
-							const { count } = (getNotesCount && getNotesCount.data)
+							const { count, importDefault } = (getNotesCount && getNotesCount.data)
 								? getNotesCount.data.noteAggregate
 								: 0;
+							console.log({ count, importDefault, getNotesCount });
 							const { notes = [] } = (getNotes && getNotes.data) ? getNotes.data : {};
 
 							return (
@@ -258,7 +272,7 @@ class Import extends React.PureComponent {
 												? (
 													<Button
 														label="Import Notes"
-														onClick={ importNotes }
+														onClick={ (e) => this.importNotes(e, importDefault) }
 														type="button"
 													/>
 												) : null
@@ -296,12 +310,7 @@ class Import extends React.PureComponent {
 														// eslint-disable-next-line
 														<Note key={ `${ index }_${ n.id }` }>
 															<h1>{ n.title }</h1>
-															{
-																(isParsing)
-																	? <Loading />
-																	: null
-															}
-															{
+															{/*
 																(n.ingredients || n.instructions)
 																	? (
 																		<ParsedViewer
@@ -311,7 +320,7 @@ class Import extends React.PureComponent {
 																			instructions={ n.instructions }
 																		/>
 																	) : null
-															}
+															*/}
 														</Note>
 													))
 												)

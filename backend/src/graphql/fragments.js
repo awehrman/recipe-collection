@@ -23,14 +23,12 @@ export const GET_ALL_NOTE_FIELDS = `
 		ingredients {
 			blockIndex
 			lineIndex
-			id
 			isParsed
 			parsed {
-				id
 				ingredient {
-					id
 					isValidated
 					name
+					plural
 				}
 				rule
 				type
@@ -40,7 +38,6 @@ export const GET_ALL_NOTE_FIELDS = `
 			rule
 		}
 		instructions {
-			id
 			blockIndex
 			reference
 		}
@@ -112,8 +109,12 @@ export const GET_ALL_INGREDIENT_FIELDS = `
 		}
 		references {
 			id
-			recipeID
-			reference
+			recipe {
+				id
+			}
+			line {
+				reference
+			}
 		}
 	}
 `;
@@ -193,6 +194,33 @@ export const GET_ALL_RECIPE_FIELDS_FOR_VALIDATION = `
 	}
 `;
 
+export const GET_ID = `
+	{
+		id
+	}
+`;
+
+export const GET_BASIC_RECIPE_INGREDIENT_FIELDS = `
+	{
+		id
+		reference
+		isParsed
+	}
+`;
+
+export const GET_PARSED_FIELDS = `
+	{
+		id
+		type
+		value
+		ingredient {
+			id
+			name
+		}
+	}
+`;
+
+
 export default [
 	GET_ALL_CATEGORY_FIELDS,
 	GET_ALL_TAG_FIELDS,
@@ -203,4 +231,7 @@ export default [
 	GET_ALL_INGREDIENT_FIELDS_FOR_VALIDATION,
 	GET_ALL_RECIPE_FIELDS,
 	GET_ALL_RECIPE_FIELDS_FOR_VALIDATION,
+	GET_ID,
+	GET_BASIC_RECIPE_INGREDIENT_FIELDS,
+	GET_PARSED_FIELDS,
 ];

@@ -23,6 +23,10 @@ type AggregateNote {
   count: Int!
 }
 
+type AggregateNoteAggregate {
+  count: Int!
+}
+
 type AggregateParsedSegment {
   count: Int!
 }
@@ -997,6 +1001,12 @@ type Mutation {
   upsertNote(where: NoteWhereUniqueInput!, create: NoteCreateInput!, update: NoteUpdateInput!): Note!
   deleteNote(where: NoteWhereUniqueInput!): Note
   deleteManyNotes(where: NoteWhereInput): BatchPayload!
+  createNoteAggregate(data: NoteAggregateCreateInput!): NoteAggregate!
+  updateNoteAggregate(data: NoteAggregateUpdateInput!, where: NoteAggregateWhereUniqueInput!): NoteAggregate
+  updateManyNoteAggregates(data: NoteAggregateUpdateManyMutationInput!, where: NoteAggregateWhereInput): BatchPayload!
+  upsertNoteAggregate(where: NoteAggregateWhereUniqueInput!, create: NoteAggregateCreateInput!, update: NoteAggregateUpdateInput!): NoteAggregate!
+  deleteNoteAggregate(where: NoteAggregateWhereUniqueInput!): NoteAggregate
+  deleteManyNoteAggregates(where: NoteAggregateWhereInput): BatchPayload!
   createParsedSegment(data: ParsedSegmentCreateInput!): ParsedSegment!
   updateParsedSegment(data: ParsedSegmentUpdateInput!, where: ParsedSegmentWhereUniqueInput!): ParsedSegment
   updateManyParsedSegments(data: ParsedSegmentUpdateManyMutationInput!, where: ParsedSegmentWhereInput): BatchPayload!
@@ -1035,7 +1045,6 @@ type Mutation {
   deleteManyRecipeInstructions(where: RecipeInstructionWhereInput): BatchPayload!
   createRecipeReference(data: RecipeReferenceCreateInput!): RecipeReference!
   updateRecipeReference(data: RecipeReferenceUpdateInput!, where: RecipeReferenceWhereUniqueInput!): RecipeReference
-  updateManyRecipeReferences(data: RecipeReferenceUpdateManyMutationInput!, where: RecipeReferenceWhereInput): BatchPayload!
   upsertRecipeReference(where: RecipeReferenceWhereUniqueInput!, create: RecipeReferenceCreateInput!, update: RecipeReferenceUpdateInput!): RecipeReference!
   deleteRecipeReference(where: RecipeReferenceWhereUniqueInput!): RecipeReference
   deleteManyRecipeReferences(where: RecipeReferenceWhereInput): BatchPayload!
@@ -1068,6 +1077,112 @@ type Note {
   content: String
   ingredients(where: RecipeIngredientWhereInput, orderBy: RecipeIngredientOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [RecipeIngredient!]
   instructions(where: RecipeInstructionWhereInput, orderBy: RecipeInstructionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [RecipeInstruction!]
+}
+
+type NoteAggregate {
+  id: ID!
+  count: Int!
+  importDefault: Int!
+}
+
+type NoteAggregateConnection {
+  pageInfo: PageInfo!
+  edges: [NoteAggregateEdge]!
+  aggregate: AggregateNoteAggregate!
+}
+
+input NoteAggregateCreateInput {
+  id: ID
+  count: Int!
+  importDefault: Int!
+}
+
+type NoteAggregateEdge {
+  node: NoteAggregate!
+  cursor: String!
+}
+
+enum NoteAggregateOrderByInput {
+  id_ASC
+  id_DESC
+  count_ASC
+  count_DESC
+  importDefault_ASC
+  importDefault_DESC
+}
+
+type NoteAggregatePreviousValues {
+  id: ID!
+  count: Int!
+  importDefault: Int!
+}
+
+type NoteAggregateSubscriptionPayload {
+  mutation: MutationType!
+  node: NoteAggregate
+  updatedFields: [String!]
+  previousValues: NoteAggregatePreviousValues
+}
+
+input NoteAggregateSubscriptionWhereInput {
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: NoteAggregateWhereInput
+  AND: [NoteAggregateSubscriptionWhereInput!]
+  OR: [NoteAggregateSubscriptionWhereInput!]
+  NOT: [NoteAggregateSubscriptionWhereInput!]
+}
+
+input NoteAggregateUpdateInput {
+  count: Int
+  importDefault: Int
+}
+
+input NoteAggregateUpdateManyMutationInput {
+  count: Int
+  importDefault: Int
+}
+
+input NoteAggregateWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  count: Int
+  count_not: Int
+  count_in: [Int!]
+  count_not_in: [Int!]
+  count_lt: Int
+  count_lte: Int
+  count_gt: Int
+  count_gte: Int
+  importDefault: Int
+  importDefault_not: Int
+  importDefault_in: [Int!]
+  importDefault_not_in: [Int!]
+  importDefault_lt: Int
+  importDefault_lte: Int
+  importDefault_gt: Int
+  importDefault_gte: Int
+  AND: [NoteAggregateWhereInput!]
+  OR: [NoteAggregateWhereInput!]
+  NOT: [NoteAggregateWhereInput!]
+}
+
+input NoteAggregateWhereUniqueInput {
+  id: ID
 }
 
 type NoteConnection {
@@ -1707,6 +1822,9 @@ type Query {
   note(where: NoteWhereUniqueInput!): Note
   notes(where: NoteWhereInput, orderBy: NoteOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Note]!
   notesConnection(where: NoteWhereInput, orderBy: NoteOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): NoteConnection!
+  noteAggregate(where: NoteAggregateWhereUniqueInput!): NoteAggregate
+  noteAggregates(where: NoteAggregateWhereInput, orderBy: NoteAggregateOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [NoteAggregate]!
+  noteAggregatesConnection(where: NoteAggregateWhereInput, orderBy: NoteAggregateOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): NoteAggregateConnection!
   parsedSegment(where: ParsedSegmentWhereUniqueInput!): ParsedSegment
   parsedSegments(where: ParsedSegmentWhereInput, orderBy: ParsedSegmentOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [ParsedSegment]!
   parsedSegmentsConnection(where: ParsedSegmentWhereInput, orderBy: ParsedSegmentOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ParsedSegmentConnection!
@@ -1855,6 +1973,11 @@ input RecipeCreateInput {
   instructions: RecipeInstructionCreateManyInput
 }
 
+input RecipeCreateOneInput {
+  create: RecipeCreateInput
+  connect: RecipeWhereUniqueInput
+}
+
 type RecipeEdge {
   node: Recipe!
   cursor: String!
@@ -1865,7 +1988,7 @@ type RecipeIngredient {
   blockIndex: Int!
   lineIndex: Int!
   reference: String!
-  rule: String!
+  rule: String
   isParsed: Boolean!
   parsed(where: ParsedSegmentWhereInput, orderBy: ParsedSegmentOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [ParsedSegment!]
 }
@@ -1881,7 +2004,7 @@ input RecipeIngredientCreateInput {
   blockIndex: Int!
   lineIndex: Int!
   reference: String!
-  rule: String!
+  rule: String
   isParsed: Boolean
   parsed: ParsedSegmentCreateManyInput
 }
@@ -1889,6 +2012,11 @@ input RecipeIngredientCreateInput {
 input RecipeIngredientCreateManyInput {
   create: [RecipeIngredientCreateInput!]
   connect: [RecipeIngredientWhereUniqueInput!]
+}
+
+input RecipeIngredientCreateOneInput {
+  create: RecipeIngredientCreateInput
+  connect: RecipeIngredientWhereUniqueInput
 }
 
 type RecipeIngredientEdge {
@@ -1916,7 +2044,7 @@ type RecipeIngredientPreviousValues {
   blockIndex: Int!
   lineIndex: Int!
   reference: String!
-  rule: String!
+  rule: String
   isParsed: Boolean!
 }
 
@@ -2055,9 +2183,21 @@ input RecipeIngredientUpdateManyWithWhereNestedInput {
   data: RecipeIngredientUpdateManyDataInput!
 }
 
+input RecipeIngredientUpdateOneRequiredInput {
+  create: RecipeIngredientCreateInput
+  update: RecipeIngredientUpdateDataInput
+  upsert: RecipeIngredientUpsertNestedInput
+  connect: RecipeIngredientWhereUniqueInput
+}
+
 input RecipeIngredientUpdateWithWhereUniqueNestedInput {
   where: RecipeIngredientWhereUniqueInput!
   data: RecipeIngredientUpdateDataInput!
+}
+
+input RecipeIngredientUpsertNestedInput {
+  update: RecipeIngredientUpdateDataInput!
+  create: RecipeIngredientCreateInput!
 }
 
 input RecipeIngredientUpsertWithWhereUniqueNestedInput {
@@ -2359,8 +2499,8 @@ type RecipePreviousValues {
 
 type RecipeReference {
   id: ID!
-  recipeID: ID!
-  reference: String!
+  recipe: Recipe!
+  line: RecipeIngredient!
 }
 
 type RecipeReferenceConnection {
@@ -2371,8 +2511,8 @@ type RecipeReferenceConnection {
 
 input RecipeReferenceCreateInput {
   id: ID
-  recipeID: ID!
-  reference: String!
+  recipe: RecipeCreateOneInput!
+  line: RecipeIngredientCreateOneInput!
 }
 
 input RecipeReferenceCreateManyInput {
@@ -2388,16 +2528,10 @@ type RecipeReferenceEdge {
 enum RecipeReferenceOrderByInput {
   id_ASC
   id_DESC
-  recipeID_ASC
-  recipeID_DESC
-  reference_ASC
-  reference_DESC
 }
 
 type RecipeReferencePreviousValues {
   id: ID!
-  recipeID: ID!
-  reference: String!
 }
 
 input RecipeReferenceScalarWhereInput {
@@ -2415,34 +2549,6 @@ input RecipeReferenceScalarWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
-  recipeID: ID
-  recipeID_not: ID
-  recipeID_in: [ID!]
-  recipeID_not_in: [ID!]
-  recipeID_lt: ID
-  recipeID_lte: ID
-  recipeID_gt: ID
-  recipeID_gte: ID
-  recipeID_contains: ID
-  recipeID_not_contains: ID
-  recipeID_starts_with: ID
-  recipeID_not_starts_with: ID
-  recipeID_ends_with: ID
-  recipeID_not_ends_with: ID
-  reference: String
-  reference_not: String
-  reference_in: [String!]
-  reference_not_in: [String!]
-  reference_lt: String
-  reference_lte: String
-  reference_gt: String
-  reference_gte: String
-  reference_contains: String
-  reference_not_contains: String
-  reference_starts_with: String
-  reference_not_starts_with: String
-  reference_ends_with: String
-  reference_not_ends_with: String
   AND: [RecipeReferenceScalarWhereInput!]
   OR: [RecipeReferenceScalarWhereInput!]
   NOT: [RecipeReferenceScalarWhereInput!]
@@ -2467,18 +2573,13 @@ input RecipeReferenceSubscriptionWhereInput {
 }
 
 input RecipeReferenceUpdateDataInput {
-  recipeID: ID
-  reference: String
+  recipe: RecipeUpdateOneRequiredInput
+  line: RecipeIngredientUpdateOneRequiredInput
 }
 
 input RecipeReferenceUpdateInput {
-  recipeID: ID
-  reference: String
-}
-
-input RecipeReferenceUpdateManyDataInput {
-  recipeID: ID
-  reference: String
+  recipe: RecipeUpdateOneRequiredInput
+  line: RecipeIngredientUpdateOneRequiredInput
 }
 
 input RecipeReferenceUpdateManyInput {
@@ -2490,17 +2591,6 @@ input RecipeReferenceUpdateManyInput {
   set: [RecipeReferenceWhereUniqueInput!]
   disconnect: [RecipeReferenceWhereUniqueInput!]
   deleteMany: [RecipeReferenceScalarWhereInput!]
-  updateMany: [RecipeReferenceUpdateManyWithWhereNestedInput!]
-}
-
-input RecipeReferenceUpdateManyMutationInput {
-  recipeID: ID
-  reference: String
-}
-
-input RecipeReferenceUpdateManyWithWhereNestedInput {
-  where: RecipeReferenceScalarWhereInput!
-  data: RecipeReferenceUpdateManyDataInput!
 }
 
 input RecipeReferenceUpdateWithWhereUniqueNestedInput {
@@ -2529,34 +2619,8 @@ input RecipeReferenceWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
-  recipeID: ID
-  recipeID_not: ID
-  recipeID_in: [ID!]
-  recipeID_not_in: [ID!]
-  recipeID_lt: ID
-  recipeID_lte: ID
-  recipeID_gt: ID
-  recipeID_gte: ID
-  recipeID_contains: ID
-  recipeID_not_contains: ID
-  recipeID_starts_with: ID
-  recipeID_not_starts_with: ID
-  recipeID_ends_with: ID
-  recipeID_not_ends_with: ID
-  reference: String
-  reference_not: String
-  reference_in: [String!]
-  reference_not_in: [String!]
-  reference_lt: String
-  reference_lte: String
-  reference_gt: String
-  reference_gte: String
-  reference_contains: String
-  reference_not_contains: String
-  reference_starts_with: String
-  reference_not_starts_with: String
-  reference_ends_with: String
-  reference_not_ends_with: String
+  recipe: RecipeWhereInput
+  line: RecipeIngredientWhereInput
   AND: [RecipeReferenceWhereInput!]
   OR: [RecipeReferenceWhereInput!]
   NOT: [RecipeReferenceWhereInput!]
@@ -2584,6 +2648,17 @@ input RecipeSubscriptionWhereInput {
   NOT: [RecipeSubscriptionWhereInput!]
 }
 
+input RecipeUpdateDataInput {
+  evernoteGUID: String
+  title: String
+  source: String
+  categories: CategoryUpdateManyInput
+  tags: TagUpdateManyInput
+  image: String
+  ingredients: RecipeIngredientUpdateManyInput
+  instructions: RecipeInstructionUpdateManyInput
+}
+
 input RecipeUpdateInput {
   evernoteGUID: String
   title: String
@@ -2600,6 +2675,18 @@ input RecipeUpdateManyMutationInput {
   title: String
   source: String
   image: String
+}
+
+input RecipeUpdateOneRequiredInput {
+  create: RecipeCreateInput
+  update: RecipeUpdateDataInput
+  upsert: RecipeUpsertNestedInput
+  connect: RecipeWhereUniqueInput
+}
+
+input RecipeUpsertNestedInput {
+  update: RecipeUpdateDataInput!
+  create: RecipeCreateInput!
 }
 
 input RecipeWhereInput {
@@ -2692,6 +2779,7 @@ input RecipeWhereInput {
 
 input RecipeWhereUniqueInput {
   id: ID
+  evernoteGUID: String
 }
 
 type Subscription {
@@ -2700,6 +2788,7 @@ type Subscription {
   ingredient(where: IngredientSubscriptionWhereInput): IngredientSubscriptionPayload
   ingredientAggregate(where: IngredientAggregateSubscriptionWhereInput): IngredientAggregateSubscriptionPayload
   note(where: NoteSubscriptionWhereInput): NoteSubscriptionPayload
+  noteAggregate(where: NoteAggregateSubscriptionWhereInput): NoteAggregateSubscriptionPayload
   parsedSegment(where: ParsedSegmentSubscriptionWhereInput): ParsedSegmentSubscriptionPayload
   properties(where: PropertiesSubscriptionWhereInput): PropertiesSubscriptionPayload
   recipe(where: RecipeSubscriptionWhereInput): RecipeSubscriptionPayload

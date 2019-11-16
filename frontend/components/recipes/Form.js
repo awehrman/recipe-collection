@@ -1158,7 +1158,7 @@ Form.propTypes = {
 			}),
 		}),
 		reference: PropTypes.string.isRequired,
-		rule: PropTypes.string.isRequired,
+		rule: PropTypes.string,
 	})),
 	instructions: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string,

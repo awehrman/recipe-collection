@@ -23,7 +23,6 @@
     "cookie-parser": "^1.4.4",
     "cookie-session": "^1.3.3",
     "cors": "^2.8.5",
-    "dom-parser": "^0.1.6",
     "dotenv": "^8.2.0",
     "evernote": "^2.0.5",
     "express": "^4.16.4",

@@ -25,8 +25,8 @@
 
 	type RecipeReference {
 		id: ID! @id
-		recipeID: ID!
-		reference: String!
+		recipe: Recipe! @relation(name: "RecipeID")
+		line: RecipeIngredient! @relation(name: "RecipeReference")
 	}
 
 	# TODO 1.33: kill this with fire
@@ -59,7 +59,7 @@
 
 	type Recipe {
 		id: ID! @id
-		evernoteGUID: String
+		evernoteGUID: String @unique
 		title: String!
 		source: String
 
@@ -82,7 +82,7 @@
 		blockIndex: Int!
 		lineIndex: Int!
 		reference: String!
-		rule: String!
+		rule: String
 		isParsed: Boolean! @default(value: false)
 		parsed: [ ParsedSegment! ] @relation(name: "ParsedSegments" onDelete: CASCADE)
 	}
@@ -114,6 +114,7 @@
 	}
 
 ## Attribute Models
+	# TODO idk how i feel about these as standalone types if i have to now slap an id on them
 
 	type Category {
 		id: ID! @id
@@ -128,7 +129,6 @@
 	}
 
 	type IngredientAggregate {
-		# TODO idk how i feel about this as a standalone type if i have to now slap an id on IT
 		id: ID! @id
 		ingredientsCount: Int!
 		newIngredientsCount: Int!
@@ -137,4 +137,10 @@
 	type RecipeAggregate {
 		id: ID! @id
 		recipesCount: Int!
+	}
+
+	type NoteAggregate {
+		id: ID! @id
+		count: Int!
+		importDefault: Int!
 	}

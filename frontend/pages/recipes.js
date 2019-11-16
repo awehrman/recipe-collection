@@ -15,14 +15,14 @@ import ParsedViewer from '../components/recipes/ParsedViewer';
 const Composed = adopt({
 	// eslint-disable-next-line react/prop-types
 	getRecipes: ({ render }) => (
-		<Query query={ GET_ALL_RECIPES_QUERY }>
+		<Query query={ GET_ALL_RECIPES_QUERY } ssr={ false }>
 			{render}
 		</Query>
 	),
 
 	// eslint-disable-next-line react/prop-types
 	getRecipesCount: ({ render }) => (
-		<Query query={ GET_RECIPES_COUNT_QUERY }>
+		<Query query={ GET_RECIPES_COUNT_QUERY } ssr={ false }>
 			{render}
 		</Query>
 	),

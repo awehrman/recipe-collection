@@ -177,8 +177,12 @@ export const GET_INGREDIENT_BY_ID_QUERY = gql`
 			}
 			references {
 				id
-				recipeID
-				reference
+				recipe {
+					id
+				}
+				line {
+					reference
+				}
 			}
 			isValidated
       isComposedIngredient
@@ -295,6 +299,7 @@ export const GET_NOTES_COUNT_QUERY = gql`
   query GET_NOTES_COUNT_QUERY {
   	noteAggregate {
 	  	count
+			importDefault
 		}
   }
 `;

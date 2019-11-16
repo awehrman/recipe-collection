@@ -68,8 +68,8 @@ export default gql`
 
 		type RecipeReference {
 			id: ID! @id
-			recipeID: ID!
-			reference: String!
+			recipe: Recipe!
+			line: RecipeIngredient!
 		}
 
 		type AlternateName {
@@ -112,6 +112,12 @@ export default gql`
 			instructions: [ RecipeInstruction! ]
 		}
 
+		type NoteAggregate {
+			id: ID!
+			count: Int!
+			importDefault: Int!
+		}
+
 		type EvernoteResponse {
 			errors: [ String ]
 			notes: [ Note ]
@@ -141,7 +147,7 @@ export default gql`
 			blockIndex: Int!
 			lineIndex: Int!
 			reference: String!
-			rule: String!
+			rule: String
 			isParsed: Boolean!
 			parsed: [ ParsedSegment! ]
 		}
