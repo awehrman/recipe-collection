@@ -21,6 +21,7 @@ export const saveImages = async (notes) => {
 		// minify image
 		const minified = await minifyImage(image)
 			// then upload to cloudinary
+			// eslint-disable-next-line no-use-before-define
 			.then(async (img) => uploadImage(img, { folder: 'recipes' }));
 
 		return {

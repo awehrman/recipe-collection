@@ -105,51 +105,49 @@ const getNotesMetadata = async (store, offset) => {
 	return noteRes;
 };
 
-const incrementOffset = (req, increment = 1) => {
-	console.log(`incrementing offset by ${ increment }`.yellow);
-	req.session.offset = (!req.session.offset)
-		? increment
-		: (req.session.offset + increment);
-
-	return req.session.offset;
-};
-
 const validateNotes = async (ctx, store, notes) => {
 	console.warn('validateNotes'.cyan);
-	console.log({ notes: notes.map((n) => n.title) });
 	const { req } = ctx;
-	const numNotes = notes.length;
+
 	// eslint-disable-next-line camelcase
 	const evernoteGUID_in = notes.map((m) => m.evernoteGUID);
 
 	// check that these notes aren't already imported or staged
 	// check existing notes for this guid
-	const existingNotes = await ctx.prisma.notes({ where: { evernoteGUID_in } })
+	const existing = await ctx.prisma.notes({ where: { evernoteGUID_in } })
 		.$fragment(GET_EVERNOTE_GUID)
+		// check existing recipes for this guid
+		.then(async (existingNotes) => {
+			const existingRecipes = await ctx.prisma.recipes({ where: { evernoteGUID_in } })
+				.$fragment(GET_EVERNOTE_GUID)
+				.catch((err) => { throw err; });
+
+			const combined = existingNotes.concat(existingRecipes)
+				.map((e) => ({
+					evernoteGUID: e.evernoteGUID,
+					title: e.title, // debug only
+				}));
+			return combined;
+		})
 		.catch((err) => { throw err; });
 
-	// check existing recipes for this guid
-	const existingRecipes = await ctx.prisma.recipes({ where: { evernoteGUID_in } })
-		.$fragment(GET_EVERNOTE_GUID)
-		.catch((err) => { throw err; });
-
-	const existing = existingNotes.concat(existingRecipes).filter((e) => e.evernoteGUID);
 	// return these notes if they don't exist
 	if (existing.length === 0) {
 		console.log('valid!'.green);
 		return notes;
 	}
 
-	const newNotes = notes.filter((note) => existing.indexOf(note.evernoteGUID) > -1);
+	const uniqueNotes = notes.filter((note) => !~existing.indexOf(note.evernoteGUID));
 	console.log('need to fetch more notes!!'.red);
 	console.log({
 		existing,
-		newNotes: newNotes.map((n) => `${ n.evernoteGUID }_${ n.title }`),
+		uniqueNotes: uniqueNotes.map((n) => `${ n.evernoteGUID }_${ n.title }`),
 	});
 
-	// TODO test this
 	// increment the offset and fetch
-	const offset = incrementOffset(req, numNotes - newNotes.length);
+	const increment = ((uniqueNotes.length - existing.length) === 0) ? 1 : (uniqueNotes.length - existing.length);
+	// eslint-disable-next-line no-use-before-define
+	const offset = incrementOffset(req, increment);
 	return getNotesMetadata(store, offset)
 		.then(async (m) => validateNotes(ctx, store, m))
 		.catch((err) => { console.log(err); });
@@ -169,7 +167,21 @@ export const getEvernoteNotes = async (ctx) => {
 		.catch((err) => { console.log(err); });
 
 	console.log('GET EVERNOTE NOTES DONE'.red);
+
 	return notesRes;
 };
 
-export default { getEvernoteNotes };
+// TODO this needs to take into account the number of existing notes the store so that it can properly reset
+export const incrementOffset = (req, increment = 1) => {
+	console.log(`incrementing offset by ${ increment }!!!`.yellow);
+	req.session.offset = (!req.session.offset)
+		? increment
+		: (req.session.offset + increment);
+
+	return req.session.offset;
+};
+
+export default {
+	getEvernoteNotes,
+	incrementOffset,
+};

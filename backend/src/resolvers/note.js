@@ -39,13 +39,13 @@ export default {
 
 			// download and tag new notes from evernote
 			const notes = await downloadNotes(ctx)
-				.catch((err) => response.errors.push({ err }));
+				.catch((err) => {
+					console.log({ err });
+					response.errors.push({ err });
+				});
 			response.notes = notes;
 
-			// increment the note offset in our session
-			// req.session.offset += notes.length;
-
-			console.log({ response });
+			console.log({ response: response.notes });
 			return response;
 		},
 		/*

@@ -211,6 +211,7 @@ export const GET_ID = `
 export const GET_EVERNOTE_GUID = `
 	{
 		evernoteGUID
+		title
 		id
 	}
 `;

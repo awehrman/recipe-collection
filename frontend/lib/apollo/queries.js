@@ -308,6 +308,7 @@ export const GET_ALL_NOTES_QUERY = gql`
   query GET_ALL_NOTES_QUERY {
   	notes {
   		id
+			content
 			title
 			ingredients {
 				id

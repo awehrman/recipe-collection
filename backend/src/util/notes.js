@@ -1,10 +1,10 @@
 import { GET_NOTE_CONTENT_FIELDS } from '../graphql/fragments';
-import { getEvernoteNotes } from './evernote';
+import { getEvernoteNotes, incrementOffset } from './evernote';
 import { saveImages } from './images';
 
 export const downloadNotes = async (ctx) => {
 	console.log('downloadNotes'.magenta);
-
+	const { req } = ctx;
 	// fetch new note content from evernote
 	const notes = await getEvernoteNotes(ctx)
 		// minify and upload image data
@@ -14,6 +14,10 @@ export const downloadNotes = async (ctx) => {
 		.then(async (data) => createNotes(ctx, data))
 		.catch((err) => console.log(err));
 
+	// increment the notes offset in our session
+	if (notes.length > 0) {
+		await incrementOffset(req, notes.length);
+	}
 	return notes;
 };
 

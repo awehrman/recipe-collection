@@ -4,7 +4,10 @@ import { adopt } from 'react-adopt';
 import { Query, withApollo } from 'react-apollo';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
+import SyntaxHighlighter from 'react-syntax-highlighter';
+import pretty from 'pretty';
 
+import { dark } from '../styles/dark';
 import Button from '../components/form/Button';
 import Header from '../components/Header';
 import ErrorMessage from '../components/ErrorMessage';
@@ -67,6 +70,14 @@ const ActionBar = styled.div`
 	button:first-of-type {
 		margin-left: 0;
 	}
+`;
+
+const Content = styled.div`
+	overflow-y: auto !important;
+	overflow-x: auto !important;
+	max-height: 250px;
+	display: 'flex';
+	font-size: 10px;
 `;
 
 const NotesViewer = styled.div`
@@ -170,6 +181,7 @@ class Import extends React.PureComponent {
 					notes: new Array(importDefault).fill(0).map((_, index) => ({
 						__typename: 'Note',
 						id: `-1_${ index }`,
+						content: null,
 						title: 'Loading Note...',
 						ingredients: [],
 						instructions: [],
@@ -237,8 +249,8 @@ class Import extends React.PureComponent {
 							const { count, importDefault } = (getNotesCount && getNotesCount.data)
 								? getNotesCount.data.noteAggregate
 								: 0;
-							console.log({ count, importDefault, getNotesCount });
 							const { notes = [] } = (getNotes && getNotes.data) ? getNotes.data : {};
+
 
 							return (
 								<section>
@@ -299,6 +311,21 @@ class Import extends React.PureComponent {
 														// eslint-disable-next-line
 														<Note key={ `${ index }_${ n.id }` }>
 															<h1>{ n.title }</h1>
+															{
+																(n.content && (n.ingredients.length === 0))
+																	? (
+																		<Content>
+																			<SyntaxHighlighter
+																				className="highlighter"
+																				language="html"
+																				wrapLines
+																				style={ dark }
+																			>
+																				{pretty(n.content)}
+																			</SyntaxHighlighter>
+																		</Content>
+																	) : null
+															}
 															{/*
 																(n.ingredients || n.instructions)
 																	? (
@@ -343,6 +370,5 @@ Import.propTypes = {
 		oauth_verifier: PropTypes.string,
 	}),
 };
-
 
 export default withRouter(withApollo(Import));
