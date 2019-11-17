@@ -1,5 +1,5 @@
-import { GET_ALL_NOTE_FIELDS } from '../graphql/fragments';
-import { downloadNotes } from '../util/notes';
+import { GET_ALL_NOTE_FIELDS, GET_NOTE_CONTENT_FIELDS } from '../graphql/fragments';
+import { downloadNotes, processNotes, updateNotes } from '../util/notes';
 
 export default {
 	Query: {
@@ -48,7 +48,6 @@ export default {
 			console.log({ response: response.notes });
 			return response;
 		},
-		/*
 		parseNotes: async (parent, args, ctx) => {
 			console.log('parseNotes'.cyan);
 			const response = {
@@ -58,11 +57,11 @@ export default {
 			};
 
 			// fetch our note content from the db
-			response.notes = await ctx.prisma.notes().$fragment(GET_NOTE_CONTENT_FIELDS)
+			const notesRes = await ctx.prisma.notes().$fragment(GET_NOTE_CONTENT_FIELDS)
 				// go thru each notes
 				.then(async (notes) => processNotes(ctx, notes, false))
 				// save new note connections to the database
-				.then(async (notes) => saveNotes(ctx, notes))
+				.then(async (notes) => updateNotes(ctx, notes))
 				.catch((err) => {
 					console.log('An error occurred!'.red);
 					console.log({ err });
@@ -70,9 +69,12 @@ export default {
 				});
 
 			console.log('DONE'.green);
+			response.notes = notesRes;
 			console.log({ response });
 			return response;
 		},
+		/*
+
 		// TODO this needs to go back through and update ingredients with their references
 		convertNotes: async (parent, args, ctx) => {
 			console.log('convertNotes'.cyan);

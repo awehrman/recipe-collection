@@ -11,8 +11,7 @@ import { dark } from '../styles/dark';
 import Button from '../components/form/Button';
 import Header from '../components/Header';
 import ErrorMessage from '../components/ErrorMessage';
-// import Loading from '../components/Loading';
-// import ParsedViewer from '../components/recipes/ParsedViewer';
+import ParsedViewer from '../components/recipes/ParsedViewer';
 /* eslint-disable object-curly-newline */
 import {
 	GET_NOTES_COUNT_QUERY,
@@ -326,8 +325,8 @@ class Import extends React.PureComponent {
 																		</Content>
 																	) : null
 															}
-															{/*
-																(n.ingredients || n.instructions)
+															{
+																((n.ingredients.length > 0) || (n.instructions.length > 0))
 																	? (
 																		<ParsedViewer
 																			className="left"
@@ -336,7 +335,7 @@ class Import extends React.PureComponent {
 																			instructions={ n.instructions }
 																		/>
 																	) : null
-															*/}
+															}
 														</Note>
 													))
 												)

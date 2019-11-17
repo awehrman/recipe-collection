@@ -1,20 +1,24 @@
-/*
 import cheerio from 'cheerio';
 import Parser from './ingredientLineParser';
 import { GET_ID } from '../graphql/fragments';
-import { saveParsedSegment } from './recipes';
+import { createParsedSegment } from './recipes';
 
 export const parseContent = (note) => {
 	console.log('parseContent'.magenta);
 	const { id } = note;
-	const { ingredients, instructions } = this.parseHTML(note.content);
+	// eslint-disable-next-line no-use-before-define
+	const { ingredients, instructions } = parseHTML(note.content);
+	console.log({
+		ingredients: ingredients.length,
+		instructions: instructions.length,
+	});
 	return {
 		id,
 		ingredients,
 		instructions,
 	};
 };
-*/
+
 /*
 	we're going to run with some basic assumptions on how recipe data is formatted
 	to differentiate between ingredient lines and instructions
@@ -59,8 +63,7 @@ export const parseContent = (note) => {
 			<div>some text</div>			<!-- instruction (blockIndex: 4, lineIndex: 0) -->
 	</en-note>
  */
-/*
- export const parseHTML = (content) => {
+export const parseHTML = (content) => {
 	const ingredients = [];
 	const instructions = [];
 
@@ -68,10 +71,8 @@ export const parseContent = (note) => {
 	// this will allow us to easily traverse the DOM tree
 	const $ = cheerio.load(content);
 
-	const note = $('body').children();
-	console.log(' 0 0 0 0 0 0 0 0 0 0 '.magenta);
-	const { children } = note;
-	console.log({ children });
+	const body = $('body').children();
+	const { children } = body[0];
 
 	let currentBlock = [];
 	const blocks = [];
@@ -138,9 +139,9 @@ export const parseContent = (note) => {
 		});
 	}
 
-	console.log(ingredients);
 	// parse each ingredient line into its individual components
-	const ingredientLines = ingredients.map((line) => this.parseIngredientLine(line));
+	// eslint-disable-next-line no-use-before-define
+	const ingredientLines = ingredients.map((line) => parseIngredientLine(line));
 
 
 	return {
@@ -148,7 +149,7 @@ export const parseContent = (note) => {
 		instructions,
 	};
 };
-*/
+
 /* "~1 heaping cup (100 g) freshly-cut apples, washed"
 	{
 		"rule": "#1_ingredientLine",
@@ -168,7 +169,6 @@ export const parseContent = (note) => {
 		]
 	}
 */
-/*
 export const parseIngredientLine = (line) => {
 	const ingredientLine = {
 		...line,
@@ -196,7 +196,7 @@ export const parseIngredients = async (ctx, ingredients, isCreateIngredient = fa
 		const ingredientLine = { ...line };
 		if (line.isParsed && line.parsed) {
 			const resolveParsed = line.parsed.map(async (parsed) => {
-				const parsedID = await saveParsedSegment(ctx, parsed, isCreateIngredient);
+				const parsedID = await createParsedSegment(ctx, parsed, isCreateIngredient);
 				return parsedID;
 			});
 
@@ -225,4 +225,3 @@ export default {
 	parseIngredientLine,
 	parseIngredients,
 };
-*/

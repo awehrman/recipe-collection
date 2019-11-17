@@ -1,11 +1,10 @@
-/*
 import { lookupIngredient } from './ingredients';
 import { determinePluralization } from './strings';
-import { removeNote } from './notes';
-import { parseIngredients } from './parser';
-import { GET_ID, GET_ALL_RECIPE_FIELDS } from '../graphql/fragments';
+// import { removeNote } from './notes';
+// import { parseIngredients } from './parser';
+import { GET_ID } from '../graphql/fragments';
 
-export const saveParsedSegment = async (ctx, parsed, isCreateIngredient = false) => {
+export const createParsedSegment = async (ctx, parsed, isCreateIngredient = false) => {
 	const segment = { ...parsed };
 	if (parsed.type === 'ingredient') {
 		// connect to any existing ingredients
@@ -59,11 +58,12 @@ export const saveParsedSegment = async (ctx, parsed, isCreateIngredient = false)
 		return { id };
 	}
 	console.log(`retrying ${ parsed.value }...`.red);
-	const parsedSegment = await saveParsedSegment(ctx, parsed, isCreateIngredient);
+	const parsedSegment = await createParsedSegment(ctx, parsed, isCreateIngredient);
 	console.log({ parsedSegment });
 	return parsedSegment;
 };
 
+/*
 export const createRecipe = async (ctx, note) => {
 	console.log('createRecipe'.green);
 	const data = {
@@ -110,9 +110,38 @@ export const createRecipes = async (ctx, notes) => {
 		.catch((err) => { throw err; });
 	return notesRes;
 };
+*/
 
-export const saveInstructions = async (ctx, instructions) => {
-	console.log('saveInstructions'.blue);
+export const createIngredientLines = async (ctx, ingredients, isCreateIngredient = false) => {
+	console.log('createIngredientLines'.cyan);
+	const resolveIngredients = ingredients.map(async (line) => {
+		const ingLine = { ...line };
+
+		// otherwise we'll need to create the parsed segment first
+		const resolveParsedSegments = line.parsed.map(
+			async (p) => createParsedSegment(ctx, p, isCreateIngredient),
+		);
+
+		const parsed = await Promise.all(resolveParsedSegments)
+			.catch((err) => console.log(err));
+
+		if (line.isParsed && parsed) {
+			ingLine.parsed = { connect: parsed };
+		}
+
+		return ctx.prisma
+			.createRecipeIngredient({ ...ingLine })
+			.$fragment(GET_ID)
+			.catch((err) => { throw err; });
+	});
+	const ids = await Promise.all(resolveIngredients)
+		.catch((err) => { throw err; });
+	return ids;
+};
+
+
+export const createInstructions = async (ctx, instructions) => {
+	console.log('createInstructions'.blue);
 	const resolveInstructions = instructions.map(
 		async (line) => ctx.prisma
 			.createRecipeInstruction({ ...line })
@@ -124,6 +153,7 @@ export const saveInstructions = async (ctx, instructions) => {
 	return ids;
 };
 
+/*
 export const updateRecipeReference = async (ctx, recipe) => {
 	const { id } = recipe;
 	const resolveIngredients = recipe.ingredients.map(async (line) => {
@@ -169,13 +199,10 @@ export const updateIngredientReferences = async (ctx, recipes) => {
 
 	return recipes;
 };
+*/
 
 export default {
-	createRecipe,
-	createRecipes,
-	saveParsedSegment,
-	saveInstructions,
-	updateRecipeReference,
-	updateIngredientReferences,
+	createIngredientLines,
+	createInstructions,
+	createParsedSegment,
 };
-*/

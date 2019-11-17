@@ -1,4 +1,3 @@
-/*
 import { determinePluralization } from './strings';
 import { GET_BASIC_INGREDIENT_FIELDS } from '../graphql/fragments';
 
@@ -34,4 +33,3 @@ export const lookupIngredient = async (ctx, value) => {
 };
 
 export default { lookupIngredient };
-*/

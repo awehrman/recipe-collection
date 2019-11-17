@@ -1,4 +1,3 @@
-/*
 import pluralize from 'pluralize';
 
 export const determinePluralization = (value) => {
@@ -33,4 +32,3 @@ export const determinePluralization = (value) => {
 };
 
 export default { determinePluralization };
-*/
