@@ -162,39 +162,28 @@ class Import extends React.PureComponent {
 				{ query: GET_NOTES_COUNT_QUERY },
 			],
 			mutation: IMPORT_NOTES_MUTATION,
-			optimisticResponse: () => {
-				console.warn('OPTIMISTIC');
-				console.log({ importDefault });
-				const response = {
-					__typename: 'Mutation',
-					importNotes: {
-						__typename: 'EvernoteResponse',
-						errors: [],
-						notes: new Array(importDefault).fill(0).map((_, index) => ({
-							__typename: 'Note',
-							id: `-1_${ index }`,
-							title: 'Loading Note...',
-							ingredients: [],
-							instructions: [],
-						})),
-					},
-				};
-				console.log({ response });
-				return response;
+			optimisticResponse: {
+				__typename: 'Mutation',
+				importNotes: {
+					__typename: 'EvernoteResponse',
+					errors: [],
+					notes: new Array(importDefault).fill(0).map((_, index) => ({
+						__typename: 'Note',
+						id: `-1_${ index }`,
+						title: 'Loading Note...',
+						ingredients: [],
+						instructions: [],
+					})),
+				},
 			},
 			update: (cache, { data }) => {
-				console.warn('UPDATE');
 				const { importNotes } = data;
 				const { errors } = importNotes;
-				// TODO handle errors
 				if (errors && (errors.length > 0)) {
 					console.error({ errors });
 				}
 				const { notes } = cache.readQuery({ query: GET_ALL_NOTES_QUERY });
-				console.log({ notes });
-				// TODO remove the ones with -1 as an id?
 				const updated = { notes: notes.concat([ importNotes.notes ]).flat() };
-				console.log({ updated });
 
 				cache.writeQuery({
 					query: GET_ALL_NOTES_QUERY,

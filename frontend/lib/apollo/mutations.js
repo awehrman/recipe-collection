@@ -253,13 +253,14 @@ export const IMPORT_NOTES_MUTATION = gql`
 			errors
 			notes {
 				id
-				title
+				content
 				ingredients {
 					id
 				}
 				instructions {
 					id
 				}
+				title
 			}
 		}
 	}

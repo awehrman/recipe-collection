@@ -1,6 +1,20 @@
+/*
 import cheerio from 'cheerio';
 import Parser from './ingredientLineParser';
+import { GET_ID } from '../graphql/fragments';
+import { saveParsedSegment } from './recipes';
 
+export const parseContent = (note) => {
+	console.log('parseContent'.magenta);
+	const { id } = note;
+	const { ingredients, instructions } = this.parseHTML(note.content);
+	return {
+		id,
+		ingredients,
+		instructions,
+	};
+};
+*/
 /*
 	we're going to run with some basic assumptions on how recipe data is formatted
 	to differentiate between ingredient lines and instructions
@@ -45,7 +59,8 @@ import Parser from './ingredientLineParser';
 			<div>some text</div>			<!-- instruction (blockIndex: 4, lineIndex: 0) -->
 	</en-note>
  */
-export const parseHTML = (content) => {
+/*
+ export const parseHTML = (content) => {
 	const ingredients = [];
 	const instructions = [];
 
@@ -125,15 +140,15 @@ export const parseHTML = (content) => {
 
 	console.log(ingredients);
 	// parse each ingredient line into its individual components
-	ingredients = ingredients.map((line) => parseIngredientLine(line));
+	const ingredientLines = ingredients.map((line) => this.parseIngredientLine(line));
 
 
 	return {
-		ingredients,
+		ingredients: ingredientLines,
 		instructions,
 	};
 };
-
+*/
 /* "~1 heaping cup (100 g) freshly-cut apples, washed"
 	{
 		"rule": "#1_ingredientLine",
@@ -153,6 +168,7 @@ export const parseHTML = (content) => {
 		]
 	}
 */
+/*
 export const parseIngredientLine = (line) => {
 	const ingredientLine = {
 		...line,
@@ -175,7 +191,38 @@ export const parseIngredientLine = (line) => {
 	return ingredientLine;
 };
 
+export const parseIngredients = async (ctx, ingredients, isCreateIngredient = false) => {
+	const resolveInstructionLines = ingredients.map(async (line) => {
+		const ingredientLine = { ...line };
+		if (line.isParsed && line.parsed) {
+			const resolveParsed = line.parsed.map(async (parsed) => {
+				const parsedID = await saveParsedSegment(ctx, parsed, isCreateIngredient);
+				return parsedID;
+			});
+
+			ingredientLine.parsed = await Promise.all(resolveParsed)
+				.then((ids) => ({ connect: ids }))
+				.catch((err) => { throw err; });
+		}
+
+		// save ingredientLine to prisma
+		const { id } = await ctx.prisma.createRecipeIngredient({ ...ingredientLine })
+			.$fragment(GET_ID)
+			.catch((err) => { throw err; });
+
+		return { id };
+	});
+
+	const ids = await Promise.all(resolveInstructionLines)
+		.catch((err) => { throw err; });
+
+	return ids;
+};
+
 export default {
+	parseContent,
 	parseHTML,
 	parseIngredientLine,
+	parseIngredients,
 };
+*/

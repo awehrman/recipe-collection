@@ -46,6 +46,14 @@ export const GET_ALL_NOTE_FIELDS = `
 	}
 `;
 
+export const GET_BASIC_NOTE_CONTENT_FIELDS = `
+	{
+		id
+		content
+		title
+	}
+`;
+
 export const GET_NOTE_CONTENT_FIELDS = `
 	{
 		id
@@ -200,6 +208,13 @@ export const GET_ID = `
 	}
 `;
 
+export const GET_EVERNOTE_GUID = `
+	{
+		evernoteGUID
+		id
+	}
+`;
+
 export const GET_BASIC_RECIPE_INGREDIENT_FIELDS = `
 	{
 		id
@@ -225,6 +240,7 @@ export default [
 	GET_ALL_CATEGORY_FIELDS,
 	GET_ALL_TAG_FIELDS,
 	GET_ALL_NOTE_FIELDS,
+	GET_BASIC_NOTE_CONTENT_FIELDS,
 	GET_NOTE_CONTENT_FIELDS,
 	GET_BASIC_INGREDIENT_FIELDS,
 	GET_ALL_INGREDIENT_FIELDS,
@@ -234,4 +250,5 @@ export default [
 	GET_ID,
 	GET_BASIC_RECIPE_INGREDIENT_FIELDS,
 	GET_PARSED_FIELDS,
+	GET_EVERNOTE_GUID,
 ];

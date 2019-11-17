@@ -26,6 +26,7 @@ module.exports = {
       'ImportDeclaration': 'never',
       'ExportDeclaration': { 'multiline': true, 'minProperties': 3 }
     }],
-    'template-curly-spacing': [1, 'always'],
+		'template-curly-spacing': [ 1, 'always' ],
+    'no-use-before-define': ["error", { "functions": true, "classes": true }],
   },
 };
