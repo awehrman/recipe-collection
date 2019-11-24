@@ -78,7 +78,6 @@ export default {
 					response.errors.push(message);
 				});
 			}
-			console.log(JSON.stringify(response, null, 2));
 			return response;
 		},
 
@@ -105,7 +104,6 @@ export default {
 					response.errors.push(message);
 				});
 			}
-			console.log(JSON.stringify(response, null, 2));
 			return response;
 		},
 
@@ -140,7 +138,6 @@ export default {
 					response.errors.push(message);
 				});
 			}
-			console.log(JSON.stringify(response, null, 2));
 			return response;
 		},
 	},

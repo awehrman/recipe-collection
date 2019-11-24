@@ -27,6 +27,7 @@ const ParsedViewerStyles = styled.div`
 	&.left {
 		display: flex;
 		flex-wrap: wrap;
+		margin-top: 20px;
 
 		hr {
 			flex-basis: 50%;

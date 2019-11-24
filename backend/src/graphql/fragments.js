@@ -21,11 +21,14 @@ export const GET_ALL_NOTE_FIELDS = `
 		evernoteGUID
 		image
 		ingredients {
+			id
 			blockIndex
 			lineIndex
 			isParsed
 			parsed {
+				id
 				ingredient {
+					id
 					isValidated
 					name
 					plural
@@ -38,6 +41,7 @@ export const GET_ALL_NOTE_FIELDS = `
 			rule
 		}
 		instructions {
+			id
 			blockIndex
 			reference
 		}

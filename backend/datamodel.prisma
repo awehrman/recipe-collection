@@ -19,14 +19,14 @@
 
 		parent: Ingredient @relation(name: "ParentIngredient")
 		relatedIngredients: [ Ingredient! ]! @relation(name: "RelatedIngredients")
-		substitutes: [ Ingredient! ]! @relation(name: "Substitues")
+		substitutes: [ Ingredient! ]! @relation(name: "Substitutes")
 		references: [ RecipeReference! ]! @relation(name: "RecipeReferences")
 	}
 
 	type RecipeReference {
 		id: ID! @id
-		recipe: Recipe! @relation(name: "RecipeID")
-		line: RecipeIngredient! @relation(name: "RecipeReference")
+		recipe: Recipe! @relation(name: "RecipeRef")
+		line: RecipeIngredient! @relation(name: "LineRef")
 	}
 
 	# TODO 1.33: kill this with fire

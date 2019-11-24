@@ -1,6 +1,5 @@
 import { GET_NOTE_CONTENT_FIELDS } from '../graphql/fragments';
 import { getEvernoteNotes, incrementOffset } from './evernote';
-import { parseContent } from './parser';
 import { createIngredientLines, createInstructions } from './recipes';
 import { saveImages } from './images';
 
@@ -53,12 +52,8 @@ export const downloadNotes = async (ctx) => {
 
 export const processNotes = async (ctx, notes, isCreateIngredient = false) => {
 	console.log('processNotes'.magenta);
-	// parse the dom content into ingredients and instructions objects
-	const parsedNotes = notes.map((note) => parseContent(note));
-
 	// then go through each note and save out their ingredient and instruction lines
-	const resolveLines = parsedNotes.map(async (note) => {
-		const { id } = note;
+	const resolveLines = notes.map(async (note) => {
 		const resolveIngredients = createIngredientLines(ctx, note.ingredients, isCreateIngredient);
 		const resolveInstructions = createInstructions(ctx, note.instructions);
 
@@ -70,7 +65,7 @@ export const processNotes = async (ctx, notes, isCreateIngredient = false) => {
 			.catch((err) => { throw err; });
 
 		return {
-			id,
+			...note,
 			ingredients,
 			instructions,
 		};
@@ -84,20 +79,24 @@ export const processNotes = async (ctx, notes, isCreateIngredient = false) => {
 
 export const updateNotes = async (ctx, notes) => {
 	console.log('updateNotes'.magenta);
-	console.log({ notes });
 	const resolveNotes = notes.map(async (note) => {
 		const data = {
-			ingredients: { connect: note.ingredients },
-			instructions: { connect: note.instructions },
+			ingredients: {
+				connect: note.ingredients,
+				delete: note.priorIngredients,
+			},
+			instructions: {
+				connect: note.instructions,
+				delete: note.priorInstructions,
+			},
 		};
+
 		delete data.id;
-		console.log({ data });
 		const saved = await ctx.prisma.updateNote({
 			data,
 			where: { id: note.id },
 		}).$fragment(GET_NOTE_CONTENT_FIELDS)
 			.catch((err) => console.log(err));
-
 		return {
 			__typename: 'Note',
 			...saved,

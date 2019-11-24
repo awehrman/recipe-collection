@@ -8,10 +8,7 @@ export const parseContent = (note) => {
 	const { id } = note;
 	// eslint-disable-next-line no-use-before-define
 	const { ingredients, instructions } = parseHTML(note.content);
-	console.log({
-		ingredients: ingredients.length,
-		instructions: instructions.length,
-	});
+
 	return {
 		id,
 		ingredients,
@@ -87,7 +84,7 @@ export const parseHTML = (content) => {
 			// console.log({ numChildren, child: div.children });
 			textNode = div.children.find((c) => c.type === 'text');
 		}
-		const data = textNode.data && textNode.data.trim();
+		const data = textNode && textNode.data && textNode.data.trim();
 		const hasContent = Boolean(data);
 
 		if (!hasContent && (currentBlock.length > 0)) {
@@ -143,7 +140,6 @@ export const parseHTML = (content) => {
 	// eslint-disable-next-line no-use-before-define
 	const ingredientLines = ingredients.map((line) => parseIngredientLine(line));
 
-
 	return {
 		ingredients: ingredientLines,
 		instructions,
@@ -194,6 +190,7 @@ export const parseIngredientLine = (line) => {
 export const parseIngredients = async (ctx, ingredients, isCreateIngredient = false) => {
 	const resolveInstructionLines = ingredients.map(async (line) => {
 		const ingredientLine = { ...line };
+		console.log(line.reference);
 		if (line.isParsed && line.parsed) {
 			const resolveParsed = line.parsed.map(async (parsed) => {
 				const parsedID = await createParsedSegment(ctx, parsed, isCreateIngredient);
@@ -210,6 +207,7 @@ export const parseIngredients = async (ctx, ingredients, isCreateIngredient = fa
 			.$fragment(GET_ID)
 			.catch((err) => { throw err; });
 
+		console.log({ id });
 		return { id };
 	});
 
@@ -219,9 +217,27 @@ export const parseIngredients = async (ctx, ingredients, isCreateIngredient = fa
 	return ids;
 };
 
+export const parseNotesContent = async (notes) => {
+	console.log('parseNotesContent'.yellow);
+	const resolveNotes = notes.map(async (note) => {
+		const { ingredients, instructions } = await parseContent(note); // TODO i don't even think this is async
+		return {
+			...note,
+			ingredients,
+			instructions,
+		};
+	});
+
+	const parsed = await Promise.all(resolveNotes)
+		.catch((err) => console.log({ err }));
+
+	return parsed;
+};
+
 export default {
 	parseContent,
 	parseHTML,
 	parseIngredientLine,
 	parseIngredients,
+	parseNotesContent,
 };

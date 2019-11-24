@@ -108,8 +108,8 @@ export default gql`
 			tags: [ String ]
 			image: String
 			content: String
-			ingredients: [ RecipeIngredient! ]
-			instructions: [ RecipeInstruction! ]
+			ingredients: [ RecipeIngredient ]
+			instructions: [ RecipeInstruction ]
 		}
 
 		type NoteAggregate {

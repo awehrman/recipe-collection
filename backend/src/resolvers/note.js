@@ -1,5 +1,7 @@
 import { GET_ALL_NOTE_FIELDS, GET_NOTE_CONTENT_FIELDS } from '../graphql/fragments';
 import { downloadNotes, processNotes, updateNotes } from '../util/notes';
+import { createRecipes, updateIngredientReferences } from '../util/recipes';
+import { parseNotesContent } from '../util/parser';
 
 export default {
 	Query: {
@@ -45,7 +47,7 @@ export default {
 				});
 			response.notes = notes;
 
-			console.log({ response: response.notes });
+			console.log({ response });
 			return response;
 		},
 		parseNotes: async (parent, args, ctx) => {
@@ -58,6 +60,17 @@ export default {
 
 			// fetch our note content from the db
 			const notesRes = await ctx.prisma.notes().$fragment(GET_NOTE_CONTENT_FIELDS)
+				// copy over any existing parsed lines for cleanup later
+				.then((notes) => notes.map((n) => ({
+					...n,
+					priorIngredients: n.ingredients.map((i) => ({ id: i.id })),
+					priorInstructions: n.instructions.map((i) => ({ id: i.id })),
+				})))
+				// parse note content into ingredients and instructions
+				.then(async (notes) => {
+					const parsedNotes = await parseNotesContent(notes);
+					return parsedNotes;
+				})
 				// go thru each notes
 				.then(async (notes) => processNotes(ctx, notes, false))
 				// save new note connections to the database
@@ -68,14 +81,9 @@ export default {
 					response.errors.push(err);
 				});
 
-			console.log('DONE'.green);
 			response.notes = notesRes;
-			console.log({ response });
 			return response;
 		},
-		/*
-
-		// TODO this needs to go back through and update ingredients with their references
 		convertNotes: async (parent, args, ctx) => {
 			console.log('convertNotes'.cyan);
 			// get all imported notes
@@ -86,20 +94,28 @@ export default {
 			};
 
 			// fetch our note content from the db
-			response.recipes = await ctx.prisma.notes().$fragment(GET_ALL_NOTE_FIELDS)
+			const recipes = await ctx.prisma.notes().$fragment(GET_ALL_NOTE_FIELDS)
+				// copy over any existing parsed lines for cleanup later
+				.then((notes) => notes.map((n) => ({
+					...n,
+					priorIngredients: n.ingredients.map((i) => ({ id: i.id })),
+					priorInstructions: n.instructions.map((i) => ({ id: i.id })),
+				})))
+				// go thru each notes
+				.then(async (notes) => processNotes(ctx, notes, true))
 				// go thru each note and create a recipe and remove the associated note
 				.then(async (notes) => createRecipes(ctx, notes, false))
-				// then we need to update each ingredient instance with the recipeID and reference line
-				.then(async (recipes) => updateIngredientReferences(ctx, recipes))
+				// then we need to update each ingredient instance with the recipe and line references
+				.then(async (rp) => updateIngredientReferences(ctx, rp))
 				.catch((err) => {
 					console.log('An error occurred!'.red);
+					console.log({ err });
 					response.errors.push(err);
 				});
 
+			response.recipes = recipes;
 			console.log('DONE'.green);
-			console.log({ response });
 			return response;
 		},
-		*/
 	},
 };
