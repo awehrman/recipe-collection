@@ -64,7 +64,7 @@ function createClient({ headers }) {
 									}
 									isExpanded
 									label
-									referenceCount
+									referenceCount @client
 								}
 							`,
 						});
@@ -164,7 +164,6 @@ function createClient({ headers }) {
 								&& (i.name !== value)
 							));
 
-							console.warn({ suggestions });
 							suggestions.sort((a, b) => a.name.localeCompare(b.name));
 							suggestions = suggestions.slice(0, 5);
 
@@ -181,6 +180,7 @@ function createClient({ headers }) {
 						// console.warn(`... [withData](${ view }) viewIngredients query resolver`);
 						// get all ingredients from the cache
 						let { ingredients } = cache.readQuery({ query: GET_ALL_INGREDIENTS_QUERY });
+						console.log({ ingredients });
 
 						// filter ingredients based on the view
 						if (view === 'new') {
@@ -199,7 +199,7 @@ function createClient({ headers }) {
 							name: i.name,
 							plural: i.plural,
 							properties: { ...i.properties },
-							referenceCount: 0,
+							referenceCount: i.references.length,
 						}));
 
 						return ingredients;

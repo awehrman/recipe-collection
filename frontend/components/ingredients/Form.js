@@ -408,7 +408,7 @@ class Form extends Component {
 			parentName, // TODO getPendingIngredient parentName
 			references: references.map((r) => ({
 				id: r.id,
-				name: r.reference,
+				name: r.line.reference,
 			})), // rename for List component
 		};
 
@@ -871,6 +871,8 @@ class Form extends Component {
 		// cleanup alternateNames data
 		const pendingIngredient = this.getPendingIngredient();
 
+		console.log(pendingIngredient.references);
+
 		return (
 			<FormStyles className={ className }>
 				<TopFormStyles>
@@ -1004,7 +1006,7 @@ class Form extends Component {
 							defaultValues={ pendingIngredient.references }
 							fieldName="references"
 							isEditMode={ false }
-							label="References"
+							label={ `${ pendingIngredient.references.length } Reference${ (pendingIngredient.references.length === 1) ? '' : 's' }` }
 							loading={ loading }
 							placeholder="references"
 							suppressLocalWarnings
@@ -1129,7 +1131,8 @@ Form.propTypes = {
 	}),
 	references: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string.isRequired,
-		reference: PropTypes.string.isRequired,
+		recipe: PropTypes.shape({ id: PropTypes.string.isRequired }).isRequired,
+		line: PropTypes.shape({ reference: PropTypes.string.isRequired }).isRequired,
 	})),
 	relatedIngredients: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string, /* if the id is left blank, its a new ingredient */

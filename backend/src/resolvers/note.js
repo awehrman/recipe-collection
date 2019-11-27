@@ -1,4 +1,5 @@
 import { GET_ALL_NOTE_FIELDS, GET_NOTE_CONTENT_FIELDS } from '../graphql/fragments';
+import { processIngredients } from '../util/ingredients';
 import { downloadNotes, processNotes, updateNotes } from '../util/notes';
 import { createRecipes, updateIngredientReferences } from '../util/recipes';
 import { parseNotesContent } from '../util/parser';
@@ -72,7 +73,7 @@ export default {
 					return parsedNotes;
 				})
 				// go thru each notes
-				.then(async (notes) => processNotes(ctx, notes, false))
+				.then(async (notes) => processNotes(ctx, [], notes, false))
 				// save new note connections to the database
 				.then(async (notes) => updateNotes(ctx, notes))
 				.catch((err) => {
@@ -101,8 +102,10 @@ export default {
 					priorIngredients: n.ingredients.map((i) => ({ id: i.id })),
 					priorInstructions: n.instructions.map((i) => ({ id: i.id })),
 				})))
+				// create all ingredients within this batch before we start the recipes
+				.then(async (notes) => processIngredients(ctx, notes, true))
 				// go thru each notes
-				.then(async (notes) => processNotes(ctx, notes, true))
+				.then(async ({ ingredients, notes }) => processNotes(ctx, ingredients, notes, true))
 				// go thru each note and create a recipe and remove the associated note
 				.then(async (notes) => createRecipes(ctx, notes, false))
 				// then we need to update each ingredient instance with the recipe and line references

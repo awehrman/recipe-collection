@@ -50,7 +50,7 @@ export const downloadNotes = async (ctx) => {
 	return notes;
 };
 
-export const processNotes = async (ctx, notes, isCreateIngredient = false) => {
+export const processNotes = async (ctx, ingredientsCache, notes, isCreateIngredient = false) => {
 	console.log('processNotes'.magenta);
 	// then go through each note and save out their ingredient and instruction lines
 	const resolveLines = notes.map(async (note) => {
@@ -78,7 +78,6 @@ export const processNotes = async (ctx, notes, isCreateIngredient = false) => {
 };
 
 export const updateNotes = async (ctx, notes) => {
-	console.log('updateNotes'.magenta);
 	const resolveNotes = notes.map(async (note) => {
 		const data = {
 			ingredients: {

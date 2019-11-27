@@ -14,9 +14,7 @@ export const minifyImage = async (image) => {
 };
 
 export const saveImages = async (notes) => {
-	console.log('saveImages'.magenta);
 	const resolveImage = notes.map(async (note) => {
-		console.log('resolveImage'.blue);
 		const { image } = note;
 		// minify image
 		const minified = await minifyImage(image)

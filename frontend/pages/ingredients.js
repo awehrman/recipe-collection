@@ -16,14 +16,14 @@ import { GET_ALL_INGREDIENTS_QUERY, GET_INGREDIENTS_COUNT_QUERY } from '../lib/a
 const Composed = adopt({
 	// eslint-disable-next-line react/prop-types
 	getIngredients: ({ render }) => (
-		<Query query={ GET_ALL_INGREDIENTS_QUERY } ssr={ false }>
+		<Query query={ GET_ALL_INGREDIENTS_QUERY } ssr={ false } fetchPolicy="cache-and-network">
 			{ render }
 		</Query>
 	),
 
 	// eslint-disable-next-line react/prop-types
 	getIngredientsCount: ({ render }) => (
-		<Query query={ GET_INGREDIENTS_COUNT_QUERY } ssr={ false }>
+		<Query query={ GET_INGREDIENTS_COUNT_QUERY } ssr={ false } fetchPolicy="cache-and-network">
 			{ render }
 		</Query>
 	),

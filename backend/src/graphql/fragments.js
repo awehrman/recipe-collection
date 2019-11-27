@@ -160,6 +160,15 @@ export const GET_ALL_INGREDIENT_FIELDS_FOR_VALIDATION = `
 		  soy
 		  gluten
 		}
+		references {
+			id
+			recipe {
+				id
+			}
+			line {
+				reference
+			}
+		}
 	}
 `;
 

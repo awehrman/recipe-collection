@@ -23,7 +23,7 @@ export const GET_CONTAINER_QUERY = gql`
 			}
 			isExpanded
 			label
-			referenceCount
+			referenceCount @client
 		}
 	}
 `;
@@ -50,7 +50,7 @@ export const GET_ALL_CONTAINERS_QUERY = gql`
 			}
 			isExpanded
 			label
-			referenceCount
+			referenceCount @client
 		}
 	}
 `;
@@ -123,6 +123,15 @@ export const GET_ALL_INGREDIENTS_QUERY = gql`
 			}
 			isComposedIngredient
 			isValidated
+			references {
+				id
+				recipe {
+					id
+				}
+				line {
+					reference
+				}
+			}
 		}
   }
 `;

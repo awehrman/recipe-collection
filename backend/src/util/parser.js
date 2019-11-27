@@ -4,7 +4,6 @@ import { GET_ID } from '../graphql/fragments';
 import { createParsedSegment } from './recipes';
 
 export const parseContent = (note) => {
-	console.log('parseContent'.magenta);
 	const { id } = note;
 	// eslint-disable-next-line no-use-before-define
 	const { ingredients, instructions } = parseHTML(note.content);
@@ -81,7 +80,10 @@ export const parseHTML = (content) => {
 		let textNode = (numChildren > 0) ? div.children[0] : null;
 		if (numChildren > 1) {
 			console.log('check number of children here!'.red);
-			// console.log({ numChildren, child: div.children });
+			console.log({
+				child: div.children,
+				numChildren,
+			});
 			textNode = div.children.find((c) => c.type === 'text');
 		}
 		const data = textNode && textNode.data && textNode.data.trim();
@@ -190,7 +192,6 @@ export const parseIngredientLine = (line) => {
 export const parseIngredients = async (ctx, ingredients, isCreateIngredient = false) => {
 	const resolveInstructionLines = ingredients.map(async (line) => {
 		const ingredientLine = { ...line };
-		console.log(line.reference);
 		if (line.isParsed && line.parsed) {
 			const resolveParsed = line.parsed.map(async (parsed) => {
 				const parsedID = await createParsedSegment(ctx, parsed, isCreateIngredient);
@@ -207,7 +208,6 @@ export const parseIngredients = async (ctx, ingredients, isCreateIngredient = fa
 			.$fragment(GET_ID)
 			.catch((err) => { throw err; });
 
-		console.log({ id });
 		return { id };
 	});
 
@@ -218,7 +218,6 @@ export const parseIngredients = async (ctx, ingredients, isCreateIngredient = fa
 };
 
 export const parseNotesContent = async (notes) => {
-	console.log('parseNotesContent'.yellow);
 	const resolveNotes = notes.map(async (note) => {
 		const { ingredients, instructions } = await parseContent(note); // TODO i don't even think this is async
 		return {

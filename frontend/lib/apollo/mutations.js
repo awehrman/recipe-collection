@@ -29,7 +29,7 @@ export const CREATE_CONTAINERS_MUTATION = gql`
 						soy
 						gluten
 					}
-					referenceCount
+					referenceCount @client
 				}
 				isExpanded
 				label

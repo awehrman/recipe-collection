@@ -77,7 +77,7 @@ class Card extends React.PureComponent {
 						const { ingredient } = data || {};
 						const {
 							alternateNames, isComposedIngredient, name, plural, properties,
-							relatedIngredients, substitutes, references,
+							relatedIngredients = [], substitutes = [], references = [],
 						} = ingredient || {};
 						if (error) return <ErrorMessage error={ error } />;
 

@@ -1,4 +1,4 @@
-import { lookupIngredient, updateIngredient } from './ingredients';
+import { lookupIngredient, updateIngredient, createIngredient } from './ingredients';
 import { determinePluralization } from './strings';
 import { GET_ID, GET_ALL_RECIPE_FIELDS } from '../graphql/fragments';
 
@@ -6,14 +6,9 @@ export const createParsedSegment = async (ctx, parsed, isCreateIngredient = fals
 	const segment = { ...parsed };
 
 	// for ingredient segments, lookup these ingredients from the db
-	if (parsed.type === 'ingredient') {
+	if (segment.type === 'ingredient') {
 		const existing = await lookupIngredient(ctx, parsed.value);
-		console.log({
-			value: parsed.value,
-			existing,
-		});
 		if (existing) {
-			console.log(`existing ingredient ${ parsed.value }!`.green);
 			// connect any existing ingredient
 			segment.ingredient = { connect: { id: existing.id } };
 		} else if (!existing && isCreateIngredient) {
@@ -32,30 +27,10 @@ export const createParsedSegment = async (ctx, parsed, isCreateIngredient = fals
 					},
 				},
 			};
-			console.log(`didn't find "${ name }" so attempting to create it....`.yellow);
 			// if we're allowed to create the ingredient, go ahead and create it then connect it
-			const { id } = await ctx.prisma.createIngredient({ ...data }).$fragment(GET_ID)
-				.catch(async () => {
-				// this can often fail due to how graphql is batching our queries to prisma
-				// often a simply retry is successful but this could use a deeper look
-					const retry = await lookupIngredient(ctx, name);
-					if (retry) {
-						console.log(`found ${ name } 2nd time around...`.magenta);
-						console.log({ retry });
-						return retry;
-					}
-					// TODO handle situations where a secondary retry isn't enough
-					console.log(`${ name } - fuck whoops`.red);
-					return null;
-				});
-			// eslint-disable-next-line
-			console.log({ name, id });
-
+			const id = await createIngredient(ctx, data, name);
 			if (id) {
 				segment.ingredient = { connect: { id } };
-				console.log(`created ingredient "${ parsed.value }"`.green);
-			} else {
-				console.log(`NOPE COULDN'T MAKE "${ parsed.value }"`.red);
 			}
 		}
 	}
@@ -64,17 +39,17 @@ export const createParsedSegment = async (ctx, parsed, isCreateIngredient = fals
 		delete segment.id;
 	}
 
-	console.log(`creating parsed segment ${ parsed.value }!`.magenta);
 	const { id } = await ctx.prisma.createParsedSegment({ ...segment })
 		.$fragment(GET_ID)
 		.catch((err) => {
-			throw err;
+			console.warn('createParsedSegmentError'.red);
+			console.log({ segment });
+			console.log({ err });
 		});
 	return { id };
 };
 
 export const createRecipe = async (ctx, note) => {
-	console.log('createRecipe'.green);
 	const data = {
 		evernoteGUID: note.evernoteGUID,
 		image: note.image,
@@ -90,8 +65,6 @@ export const createRecipe = async (ctx, note) => {
 };
 
 export const createRecipes = async (ctx, notes) => {
-	console.log('createRecipes'.cyan);
-
 	// then go through each note and save out their ingredient and instruction lines
 	const resolveRecipes = notes.map(async (note) => {
 		// create the recipe
@@ -108,7 +81,6 @@ export const createRecipes = async (ctx, notes) => {
 };
 
 export const createIngredientLines = async (ctx, ingredients, isCreateIngredient = false) => {
-	console.log('createIngredientLines'.cyan);
 	const resolveIngredients = ingredients.map(async (line) => {
 		const ingLine = { ...line };
 
@@ -144,7 +116,6 @@ export const createIngredientLines = async (ctx, ingredients, isCreateIngredient
 };
 
 export const createInstructions = async (ctx, instructions) => {
-	console.log('createInstructions'.blue);
 	const resolveInstructions = instructions.map(
 		async (line) => ctx.prisma.createRecipeInstruction({
 			blockIndex: line.blockIndex,
@@ -159,7 +130,6 @@ export const createInstructions = async (ctx, instructions) => {
 };
 
 export const updateRecipeReference = async (ctx, recipe) => {
-	console.log('updateRecipeReference'.yellow);
 	const { id } = recipe;
 	const resolveIngredients = recipe.ingredients.map(async (line) => {
 		if (!line.isParsed || !line.parsed) {
@@ -170,27 +140,27 @@ export const updateRecipeReference = async (ctx, recipe) => {
 		// and update those with our references
 		const ingredients = line.parsed.filter((p) => p.ingredient);
 		const resolveIngredientReferences = ingredients.map(async (ing) => {
-			console.log(`${ ing.ingredient.name } ${ ing.ingredient.id }`.magenta);
 			const data = {
 				references: {
 					create: [ {
-						recipe: { connect: { id } },
-						line: { connect: { id: line.id } },
+						recipe: { connect: { id } }, 				// RecipeCreateOneInput!
+						line: { connect: { id: line.id } }, // RecipeIngredientCreateOneInput!
 					} ],
 				},
 			};
 			const where = { id: ing.ingredient.id };
-			const updated = await updateIngredient(ctx, data, where, ing);
+			const updated = await updateIngredient(ctx, data, where, ing.ingredient);
 			if (updated) {
 				return updated;
 			}
-			console.warn(`couldn't update ingredient ${ ing.name }!`.red);
+			console.warn(`couldn't update ingredient ${ ing.ingredient.name }!!!`.red);
 			// TODO do something?
 			return null;
 		});
 
-		return Promise.all(resolveIngredientReferences)
+		const refs = await Promise.all(resolveIngredientReferences)
 			.catch((err) => { throw err; });
+		return refs;
 	});
 
 	return Promise.all(resolveIngredients)
@@ -198,8 +168,6 @@ export const updateRecipeReference = async (ctx, recipe) => {
 };
 
 export const updateIngredientReferences = async (ctx, recipes) => {
-	console.log('updateIngredientReferences'.yellow);
-
 	const resolveReferences = recipes.map(async (recipe) => updateRecipeReference(ctx, recipe));
 
 	await Promise.all(resolveReferences)
