@@ -356,6 +356,44 @@ export const IS_EVERNOTE_AUTHENTICATED_QUERY = gql`
   }
 `;
 
+/* Dashboard */
+
+export const GET_DASHBOARD_INGREDIENTS_QUERY = gql`
+  query GET_DASHBOARD_INGREDIENTS_QUERY {
+  	dashboardIngredients {
+			errors
+			newIngredients {
+				id
+				name
+			}
+		}
+  }
+`;
+
+export const GET_DASHBOARD_PARSING_QUERY = gql`
+  query GET_DASHBOARD_PARSING_QUERY {
+  	dashboardParsing {
+			errors
+			parsingErrors {
+				id
+				reference
+			}
+		}
+  }
+`;
+
+export const GET_DASHBOARD_RECIPES_QUERY = gql`
+  query GET_DASHBOARD_RECIPES_QUERY {
+  	dashboardRecipes {
+			errors
+			newRecipes {
+				id
+				title
+			}
+		}
+  }
+`;
+
 export default [
 	GET_CONTAINER_QUERY,
 	GET_ALL_CONTAINERS_QUERY,
@@ -374,4 +412,7 @@ export default [
 	GET_NOTES_COUNT_QUERY,
 	GET_ALL_NOTES_QUERY,
 	IS_EVERNOTE_AUTHENTICATED_QUERY,
+	GET_DASHBOARD_INGREDIENTS_QUERY,
+	GET_DASHBOARD_PARSING_QUERY,
+	GET_DASHBOARD_RECIPES_QUERY,
 ];

@@ -1,47 +1,15 @@
 # import * from '../generated/prisma.graphql'
+# import * from './responseTypes.graphql'
 
-# TODO move response types into their own file
-type AuthenticationResponse {
-	errors: [ String ]
-	isAuthenticationPending: Boolean
-	isAuthenticated: Boolean
-	authURL: String
-}
-
-type CategoryResponse {
-	category: Category
-	errors: [ String ]
-}
-
-type EvernoteResponse {
-	errors: [ String ]
-	notes: [ Note ]
-}
-
-type IngredientResponse {
-	errors: [ String ]
-	ingredient: Ingredient
-}
-
-type RecipeResponse {
-	errors: [ String ]
-	recipe: Recipe
-}
-
-type RecipesResponse {
-	errors: [ String ]
-	recipes: [ Recipe ]
-}
-
-type TagResponse {
-	errors: [ String ]
-	tag: Tag
-}
-
+# TODO return response objects with error fields on all queries/mutations
 type Query {
 	category(where: CategoryWhereUniqueInput): Category
   categories: [ Category! ]!
   categoryAggregate: AggregateCategory!
+
+	dashboardIngredients: DashboardResponse
+	dashboardParsing: DashboardResponse
+	dashboardRecipes: DashboardResponse
 
 	isEvernoteAuthenticated: AuthenticationResponse!
 

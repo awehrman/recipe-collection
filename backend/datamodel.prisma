@@ -2,6 +2,9 @@
 
 	type Ingredient {
 		id: ID! @id
+		dateCreated: DateTime! @createdAt
+  	dateUpdated: DateTime! @updatedAt
+
 		name: String! @unique
 		plural: String @unique
 		# TODO 1.33: alternateNames: [ String ]! @unique @scalarList(strategy: RELATION)
@@ -59,6 +62,8 @@
 
 	type Recipe {
 		id: ID! @id
+		dateCreated: DateTime! @createdAt
+  	dateUpdated: DateTime! @updatedAt
 		evernoteGUID: String @unique
 		title: String!
 		source: String
@@ -79,6 +84,8 @@
 
 	type RecipeIngredient {
 		id: ID! @id
+		dateCreated: DateTime! @createdAt
+  	dateUpdated: DateTime! @updatedAt
 		blockIndex: Int!
 		lineIndex: Int!
 		reference: String!
@@ -89,6 +96,8 @@
 
 	type ParsedSegment {
 		id: ID! @id
+		dateCreated: DateTime! @createdAt
+  	dateUpdated: DateTime! @updatedAt
 		# TODO 1.33: consider setting up ENUMS for the rules & types
 		rule: String!
 		type: String!
@@ -100,6 +109,8 @@
 
 	type Note {
 		id: ID! @id
+		dateCreated: DateTime! @createdAt
+  	dateUpdated: DateTime! @updatedAt
 		evernoteGUID: String @unique
 		title: String!
 		source: String

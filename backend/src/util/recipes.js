@@ -45,6 +45,7 @@ export const createParsedSegment = async (ctx, parsed, isCreateIngredient = fals
 			console.warn('createParsedSegmentError'.red);
 			console.log({ segment });
 			console.log({ err });
+			return { id: null };
 		});
 	return { id };
 };
@@ -101,6 +102,11 @@ export const createIngredientLines = async (ctx, ingredients, isCreateIngredient
 
 		if (!ingLine.rule) {
 			ingLine.rule = '';
+		}
+
+		if (ingLine.parsed && (ingLine.parsed.length === 0)) {
+			delete ingLine.parsed;
+			ingLine.isParsed = false;
 		}
 
 		const ing = await ctx.prisma

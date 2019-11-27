@@ -71,7 +71,7 @@ export default {
 		authenticate: async (parent, args, ctx) => {
 			console.log('authenticate'.cyan);
 			const { oauthVerifier } = args;
-			const { req } = ctx
+			const { req } = ctx;
 			const {
 				authToken,
 				requestToken,
@@ -108,7 +108,7 @@ export default {
 				errors: [],
 				isAuthenticated: false,
 			};
-			
+
 			const { req } = ctx;
 			req.session = null;
 

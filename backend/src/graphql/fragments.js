@@ -250,6 +250,14 @@ export const GET_PARSED_FIELDS = `
 `;
 
 
+export const GET_PARSING_ERRORS = `
+	{
+		id
+		reference
+	}
+`;
+
+
 export default [
 	GET_ALL_CATEGORY_FIELDS,
 	GET_ALL_TAG_FIELDS,
@@ -265,4 +273,5 @@ export default [
 	GET_BASIC_RECIPE_INGREDIENT_FIELDS,
 	GET_PARSED_FIELDS,
 	GET_EVERNOTE_GUID,
+	GET_PARSING_ERRORS,
 ];

@@ -446,8 +446,12 @@ input CategoryWhereUniqueInput {
   name: String
 }
 
+scalar DateTime
+
 type Ingredient {
   id: ID!
+  dateCreated: DateTime!
+  dateUpdated: DateTime!
   name: String!
   plural: String
   alternateNames(where: AlternateNameWhereInput, orderBy: AlternateNameOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [AlternateName!]
@@ -653,6 +657,10 @@ type IngredientEdge {
 enum IngredientOrderByInput {
   id_ASC
   id_DESC
+  dateCreated_ASC
+  dateCreated_DESC
+  dateUpdated_ASC
+  dateUpdated_DESC
   name_ASC
   name_DESC
   plural_ASC
@@ -665,6 +673,8 @@ enum IngredientOrderByInput {
 
 type IngredientPreviousValues {
   id: ID!
+  dateCreated: DateTime!
+  dateUpdated: DateTime!
   name: String!
   plural: String
   isComposedIngredient: Boolean!
@@ -686,6 +696,22 @@ input IngredientScalarWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
+  dateCreated: DateTime
+  dateCreated_not: DateTime
+  dateCreated_in: [DateTime!]
+  dateCreated_not_in: [DateTime!]
+  dateCreated_lt: DateTime
+  dateCreated_lte: DateTime
+  dateCreated_gt: DateTime
+  dateCreated_gte: DateTime
+  dateUpdated: DateTime
+  dateUpdated_not: DateTime
+  dateUpdated_in: [DateTime!]
+  dateUpdated_not_in: [DateTime!]
+  dateUpdated_lt: DateTime
+  dateUpdated_lte: DateTime
+  dateUpdated_gt: DateTime
+  dateUpdated_gte: DateTime
   name: String
   name_not: String
   name_in: [String!]
@@ -911,6 +937,22 @@ input IngredientWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
+  dateCreated: DateTime
+  dateCreated_not: DateTime
+  dateCreated_in: [DateTime!]
+  dateCreated_not_in: [DateTime!]
+  dateCreated_lt: DateTime
+  dateCreated_lte: DateTime
+  dateCreated_gt: DateTime
+  dateCreated_gte: DateTime
+  dateUpdated: DateTime
+  dateUpdated_not: DateTime
+  dateUpdated_in: [DateTime!]
+  dateUpdated_not_in: [DateTime!]
+  dateUpdated_lt: DateTime
+  dateUpdated_lte: DateTime
+  dateUpdated_gt: DateTime
+  dateUpdated_gte: DateTime
   name: String
   name_not: String
   name_in: [String!]
@@ -1068,6 +1110,8 @@ interface Node {
 
 type Note {
   id: ID!
+  dateCreated: DateTime!
+  dateUpdated: DateTime!
   evernoteGUID: String
   title: String!
   source: String
@@ -1220,6 +1264,10 @@ type NoteEdge {
 enum NoteOrderByInput {
   id_ASC
   id_DESC
+  dateCreated_ASC
+  dateCreated_DESC
+  dateUpdated_ASC
+  dateUpdated_DESC
   evernoteGUID_ASC
   evernoteGUID_DESC
   title_ASC
@@ -1234,6 +1282,8 @@ enum NoteOrderByInput {
 
 type NotePreviousValues {
   id: ID!
+  dateCreated: DateTime!
+  dateUpdated: DateTime!
   evernoteGUID: String
   title: String!
   source: String
@@ -1306,6 +1356,22 @@ input NoteWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
+  dateCreated: DateTime
+  dateCreated_not: DateTime
+  dateCreated_in: [DateTime!]
+  dateCreated_not_in: [DateTime!]
+  dateCreated_lt: DateTime
+  dateCreated_lte: DateTime
+  dateCreated_gt: DateTime
+  dateCreated_gte: DateTime
+  dateUpdated: DateTime
+  dateUpdated_not: DateTime
+  dateUpdated_in: [DateTime!]
+  dateUpdated_not_in: [DateTime!]
+  dateUpdated_lt: DateTime
+  dateUpdated_lte: DateTime
+  dateUpdated_gt: DateTime
+  dateUpdated_gte: DateTime
   evernoteGUID: String
   evernoteGUID_not: String
   evernoteGUID_in: [String!]
@@ -1401,6 +1467,8 @@ type PageInfo {
 
 type ParsedSegment {
   id: ID!
+  dateCreated: DateTime!
+  dateUpdated: DateTime!
   rule: String!
   type: String!
   value: String!
@@ -1434,6 +1502,10 @@ type ParsedSegmentEdge {
 enum ParsedSegmentOrderByInput {
   id_ASC
   id_DESC
+  dateCreated_ASC
+  dateCreated_DESC
+  dateUpdated_ASC
+  dateUpdated_DESC
   rule_ASC
   rule_DESC
   type_ASC
@@ -1444,6 +1516,8 @@ enum ParsedSegmentOrderByInput {
 
 type ParsedSegmentPreviousValues {
   id: ID!
+  dateCreated: DateTime!
+  dateUpdated: DateTime!
   rule: String!
   type: String!
   value: String!
@@ -1464,6 +1538,22 @@ input ParsedSegmentScalarWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
+  dateCreated: DateTime
+  dateCreated_not: DateTime
+  dateCreated_in: [DateTime!]
+  dateCreated_not_in: [DateTime!]
+  dateCreated_lt: DateTime
+  dateCreated_lte: DateTime
+  dateCreated_gt: DateTime
+  dateCreated_gte: DateTime
+  dateUpdated: DateTime
+  dateUpdated_not: DateTime
+  dateUpdated_in: [DateTime!]
+  dateUpdated_not_in: [DateTime!]
+  dateUpdated_lt: DateTime
+  dateUpdated_lte: DateTime
+  dateUpdated_gt: DateTime
+  dateUpdated_gte: DateTime
   rule: String
   rule_not: String
   rule_in: [String!]
@@ -1598,6 +1688,22 @@ input ParsedSegmentWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
+  dateCreated: DateTime
+  dateCreated_not: DateTime
+  dateCreated_in: [DateTime!]
+  dateCreated_not_in: [DateTime!]
+  dateCreated_lt: DateTime
+  dateCreated_lte: DateTime
+  dateCreated_gt: DateTime
+  dateCreated_gte: DateTime
+  dateUpdated: DateTime
+  dateUpdated_not: DateTime
+  dateUpdated_in: [DateTime!]
+  dateUpdated_not_in: [DateTime!]
+  dateUpdated_lt: DateTime
+  dateUpdated_lte: DateTime
+  dateUpdated_gt: DateTime
+  dateUpdated_gte: DateTime
   rule: String
   rule_not: String
   rule_in: [String!]
@@ -1854,6 +1960,8 @@ type Query {
 
 type Recipe {
   id: ID!
+  dateCreated: DateTime!
+  dateUpdated: DateTime!
   evernoteGUID: String
   title: String!
   source: String
@@ -1985,6 +2093,8 @@ type RecipeEdge {
 
 type RecipeIngredient {
   id: ID!
+  dateCreated: DateTime!
+  dateUpdated: DateTime!
   blockIndex: Int!
   lineIndex: Int!
   reference: String!
@@ -2027,6 +2137,10 @@ type RecipeIngredientEdge {
 enum RecipeIngredientOrderByInput {
   id_ASC
   id_DESC
+  dateCreated_ASC
+  dateCreated_DESC
+  dateUpdated_ASC
+  dateUpdated_DESC
   blockIndex_ASC
   blockIndex_DESC
   lineIndex_ASC
@@ -2041,6 +2155,8 @@ enum RecipeIngredientOrderByInput {
 
 type RecipeIngredientPreviousValues {
   id: ID!
+  dateCreated: DateTime!
+  dateUpdated: DateTime!
   blockIndex: Int!
   lineIndex: Int!
   reference: String!
@@ -2063,6 +2179,22 @@ input RecipeIngredientScalarWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
+  dateCreated: DateTime
+  dateCreated_not: DateTime
+  dateCreated_in: [DateTime!]
+  dateCreated_not_in: [DateTime!]
+  dateCreated_lt: DateTime
+  dateCreated_lte: DateTime
+  dateCreated_gt: DateTime
+  dateCreated_gte: DateTime
+  dateUpdated: DateTime
+  dateUpdated_not: DateTime
+  dateUpdated_in: [DateTime!]
+  dateUpdated_not_in: [DateTime!]
+  dateUpdated_lt: DateTime
+  dateUpdated_lte: DateTime
+  dateUpdated_gt: DateTime
+  dateUpdated_gte: DateTime
   blockIndex: Int
   blockIndex_not: Int
   blockIndex_in: [Int!]
@@ -2221,6 +2353,22 @@ input RecipeIngredientWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
+  dateCreated: DateTime
+  dateCreated_not: DateTime
+  dateCreated_in: [DateTime!]
+  dateCreated_not_in: [DateTime!]
+  dateCreated_lt: DateTime
+  dateCreated_lte: DateTime
+  dateCreated_gt: DateTime
+  dateCreated_gte: DateTime
+  dateUpdated: DateTime
+  dateUpdated_not: DateTime
+  dateUpdated_in: [DateTime!]
+  dateUpdated_not_in: [DateTime!]
+  dateUpdated_lt: DateTime
+  dateUpdated_lte: DateTime
+  dateUpdated_gt: DateTime
+  dateUpdated_gte: DateTime
   blockIndex: Int
   blockIndex_not: Int
   blockIndex_in: [Int!]
@@ -2479,6 +2627,10 @@ input RecipeInstructionWhereUniqueInput {
 enum RecipeOrderByInput {
   id_ASC
   id_DESC
+  dateCreated_ASC
+  dateCreated_DESC
+  dateUpdated_ASC
+  dateUpdated_DESC
   evernoteGUID_ASC
   evernoteGUID_DESC
   title_ASC
@@ -2491,6 +2643,8 @@ enum RecipeOrderByInput {
 
 type RecipePreviousValues {
   id: ID!
+  dateCreated: DateTime!
+  dateUpdated: DateTime!
   evernoteGUID: String
   title: String!
   source: String
@@ -2704,6 +2858,22 @@ input RecipeWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
+  dateCreated: DateTime
+  dateCreated_not: DateTime
+  dateCreated_in: [DateTime!]
+  dateCreated_not_in: [DateTime!]
+  dateCreated_lt: DateTime
+  dateCreated_lte: DateTime
+  dateCreated_gt: DateTime
+  dateCreated_gte: DateTime
+  dateUpdated: DateTime
+  dateUpdated_not: DateTime
+  dateUpdated_in: [DateTime!]
+  dateUpdated_not_in: [DateTime!]
+  dateUpdated_lt: DateTime
+  dateUpdated_lte: DateTime
+  dateUpdated_gt: DateTime
+  dateUpdated_gte: DateTime
   evernoteGUID: String
   evernoteGUID_not: String
   evernoteGUID_in: [String!]
