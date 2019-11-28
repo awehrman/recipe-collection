@@ -3,26 +3,33 @@ import React from 'react';
 import { Query, withApollo } from 'react-apollo';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { GET_ALL_RECIPES_QUERY, GET_RECIPES_COUNT_QUERY } from '../lib/apollo/queries';
+import { GET_PAGINATED_RECIPES_QUERY, GET_RECIPES_COUNT_QUERY } from '../lib/apollo/queries';
 
 import AddNew from '../components/recipes/AddNew';
 import ErrorMessage from '../components/ErrorMessage';
 import Loading from '../components/Loading';
 import Header from '../components/Header';
-import Image from '../components/form/Image';
-import ParsedViewer from '../components/recipes/ParsedViewer';
+import Grid from '../components/recipes/Grid';
 
 const Composed = adopt({
 	// eslint-disable-next-line react/prop-types
-	getRecipes: ({ render }) => (
-		<Query query={ GET_ALL_RECIPES_QUERY } ssr={ false }>
+	getRecipes: ({ limit = 10, offset = 0, render }) => (
+		<Query
+			fetchPolicy="cache-and-network"
+			query={ GET_PAGINATED_RECIPES_QUERY }
+			ssr={ false }
+			variables={ {
+				offset,
+				limit,
+			} }
+		>
 			{render}
 		</Query>
 	),
 
 	// eslint-disable-next-line react/prop-types
 	getRecipesCount: ({ render }) => (
-		<Query query={ GET_RECIPES_COUNT_QUERY } ssr={ false }>
+		<Query query={ GET_RECIPES_COUNT_QUERY } ssr={ false } fetchPolicy="cache-and-network">
 			{render}
 		</Query>
 	),
@@ -46,81 +53,38 @@ const Count = styled.div`
 	}
 `;
 
-const Title = styled.h1`
-	font-size: 24px;
-	font-weight: 100;
-	margin-top: 0;
-`;
-
-const Source = styled.div`
-	font-style: italic;
-	font-size: 12px;
-	color: #bbb !important;
-	margin-top: 4px;
-	text-align: right;
-`;
-
-const Categories = styled.ul`
-	list-style: none;
-	display: inline-block;
-	color: ${ (props) => props.theme.altGreen };
-	width: 45%;
-	padding: 0;
-	margin: 15px 5px 0px 0;
-	font-size: 14px;
-`;
-
-const Tags = styled.ul`
-	margin-bottom: 8px;
-	list-style: none;
-	display: inline-block;
-	color: white;
-	width: 45%;
-	margin: 15px 10px 10px 0;
-	padding: 0;
-	float: right;
-	text-align: right;
-
-	li {
-		font-size: 12px;
-		padding: 4px 10px;
-		font-weight: 900;
-		display: inline;
-		background: ${ (props) => props.theme.altGreen };
-		border-radius: 50px;
-		width: 100%;
-		margin-left: 5px;
-	}
-`;
-
 const RecipesStyles = styled.article`
 `;
 
-const TempCardStyles = styled.div`
-	border: 1px solid #ccc;
-	border-radius: 5px;
-	padding: 40px;
-	margin-bottom: 60px;
-	width: 80%;
-`;
-
 class Recipes extends React.PureComponent {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			limit: 12,
+			offset: 0,
+		};
+	}
+
 	refreshRecipes = () => {
 		const { client } = this.props;
 
 		const queries = [
-			{ query: GET_ALL_RECIPES_QUERY },
+			{ query: GET_PAGINATED_RECIPES_QUERY }, // TODO variables?
 			{ query: GET_RECIPES_COUNT_QUERY },
 		];
 
 		return Promise.all(queries.map((q) => client.query(
-			Object.assign({}, q, { fetchPolicy: 'network-only' }),
+			// eslint-disable-next-line prefer-object-spread
+			Object.assign({}, q, { fetchPolicy: 'network-only' }), // TODO is this the best way to do this?
 		)));
 	}
 
 	render() {
+		const { limit, offset } = this.state;
+
 		return (
-			<Composed>
+			<Composed limit={ limit } offset={ offset }>
 				{
 					({ getRecipes, getRecipesCount }) => {
 						const { error, loading } = getRecipes;
@@ -129,7 +93,6 @@ class Recipes extends React.PureComponent {
 						const { recipesCount } = recipeAggregate || {};
 						const { recipes = [] } = getRecipes.data || {};
 
-						// TODO install an actual view here
 						return (
 							<RecipesStyles>
 								<Header pageHeader="Recipes" />
@@ -143,50 +106,7 @@ class Recipes extends React.PureComponent {
 									{
 										(loading)
 											? <Loading name="recipes" />
-											: recipes.map((r) => (
-												<TempCardStyles key={ `${ r.id }` }>
-													{/* Title Preview */}
-													<Title>
-														{ r.title }
-													</Title>
-
-													{/* Image Preview */}
-													<Image value={ r.image } />
-
-													{/* Source Preview */}
-													<Source>
-														{ r.source }
-													</Source>
-
-													{/* Categories Preview */}
-													<Categories>
-														{
-															r.categories && r.categories.map((c) => (
-																<li key={ `categories_display_${ c.id }_${ c.name }` }>
-																	{ c.name }
-																</li>
-															))
-														}
-													</Categories>
-
-													{/* Tags Preview */}
-													<Tags>
-														{
-															r.tags && r.tags.map((c) => (
-																<li key={ `tags_display_${ c.id }_${ c.name }` }>
-																	{ c.name }
-																</li>
-															))
-														}
-													</Tags>
-
-													<ParsedViewer
-														loading={ loading }
-														ingredients={ r.ingredients }
-														instructions={ r.instructions }
-													/>
-												</TempCardStyles>
-											))
+											: <Grid recipes={ recipes } />
 									}
 
 									<AddNew refreshRecipes={ this.refreshRecipes } />

@@ -22,7 +22,7 @@ type Query {
 	noteAggregate: NoteAggregate!
 
 	recipe(where: RecipeWhereUniqueInput!): Recipe
-	recipes: [ Recipe! ]!
+	recipes(offset: Int, limit: Int): [ Recipe! ]!
 	recipeAggregate: RecipeAggregate!
 
 	tag(where: TagWhereUniqueInput!): Tag

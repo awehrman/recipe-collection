@@ -8,7 +8,14 @@ export default {
 			return ctx.prisma.recipe({ id }).$fragment(GET_ALL_RECIPE_FIELDS);
 		},
 		recipes: async (parent, args, ctx) => {
-			const recipes = await ctx.prisma.recipes().$fragment(GET_ALL_RECIPE_FIELDS);
+			console.log('recipes'.magenta);
+			const { limit = 10, offset = 0 } = args;
+			// eslint-disable-next-line
+			console.log({ limit, offset });
+			const recipes = await ctx.prisma.recipes({
+				first: limit,
+				skip: offset,
+			}).$fragment(GET_ALL_RECIPE_FIELDS);
 			return recipes;
 		},
 		recipeAggregate: async (parent, args, ctx) => {

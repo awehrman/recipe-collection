@@ -251,6 +251,50 @@ export const GET_ALL_RECIPES_QUERY = gql`
   }
 `;
 
+export const GET_PAGINATED_RECIPES_QUERY = gql`
+  query GET_PAGINATED_RECIPES_QUERY($offset: Int, $limit: Int) {
+  	recipes(offset: $offset, limit: $limit) {
+  		id
+			categories {
+				id
+				name
+			}
+			tags {
+				id
+				name
+			}
+			evernoteGUID
+			image
+			source
+			title
+			ingredients {
+				id
+				blockIndex
+				isParsed
+				lineIndex
+				parsed {
+					id
+					ingredient {
+						id
+						isValidated
+						name
+					}
+					rule
+					type
+					value
+				}
+				reference
+				rule
+			}
+			instructions {
+				blockIndex
+				reference
+			}
+		}
+  }
+`;
+
+
 /* Categories */
 export const GET_ALL_CATEGORIES_QUERY = gql`
   query GET_ALL_CATEGORIES_QUERY {
@@ -415,4 +459,5 @@ export default [
 	GET_DASHBOARD_INGREDIENTS_QUERY,
 	GET_DASHBOARD_PARSING_QUERY,
 	GET_DASHBOARD_RECIPES_QUERY,
+	GET_PAGINATED_RECIPES_QUERY,
 ];
