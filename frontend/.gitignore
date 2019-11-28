@@ -12,6 +12,7 @@
 /.next
 /bak
 /components/bak
+/share
 
 # config
 .env
