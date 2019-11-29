@@ -252,43 +252,14 @@ export const GET_ALL_RECIPES_QUERY = gql`
 `;
 
 export const GET_PAGINATED_RECIPES_QUERY = gql`
-  query GET_PAGINATED_RECIPES_QUERY($offset: Int, $limit: Int) {
-  	recipes(offset: $offset, limit: $limit) {
-  		id
-			categories {
+  query GET_PAGINATED_RECIPES_QUERY($cursor: Int) {
+  	recipes(cursor: $cursor) {
+			count
+			errors
+			recipes {
 				id
-				name
-			}
-			tags {
-				id
-				name
-			}
-			evernoteGUID
-			image
-			source
-			title
-			ingredients {
-				id
-				blockIndex
-				isParsed
-				lineIndex
-				parsed {
-					id
-					ingredient {
-						id
-						isValidated
-						name
-					}
-					rule
-					type
-					value
-				}
-				reference
-				rule
-			}
-			instructions {
-				blockIndex
-				reference
+				image
+				title
 			}
 		}
   }

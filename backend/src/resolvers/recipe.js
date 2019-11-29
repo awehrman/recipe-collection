@@ -9,14 +9,29 @@ export default {
 		},
 		recipes: async (parent, args, ctx) => {
 			console.log('recipes'.magenta);
-			const { limit = 10, offset = 0 } = args;
+			const { cursor = 0 } = args;
+			const first = 15;
+			const skip = cursor * first;
+			const response = {
+				__typename: 'RecipesResponse',
+				count: 0,
+				errors: [],
+				recipes: [],
+			};
 			// eslint-disable-next-line
-			console.log({ limit, offset });
+			console.log({ cursor, first, skip });
+
 			const recipes = await ctx.prisma.recipes({
-				first: limit,
-				skip: offset,
-			}).$fragment(GET_ALL_RECIPE_FIELDS);
-			return recipes;
+				first,
+				skip,
+			}).$fragment(GET_ALL_RECIPE_FIELDS)
+				.catch((err) => response.errors.push(err));
+			const recipesCount = await ctx.prisma.recipesConnection().aggregate().count();
+
+			response.count = recipesCount;
+			// response.cursor = cursor + 1;
+			response.recipes = recipes;
+			return response;
 		},
 		recipeAggregate: async (parent, args, ctx) => {
 			const recipesCount = await ctx.prisma.recipesConnection().aggregate().count();

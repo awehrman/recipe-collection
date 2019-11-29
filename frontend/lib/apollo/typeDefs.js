@@ -167,6 +167,7 @@ export default gql`
 
 		type RecipesResponse {
 			errors: [ String ]
+			count: Int
 			recipes: [ Recipe ]
 		}
 

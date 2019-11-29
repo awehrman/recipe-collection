@@ -46,6 +46,7 @@ type RecipeResponse {
 
 type RecipesResponse {
 	errors: [ String ]
+	count: Int
 	recipes: [ Recipe ]
 }
 

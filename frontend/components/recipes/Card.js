@@ -5,7 +5,7 @@ import styled from 'styled-components';
 const CardStyles = styled.article`
 	box-sizing: border-box;
 	width: 23%;
-	height: 250px;
+	height: 200px;
 
 	h2 {
 		margin: 10px 0;
@@ -39,7 +39,6 @@ class Card extends React.PureComponent {
 	render() {
 		const { recipe } = this.props;
 		const { image, title } = recipe;
-		console.warn({ recipe });
 
 		return (
 			<CardStyles>
@@ -57,11 +56,11 @@ class Card extends React.PureComponent {
 Card.defaultProps = {};
 
 Card.propTypes = {
-	recipe: {
+	recipe: PropTypes.shape({
 		id: PropTypes.string.isRequired,
 		image: PropTypes.string,
 		title: PropTypes.string.isRequired,
-	}.isRequired,
+	}).isRequired,
 };
 
 export default Card;

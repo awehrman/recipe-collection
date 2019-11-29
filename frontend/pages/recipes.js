@@ -7,21 +7,17 @@ import { GET_PAGINATED_RECIPES_QUERY, GET_RECIPES_COUNT_QUERY } from '../lib/apo
 
 import AddNew from '../components/recipes/AddNew';
 import ErrorMessage from '../components/ErrorMessage';
-import Loading from '../components/Loading';
 import Header from '../components/Header';
 import Grid from '../components/recipes/Grid';
 
 const Composed = adopt({
 	// eslint-disable-next-line react/prop-types
-	getRecipes: ({ limit = 10, offset = 0, render }) => (
+	getRecipes: ({ cursor = 0, render }) => (
 		<Query
-			fetchPolicy="cache-and-network"
+			notifyOnNetworkStatusChange
 			query={ GET_PAGINATED_RECIPES_QUERY }
 			ssr={ false }
-			variables={ {
-				offset,
-				limit,
-			} }
+			variables={ { cursor } }
 		>
 			{render}
 		</Query>
@@ -29,7 +25,12 @@ const Composed = adopt({
 
 	// eslint-disable-next-line react/prop-types
 	getRecipesCount: ({ render }) => (
-		<Query query={ GET_RECIPES_COUNT_QUERY } ssr={ false } fetchPolicy="cache-and-network">
+		<Query
+			fetchPolicy="cache-and-network"
+			notifyOnNetworkStatusChange
+			query={ GET_RECIPES_COUNT_QUERY }
+			ssr={ false }
+		>
 			{render}
 		</Query>
 	),
@@ -57,42 +58,22 @@ const RecipesStyles = styled.article`
 `;
 
 class Recipes extends React.PureComponent {
-	constructor(props) {
-		super(props);
-
-		this.state = {
-			limit: 12,
-			offset: 0,
-		};
-	}
-
-	refreshRecipes = () => {
-		const { client } = this.props;
-
-		const queries = [
-			{ query: GET_PAGINATED_RECIPES_QUERY }, // TODO variables?
-			{ query: GET_RECIPES_COUNT_QUERY },
-		];
-
-		return Promise.all(queries.map((q) => client.query(
-			// eslint-disable-next-line prefer-object-spread
-			Object.assign({}, q, { fetchPolicy: 'network-only' }), // TODO is this the best way to do this?
-		)));
-	}
-
 	render() {
-		const { limit, offset } = this.state;
-
 		return (
-			<Composed limit={ limit } offset={ offset }>
+			<Composed>
 				{
 					({ getRecipes, getRecipesCount }) => {
-						const { error, loading } = getRecipes;
-						const { data } = getRecipesCount || {};
+						const { error } = getRecipes;
+						const { data } = getRecipesCount;
 						const { recipeAggregate } = data || {};
 						const { recipesCount } = recipeAggregate || {};
-						const { recipes = [] } = getRecipes.data || {};
-
+						const { recipes = {} } = getRecipes.data || {};
+						const { fetchMore } = getRecipes;
+						if (recipes && recipes.recipes) {
+							console.log([ ...recipes.recipes.map((r) => r.title) ]);
+							console.log({ getRecipes });
+						}
+						// TODO re-implement initial loading component, but don't re-activate on subsequent loads
 						return (
 							<RecipesStyles>
 								<Header pageHeader="Recipes" />
@@ -103,13 +84,13 @@ class Recipes extends React.PureComponent {
 
 									{(error) ? <ErrorMessage error={ error } /> : null}
 
-									{
-										(loading)
-											? <Loading name="recipes" />
-											: <Grid recipes={ recipes } />
-									}
+									<Grid
+										count={ recipes.count || 0 }
+										fetchMore={ fetchMore }
+										recipes={ recipes.recipes || [] }
+									/>
 
-									<AddNew refreshRecipes={ this.refreshRecipes } />
+									<AddNew />
 								</section>
 							</RecipesStyles>
 						);
