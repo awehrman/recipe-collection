@@ -2,15 +2,26 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-const CardStyles = styled.article`
+const CardStyles = styled.div`
 	box-sizing: border-box;
 	width: 23%;
-	height: 200px;
+	max-height: 280px;
+
+	a {
+		text-decoration: none;
+
+		&:hover {
+			box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  		transition: 0.3s;
+		}
+	}
 
 	h2 {
+		color: #222;
 		margin: 10px 0;
 		font-weight: 400;
 		font-size: 12px;
+		padding: 0 2px;
 	}
 `;
 
@@ -37,17 +48,23 @@ const AspectRatioInner = styled.div`
 
 class Card extends React.PureComponent {
 	render() {
-		const { recipe } = this.props;
-		const { image, title } = recipe;
+		const { onClick, recipe } = this.props;
+		const { id, image, title } = recipe;
+		const href = {
+			pathname: '/recipes',
+			query: { id },
+		};
 
 		return (
 			<CardStyles>
-				<AspectRatio16x9>
-					<AspectRatioInner>
-						<img src={ image } alt={ title } />
-					</AspectRatioInner>
-				</AspectRatio16x9>
-				<h2>{ title }</h2>
+				<a href={ href } onClick={ (e) => onClick(e, id) } alt={ title }>
+					<AspectRatio16x9>
+						<AspectRatioInner>
+							<img src={ image } alt={ title } />
+						</AspectRatioInner>
+					</AspectRatio16x9>
+					<h2>{ title }</h2>
+				</a>
 			</CardStyles>
 		);
 	}
@@ -56,6 +73,7 @@ class Card extends React.PureComponent {
 Card.defaultProps = {};
 
 Card.propTypes = {
+	onClick: PropTypes.func.isRequired,
 	recipe: PropTypes.shape({
 		id: PropTypes.string.isRequired,
 		image: PropTypes.string,

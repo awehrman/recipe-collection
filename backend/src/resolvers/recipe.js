@@ -5,12 +5,14 @@ export default {
 		recipe: async (parent, args, ctx) => {
 			const { where } = args || {};
 			const { id } = where || {};
-			return ctx.prisma.recipe({ id }).$fragment(GET_ALL_RECIPE_FIELDS);
+			if (!id) return null;
+			const recipe = await ctx.prisma.recipe({ id }).$fragment(GET_ALL_RECIPE_FIELDS);
+			return recipe;
 		},
 		recipes: async (parent, args, ctx) => {
 			console.log('recipes'.magenta);
 			const { cursor = 0 } = args;
-			const first = 15;
+			const first = 16;
 			const skip = cursor * first;
 			const response = {
 				__typename: 'RecipesResponse',

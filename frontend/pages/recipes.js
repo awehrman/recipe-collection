@@ -3,14 +3,28 @@ import React from 'react';
 import { Query, withApollo } from 'react-apollo';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { GET_PAGINATED_RECIPES_QUERY, GET_RECIPES_COUNT_QUERY } from '../lib/apollo/queries';
+import { GET_CURRENT_RECIPE_QUERY, GET_PAGINATED_RECIPES_QUERY, GET_RECIPES_COUNT_QUERY } from '../lib/apollo/queries';
 
 import AddNew from '../components/recipes/AddNew';
 import ErrorMessage from '../components/ErrorMessage';
 import Header from '../components/Header';
 import Grid from '../components/recipes/Grid';
+import Loading from '../components/Loading';
+import Recipe from '../components/recipes/Recipe';
 
 const Composed = adopt({
+	// eslint-disable-next-line react/prop-types
+	getCurrentRecipe: ({ render, id }) => (
+		<Query
+			notifyOnNetworkStatusChange
+			query={ GET_CURRENT_RECIPE_QUERY }
+			ssr={ false }
+			variables={ { id } }
+		>
+			{render}
+		</Query>
+	),
+
 	// eslint-disable-next-line react/prop-types
 	getRecipes: ({ cursor = 0, render }) => (
 		<Query
@@ -58,21 +72,39 @@ const RecipesStyles = styled.article`
 `;
 
 class Recipes extends React.PureComponent {
+	constructor(props) {
+		super(props);
+		this.state = { currentRecipeID: null };
+	}
+
+	onRecipeClick = (e, id) => {
+		console.warn('onRecipeClick');
+		// eslint-disable-next-line
+		console.log({ e, id });
+		e.preventDefault();
+		this.setState({ currentRecipeID: id });
+	}
+
+	onCloseClick = (e) => {
+		console.warn('onCloseClick');
+		e.preventDefault();
+		this.setState({ currentRecipeID: null });
+	}
+
 	render() {
+		const { currentRecipeID } = this.state;
 		return (
-			<Composed>
+			<Composed id={ currentRecipeID }>
 				{
-					({ getRecipes, getRecipesCount }) => {
-						const { error } = getRecipes;
+					({ getCurrentRecipe, getRecipes, getRecipesCount }) => {
+						const { error, loading } = getRecipes;
 						const { data } = getRecipesCount;
 						const { recipeAggregate } = data || {};
 						const { recipesCount } = recipeAggregate || {};
 						const { recipes = {} } = getRecipes.data || {};
 						const { fetchMore } = getRecipes;
-						if (recipes && recipes.recipes) {
-							console.log([ ...recipes.recipes.map((r) => r.title) ]);
-							console.log({ getRecipes });
-						}
+						const { recipe = null } = getCurrentRecipe.data || {};
+						console.log({ recipe });
 						// TODO re-implement initial loading component, but don't re-activate on subsequent loads
 						return (
 							<RecipesStyles>
@@ -84,12 +116,24 @@ class Recipes extends React.PureComponent {
 
 									{(error) ? <ErrorMessage error={ error } /> : null}
 
+									{
+										(loading && recipes && recipes.recipes && (recipes.recipes.length === 0))
+											? <Loading name="recipes" />
+											: null
+									}
+
 									<Grid
 										count={ recipes.count || 0 }
 										fetchMore={ fetchMore }
 										recipes={ recipes.recipes || [] }
+										onRecipeClick={ this.onRecipeClick }
 									/>
 
+									{
+										(currentRecipeID && recipe)
+											? <Recipe onCloseClick={ this.onCloseClick } recipe={ recipe } />
+											: null
+									}
 									<AddNew />
 								</section>
 							</RecipesStyles>

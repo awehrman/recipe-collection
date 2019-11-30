@@ -1,5 +1,7 @@
 import gql from 'graphql-tag';
 
+// TODO utilize fragments here and clean this file up
+
 /* Containers */
 export const GET_CONTAINER_QUERY = gql`
 	query GET_CONTAINER_QUERY($id: String!) {
@@ -265,6 +267,48 @@ export const GET_PAGINATED_RECIPES_QUERY = gql`
   }
 `;
 
+export const GET_CURRENT_RECIPE_QUERY = gql`
+	query GET_CURRENT_RECIPE_QUERY($id: ID) {
+		recipe(where: { id: $id }) {
+			id
+			categories {
+				id
+				name
+			}
+			tags {
+				id
+				name
+			}
+			evernoteGUID
+			image
+			source
+			title
+			ingredients {
+				id
+				blockIndex
+				isParsed
+				lineIndex
+				parsed {
+					id
+					ingredient {
+						id
+						isValidated
+						name
+					}
+					rule
+					type
+					value
+				}
+				reference
+				rule
+			}
+			instructions {
+				blockIndex
+				reference
+			}
+		}
+	}
+`;
 
 /* Categories */
 export const GET_ALL_CATEGORIES_QUERY = gql`
@@ -431,4 +475,5 @@ export default [
 	GET_DASHBOARD_PARSING_QUERY,
 	GET_DASHBOARD_RECIPES_QUERY,
 	GET_PAGINATED_RECIPES_QUERY,
+	GET_CURRENT_RECIPE_QUERY,
 ];

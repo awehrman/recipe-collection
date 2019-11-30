@@ -21,7 +21,7 @@ type Query {
 	notes: [ Note! ]!
 	noteAggregate: NoteAggregate!
 
-	recipe(where: RecipeWhereUniqueInput!): Recipe
+	recipe(where: RecipeWhereUniqueInput): Recipe
 	recipes(cursor: Int): RecipesResponse!
 	recipeAggregate: RecipeAggregate!
 

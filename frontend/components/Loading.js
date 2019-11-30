@@ -8,8 +8,8 @@ const LoadingStyles = styled.div`
 	padding: 20px 0;
 
 	&.card {
-		background: ${ (props) => props.theme.altGreen };
-		color: white;
+		background: '#b8b8b8';
+		color: #ccc;
 		font-weight: 600;
 		font-size: 24px;
 		width: 23%;

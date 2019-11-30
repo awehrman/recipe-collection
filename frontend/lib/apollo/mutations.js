@@ -217,6 +217,7 @@ export const PARSE_NOTES_MUTATION = gql`
 			errors
 			notes {
 				id
+				content
 				ingredients {
 					id
 					blockIndex
