@@ -73,7 +73,7 @@ Recipe.propTypes = {
 			lineIndex: PropTypes.number,
 			reference: PropTypes.string.isRequired,
 			isParsed: PropTypes.bool,
-			/*
+			/* TODO something is off between the AddNew use of this data and what we get back
 			parsed: PropTypes.arrayOf(
 				PropTypes.shape({
 					id: PropTypes.string,

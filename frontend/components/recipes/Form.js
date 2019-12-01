@@ -9,6 +9,7 @@ import uuid from 'uuid';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/pro-regular-svg-icons';
+import { faWindowClose } from '@fortawesome/pro-light-svg-icons';
 
 import { deepCopy, hasProperty } from '../../lib/util';
 import Button from '../form/Button';
@@ -68,6 +69,16 @@ const FormStyles = styled.form`
 		cursor: pointer;
 		font-weight: 600;
 		font-size: 14px;
+	}
+
+	button.close {
+		color: ${ (props) => props.theme.lighterGrey };
+		text-align: right;
+		float: right;
+
+		svg {
+			height: 16px;
+		}
 	}
 
 	fieldset {
@@ -1001,17 +1012,6 @@ class Form extends Component {
 										) : null
 								}
 								<Right>
-									{/* Cancel Button */
-										(showCloseButton)
-											? (
-												<Button
-													className="close"
-													label="Close"
-													onClick={ (e) => onCloseClick(e) }
-												/>
-											) : null
-									}
-
 									{/* Title Preview */}
 									<Title>
 										{ pending.title }
@@ -1042,6 +1042,17 @@ class Form extends Component {
 								}
 
 								<Right>
+									{/* Cancel Button */
+										(showCloseButton)
+											? (
+												<Button
+													className="close"
+													icon={ <FontAwesomeIcon icon={ faWindowClose } /> }
+													onClick={ (e) => onCloseClick(e) }
+												/>
+											) : null
+									}
+
 									{/* Categories Preview */}
 									<Categories>
 										{
@@ -1066,6 +1077,7 @@ class Form extends Component {
 
 									{/* Parsed Recipe Preview */}
 									<ParsedViewer
+										className={ className }
 										loading={ loading }
 										ingredients={ pending.ingredients }
 										instructions={ pending.instructions }

@@ -89,7 +89,7 @@ const ParsedViewer = ({ className, id, ingredients, instructions }) => {
 		<ParsedViewerStyles className={ className }>
 			<Ingredients>
 				{
-					(ingredients && (ingredients.length > 0) && (className !== 'left'))
+					((className !== 'recipe') && (ingredients && (ingredients.length > 0) && (className !== 'left')))
 						? <hr />
 						: null
 				}
