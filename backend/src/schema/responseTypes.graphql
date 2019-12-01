@@ -29,9 +29,23 @@ type IngredientsResponse {
 
 type DashboardResponse {
 	errors: [ String ]
-	newIngredients: [ Ingredient! ]
+	newlyVerified: [ Ingredient! ]
+	newlyParsed: [ Ingredient! ]
 	newRecipes: [ Recipe! ]
-	parsingErrors: [ ParsingError! ]
+	parsingInstances: [ ParsingError! ]
+	parsingErrors: Int
+	numIngredients: Int
+	numUnverified: Int
+	numLines: Int
+	numRecipes: Int
+	semanticErrors: Int
+	dataErrors: Int
+	instruction: Int
+	equipment: Int
+	baseRate: Int
+	adjustedRate: Int
+	parsingRate: Int
+	dataAccuracy: Int
 }
 
 type ParsingError {

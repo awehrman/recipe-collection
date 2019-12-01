@@ -215,6 +215,14 @@ export const GET_ALL_RECIPE_FIELDS_FOR_VALIDATION = `
 	}
 `;
 
+export const GET_RECIPE_CARD_FIELDS = `
+	{
+		id
+		title
+		image
+	}
+`;
+
 export const GET_ID = `
 	{
 		id
@@ -274,4 +282,5 @@ export default [
 	GET_PARSED_FIELDS,
 	GET_EVERNOTE_GUID,
 	GET_PARSING_ERRORS,
+	GET_RECIPE_CARD_FIELDS,
 ];

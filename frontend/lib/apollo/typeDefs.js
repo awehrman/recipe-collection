@@ -1,14 +1,6 @@
 import gql from 'graphql-tag';
 
 export default gql`
-	# Authentication
-		type AuthenticationResponse {
-			errors: [ String ]
-			isAuthenticationPending: Boolean
-			isAuthenticated: Boolean
-			authURL: String
-		}
-
 	# Categories
 		type Category {
 			id: ID!
@@ -21,17 +13,7 @@ export default gql`
 			categoriesCount: Int!
 		}
 
-		type CategoryResponse {
-			category: Category
-			errors: [ String ]
-		}
-
 	# Containers
-		type ContainersResponse {
-			errors: [ String ]
-			containers: [ Container ]
-		}
-
 		type Container {
 			id: String!
 			ingredientID: String
@@ -93,11 +75,6 @@ export default gql`
 			newIngredientsCount: Int!
 		}
 
-		type IngredientResponse {
-			errors: [ String ]
-			ingredient: Ingredient
-		}
-
 	# Notes
 		type Note {
 			id: ID!
@@ -116,11 +93,6 @@ export default gql`
 			id: ID!
 			count: Int!
 			importDefault: Int!
-		}
-
-		type EvernoteResponse {
-			errors: [ String ]
-			notes: [ Note ]
 		}
 
 	# Recipes
@@ -160,17 +132,6 @@ export default gql`
 			ingredient: Ingredient
 		}
 
-		type RecipeResponse {
-			errors: [ String ]
-			recipe: Recipe
-		}
-
-		type RecipesResponse {
-			errors: [ String ]
-			count: Int
-			recipes: [ Recipe ]
-		}
-
 		type RecipeAggregate {
 			id: ID!
 			recipesCount: Int!
@@ -194,10 +155,76 @@ export default gql`
 			tagsCount: Int!
 		}
 
-		type TagResponse {
-			errors: [ String ]
-			tag: Tag
-		}
+	# Response Types
+	type AuthenticationResponse {
+		errors: [ String ]
+		isAuthenticationPending: Boolean
+		isAuthenticated: Boolean
+		authURL: String
+	}
+
+	type CategoryResponse {
+		category: Category
+		errors: [ String ]
+	}
+
+	type EvernoteResponse {
+		errors: [ String ]
+		notes: [ Note ]
+	}
+
+	type IngredientResponse {
+		errors: [ String ]
+		ingredient: Ingredient
+	}
+
+	type IngredientsResponse {
+		errors: [ String ]
+		ingredient: Ingredient
+	}
+
+	type DashboardResponse {
+		errors: [ String ]
+		newlyVerified: [ Ingredient! ]
+		newlyParsed: [ Ingredient! ]
+		newRecipes: [ Recipe! ]
+		parsingInstances: [ ParsingError! ]
+		parsingErrors: Int
+		numIngredients: Int
+		numUnverified: Int
+		numLines: Int
+		numRecipes: Int
+		semanticErrors: Int
+		dataErrors: Int
+		instruction: Int
+		equipment: Int
+		baseRate: Int
+		adjustedRate: Int
+		parsingRate: Int
+		dataAccuracy: Int
+	}
+
+	type ParsingError {
+		id: String!
+		reference: String!
+	}
+
+	type RecipeResponse {
+		errors: [ String ]
+		recipe: Recipe
+	}
+
+	type RecipesResponse {
+		errors: [ String ]
+		count: Int
+		recipes: [ Recipe ]
+	}
+
+	type TagResponse {
+		errors: [ String ]
+		tag: Tag
+	}
+
 
 	# Query & Mutations
 

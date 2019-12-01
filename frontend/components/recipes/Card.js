@@ -7,6 +7,9 @@ const CardStyles = styled.div`
 	width: 23%;
 	max-height: 280px;
 
+	&.dashboard {
+	}
+
 	a {
 		text-decoration: none;
 
@@ -48,7 +51,7 @@ const AspectRatioInner = styled.div`
 
 class Card extends React.PureComponent {
 	render() {
-		const { onClick, recipe } = this.props;
+		const { className, onClick, recipe } = this.props;
 		const { id, image, title } = recipe;
 		const href = {
 			pathname: '/recipes',
@@ -56,7 +59,7 @@ class Card extends React.PureComponent {
 		};
 
 		return (
-			<CardStyles>
+			<CardStyles className={ className }>
 				<a href={ href } onClick={ (e) => onClick(e, id) } alt={ title }>
 					<AspectRatio16x9>
 						<AspectRatioInner>
@@ -70,9 +73,10 @@ class Card extends React.PureComponent {
 	}
 }
 
-Card.defaultProps = {};
+Card.defaultProps = { className: '' };
 
 Card.propTypes = {
+	className: PropTypes.string,
 	onClick: PropTypes.func.isRequired,
 	recipe: PropTypes.shape({
 		id: PropTypes.string.isRequired,

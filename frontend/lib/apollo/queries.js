@@ -421,10 +421,18 @@ export const GET_DASHBOARD_INGREDIENTS_QUERY = gql`
   query GET_DASHBOARD_INGREDIENTS_QUERY {
   	dashboardIngredients {
 			errors
-			newIngredients {
+			newlyVerified {
 				id
 				name
 			}
+			newlyParsed {
+				id
+				name
+			}
+			numIngredients
+			numUnverified
+			numLines
+			numRecipes
 		}
   }
 `;
@@ -433,10 +441,19 @@ export const GET_DASHBOARD_PARSING_QUERY = gql`
   query GET_DASHBOARD_PARSING_QUERY {
   	dashboardParsing {
 			errors
-			parsingErrors {
+			parsingInstances {
 				id
 				reference
 			}
+			parsingErrors
+			semanticErrors
+			dataErrors
+			instruction
+			equipment
+			baseRate
+			adjustedRate
+			parsingRate
+			dataAccuracy
 		}
   }
 `;
@@ -447,6 +464,7 @@ export const GET_DASHBOARD_RECIPES_QUERY = gql`
 			errors
 			newRecipes {
 				id
+				image
 				title
 			}
 		}
