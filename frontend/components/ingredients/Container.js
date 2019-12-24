@@ -151,7 +151,7 @@ class Container extends React.PureComponent {
 			listItem.type = 'link';
 			listItem.className = listItem.type;
 			listItem.className += (ingredientID && (ingredientID === i.id)) ? ' active ' : '';
-			listItem.className += (i.hasParent) ? ' child' : '';
+			listItem.className += (i.parent) ? ' child' : '';
 			listItem.className += (!i.isValidated && view !== 'new') ? ' invalid' : '';
 
 			listItem.href = { pathname: '/ingredients' };
@@ -227,23 +227,76 @@ class Container extends React.PureComponent {
 		e.preventDefault();
 		const targetIngredientID = e.target.id;
 
-		const { client, id } = this.props;
+		const {
+			client,
+			id,
+		} = this.props;
 
-		// update the url without causing a bunch of re-renders
-
-		// TODO shallow rendering doesn't seem to be working
-		// let href = `/ingredients?view=${ view }&group=${ group }`;
-		// href += (currentIngredientID === targetIngredientID) ? '' : `&id=${ targetIngredientID }`;
-		// const as = href.split('/ingredients')[1];
-		// router.replace(href, as, { shallow: true });
+		// TODO update the url without causing a bunch of re-renders ?
 
 		// update the local cache
 		try {
 			await client.mutate({
+				awaitRefetchQueries: true,
+				refetchQueries: [
+					{
+						query: GET_CONTAINER_QUERY,
+						variables: { id },
+					},
+				],
 				mutation: UPDATE_CONTAINER_INGREDIENT_ID_MUTATION,
 				variables: {
 					id,
 					ingredientID: (currentIngredientID === targetIngredientID) ? null : targetIngredientID,
+				},
+			});
+		} catch (err) {
+			console.error({ err });
+		}
+	}
+
+	showNextCard = async (currentIngredient) => {
+		const {
+			client,
+			// group,
+			id,
+			// router,
+			view,
+		} = this.props;
+		if (view !== 'new') return;
+
+		// get container
+		const { data: { container } } = await client.query({
+			query: GET_CONTAINER_QUERY,
+			variables: { id },
+		});
+		const { ingredients = [] } = container || {};
+		let currentIndex = ingredients
+			.sort((a, b) => a.name.localeCompare(b.name))
+			.findIndex((i) => (i.id === currentIngredient.id));
+		if (!~currentIndex) {
+			// if we've already zipped this item out of our container, just throw it in, re-sort and look it up again
+			const adjustedIngredients = [ currentIngredient ].concat(ingredients)
+				.sort((a, b) => a.name.localeCompare(b.name));
+			currentIndex = adjustedIngredients.findIndex((i) => (i.id === currentIngredient.id));
+		}
+		const isNextIndexValid = Boolean(ingredients[currentIndex + 1]);
+		const nextIngredient = (isNextIndexValid) ? ingredients[currentIndex + 1] : ingredients[0];
+
+		try {
+			await client.mutate({
+				awaitRefetchQueries: true,
+				refetchQueries: [
+					{
+						fetchPolicy: 'network-only',
+						query: GET_CONTAINER_QUERY,
+						variables: { id },
+					},
+				],
+				mutation: UPDATE_CONTAINER_INGREDIENT_ID_MUTATION,
+				variables: {
+					id,
+					ingredientID: nextIngredient.id,
 				},
 			});
 		} catch (err) {
@@ -282,6 +335,7 @@ class Container extends React.PureComponent {
 												className={ listClassName }
 												id={ currentIngredientID }
 												key={ currentIngredientID }
+												showNextCard={ this.showNextCard }
 												view={ view }
 											/>
 										)
@@ -321,9 +375,13 @@ class Container extends React.PureComponent {
 }
 
 Container.propTypes = {
-	client: PropTypes.shape({ mutate: PropTypes.func }).isRequired,
+	client: PropTypes.shape({
+		query: PropTypes.func,
+		mutate: PropTypes.func,
+	}).isRequired,
 	// group: PropTypes.oneOf([ 'name', 'property', 'relationship', 'count' ]).isRequired,
 	id: PropTypes.string.isRequired,
+	router: PropTypes.shape({ replace: PropTypes.func }).isRequired,
 	view: PropTypes.oneOf([ 'all', 'new' ]).isRequired,
 };
 

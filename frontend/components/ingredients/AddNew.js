@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -89,6 +90,7 @@ class AddNew extends React.PureComponent {
 
 	render() {
 		const { isExpanded, isFormReset } = this.state;
+		const { view } = this.props;
 
 		return (
 			<AddNewStyles className={ `slide${ isExpanded ? '_expanded' : '' }` }>
@@ -108,6 +110,7 @@ class AddNew extends React.PureComponent {
 								onSaveCallback={ this.resetForm }
 								resetForm={ this.resetForm }
 								saveLabel="Add"
+								view={ view }
 							/>
 						)
 						: null
@@ -116,5 +119,8 @@ class AddNew extends React.PureComponent {
 		);
 	}
 }
+
+AddNew.defaultProps = { view: 'all' };
+AddNew.propTypes = { view: PropTypes.oneOf(['all', 'new']) };
 
 export default AddNew;

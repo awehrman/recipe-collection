@@ -43,7 +43,6 @@ class Row extends React.PureComponent {
 				items.push(<Loading className="card" key={ i } />);
 			}
 		}
-		// console.log({ row: index, items: items.length, numLoading });
 		return (
 			<RowStyles style={ style }>
 				{ items }
@@ -68,10 +67,7 @@ class Grid extends React.Component {
 	}));
 
 	isItemLoaded = (index) => {
-		// const { itemStatusMap } = this.state;
 		const isLoaded = itemStatusMap[index] === 'LOADED';
-		// if (isLoaded) console.log(`is Item "${ index }" Loaded? ${ (itemStatusMap[index]) }`);
-
 		return isLoaded;
 	};
 
@@ -91,7 +87,6 @@ class Grid extends React.Component {
 		return new Promise((resolve) => {
 			// fetch more data if we're past the first index (which our initial query will handle)
 			if (startIndex > 0) {
-				console.warn(`fetchMore ${ cursor + 1 }`);
 				fetchMore({
 					updateQuery: async (prev, { fetchMoreResult }) => {
 						if (!fetchMoreResult) return prev;
@@ -105,10 +100,6 @@ class Grid extends React.Component {
 						for (let index = 0; index <= response.recipes.length; index += 1) {
 							itemStatusMap[index] = (response.recipes[index]) ? 'LOADED' : 'LOADING';
 						}
-						console.warn({
-							updateQuery: '*** updateQuery',
-							response,
-						});
 
 						// i don't really get why just returning this data isn't enough to satisfy fetchMore,
 						// so i end up writing to the cache directly to make sure this gets updated
@@ -129,16 +120,11 @@ class Grid extends React.Component {
 				itemStatusMap[index] = (recipes[index]) ? 'LOADED' : 'LOADING';
 			}
 
-			console.log({
-				loadMoreItems: '*** loadMoreItems',
-				response,
-			});
 			return resolve(response);
 		});
 	};
 
 	render() {
-		// console.log('grid render');
 		const { count, onRecipeClick, recipes } = this.props;
 		const itemsPerRow = 4;
 		// instead of recipes.length here, lets try the entire query count

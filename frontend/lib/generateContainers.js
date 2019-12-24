@@ -1,7 +1,9 @@
 import uuidv1 from 'uuid/v1';
 import { hasProperty } from './util';
 
-export const generateByCount = (ingredientID = null, ingredients = []) => {
+export const generateByCount = (ingredients = []) => {
+	console.log('generateByCount');
+	if (!ingredients.length) return [];
 	let containers = [];
 
 	// get the largest reference count from the bunch
@@ -30,9 +32,9 @@ export const generateByCount = (ingredientID = null, ingredients = []) => {
 			return {
 				__typename: 'Container',
 				id: uuidv1(),
-				ingredientID,
+				ingredientID: null,
 				ingredients: containerIngredients,
-				isExpanded: Boolean(ingredientID),
+				isExpanded: false,
 				label: '0 References',
 				referenceCount: containerIngredients.length,
 			};
@@ -45,9 +47,9 @@ export const generateByCount = (ingredientID = null, ingredients = []) => {
 			return {
 				__typename: 'Container',
 				id: uuidv1(),
-				ingredientID,
+				ingredientID: null,
 				ingredients: containerIngredients,
-				isExpanded: Boolean(ingredientID),
+				isExpanded: false,
 				label: '1 Reference',
 				referenceCount: containerIngredients.length,
 			};
@@ -66,9 +68,9 @@ export const generateByCount = (ingredientID = null, ingredients = []) => {
 		return {
 			__typename: 'Container',
 			id: uuidv1(),
-			ingredientID,
+			ingredientID: null,
 			ingredients: containerIngredients,
-			isExpanded: Boolean(ingredientID),
+			isExpanded: false,
 			label: `${ rangeStart }-${ rangeEnd } References`,
 			referenceCount: containerIngredients.length,
 		};
@@ -77,7 +79,8 @@ export const generateByCount = (ingredientID = null, ingredients = []) => {
 	return containers;
 };
 
-export const generateByName = (ingredientID = null, ingredients = [], view) => {
+export const generateByName = (ingredients = [], view) => {
+	console.log('generateByName');
 	let containers = [];
 	let pagerLabels = [];
 
@@ -86,7 +89,7 @@ export const generateByName = (ingredientID = null, ingredients = [], view) => {
 		containers.push({
 			__typename: 'Container',
 			id: uuidv1(),
-			ingredientID,
+			ingredientID: null,
 			ingredients,
 			isExpanded: true,
 			label: (view === 'search')
@@ -116,7 +119,7 @@ export const generateByName = (ingredientID = null, ingredients = [], view) => {
 			return {
 				__typename: 'Container',
 				id: uuidv1(),
-				ingredientID,
+				ingredientID: null,
 				ingredients: containerIngredients,
 				isExpanded: true,
 				label: char,
@@ -129,7 +132,8 @@ export const generateByName = (ingredientID = null, ingredients = [], view) => {
 	return containers;
 };
 
-export const generateByProperty = (ingredientID = null, ingredients = []) => {
+export const generateByProperty = (ingredients = []) => {
+	console.log('generateByProperty');
 	const labels = [ 'meat', 'poultry', 'fish', 'dairy', 'soy', 'gluten', 'other' ];
 
 	return labels.map((label) => {
@@ -146,7 +150,7 @@ export const generateByProperty = (ingredientID = null, ingredients = []) => {
 			return {
 				__typename: 'Container',
 				id: uuidv1(),
-				ingredientID,
+				ingredientID: null,
 				ingredients: containerIngredients,
 				isExpanded: true,
 				label: label.charAt(0).toUpperCase() + label.slice(1),
@@ -156,16 +160,17 @@ export const generateByProperty = (ingredientID = null, ingredients = []) => {
 	}).filter((c) => c);
 };
 
-export const generateByRelationship = (ingredientID = null, ingredients = []) => {
+export const generateByRelationship = (ingredients = []) => {
+	console.log('generateByRelationship');
 	const containers = [];
-	const parentIngredients = ingredients.filter((i) => !i.hasParent);
-	const childIngredients = ingredients.filter((i) => i.hasParent);
+	const parentIngredients = ingredients.filter((i) => !i.parent);
+	const childIngredients = ingredients.filter((i) => i.parent);
 
 	if (childIngredients.length > 0) {
 		containers.push({
 			__typename: 'Container',
 			id: uuidv1(),
-			ingredientID,
+			ingredientID: null,
 			ingredients: childIngredients,
 			isExpanded: true,
 			label: 'Child Ingredients',
@@ -177,7 +182,7 @@ export const generateByRelationship = (ingredientID = null, ingredients = []) =>
 		containers.push({
 			__typename: 'Container',
 			id: uuidv1(),
-			ingredientID,
+			ingredientID: null,
 			ingredients: parentIngredients,
 			isExpanded: true,
 			label: 'Parent Ingredients',

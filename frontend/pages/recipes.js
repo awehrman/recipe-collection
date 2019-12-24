@@ -78,15 +78,11 @@ class Recipes extends React.PureComponent {
 	}
 
 	onRecipeClick = (e, id) => {
-		console.warn('onRecipeClick');
-		// eslint-disable-next-line
-		console.log({ e, id });
 		e.preventDefault();
 		this.setState({ currentRecipeID: id });
 	}
 
 	onCloseClick = (e) => {
-		console.warn('onCloseClick');
 		e.preventDefault();
 		this.setState({ currentRecipeID: null });
 	}
@@ -104,7 +100,6 @@ class Recipes extends React.PureComponent {
 						const { recipes = {} } = getRecipes.data || {};
 						const { fetchMore } = getRecipes;
 						const { recipe = null } = getCurrentRecipe.data || {};
-						console.log({ recipe });
 						// TODO re-implement initial loading component, but don't re-activate on subsequent loads
 						return (
 							<RecipesStyles>

@@ -42,8 +42,6 @@ export const createParsedSegment = async (ctx, parsed, isCreateIngredient = fals
 	const { id } = await ctx.prisma.createParsedSegment({ ...segment })
 		.$fragment(GET_ID)
 		.catch((err) => {
-			console.warn('createParsedSegmentError'.red);
-			console.log({ segment });
 			console.log({ err });
 			return { id: null };
 		});

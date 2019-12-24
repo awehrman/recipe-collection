@@ -48,6 +48,8 @@ const ListStyles = styled.fieldset`
 		list-style-type: none;
 		margin: 0;
 		padding: 4px 0 10px;
+		max-height: 200px;
+		overflow: scroll;
 
 		li {
 			font-size: 12px;

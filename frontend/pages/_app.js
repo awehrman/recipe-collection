@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import { ApolloProvider } from 'react-apollo';
 import App from 'next/app';
 
@@ -18,7 +19,6 @@ class RecipeApp extends App {
 	}
 
 	render() {
-		// console.warn('[App] render');
 		const { apollo, Component, pageProps } = this.props;
 
 		return (

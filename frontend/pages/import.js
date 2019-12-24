@@ -162,8 +162,6 @@ class Import extends React.PureComponent {
 	}
 
 	importNotes = async (e, importDefault = 0) => {
-		console.warn('importNotes');
-		console.log({ importDefault });
 		e.preventDefault();
 		const { client } = this.props;
 
@@ -221,7 +219,6 @@ class Import extends React.PureComponent {
 					console.error({ errors });
 				}
 				const { notes } = parseNotes;
-				console.warn({ notes });
 				cache.writeQuery({
 					query: GET_ALL_NOTES_QUERY,
 					data: { notes },

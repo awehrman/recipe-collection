@@ -217,18 +217,15 @@ export const parseIngredients = async (ctx, ingredients, isCreateIngredient = fa
 	return ids;
 };
 
-export const parseNotesContent = async (notes) => {
-	const resolveNotes = notes.map(async (note) => {
-		const { ingredients, instructions } = await parseContent(note); // TODO i don't even think this is async
+export const parseNotesContent = (notes) => {
+	const parsed = notes.map((note) => {
+		const { ingredients, instructions } = parseContent(note);
 		return {
 			...note,
 			ingredients,
 			instructions,
 		};
 	});
-
-	const parsed = await Promise.all(resolveNotes)
-		.catch((err) => console.log({ err }));
 
 	return parsed;
 };

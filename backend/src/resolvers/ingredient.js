@@ -19,6 +19,7 @@ export default {
 		},
 		ingredients: async (parent, args, ctx) => {
 			const ingredients = await ctx.prisma.ingredients().$fragment(GET_ALL_INGREDIENT_FIELDS_FOR_VALIDATION);
+			console.log({ ingredients });
 			return ingredients;
 		},
 	},

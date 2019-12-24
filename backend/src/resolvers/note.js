@@ -68,8 +68,8 @@ export default {
 					priorInstructions: n.instructions.map((i) => ({ id: i.id })),
 				})))
 				// parse note content into ingredients and instructions
-				.then(async (notes) => {
-					const parsedNotes = await parseNotesContent(notes);
+				.then((notes) => {
+					const parsedNotes = parseNotesContent(notes);
 					return parsedNotes;
 				})
 				// go thru each notes

@@ -72,7 +72,6 @@ const FullWidth = styled.div`
 
 const onRecipeClick = (e) => {
 	e.preventDefault();
-	console.warn('onRecipeClick');
 	// TODO route to recipes page?
 };
 
@@ -111,7 +110,6 @@ const Index = () => (
 					const { data: rpData = {} } = getDashboardRecipes;
 					const { dashboardRecipes = {} } = rpData;
 					const { newRecipes = [] } = dashboardRecipes;
-					console.log({ newRecipes });
 					return (
 						<section>
 							<Row>

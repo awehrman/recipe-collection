@@ -1,7 +1,5 @@
 import ApolloClient, { InMemoryCache, IntrospectionFragmentMatcher } from 'apollo-boost';
-import gql from 'graphql-tag';
 import withApollo from 'next-with-apollo';
-import { CREATE_CONTAINERS_MUTATION } from './apollo/mutations';
 import typeDefs from './apollo/typeDefs';
 import { endpoint } from '../config';
 /* eslint-disable object-curly-newline */
@@ -13,10 +11,15 @@ import {
 } from './generateContainers';
 import {
 	GET_ALL_CATEGORIES_QUERY,
+	GET_ALL_CONTAINERS_QUERY,
 	GET_ALL_INGREDIENTS_QUERY,
 	GET_ALL_TAGS_QUERY,
-	GET_VIEW_INGREDIENTS_QUERY,
 } from './apollo/queries';
+import {
+	getContainer,
+	setCurrentCard,
+	setIsExpanded,
+} from './apollo/fragments';
 /* eslint-enable object-curly-newline */
 
 function createClient({ headers }) {
@@ -35,76 +38,30 @@ function createClient({ headers }) {
 			resolvers: {
 				Query: {
 					container(_, { id }, { client, getCacheKey }) {
-						// console.warn(`... [withData](${ id }) container query resolver`);
+						console.warn(`... [withData](${ id }) container query resolver`);
 
-						// TODO move fragments into their own file
 						const container = client.readFragment({
 							id: getCacheKey({
 								__typename: 'Container',
 								id,
 							}),
-							fragment: gql`
-								fragment getContainer on Container {
-									id
-									ingredientID
-									ingredients {
-										hasParent
-										id
-										isValidated
-										name
-										plural
-										properties {
-											meat
-											poultry
-											fish
-											dairy
-											soy
-											gluten
-										}
-									}
-									isExpanded
-									label
-									referenceCount @client
-								}
-							`,
+							fragment: getContainer,
 						});
 
+						console.log({ container });
 						return container;
 					},
-					async containers(_, { group, ingredientID, view }, { client }) {
-						// console.warn(`... [withData](${ group }, ${ view }) containers query resolver`);
-						let containers = [];
-						let ingredients = [];
-
-						// TODO so why am i using query instead of readQuery here? does this HAVE to be async?
-						// fetch the ingredients for this view from the cache
-						const ingredientsViewData = await client.query({
-							// if this isn't in the cache, then go through the local query resolver
-							fetchPolicy: 'network-only', // 'cache-first',
-							query: GET_VIEW_INGREDIENTS_QUERY,
-							variables: { view },
+					containers(_, { group, view }, { client }) {
+						console.warn(`!!! [withData](${ group }, ${ view }) containers query resolver`);
+						// read the containers out of the query
+						const { containers } = client.readQuery({
+							query: GET_ALL_CONTAINERS_QUERY,
+							variables: {
+								group,
+								view,
+							},
 						});
-
-						ingredients = ingredientsViewData.data.viewIngredients;
-						// group the ingredients into containers
-						let data = { createContainers: { containers: [] } };
-						// TODO this should attempt to read the container from the cache first
-						// TODO or idk properly reset parts of the cache, there's definitely some race conditions here
-						// it might be worth waiting till the next apollo bump tho
-						try {
-							({ data } = await client.mutate({
-								mutation: CREATE_CONTAINERS_MUTATION,
-								variables: {
-									group,
-									ingredientID,
-									ingredients,
-									view,
-								},
-							}));
-						} catch (err) {
-							// console.error({ err });
-						}
-						({ containers } = data.createContainers);
+						console.log({ containers });
 						return containers;
 					},
 					ingredient(_, { value }) {
@@ -113,7 +70,6 @@ function createClient({ headers }) {
 						let { ingredients } = cache.readQuery({ query: GET_ALL_INGREDIENTS_QUERY });
 						if (!value || value === '') return null;
 						const adjusted = value.toLowerCase();
-						console.warn({ adjusted });
 
 						// pare down the ingredient info to match the ContainerIngredient shape
 						ingredients = ingredients.filter((i) => {
@@ -176,62 +132,86 @@ function createClient({ headers }) {
 
 						return suggestions;
 					},
-					viewIngredients(_, { view }) {
-						// console.warn(`... [withData](${ view }) viewIngredients query resolver`);
-						// get all ingredients from the cache
-						let { ingredients } = cache.readQuery({ query: GET_ALL_INGREDIENTS_QUERY });
-						console.log({ ingredients });
-
-						// filter ingredients based on the view
-						if (view === 'new') {
-							ingredients = ingredients.filter((i) => !i.isValidated);
-						}
-						if (view === 'search') {
-							// TODO
-						}
-
-						// pare down the ingredient info to match the ContainerIngredient shape
-						ingredients = ingredients.map((i) => ({
-							__typename: 'ContainerIngredient',
-							hasParent: Boolean(i.parent),
-							id: i.id,
-							isValidated: i.isValidated,
-							name: i.name,
-							plural: i.plural,
-							properties: { ...i.properties },
-							referenceCount: i.references.length,
-						}));
-
-						return ingredients;
-					},
 				},
 				Mutation: {
 					// eslint-disable-next-line object-curly-newline
-					createContainers(_, { group, ingredientID, ingredients, view }) {
+					createContainers(_, { group, view }, { client }) {
 						// eslint-disable-next-line max-len
-						// console.warn(`,,, [withData](${ group }, ingredientID: ${ ingredientID } ingredients: ${ ingredients.length }, ${ view }) createContainers mutation resolver`);
+						console.warn(`,,, [withData](${ group }, ${ view }) createContainers mutation resolver`);
 						let containers = [];
+						// query ingredients
+						const { ingredients } = client.readQuery({ query: GET_ALL_INGREDIENTS_QUERY });
 
+						// TODO handle 'search' view
+						// filter by view
+						const viewIngredients = (view === 'new')
+							? ingredients.filter((ing) => !ing.isValidated)
+							: [ ...ingredients ];
+
+						console.log({ viewIngredients });
+
+						// generate containers based on grouping
 						switch (group) {
 						case 'count':
-							containers = generateByCount(ingredientID, ingredients);
+							containers = generateByCount(viewIngredients);
 							break;
 						case 'property':
-							containers = generateByProperty(ingredientID, ingredients);
+							containers = generateByProperty(viewIngredients);
 							break;
 						case 'relationship':
-							containers = generateByRelationship(ingredientID, ingredients);
+							containers = generateByRelationship(viewIngredients);
 							break;
 						default:
-							containers = generateByName(ingredientID, ingredients, view);
+							containers = generateByName(viewIngredients, view);
 							break;
 						}
 
-						return {
+						const data = {
 							__typename: 'ContainersResponse',
+							errors: [], // TODO handle errors
 							containers,
 						};
+						console.log({ ...data });
+
+						// save to cache
+						client.writeQuery({
+							data,
+							query: GET_ALL_CONTAINERS_QUERY,
+							variables: {
+								group,
+								view,
+							},
+						});
+
+						return data;
 					},
+					// eslint-disable-next-line object-curly-newline
+					/*
+					removeIngredientFromView(_, { id, ingredientID, view }, { client, getCacheKey }) {
+						// eslint-disable-next-line max-len
+						console.warn(`,,, [withData](${ id }, ${ ingredientID }, ${ view }) removeIngredientFromView mutation resolver`);
+
+						const { data: { viewIngredients }} = client.readQuery({
+							// if this isn't in the cache, then go through the local query resolver
+							query: GET_VIEW_INGREDIENTS_QUERY,
+							variables: { view },
+						});
+
+						client.writeFragment({
+							id: getCacheKey({
+								__typename: 'Container',
+								id,
+							}),
+							fragment: setCurrentCard,
+							data: {
+								__typename: 'Container',
+								ingredientID,
+							},
+						});
+
+						return null;
+					},
+					*/
 					// eslint-disable-next-line object-curly-newline
 					setContainerIsExpanded(_, { id, isExpanded }, { client, getCacheKey }) {
 						// eslint-disable-next-line max-len
@@ -242,11 +222,7 @@ function createClient({ headers }) {
 								__typename: 'Container',
 								id,
 							}),
-							fragment: gql`
-								fragment setIsExpanded on Container {
-									isExpanded
-								}
-							`,
+							fragment: setIsExpanded,
 							data: {
 								__typename: 'Container',
 								isExpanded,
@@ -265,11 +241,7 @@ function createClient({ headers }) {
 								__typename: 'Container',
 								id,
 							}),
-							fragment: gql`
-								fragment setCurrentCard on Container {
-									ingredientID
-								}
-							`,
+							fragment: setCurrentCard,
 							data: {
 								__typename: 'Container',
 								ingredientID,

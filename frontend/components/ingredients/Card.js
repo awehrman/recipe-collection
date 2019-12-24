@@ -65,8 +65,14 @@ class Card extends React.PureComponent {
 		this.setState(this.initialState);
 	}
 
+	showNextCard = (ing) => {
+		const { view, showNextCard } = this.props;
+		if (view !== 'new') return;
+		showNextCard(ing);
+	}
+
 	render() {
-		const { className, id } = this.props;
+		const { className, id, view } = this.props;
 		const { isEditMode } = this.state;
 
 		return (
@@ -99,7 +105,9 @@ class Card extends React.PureComponent {
 									showCancelButton
 									relatedIngredients={ relatedIngredients }
 									references={ references }
+									showNextCard={ this.showNextCard }
 									substitutes={ substitutes }
+									view={ view }
 								/>
 							</CardStyles>
 						);
@@ -110,11 +118,15 @@ class Card extends React.PureComponent {
 	}
 }
 
-Card.defaultProps = { className: '' };
+Card.defaultProps = {
+	className: '',
+	showNextCard: () => {},
+};
 
 Card.propTypes = {
 	className: PropTypes.string,
 	id: PropTypes.string.isRequired,
+	showNextCard: PropTypes.func,
 	view: PropTypes.oneOf([ 'all', 'new' ]).isRequired,
 };
 

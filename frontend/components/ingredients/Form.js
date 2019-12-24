@@ -657,7 +657,8 @@ class Form extends Component {
 	}
 
 	updateIngredient = async () => {
-		const { client, onSaveCallback } = this.props;
+		/* TODO
+		const { client, onSaveCallback, showNextCard, view } = this.props;
 		const { warnings } = this.state;
 		const { id } = this.props;
 
@@ -669,6 +670,11 @@ class Form extends Component {
 			refetchQueries: [
 				{ query: GET_ALL_INGREDIENTS_QUERY },
 				{ query: GET_INGREDIENTS_COUNT_QUERY },
+				{
+					fetchPolicy: 'network-only',
+					query: GET_VIEW_INGREDIENTS_QUERY,
+					variables: { view },
+				},
 			],
 			mutation: UPDATE_INGREDIENT_MUTATION,
 			variables: {
@@ -689,7 +695,6 @@ class Form extends Component {
 					value: data.name,
 				});
 			}
-
 			if (res.data.updateIngredient.errors && (res.data.updateIngredient.errors.length > 0)) {
 				console.error(res.data.updateIngredient.errors);
 				res.data.updateIngredient.errors.forEach((error) => {
@@ -706,7 +711,12 @@ class Form extends Component {
 			if (errorWarnings.length === 0) return onSaveCallback();
 
 			return this.setState({ warnings: errorWarnings.concat(warnings) });
-		});
+		}).then(() => showNextCard({
+			id,
+			name: data.name,
+		}));
+*/
+
 	}
 
 	onSuggestPlural = async (e, pluralBasis) => {
@@ -870,8 +880,6 @@ class Form extends Component {
 
 		// cleanup alternateNames data
 		const pendingIngredient = this.getPendingIngredient();
-
-		console.log(pendingIngredient.references);
 
 		return (
 			<FormStyles className={ className }>
@@ -1097,6 +1105,7 @@ Form.defaultProps = {
 	resetForm: () => {},
 	saveLabel: 'Save',
 	showCancelButton: false,
+	showNextCard: () => {},
 	substitutes: [],
 };
 
@@ -1141,10 +1150,12 @@ Form.propTypes = {
 	resetForm: PropTypes.func,
 	saveLabel: PropTypes.string,
 	showCancelButton: PropTypes.bool,
+	showNextCard: PropTypes.func,
 	substitutes: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string, /* if the id is left blank, its a new ingredient */
 		name: PropTypes.string.isRequired,
 	})),
+	view: PropTypes.oneOf([ 'all', 'new' ]).isRequired,
 };
 
 export default withApollo(Form);

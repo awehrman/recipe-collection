@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+// import { ContainerFields } from './fragments';
 
 // TODO utilize fragments here and clean this file up
 
@@ -9,7 +10,6 @@ export const GET_CONTAINER_QUERY = gql`
 			id
 			ingredientID
 			ingredients {
-				hasParent
 				id
 				isValidated
 				name
@@ -25,21 +25,23 @@ export const GET_CONTAINER_QUERY = gql`
 			}
 			isExpanded
 			label
-			referenceCount @client
 		}
 	}
 `;
 
 export const GET_ALL_CONTAINERS_QUERY = gql`
-	query GET_ALL_CONTAINERS_QUERY($group: String, $ingredientID: String, $view: String) {
-		containers(group: $group, ingredientID: $ingredientID, view: $view) @client {
+	query GET_ALL_CONTAINERS_QUERY($group: String, $view: String) {
+		containers(group: $group, view: $view) @client {
 			id
 			ingredientID
 			ingredients {
-				hasParent
 				id
 				isValidated
 				name
+				parent {
+					id
+					name
+				}
 				plural
 				properties {
 					meat
@@ -52,31 +54,10 @@ export const GET_ALL_CONTAINERS_QUERY = gql`
 			}
 			isExpanded
 			label
-			referenceCount @client
 		}
 	}
 `;
 
-export const GET_VIEW_INGREDIENTS_QUERY = gql`
-	query GET_VIEW_INGREDIENTS_QUERY($view: String) {
-		viewIngredients(view: $view) @client {
-			hasParent @client
-			id
-			isValidated
-			name
-			plural
-			properties {
-				meat
-				poultry
-				fish
-				dairy
-				soy
-				gluten
-			}
-			referenceCount @client
-		}
-	}
-`;
 
 export const GET_SUGGESTED_INGREDIENTS_QUERY = gql`
 	query GET_SUGGESTED_INGREDIENTS_QUERY(
@@ -478,7 +459,6 @@ export default [
 	GET_SUGGESTED_CATEGORIES_QUERY,
 	GET_ALL_TAGS_QUERY,
 	GET_SUGGESTED_TAGS_QUERY,
-	GET_VIEW_INGREDIENTS_QUERY,
 	GET_INGREDIENTS_COUNT_QUERY,
 	GET_INGREDIENT_BY_VALUE_QUERY,
 	GET_INGREDIENT_BY_ID_QUERY,

@@ -23,16 +23,6 @@ export default gql`
 			referenceCount: Int!
 		}
 
-		type ContainerIngredient {
-			hasParent: Boolean!
-			id: String!
-			isValidated: Boolean!
-			name: String!
-			plural: String
-			properties: Properties!
-			referenceCount: Int!
-		}
-
 	# Ingredients
 		type Ingredient {
 			id: ID!
@@ -168,6 +158,11 @@ export default gql`
 		errors: [ String ]
 	}
 
+	type ContainersResponse {
+		containers: [ Container ]
+		errors: [ String ]
+	}
+
 	type EvernoteResponse {
 		errors: [ String ]
 		notes: [ Note ]
@@ -230,11 +225,10 @@ export default gql`
 
 		type Query {
 			container(id: String!): Container
-			containers: [ Container ]!
-			ingredient(value: String!): ContainerIngredient
-			notes: [ Note! ]
-			suggestions: [ Suggestion ]!
-			viewIngredients: [ ContainerIngredient ]!
+			containers: [ Container ]
+			ingredient(value: String!): Ingredient
+			notes: [ Note ]
+			suggestions: [ Suggestion ]
 		}
 
 		type Mutation {
