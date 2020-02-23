@@ -1,9 +1,10 @@
+import { List as ImmutableList } from 'immutable';
 import uuidv1 from 'uuid/v1';
 import { hasProperty } from './util';
 
-export const generateByCount = (ingredients = []) => {
-	console.log('generateByCount');
-	if (!ingredients.length) return [];
+const generateByCount = (id, ingredients) => {
+	// console.log('generateByCount');
+	if (!ingredients.size) return [];
 	let containers = [];
 
 	// get the largest reference count from the bunch
@@ -12,8 +13,8 @@ export const generateByCount = (ingredients = []) => {
 		.reduce((prev, current) => ((prev > current) ? prev : current));
 
 	// determine exception categories for ingredients with 0 and/or 1 references
-	const noReferences = (ingredients.filter((i) => i.referenceCount === 0).length > 0) ? 1 : 0;
-	const singularReference = (ingredients.filter((i) => i.referenceCount === 1).length > 0) ? 1 : 0;
+	const noReferences = (ingredients.filter((i) => i.referenceCount === 0).size > 0) ? 1 : 0;
+	const singularReference = (ingredients.filter((i) => i.referenceCount === 1).size > 0) ? 1 : 0;
 
 	// determine number of groups needed outside of our two exception groups
 	let containerSize = (upperBound > 1) ? Math.ceil(upperBound / 10) : 0;
@@ -32,11 +33,11 @@ export const generateByCount = (ingredients = []) => {
 			return {
 				__typename: 'Container',
 				id: uuidv1(),
-				ingredientID: null,
+				ingredientID: id,
 				ingredients: containerIngredients,
 				isExpanded: false,
 				label: '0 References',
-				referenceCount: containerIngredients.length,
+				referenceCount: containerIngredients.size,
 			};
 		}
 
@@ -47,11 +48,11 @@ export const generateByCount = (ingredients = []) => {
 			return {
 				__typename: 'Container',
 				id: uuidv1(),
-				ingredientID: null,
+				ingredientID: id,
 				ingredients: containerIngredients,
 				isExpanded: false,
 				label: '1 Reference',
-				referenceCount: containerIngredients.length,
+				referenceCount: containerIngredients.size,
 			};
 		}
 
@@ -68,36 +69,36 @@ export const generateByCount = (ingredients = []) => {
 		return {
 			__typename: 'Container',
 			id: uuidv1(),
-			ingredientID: null,
+			ingredientID: id,
 			ingredients: containerIngredients,
 			isExpanded: false,
 			label: `${ rangeStart }-${ rangeEnd } References`,
-			referenceCount: containerIngredients.length,
+			referenceCount: containerIngredients.size,
 		};
-	}).filter((c) => c.ingredients.length > 0);
+	}).filter((c) => c.ingredients.size > 0);
 
 	return containers;
 };
 
-export const generateByName = (ingredients = [], view) => {
-	console.log('generateByName');
+const generateByName = (id, ingredients, view) => {
+	// console.log('generateByName');
 	let containers = [];
 	let pagerLabels = [];
 
 	// if we have less than 500 ingredients, display them in a single container
-	if (ingredients.length <= 500) {
+	if (ingredients.size <= 500) {
 		containers.push({
 			__typename: 'Container',
 			id: uuidv1(),
-			ingredientID: null,
+			ingredientID: id,
 			ingredients,
 			isExpanded: true,
 			label: (view === 'search')
 				? 'Search Results'
 				: `${ view.charAt(0).toUpperCase() + view.slice(1) } Ingredients`,
-			referenceCount: ingredients.length,
+			referenceCount: ingredients.size,
 		});
-	// otherwise break up into containers by letter
+		// otherwise break up into containers by letter
 	} else {
 		// create an array of unique letters used
 		pagerLabels = ingredients.map((i) => i.name.charAt(0))
@@ -105,7 +106,7 @@ export const generateByName = (ingredients = [], view) => {
 
 		const containsSymbols = ingredients
 			.map((i) => i.name.charAt(0))
-			.filter((char) => !char.match(/[a-z]/i)).length > 0;
+			.filter((char) => !char.match(/[a-z]/i)).size > 0;
 
 		if (containsSymbols) {
 			pagerLabels.unshift('@');
@@ -119,83 +120,105 @@ export const generateByName = (ingredients = [], view) => {
 			return {
 				__typename: 'Container',
 				id: uuidv1(),
-				ingredientID: null,
+				ingredientID: id,
 				ingredients: containerIngredients,
 				isExpanded: true,
 				label: char,
-				referenceCount: containerIngredients.length,
+				referenceCount: containerIngredients.size,
 			};
 		});
 	}
-
-	containers = containers.filter((c) => (c.ingredients && c.ingredients.length > 0));
+	containers = containers.filter((c) => (c.ingredients && c.ingredients.size > 0));
 	return containers;
 };
 
-export const generateByProperty = (ingredients = []) => {
-	console.log('generateByProperty');
-	const labels = [ 'meat', 'poultry', 'fish', 'dairy', 'soy', 'gluten', 'other' ];
+const generateByProperty = (id, ingredients) => {
+	// console.log('generateByProperty');
+	const PROPERTIES = [ 'meat', 'poultry', 'fish', 'dairy', 'soy', 'gluten', 'other' ];
 
-	return labels.map((label) => {
+	const containers = PROPERTIES.map((label) => {
 		let containerIngredients = [];
 
 		if (label !== 'other') {
 			containerIngredients = ingredients.filter((i) => hasProperty(i.properties, label) && i.properties[label]);
 		} else {
-			containerIngredients = ingredients.filter((i) => Object.values(i.properties)
-				.filter((value) => (value !== 'Properties') && value).length === 0);
+			containerIngredients = ingredients.filter((i) => Object
+				// ["Properties", false, false, false, false, false, false]
+				.values(i.properties)
+				.filter((value) => (value !== 'Properties') && value)
+				.length === 0);
 		}
 
-		if (containerIngredients.length > 0) {
-			return {
-				__typename: 'Container',
-				id: uuidv1(),
-				ingredientID: null,
-				ingredients: containerIngredients,
-				isExpanded: true,
-				label: label.charAt(0).toUpperCase() + label.slice(1),
-				referenceCount: containerIngredients.length,
-			};
-		} return null;
-	}).filter((c) => c);
+		const container = {
+			__typename: 'Container',
+			id: uuidv1(),
+			ingredientID: id,
+			ingredients: containerIngredients,
+			isExpanded: true,
+			label: label.charAt(0).toUpperCase() + label.slice(1),
+			referenceCount: containerIngredients && containerIngredients.size,
+		};
+		return container;
+	}).filter((c) => c.ingredients.size > 0);
+
+	return containers;
 };
 
-export const generateByRelationship = (ingredients = []) => {
-	console.log('generateByRelationship');
+const generateByRelationship = (id, ingredients) => {
+	// console.log('generateByRelationship');
 	const containers = [];
 	const parentIngredients = ingredients.filter((i) => !i.parent);
 	const childIngredients = ingredients.filter((i) => i.parent);
 
-	if (childIngredients.length > 0) {
+	if (childIngredients.size > 0) {
 		containers.push({
 			__typename: 'Container',
 			id: uuidv1(),
-			ingredientID: null,
+			ingredientID: id,
 			ingredients: childIngredients,
 			isExpanded: true,
 			label: 'Child Ingredients',
-			referenceCount: childIngredients.length,
+			referenceCount: childIngredients.size,
 		});
 	}
 
-	if (parentIngredients.length > 0) {
+	if (parentIngredients.size > 0) {
 		containers.push({
 			__typename: 'Container',
 			id: uuidv1(),
-			ingredientID: null,
+			ingredientID: id,
 			ingredients: parentIngredients,
 			isExpanded: true,
 			label: 'Parent Ingredients',
-			referenceCount: parentIngredients.length,
+			referenceCount: parentIngredients.size,
 		});
 	}
 
 	return containers;
 };
 
-export default [
-	generateByCount,
-	generateByName,
-	generateByProperty,
-	generateByRelationship,
-];
+const buildContainers = (id = null, group = 'name', view = 'all', ingredients = []) => {
+	// console.log('BUILD CONTAINERS');
+	let containers = [];
+
+	// filter ingredients based on the view
+	const viewIngredients = new ImmutableList((view === 'new') ? ingredients.filter((ing) => !ing.isValidated) : ingredients);
+	// create containers by group
+	switch (group) {
+	case 'count':
+		containers = generateByCount(id, viewIngredients);
+		break;
+	case 'property':
+		containers = generateByProperty(id, viewIngredients);
+		break;
+	case 'relationship':
+		containers = generateByRelationship(id, viewIngredients);
+		break;
+	default: // name
+		containers = generateByName(id, viewIngredients, view);
+	}
+
+	return containers;
+};
+
+export default buildContainers;

@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Query, withApollo } from 'react-apollo';
+// import { Query, withApollo } from 'react-apollo';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
@@ -103,4 +103,4 @@ Suggestions.propTypes = {
 	value: PropTypes.string,
 };
 
-export default withApollo(Suggestions);
+export default Suggestions;

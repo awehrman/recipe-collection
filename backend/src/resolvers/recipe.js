@@ -14,12 +14,7 @@ export default {
 			const { cursor = 0 } = args;
 			const first = 16;
 			const skip = cursor * first;
-			const response = {
-				__typename: 'RecipesResponse',
-				count: 0,
-				errors: [],
-				recipes: [],
-			};
+
 			// eslint-disable-next-line
 			console.log({ cursor, first, skip });
 
@@ -27,17 +22,15 @@ export default {
 				first,
 				skip,
 			}).$fragment(GET_ALL_RECIPE_FIELDS)
-				.catch((err) => response.errors.push(err));
-			const recipesCount = await ctx.prisma.recipesConnection().aggregate().count();
+				.catch(() => []);
+			console.log({ recipes });
 
-			response.count = recipesCount;
-			// response.cursor = cursor + 1;
-			response.recipes = recipes;
-			return response;
+			return recipes;
 		},
 		recipeAggregate: async (parent, args, ctx) => {
-			const recipesCount = await ctx.prisma.recipesConnection().aggregate().count();
-			return { recipesCount };
+			const count = await ctx.prisma.recipesConnection().aggregate().count();
+			console.log({ count });
+			return { count };
 		},
 	},
 

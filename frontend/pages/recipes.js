@@ -1,7 +1,5 @@
-import { adopt } from 'react-adopt';
-import React from 'react';
-import { Query, withApollo } from 'react-apollo';
-import PropTypes from 'prop-types';
+import { useQuery } from '@apollo/client';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { GET_CURRENT_RECIPE_QUERY, GET_PAGINATED_RECIPES_QUERY, GET_RECIPES_COUNT_QUERY } from '../lib/apollo/queries';
 
@@ -11,44 +9,6 @@ import Header from '../components/Header';
 import Grid from '../components/recipes/Grid';
 import Loading from '../components/Loading';
 import Recipe from '../components/recipes/Recipe';
-
-const Composed = adopt({
-	// eslint-disable-next-line react/prop-types
-	getCurrentRecipe: ({ render, id }) => (
-		<Query
-			notifyOnNetworkStatusChange
-			query={ GET_CURRENT_RECIPE_QUERY }
-			ssr={ false }
-			variables={ { id } }
-		>
-			{render}
-		</Query>
-	),
-
-	// eslint-disable-next-line react/prop-types
-	getRecipes: ({ cursor = 0, render }) => (
-		<Query
-			notifyOnNetworkStatusChange
-			query={ GET_PAGINATED_RECIPES_QUERY }
-			ssr={ false }
-			variables={ { cursor } }
-		>
-			{render}
-		</Query>
-	),
-
-	// eslint-disable-next-line react/prop-types
-	getRecipesCount: ({ render }) => (
-		<Query
-			fetchPolicy="cache-and-network"
-			notifyOnNetworkStatusChange
-			query={ GET_RECIPES_COUNT_QUERY }
-			ssr={ false }
-		>
-			{render}
-		</Query>
-	),
-});
 
 const Count = styled.div`
 	display: flex;
@@ -71,77 +31,68 @@ const Count = styled.div`
 const RecipesStyles = styled.article`
 `;
 
-class Recipes extends React.PureComponent {
-	constructor(props) {
-		super(props);
-		this.state = { currentRecipeID: null };
-	}
+const Recipes = () => {
+	const [ currentRecipeID, setCurrentRecipeID ] = useState(null);
 
-	onRecipeClick = (e, id) => {
-		e.preventDefault();
-		this.setState({ currentRecipeID: id });
-	}
+	// fetch the recipe totals
+	const {
+		data: countData = {},
+		loading: countLoading,
+		error: countError,
+	} = useQuery(GET_RECIPES_COUNT_QUERY);
+	const { recipeAggregate = {} } = countData;
+	const { count = 0 } = recipeAggregate;
 
-	onCloseClick = (e) => {
-		e.preventDefault();
-		this.setState({ currentRecipeID: null });
-	}
+	// fetch the initial batch of recipes
+	const {
+		data = {},
+		fetchMore,
+		loading,
+		error,
+	} = useQuery(GET_PAGINATED_RECIPES_QUERY);
+	const { recipes = [] } = data;
 
-	render() {
-		const { currentRecipeID } = this.state;
-		return (
-			<Composed id={ currentRecipeID }>
-				{
-					({ getCurrentRecipe, getRecipes, getRecipesCount }) => {
-						const { error, loading } = getRecipes;
-						const { data } = getRecipesCount;
-						const { recipeAggregate } = data || {};
-						const { recipesCount } = recipeAggregate || {};
-						const { recipes = {} } = getRecipes.data || {};
-						const { fetchMore } = getRecipes;
-						const { recipe = null } = getCurrentRecipe.data || {};
-						// TODO re-implement initial loading component, but don't re-activate on subsequent loads
-						return (
-							<RecipesStyles>
-								<Header pageHeader="Recipes" />
-								<section>
-									<Count className="right">
-										{ recipesCount }
-									</Count>
+	return (
+		<RecipesStyles>
+			<Header pageHeader="Recipes" />
+			<section>
+				<Count className="right">
+					{ count || 0 }
+				</Count>
 
-									{(error) ? <ErrorMessage error={ error } /> : null}
-
-									{
-										(loading && recipes && recipes.recipes && (recipes.recipes.length === 0))
-											? <Loading name="recipes" />
-											: null
-									}
-
-									<Grid
-										count={ recipes.count || 0 }
-										fetchMore={ fetchMore }
-										recipes={ recipes.recipes || [] }
-										onRecipeClick={ this.onRecipeClick }
-									/>
-
-									{
-										(currentRecipeID && recipe)
-											? <Recipe onCloseClick={ this.onCloseClick } recipe={ recipe } />
-											: null
-									}
-									<AddNew />
-								</section>
-							</RecipesStyles>
-						);
-					}
+				{/* Error Messages */
+					(error || countError)
+						? <ErrorMessage error={ error || countError } />
+						: null
 				}
-			</Composed>
-		);
-	}
-}
 
-Recipes.defaultProps = {};
+				{/* Loading */
+					(loading || countLoading)
+						? <Loading name="recipes" />
+						: null
+				}
 
-Recipes.propTypes = { client: PropTypes.shape({ query: PropTypes.func }).isRequired };
+				<Grid
+					count={ count || 0 }
+					fetchMore={ fetchMore }
+					recipes={ recipes || [] }
+					// onRecipeClick={ this.onRecipeClick }
+				/>
 
-export default withApollo(Recipes);
+				{/* TODO
+					(currentRecipeID && recipe)
+						? (
+							<Recipe
+								// onCloseClick={ this.onCloseClick }
+								recipe={ recipe }
+							/>
+						)
+						: null
+				*/}
+				<AddNew />
+			</section>
+		</RecipesStyles>
+	);
+};
+
+export default Recipes;

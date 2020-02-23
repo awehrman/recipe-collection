@@ -1,33 +1,9 @@
-import { adopt } from 'react-adopt';
-import { Query, withApollo } from 'react-apollo';
+import { useQuery } from '@apollo/client';
 import styled from 'styled-components';
 import { GET_DASHBOARD_INGREDIENTS_QUERY, GET_DASHBOARD_PARSING_QUERY, GET_DASHBOARD_RECIPES_QUERY } from '../lib/apollo/queries';
 
 import Header from '../components/Header';
 import Card from '../components/recipes/Card';
-
-const Composed = adopt({
-	// eslint-disable-next-line react/prop-types
-	getDashboardIngredients: ({ render }) => (
-		<Query query={ GET_DASHBOARD_INGREDIENTS_QUERY } fetchPolicy="cache-and-network">
-			{ render }
-		</Query>
-	),
-
-	// eslint-disable-next-line react/prop-types
-	getDashboardParsing: ({ render }) => (
-		<Query query={ GET_DASHBOARD_PARSING_QUERY } fetchPolicy="cache-and-network">
-			{ render }
-		</Query>
-	),
-
-	// eslint-disable-next-line react/prop-types
-	getDashboardRecipes: ({ render }) => (
-		<Query query={ GET_DASHBOARD_RECIPES_QUERY } fetchPolicy="cache-and-network">
-			{ render }
-		</Query>
-	),
-});
 
 const DashboardStyles = styled.article`
 	ul {
@@ -75,176 +51,189 @@ const onRecipeClick = (e) => {
 	// TODO route to recipes page?
 };
 
-const Index = () => (
-	<DashboardStyles>
-		<Header pageHeader="Dashboard" />
-		<Composed>
-			{
-				({ getDashboardIngredients, getDashboardParsing, getDashboardRecipes }) => {
-					const { data: ingData = {} } = getDashboardIngredients;
-					const { dashboardIngredients = {} } = ingData;
-					const {
-						newlyVerified = [],
-						newlyParsed = [],
-						numIngredients = 0,
-						numUnverified = 0,
-						numLines = 0,
-						numRecipes = 0,
-					} = dashboardIngredients;
+const Index = () => {
+	// fetch ingredients
+	const {
+		data: ingredientData,
+		// loading: ingredientLoading,
+		//  error: ingredientError,
+	} = useQuery(GET_DASHBOARD_INGREDIENTS_QUERY);
+	const { dashboardIngredients } = ingredientData || {};
+	const {
+		newlyVerified = [],
+		newlyParsed = [],
+		numIngredients = 0,
+		numUnverified = 0,
+		numLines = 0,
+		numRecipes = 0,
+	} = dashboardIngredients || {};
 
-					const { data: parsingData = {} } = getDashboardParsing;
-					const { dashboardParsing = {} } = parsingData;
-					const {
-						parsingInstances = [],
-						parsingErrors = 0,
-						semanticErrors = 0,
-						dataErrors = 0,
-						instruction = 0,
-						equipment = 0,
-						baseRate = 0,
-						adjustedRate = 0,
-						parsingRate = 0,
-						dataAccuracy = 0,
-					} = dashboardParsing;
 
-					const { data: rpData = {} } = getDashboardRecipes;
-					const { dashboardRecipes = {} } = rpData;
-					const { newRecipes = [] } = dashboardRecipes;
-					return (
-						<section>
-							<Row>
-								{/* New Ingredients */}
-								<Cell>
-									<h2>New Ingredients</h2>
-									<ul className="columns">
-										{
-											newlyVerified.map((ing) => (
-												<li key={ `newIng_${ ing.id }` }>
-													{ ing.name }
-												</li>
-											))
-										}
-									</ul>
-								</Cell>
+	// fetch statistics
+	const {
+		data: parsingData,
+		// loading: parsingLoading,
+		// error: parsingError,
+	} = useQuery(GET_DASHBOARD_PARSING_QUERY);
+	const { dashboardParsing = {} } = parsingData || {};
+	const {
+		parsingInstances = [],
+		parsingErrors = 0,
+		semanticErrors = 0,
+		dataErrors = 0,
+		instruction = 0,
+		equipment = 0,
+		baseRate = 0,
+		adjustedRate = 0,
+		parsingRate = 0,
+		dataAccuracy = 0,
+	} = dashboardParsing || {};
 
-								{/* Recently Parsed Ingredients */}
-								<Cell>
-									<h2>Recently Parsed Ingredients</h2>
-									<ul className="columns">
-										{
-											newlyParsed.map((ing) => (
-												<li key={ `parsed_${ ing.id }` }>
-													{ing.name}
-												</li>
-											))
-										}
-									</ul>
-								</Cell>
+	// fetch recipes
+	const {
+		data: recipeData,
+		// loading: recipeLoading,
+		// error: recipeError,
+	} = useQuery(GET_DASHBOARD_RECIPES_QUERY);
+	const { dashboardRecipes } = recipeData || {};
+	const { newRecipes = [] } = dashboardRecipes || {};
 
-								{/* Recent Parsing Errors */}
-								<Cell>
-									<h2>Recent Parsing Errors</h2>
-									<ul>
-										{
-											parsingInstances.map((err) => (
-												<li key={ `parsingInstances_${ err.id }` }>
-													{ err.reference }
-												</li>
-											))
-										}
-									</ul>
+	// TODO mobile styles
+	// TODO error and loading
+	return (
+		<DashboardStyles>
+			<Header pageHeader="Dashboard" />
+			<section>
+				<Row>
+					{/* New Ingredients */}
+					<Cell>
+						<h2>New Ingredients</h2>
+						<ul className="columns">
+							{
+								newlyVerified.map((ing) => (
+									<li key={ `newIng_${ ing.id }` }>
+										{ ing.name }
+									</li>
+								))
+							}
+						</ul>
+					</Cell>
 
-									<h2>Data Summary</h2>
-									<ul>
-										<li>
-											<span>Ingredients: </span>
-											{ numIngredients }
-										</li>
-										<li>
-											<span>Unverified: </span>
-											{ numUnverified }
-										</li>
-										<li>
-											<span>Lines: </span>
-											{ numLines }
-										</li>
-										<li>
-											<span>Recipes: </span>
-											{ numRecipes }
-										</li>
-									</ul>
-								</Cell>
+					{/* Recently Parsed Ingredients */}
+					<Cell>
+						<h2>Recently Parsed Ingredients</h2>
+						<ul className="columns">
+							{
+								newlyParsed.map((ing) => (
+									<li key={ `parsed_${ ing.id }` }>
+										{ing.name}
+									</li>
+								))
+							}
+						</ul>
+					</Cell>
 
-								{/* Error Summary */}
-								<Cell>
-									<h2>Error Summary</h2>
-									<ul>
-										<li>
-											<span>Parsing Errors: </span>
-											{ parsingErrors }
-										</li>
-										<li key="dashboardSemanticErrors">
-											<span>Semantic Errors: </span>
-											{ semanticErrors }
-										</li>
-										<li key="dashboardDataErrors">
-											<span>Data Errors: </span>
-											{ dataErrors }
-										</li>
-										<li key="dashboardInstructionsErrors">
-											<span>Instructions Errors: </span>
-											{ instruction }
-										</li>
-										<li key="dashboardEquipmentErrors">
-											<span>Equipment Instances: </span>
-											{ equipment }
-										</li>
-									</ul>
-									<ul className="errors">
-										<li>
-											<span>Base Accuracy Rate: </span>
-											{ `${ baseRate }%` }
-										</li>
-										<li>
-											<span>Adjusted Accuracy Rate: </span>
-											{ `${ adjustedRate }%` }
-										</li>
-										<li>
-											<span>Lines: </span>
-											{ `${ parsingRate }%` }
-										</li>
-										<li>
-											<span>Recipes: </span>
-											{ `${ dataAccuracy }%` }
-										</li>
-									</ul>
-								</Cell>
-							</Row>
+					{/* Recent Parsing Errors */}
+					<Cell>
+						<h2>Recent Parsing Errors</h2>
+						<ul>
+							{
+								parsingInstances.map((err) => (
+									<li key={ `parsingInstances_${ err.id }` }>
+										{ err.reference }
+									</li>
+								))
+							}
+						</ul>
 
-							<Row>
-								{/* Recently Added Recipes */}
-								<FullWidth>
-									<h2>Recently Added Recipes</h2>
-									<div className="container">
-										{
-											newRecipes.map((rp) => (
-												<Card
-													className="dashboard"
-													key={ `newRp_${ rp.id }` }
-													onClick={ onRecipeClick }
-													recipe={ rp }
-												/>
-											))
-										}
-									</div>
-								</FullWidth>
-							</Row>
-						</section>
-					);
-				}
-			}
-		</Composed>
-	</DashboardStyles>
-);
+						<h2>Data Summary</h2>
+						<ul>
+							<li>
+								<span>Ingredients: </span>
+								{ numIngredients }
+							</li>
+							<li>
+								<span>Unverified: </span>
+								{ numUnverified }
+							</li>
+							<li>
+								<span>Lines: </span>
+								{ numLines }
+							</li>
+							<li>
+								<span>Recipes: </span>
+								{ numRecipes }
+							</li>
+						</ul>
+					</Cell>
 
-export default withApollo(Index);
+					{/* Error Summary */}
+					<Cell>
+						<h2>Error Summary</h2>
+						<ul>
+							<li>
+								<span>Parsing Errors: </span>
+								{ parsingErrors }
+							</li>
+							<li key="dashboardSemanticErrors">
+								<span>Semantic Errors: </span>
+								{ semanticErrors }
+							</li>
+							<li key="dashboardDataErrors">
+								<span>Data Errors: </span>
+								{ dataErrors }
+							</li>
+							<li key="dashboardInstructionsErrors">
+								<span>Instructions Errors: </span>
+								{ instruction }
+							</li>
+							<li key="dashboardEquipmentErrors">
+								<span>Equipment Instances: </span>
+								{ equipment }
+							</li>
+						</ul>
+						<ul className="errors">
+							<li>
+								<span>Base Accuracy Rate: </span>
+								{ `${ baseRate }%` }
+							</li>
+							<li>
+								<span>Adjusted Accuracy Rate: </span>
+								{ `${ adjustedRate }%` }
+							</li>
+							<li>
+								<span>Lines: </span>
+								{ `${ parsingRate }%` }
+							</li>
+							<li>
+								<span>Recipes: </span>
+								{ `${ dataAccuracy }%` }
+							</li>
+						</ul>
+					</Cell>
+				</Row>
+
+				<Row>
+					{/* Recently Added Recipes */}
+					<FullWidth>
+						<h2>Recently Added Recipes</h2>
+						<div className="container">
+							{
+								newRecipes.map((rp) => (
+									<Card
+										className="dashboard"
+										key={ `newRp_${ rp.id }` }
+										onClick={ onRecipeClick }
+										recipe={ rp }
+									/>
+								))
+							}
+						</div>
+					</FullWidth>
+				</Row>
+			</section>
+		</DashboardStyles>
+	);
+};
+
+export default Index;

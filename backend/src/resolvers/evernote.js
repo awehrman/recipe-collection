@@ -47,6 +47,8 @@ export default {
 				authToken,
 				requestToken,
 			} = req.session;
+			console.log({ ...req.session });
+			// TODO i feel like my session isn't persisting between these calls
 			const response = {
 				__typename: 'AuthenticationResponse',
 				errors: [],

@@ -16,6 +16,8 @@ export const minifyImage = async (image) => {
 export const saveImages = async (notes) => {
 	const resolveImage = notes.map(async (note) => {
 		const { image } = note;
+		// TODO better error handling for missing images in notes
+		if (!image) return null;
 		// minify image
 		const minified = await minifyImage(image)
 			// then upload to cloudinary
@@ -26,7 +28,7 @@ export const saveImages = async (notes) => {
 			...note,
 			image: minified.secure_url,
 		};
-	});
+	}).filter((n) => n);
 
 	const notesRes = await Promise.all(resolveImage)
 		.catch((err) => console.log(err));

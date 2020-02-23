@@ -466,8 +466,8 @@ type Ingredient {
 
 type IngredientAggregate {
   id: ID!
-  ingredientsCount: Int!
-  newIngredientsCount: Int!
+  count: Int!
+  unverified: Int!
 }
 
 type IngredientAggregateConnection {
@@ -478,8 +478,8 @@ type IngredientAggregateConnection {
 
 input IngredientAggregateCreateInput {
   id: ID
-  ingredientsCount: Int!
-  newIngredientsCount: Int!
+  count: Int!
+  unverified: Int!
 }
 
 type IngredientAggregateEdge {
@@ -490,16 +490,16 @@ type IngredientAggregateEdge {
 enum IngredientAggregateOrderByInput {
   id_ASC
   id_DESC
-  ingredientsCount_ASC
-  ingredientsCount_DESC
-  newIngredientsCount_ASC
-  newIngredientsCount_DESC
+  count_ASC
+  count_DESC
+  unverified_ASC
+  unverified_DESC
 }
 
 type IngredientAggregatePreviousValues {
   id: ID!
-  ingredientsCount: Int!
-  newIngredientsCount: Int!
+  count: Int!
+  unverified: Int!
 }
 
 type IngredientAggregateSubscriptionPayload {
@@ -521,13 +521,13 @@ input IngredientAggregateSubscriptionWhereInput {
 }
 
 input IngredientAggregateUpdateInput {
-  ingredientsCount: Int
-  newIngredientsCount: Int
+  count: Int
+  unverified: Int
 }
 
 input IngredientAggregateUpdateManyMutationInput {
-  ingredientsCount: Int
-  newIngredientsCount: Int
+  count: Int
+  unverified: Int
 }
 
 input IngredientAggregateWhereInput {
@@ -545,22 +545,22 @@ input IngredientAggregateWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
-  ingredientsCount: Int
-  ingredientsCount_not: Int
-  ingredientsCount_in: [Int!]
-  ingredientsCount_not_in: [Int!]
-  ingredientsCount_lt: Int
-  ingredientsCount_lte: Int
-  ingredientsCount_gt: Int
-  ingredientsCount_gte: Int
-  newIngredientsCount: Int
-  newIngredientsCount_not: Int
-  newIngredientsCount_in: [Int!]
-  newIngredientsCount_not_in: [Int!]
-  newIngredientsCount_lt: Int
-  newIngredientsCount_lte: Int
-  newIngredientsCount_gt: Int
-  newIngredientsCount_gte: Int
+  count: Int
+  count_not: Int
+  count_in: [Int!]
+  count_not_in: [Int!]
+  count_lt: Int
+  count_lte: Int
+  count_gt: Int
+  count_gte: Int
+  unverified: Int
+  unverified_not: Int
+  unverified_in: [Int!]
+  unverified_not_in: [Int!]
+  unverified_lt: Int
+  unverified_lte: Int
+  unverified_gt: Int
+  unverified_gte: Int
   AND: [IngredientAggregateWhereInput!]
   OR: [IngredientAggregateWhereInput!]
   NOT: [IngredientAggregateWhereInput!]
@@ -1974,7 +1974,7 @@ type Recipe {
 
 type RecipeAggregate {
   id: ID!
-  recipesCount: Int!
+  count: Int!
 }
 
 type RecipeAggregateConnection {
@@ -1985,7 +1985,7 @@ type RecipeAggregateConnection {
 
 input RecipeAggregateCreateInput {
   id: ID
-  recipesCount: Int!
+  count: Int!
 }
 
 type RecipeAggregateEdge {
@@ -1996,13 +1996,13 @@ type RecipeAggregateEdge {
 enum RecipeAggregateOrderByInput {
   id_ASC
   id_DESC
-  recipesCount_ASC
-  recipesCount_DESC
+  count_ASC
+  count_DESC
 }
 
 type RecipeAggregatePreviousValues {
   id: ID!
-  recipesCount: Int!
+  count: Int!
 }
 
 type RecipeAggregateSubscriptionPayload {
@@ -2024,11 +2024,11 @@ input RecipeAggregateSubscriptionWhereInput {
 }
 
 input RecipeAggregateUpdateInput {
-  recipesCount: Int
+  count: Int
 }
 
 input RecipeAggregateUpdateManyMutationInput {
-  recipesCount: Int
+  count: Int
 }
 
 input RecipeAggregateWhereInput {
@@ -2046,14 +2046,14 @@ input RecipeAggregateWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
-  recipesCount: Int
-  recipesCount_not: Int
-  recipesCount_in: [Int!]
-  recipesCount_not_in: [Int!]
-  recipesCount_lt: Int
-  recipesCount_lte: Int
-  recipesCount_gt: Int
-  recipesCount_gte: Int
+  count: Int
+  count_not: Int
+  count_in: [Int!]
+  count_not_in: [Int!]
+  count_lt: Int
+  count_lte: Int
+  count_gt: Int
+  count_gte: Int
   AND: [RecipeAggregateWhereInput!]
   OR: [RecipeAggregateWhereInput!]
   NOT: [RecipeAggregateWhereInput!]

@@ -1,57 +1,48 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
+import { ALL_CONTAINER_FIELDS } from './fragments';
 
 export const CREATE_CONTAINERS_MUTATION = gql`
 	mutation createContainers(
-		$group: String!
-		$view: String!
+		$currentIngredientID: String,
+		$group: String!,
+		$view: String!,
 	) {
 		createContainers(
-			group: $group
-			view: $view
+			currentIngredientID: $currentIngredientID,
+			group: $group,
+			view: $view,
 		) @client {
-			containers {
-				id
-				ingredientID
-				ingredients {
-					id
-					isValidated
-					name
-					properties {
-						meat
-						poultry
-						fish
-						dairy
-						soy
-						gluten
-					}
+			errors
+			result {
+				containers {
+					...ContainerFields
 				}
-				isExpanded
-				label
 			}
 		}
 	}
+	${ ALL_CONTAINER_FIELDS }
 `;
 
 export const UPDATE_CONTAINER_INGREDIENT_ID_MUTATION = gql`
 	mutation setCurrentCard(
 		$id: ID!,
-		$ingredientID: Boolean
+		$ingredientID: Boolean,
 	) {
 		setCurrentCard(
 			id: $id,
-			ingredientID: $ingredientID
+			ingredientID: $ingredientID,
 		) @client
 	}
 `;
 
-export const UPDATE_IS_CONTAINER_EXPANDED_MUTATION = gql`
-	mutation setContainerIsExpanded(
+export const TOGGLE_CONTAINER_MUTATION = gql`
+	mutation toggleContainer(
 		$id: ID!,
-		$isExpanded: Boolean
+		$isExpanded: Boolean!,
 	) {
-		setContainerIsExpanded(
+		toggleContainer(
 			id: $id,
-			isExpanded: $isExpanded
+			isExpanded: $isExpanded,
 		) @client
 	}
 `;
@@ -297,7 +288,7 @@ export const CLEAR_EVERNOTE_AUTH_MUTATION = gql`
 export default [
 	CREATE_CONTAINERS_MUTATION,
 	UPDATE_CONTAINER_INGREDIENT_ID_MUTATION,
-	UPDATE_IS_CONTAINER_EXPANDED_MUTATION,
+	TOGGLE_CONTAINER_MUTATION,
 	CREATE_INGREDIENT_MUTATION,
 	UPDATE_INGREDIENT_MUTATION,
 	CREATE_RECIPE_MUTATION,

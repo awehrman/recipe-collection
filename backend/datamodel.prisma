@@ -141,13 +141,13 @@
 
 	type IngredientAggregate {
 		id: ID! @id
-		ingredientsCount: Int!
-		newIngredientsCount: Int!
+		count: Int!
+		unverified: Int!
 	}
 
 	type RecipeAggregate {
 		id: ID! @id
-		recipesCount: Int!
+		count: Int!
 	}
 
 	type NoteAggregate {

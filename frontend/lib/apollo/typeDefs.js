@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import { gql } from '@apollo/client';
 
 export default gql`
 	# Categories
@@ -9,18 +9,27 @@ export default gql`
 		}
 
 		type CategoryAggregate {
-			id: ID!
-			categoriesCount: Int!
+			count: Int!
 		}
 
 	# Containers
 		type Container {
 			id: String!
 			ingredientID: String
-			ingredients: [ ContainerIngredient ]!
+			ingredients: [ Ingredient ]!
 			isExpanded: Boolean!
 			label: String!
 			referenceCount: Int!
+		}
+
+		type ContainerResult {
+			errors: [ String ]
+			result: Container
+		}
+
+		type ContainersResult {
+			errors: [ String ]
+			result: [ Container ]!
 		}
 
 	# Ingredients
@@ -32,14 +41,16 @@ export default gql`
 			properties: Properties!
 			isComposedIngredient: Boolean!
 			isValidated: Boolean!
+			hasParent: Boolean! @client
 			parent: Ingredient
 			relatedIngredients: [ Ingredient! ]!
 			substitutes: [ Ingredient! ]!
 			references: [ RecipeReference! ]!
+			referenceCount: Int! @client
 		}
 
 		type RecipeReference {
-			id: ID! @id
+			id: ID!
 			recipe: Recipe!
 			line: RecipeIngredient!
 		}
@@ -60,29 +71,8 @@ export default gql`
 		}
 
 		type IngredientAggregate {
-			id: ID!
-			ingredientsCount: Int!
-			newIngredientsCount: Int!
-		}
-
-	# Notes
-		type Note {
-			id: ID!
-			evernoteGUID: String
-			title: String!
-			source: String
-			categories: [ String ]
-			tags: [ String ]
-			image: String
-			content: String
-			ingredients: [ RecipeIngredient ]
-			instructions: [ RecipeInstruction ]
-		}
-
-		type NoteAggregate {
-			id: ID!
 			count: Int!
-			importDefault: Int!
+			unverified: Int!
 		}
 
 	# Recipes
@@ -123,127 +113,18 @@ export default gql`
 		}
 
 		type RecipeAggregate {
-			id: ID!
-			recipesCount: Int!
+			count: Int!
 		}
-
-	# Suggestions
-		type Suggestion {
-			id: String!
-			name: String!
-		}
-
-	# Tags
-		type Tag {
-			id: ID!
-			evernoteGUID: String
-			name: String!
-		}
-
-		type TagAggregate {
-			id: ID!
-			tagsCount: Int!
-		}
-
-	# Response Types
-	type AuthenticationResponse {
-		errors: [ String ]
-		isAuthenticationPending: Boolean
-		isAuthenticated: Boolean
-		authURL: String
-	}
-
-	type CategoryResponse {
-		category: Category
-		errors: [ String ]
-	}
-
-	type ContainersResponse {
-		containers: [ Container ]
-		errors: [ String ]
-	}
-
-	type EvernoteResponse {
-		errors: [ String ]
-		notes: [ Note ]
-	}
-
-	type IngredientResponse {
-		errors: [ String ]
-		ingredient: Ingredient
-	}
-
-	type IngredientsResponse {
-		errors: [ String ]
-		ingredient: Ingredient
-	}
-
-	type DashboardResponse {
-		errors: [ String ]
-		newlyVerified: [ Ingredient! ]
-		newlyParsed: [ Ingredient! ]
-		newRecipes: [ Recipe! ]
-		parsingInstances: [ ParsingError! ]
-		parsingErrors: Int
-		numIngredients: Int
-		numUnverified: Int
-		numLines: Int
-		numRecipes: Int
-		semanticErrors: Int
-		dataErrors: Int
-		instruction: Int
-		equipment: Int
-		baseRate: Int
-		adjustedRate: Int
-		parsingRate: Int
-		dataAccuracy: Int
-	}
-
-	type ParsingError {
-		id: String!
-		reference: String!
-	}
-
-	type RecipeResponse {
-		errors: [ String ]
-		recipe: Recipe
-	}
-
-	type RecipesResponse {
-		errors: [ String ]
-		count: Int
-		recipes: [ Recipe ]
-	}
-
-	type TagResponse {
-		errors: [ String ]
-		tag: Tag
-	}
-
 
 	# Query & Mutations
 
 		type Query {
-			container(id: String!): Container
-			containers: [ Container ]
-			ingredient(value: String!): Ingredient
-			notes: [ Note ]
-			suggestions: [ Suggestion ]
+			container(id: String): Container
+			containers(currentIngredientID: String, group: String!, view: String!): [ Container ]
 		}
 
 		type Mutation {
-			createContainers(
-				group: String!
-				ingredients: [ ContainerIngredient ]!
-				view: String!
-			) : ContainersResponse
-			setContainerIsExpanded(
-				id: String!
-				isExpanded: Boolean!
-			) : null
-			setCurrentCard(
-				id: String!
-				ingredientID: String
-			) : null
+			createContainers: ContainersResult
+			toggleContainer: ContainerResult
 		}
 `;

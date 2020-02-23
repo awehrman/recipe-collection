@@ -1,17 +1,14 @@
-import { adopt } from 'react-adopt';
-import { Query, Mutation, withApollo } from 'react-apollo';
-import { withRouter } from 'next/router';
+import { useMutation, useQuery } from '@apollo/client';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 
-import { GET_CONTAINER_QUERY } from '../../lib/apollo/queries';
-import { UPDATE_CONTAINER_INGREDIENT_ID_MUTATION, UPDATE_IS_CONTAINER_EXPANDED_MUTATION } from '../../lib/apollo/mutations';
-
-import { deepCopy } from '../../lib/util';
 import Card from './Card';
 import ErrorMessage from '../ErrorMessage';
 import Loading from '../Loading';
+import IngredientsContext from '../../lib/contexts/ingredientsContext';
+import { GET_CONTAINER_QUERY } from '../../lib/apollo/queries';
+import { TOGGLE_CONTAINER_MUTATION } from '../../lib/apollo/mutations';
 
 const ContainerStyles = styled.div`
 	margin-bottom: 16px;
@@ -50,6 +47,11 @@ const IngredientsList = styled.ul`
 	overflow: scroll;
 	position: relative;
 	padding: 0;
+
+	&.small {
+		display: flex;
+		align-items: start;
+	}
 
 	li {
 		flex-basis: 100%;
@@ -117,272 +119,92 @@ const IngredientsList = styled.ul`
 	}
 `;
 
-const Composed = adopt({
-	// eslint-disable-next-line react/prop-types
-	getContainer: ({ id, render }) => (
-		<Query fetchPolicy="network-only" notifyOnNetworkStatusChange query={ GET_CONTAINER_QUERY } variables={ { id } }>
-			{ render }
-		</Query>
-	),
+const Container = ({ id }) => {
+	// console.log('Container', id);
+	const ctx = useContext(IngredientsContext);
+	const { group, view } = ctx;
 
-	// eslint-disable-next-line react/prop-types
-	setCurrentCard: ({ render }) => (
-		<Mutation mutation={ UPDATE_CONTAINER_INGREDIENT_ID_MUTATION } refetchQueries={ [ GET_CONTAINER_QUERY ] }>
-			{ render }
-		</Mutation>
-	),
+	// query container
+	const {
+		data,
+		loading,
+		error,
+	} = useQuery(GET_CONTAINER_QUERY, {
+		context: {
+			group,
+			view,
+		},
+		variables: { id },
+	});
+	const { container } = data || {};
 
-	// eslint-disable-next-line react/prop-types
-	setContainerIsExpanded: ({ render }) => (
-		<Mutation mutation={ UPDATE_IS_CONTAINER_EXPANDED_MUTATION }>
-			{ render }
-		</Mutation>
-	),
-});
+	// setup mutation for toggle containers
+	const [ toggleContainer ] = useMutation(TOGGLE_CONTAINER_MUTATION);
 
-class Container extends React.PureComponent {
-	buildIngredientsList = (ingredients, ingredientID) => {
-		const { view } = this.props;
-		// add list item properties
-		const ingList = ingredients.map((i) => {
-			// NOTE: you better not mangle that ingredients array here
-			const listItem = deepCopy(i);
+	if (error) return <ErrorMessage error={ error } />;
+	if (loading) return <Loading />;
 
-			listItem.type = 'link';
-			listItem.className = listItem.type;
-			listItem.className += (ingredientID && (ingredientID === i.id)) ? ' active ' : '';
-			listItem.className += (i.parent) ? ' child' : '';
-			listItem.className += (!i.isValidated && view !== 'new') ? ' invalid' : '';
+	const className = (`${ (!container.isExpanded) ? 'hidden' : '' } ${ (container.ingredientID) ? 'expanded' : '' }`).trim();
 
-			listItem.href = { pathname: '/ingredients' };
-			// only put the ingredient id in the URL if we don't have an open card
-			// or its another card that the one we're on
-			if (ingredientID !== i.id) {
-				listItem.href.query = { id: i.id };
+	return (
+		<ContainerStyles className={ (container.isExpanded) ? 'expanded' : '' }>
+			{/* container header */}
+			<HeaderStyles
+				onClick={
+					() => toggleContainer({
+						variables: {
+							id: container.id,
+							isExpanded: !container.isExpanded,
+						},
+					})
+				}
+			>
+				{ container.label }
+				<span className="count">{ container.referenceCount }</span>
+			</HeaderStyles>
+
+			{/* current ingredient card */
+				(container.ingredientID)
+					? (
+						<Card
+							className={ className }
+							id={ container.ingredientID }
+							key={ container.ingredientID }
+							showNextCard={ (e) => e.preventDefault() /* TODO showNextCard */ }
+						/>
+					)
+					: null
 			}
 
-			return listItem;
-		});
-
-		// sort alphabetically
-		ingList.sort((a, b) => a.name.localeCompare(b.name));
-
-		// if we have less than 100 ingredients in this container, return the result as is
-		if (ingList.length < 100) return ingList;
-
-		// otherwise we'll add in headers to separate letter groups
-		let ingListWithHeaders = [];
-		const hasSymbols = ingList.map((i) => i.name.charAt(0)).filter((char) => !char.match(/[a-z]/i)).length > 0;
-		const letters = ingList.map((i) => i.name.charAt(0)).filter((char, index, self) => self.indexOf(char) === index && char.match(/[a-z]/i));
-
-		if (hasSymbols) {
-			// push header symbol
-			ingListWithHeaders.push({
-				id: '@_header',
-				name: '@',
-				type: 'header',
-			});
-
-			// push all ingredients that start with a non-alphanumeric value
-			ingListWithHeaders = ingListWithHeaders.concat(...ingList.filter((i) => !i.name.charAt(0).match(/[a-z]/i)));
-		}
-
-		// loop through the used letters and push their ingredient groups
-		ingListWithHeaders = ingListWithHeaders.concat(
-			...letters.map((char) => {
-				const grouping = [ {
-					id: `${ char }_header`,
-					name: char,
-					type: 'header',
-				} ];
-
-				// push ingredients under that letter group
-				const array = grouping.concat(
-					...ingredients.filter((i) => i.name.charAt(0) === char)
-						.sort((a, b) => {
-							if (a.name < b.name) { return -1; }
-							if (a.name > b.name) { return 1; }
-							return 0;
-						}),
-				);
-				return array;
-			}),
-		);
-
-		return ingListWithHeaders;
-	}
-
-	onHeaderClick = (e, setContainerIsExpanded, id, isExpanded) => {
-		e.preventDefault();
-		// update the local cache
-		setContainerIsExpanded({
-			variables: {
-				id,
-				isExpanded: !isExpanded,
-			},
-		});
-	}
-
-	onIngredientClick = async (e, currentIngredientID) => {
-		e.preventDefault();
-		const targetIngredientID = e.target.id;
-
-		const {
-			client,
-			id,
-		} = this.props;
-
-		// TODO update the url without causing a bunch of re-renders ?
-
-		// update the local cache
-		try {
-			await client.mutate({
-				awaitRefetchQueries: true,
-				refetchQueries: [
-					{
-						query: GET_CONTAINER_QUERY,
-						variables: { id },
-					},
-				],
-				mutation: UPDATE_CONTAINER_INGREDIENT_ID_MUTATION,
-				variables: {
-					id,
-					ingredientID: (currentIngredientID === targetIngredientID) ? null : targetIngredientID,
-				},
-			});
-		} catch (err) {
-			console.error({ err });
-		}
-	}
-
-	showNextCard = async (currentIngredient) => {
-		const {
-			client,
-			// group,
-			id,
-			// router,
-			view,
-		} = this.props;
-		if (view !== 'new') return;
-
-		// get container
-		const { data: { container } } = await client.query({
-			query: GET_CONTAINER_QUERY,
-			variables: { id },
-		});
-		const { ingredients = [] } = container || {};
-		let currentIndex = ingredients
-			.sort((a, b) => a.name.localeCompare(b.name))
-			.findIndex((i) => (i.id === currentIngredient.id));
-		if (!~currentIndex) {
-			// if we've already zipped this item out of our container, just throw it in, re-sort and look it up again
-			const adjustedIngredients = [ currentIngredient ].concat(ingredients)
-				.sort((a, b) => a.name.localeCompare(b.name));
-			currentIndex = adjustedIngredients.findIndex((i) => (i.id === currentIngredient.id));
-		}
-		const isNextIndexValid = Boolean(ingredients[currentIndex + 1]);
-		const nextIngredient = (isNextIndexValid) ? ingredients[currentIndex + 1] : ingredients[0];
-
-		try {
-			await client.mutate({
-				awaitRefetchQueries: true,
-				refetchQueries: [
-					{
-						fetchPolicy: 'network-only',
-						query: GET_CONTAINER_QUERY,
-						variables: { id },
-					},
-				],
-				mutation: UPDATE_CONTAINER_INGREDIENT_ID_MUTATION,
-				variables: {
-					id,
-					ingredientID: nextIngredient.id,
-				},
-			});
-		} catch (err) {
-			console.error({ err });
-		}
-	}
-
-	render() {
-		const { id, view } = this.props;
-		return (
-			<Composed id={ id }>
+			{/* ingredients list */}
+			<IngredientsList className={ `${ className } ${ (container.ingredients.length < 10) ? 'small' : '' }` }>
 				{
-					({ getContainer, setContainerIsExpanded }) => {
-						const { data, error, loading } = getContainer;
-						// eslint-disable-next-line
-						if (error) return <ErrorMessage error={ error } />;
-						if (loading) return <Loading />;
-
-						const { container } = data || {};
-						const { ingredients, isExpanded, label, referenceCount } = container;
-						const currentIngredientID = container.ingredientID;
-						const ingList = this.buildIngredientsList(ingredients, currentIngredientID);
-						const listClassName = (`${ (!isExpanded) ? 'hidden' : '' } ${ (currentIngredientID) ? 'expanded' : '' }`).trim();
-
-						return (
-							<ContainerStyles className={ (isExpanded) ? 'expanded' : '' }>
-								<HeaderStyles onClick={ (e) => this.onHeaderClick(e, setContainerIsExpanded, id, isExpanded) }>
-									{label}
-									<span className="count">{ referenceCount }</span>
-								</HeaderStyles>
-
-								{
-									(currentIngredientID)
-										? (
-											<Card
-												className={ listClassName }
-												id={ currentIngredientID }
-												key={ currentIngredientID }
-												showNextCard={ this.showNextCard }
-												view={ view }
-											/>
-										)
-										: null
-								}
-
-								<IngredientsList className={ listClassName }>
-									{
-										ingList.map((i) => (
-											<li className={ i.className } key={ i.id }>
-												{
-													(i.type === 'header')
-														? <span className="header">{i.name}</span>
-														: (
-															<a
-																id={ i.id }
-																onClick={ (e) => this.onIngredientClick(e, currentIngredientID) }
-																onKeyPress={ (e) => this.onIngredientClick(e, currentIngredientID) }
-																role="link"
-																tabIndex="0"
-															>
-																{i.name}
-															</a>
-														)
-												}
-											</li>
-										))
-									}
-								</IngredientsList>
-							</ContainerStyles>
-						);
-					}
+					container.ingredients.map((i) => (
+						<li className={ i.className } key={ i.id }>
+							{
+								(i.type === 'header')
+									? <span className="header">{ i.name }</span>
+									: (
+										<a
+											id={ i.id }
+											onClick={ (e) => e.preventDefault() /* TODO ingredients onClick */ }
+											onKeyPress={ (e) => e.preventDefault() /* TODO ingredients onKeyPress */ }
+											role="link"
+											tabIndex="0"
+										>
+											{ i.name }
+										</a>
+									)
+							}
+						</li>
+					))
 				}
-			</Composed>
-		);
-	}
-}
-
-Container.propTypes = {
-	client: PropTypes.shape({
-		query: PropTypes.func,
-		mutate: PropTypes.func,
-	}).isRequired,
-	// group: PropTypes.oneOf([ 'name', 'property', 'relationship', 'count' ]).isRequired,
-	id: PropTypes.string.isRequired,
-	router: PropTypes.shape({ replace: PropTypes.func }).isRequired,
-	view: PropTypes.oneOf([ 'all', 'new' ]).isRequired,
+			</IngredientsList>
+		</ContainerStyles>
+	);
 };
 
-export default withRouter(withApollo(Container));
+
+Container.propTypes = { id: PropTypes.string.isRequired };
+
+export default Container;

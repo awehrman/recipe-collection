@@ -1,6 +1,6 @@
 import { adopt } from 'react-adopt';
 import React from 'react';
-import { Query } from 'react-apollo';
+// import { Query } from 'react-apollo';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 

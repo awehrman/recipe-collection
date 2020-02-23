@@ -3,8 +3,8 @@ import { GET_ALL_CATEGORY_FIELDS } from '../graphql/fragments';
 export default {
 	Query: {
 		categoryAggregate: async (parent, args, ctx) => {
-			const categoriesCount = await ctx.prisma.categoriesConnection().aggregate().count();
-			return { categoriesCount };
+			const count = await ctx.prisma.categoriesConnection().aggregate().count();
+			return { count };
 		},
 		category: async (parent, args, ctx) => {
 			const { where } = args || {};

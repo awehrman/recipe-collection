@@ -1,9 +1,10 @@
-import React from 'react';
+import { useContext } from 'react';
 import Link from 'next/link';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 import { getNextIngredientGroup } from '../../lib/util';
+import IngredientsContext from '../../lib/contexts/ingredientsContext';
 
 const FilterStyles = styled.div`
 	display: flex;
@@ -45,72 +46,67 @@ const FilterStyles = styled.div`
 			}
 		}
 `;
-class Filters extends React.PureComponent {
-	render() {
-		const { group, ingredientsCount, newIngredientsCount, view } = this.props;
 
-		return (
-			<FilterStyles>
-				{/* View Selection */}
-				<div className="left">
+const Filters = ({ count, newCount }) => {
+	const { group, view } = useContext(IngredientsContext);
+
+	return (
+		<FilterStyles>
+			{/* View Selection */}
+			<div className="left">
+				{/* eslint-disable-next-line object-curly-newline */}
+				<Link href={ { pathname: '/ingredients', query: { view: 'all', group } } }>
+					<a
+						className={ (view === 'all') ? 'active' : '' }
+						onKeyPress={ (e) => e.preventDefault() }
+						role="button"
+						tabIndex="0"
+					>
+						{ `View${ '\xa0' }All${ '\xa0' }${ count }` }
+					</a>
+				</Link>
+
+				{/* eslint-disable-next-line object-curly-newline */}
+				<Link href={ { pathname: '/ingredients', query: { view: 'new', group } } }>
+					<a
+						className={ (view === 'new') ? 'active' : '' }
+						onKeyPress={ (e) => e.preventDefault() }
+						role="button"
+						tabIndex="0"
+					>
+						{ `Newly${ '\xa0' }Imported${ '\xa0' }${ newCount }` }
+					</a>
+				</Link>
+			</div>
+
+			{/* Group By Selection */}
+			<div className="right">
+				<div className="groupBy">
+					<span>Group By</span>
 					{/* eslint-disable-next-line object-curly-newline */}
-					<Link href={ { pathname: '/ingredients', query: { view: 'all', group } } }>
+					<Link href={ { pathname: '/ingredients', query: { view, group: getNextIngredientGroup(group) } } }>
 						<a
-							className={ (view === 'all') ? 'active' : '' }
 							onKeyPress={ (e) => e.preventDefault() }
 							role="button"
 							tabIndex="0"
 						>
-							{ `View${ '\xa0' }All${ '\xa0' }${ ingredientsCount }` }
-						</a>
-					</Link>
-
-					{/* eslint-disable-next-line object-curly-newline */}
-					<Link href={ { pathname: '/ingredients', query: { view: 'new', group } } }>
-						<a
-							className={ (view === 'new') ? 'active' : '' }
-							onKeyPress={ (e) => e.preventDefault() }
-							role="button"
-							tabIndex="0"
-						>
-							{ `Newly${ '\xa0' }Imported${ '\xa0' }${ newIngredientsCount }` }
+							{ group.charAt(0).toUpperCase() + group.substr(1) }
 						</a>
 					</Link>
 				</div>
-
-				{/* Group By Selection */}
-				<div className="right">
-					<div className="groupBy">
-						<span>Group By</span>
-						{/* eslint-disable-next-line object-curly-newline */}
-						<Link href={ { pathname: '/ingredients', query: { view, group: getNextIngredientGroup(group) } } }>
-							<a
-								onKeyPress={ (e) => e.preventDefault() }
-								role="button"
-								tabIndex="0"
-							>
-								{ group.charAt(0).toUpperCase() + group.substr(1) }
-							</a>
-						</Link>
-					</div>
-				</div>
-			</FilterStyles>
-		);
-	}
-}
+			</div>
+		</FilterStyles>
+	);
+};
 
 Filters.defaultProps = {
-	ingredientsCount: 0,
-	newIngredientsCount: 0,
-	group: 'name',
-	view: 'all',
+	count: 0,
+	newCount: 0,
 };
 
 Filters.propTypes = {
-	ingredientsCount: PropTypes.number,
-	newIngredientsCount: PropTypes.number,
-	group: PropTypes.oneOf([ 'name', 'property', 'relationship', 'count' ]),
-	view: PropTypes.oneOf([ 'all', 'new' ]),
+	count: PropTypes.number,
+	newCount: PropTypes.number,
 };
 
 export default Filters;

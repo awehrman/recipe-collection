@@ -667,10 +667,10 @@ export interface ClientConstructor<T> {
 export type IngredientAggregateOrderByInput =
   | "id_ASC"
   | "id_DESC"
-  | "ingredientsCount_ASC"
-  | "ingredientsCount_DESC"
-  | "newIngredientsCount_ASC"
-  | "newIngredientsCount_DESC";
+  | "count_ASC"
+  | "count_DESC"
+  | "unverified_ASC"
+  | "unverified_DESC";
 
 export type IngredientOrderByInput =
   | "id_ASC"
@@ -699,8 +699,8 @@ export type RecipeInstructionOrderByInput =
 export type RecipeAggregateOrderByInput =
   | "id_ASC"
   | "id_DESC"
-  | "recipesCount_ASC"
-  | "recipesCount_DESC";
+  | "count_ASC"
+  | "count_DESC";
 
 export type ParsedSegmentOrderByInput =
   | "id_ASC"
@@ -1424,22 +1424,22 @@ export interface IngredientAggregateWhereInput {
   id_not_starts_with?: Maybe<ID_Input>;
   id_ends_with?: Maybe<ID_Input>;
   id_not_ends_with?: Maybe<ID_Input>;
-  ingredientsCount?: Maybe<Int>;
-  ingredientsCount_not?: Maybe<Int>;
-  ingredientsCount_in?: Maybe<Int[] | Int>;
-  ingredientsCount_not_in?: Maybe<Int[] | Int>;
-  ingredientsCount_lt?: Maybe<Int>;
-  ingredientsCount_lte?: Maybe<Int>;
-  ingredientsCount_gt?: Maybe<Int>;
-  ingredientsCount_gte?: Maybe<Int>;
-  newIngredientsCount?: Maybe<Int>;
-  newIngredientsCount_not?: Maybe<Int>;
-  newIngredientsCount_in?: Maybe<Int[] | Int>;
-  newIngredientsCount_not_in?: Maybe<Int[] | Int>;
-  newIngredientsCount_lt?: Maybe<Int>;
-  newIngredientsCount_lte?: Maybe<Int>;
-  newIngredientsCount_gt?: Maybe<Int>;
-  newIngredientsCount_gte?: Maybe<Int>;
+  count?: Maybe<Int>;
+  count_not?: Maybe<Int>;
+  count_in?: Maybe<Int[] | Int>;
+  count_not_in?: Maybe<Int[] | Int>;
+  count_lt?: Maybe<Int>;
+  count_lte?: Maybe<Int>;
+  count_gt?: Maybe<Int>;
+  count_gte?: Maybe<Int>;
+  unverified?: Maybe<Int>;
+  unverified_not?: Maybe<Int>;
+  unverified_in?: Maybe<Int[] | Int>;
+  unverified_not_in?: Maybe<Int[] | Int>;
+  unverified_lt?: Maybe<Int>;
+  unverified_lte?: Maybe<Int>;
+  unverified_gt?: Maybe<Int>;
+  unverified_gte?: Maybe<Int>;
   AND?: Maybe<IngredientAggregateWhereInput[] | IngredientAggregateWhereInput>;
   OR?: Maybe<IngredientAggregateWhereInput[] | IngredientAggregateWhereInput>;
   NOT?: Maybe<IngredientAggregateWhereInput[] | IngredientAggregateWhereInput>;
@@ -1488,7 +1488,7 @@ export interface RecipeReferenceCreateInput {
 }
 
 export interface RecipeAggregateUpdateManyMutationInput {
-  recipesCount?: Maybe<Int>;
+  count?: Maybe<Int>;
 }
 
 export interface RecipeCreateOneInput {
@@ -1497,7 +1497,7 @@ export interface RecipeCreateOneInput {
 }
 
 export interface RecipeAggregateUpdateInput {
-  recipesCount?: Maybe<Int>;
+  count?: Maybe<Int>;
 }
 
 export interface RecipeCreateInput {
@@ -1682,8 +1682,8 @@ export interface RecipeIngredientCreateOneInput {
 }
 
 export interface IngredientAggregateUpdateManyMutationInput {
-  ingredientsCount?: Maybe<Int>;
-  newIngredientsCount?: Maybe<Int>;
+  count?: Maybe<Int>;
+  unverified?: Maybe<Int>;
 }
 
 export interface IngredientUpdateInput {
@@ -1702,8 +1702,8 @@ export interface IngredientUpdateInput {
 }
 
 export interface IngredientAggregateUpdateInput {
-  ingredientsCount?: Maybe<Int>;
-  newIngredientsCount?: Maybe<Int>;
+  count?: Maybe<Int>;
+  unverified?: Maybe<Int>;
 }
 
 export interface AlternateNameUpdateManyInput {
@@ -1737,8 +1737,8 @@ export interface AlternateNameUpdateManyInput {
 
 export interface IngredientAggregateCreateInput {
   id?: Maybe<ID_Input>;
-  ingredientsCount: Int;
-  newIngredientsCount: Int;
+  count: Int;
+  unverified: Int;
 }
 
 export interface AlternateNameUpdateWithWhereUniqueNestedInput {
@@ -2220,7 +2220,7 @@ export interface RecipeReferenceUpdateWithWhereUniqueNestedInput {
 
 export interface RecipeAggregateCreateInput {
   id?: Maybe<ID_Input>;
-  recipesCount: Int;
+  count: Int;
 }
 
 export interface RecipeReferenceUpdateDataInput {
@@ -2702,14 +2702,14 @@ export interface RecipeAggregateWhereInput {
   id_not_starts_with?: Maybe<ID_Input>;
   id_ends_with?: Maybe<ID_Input>;
   id_not_ends_with?: Maybe<ID_Input>;
-  recipesCount?: Maybe<Int>;
-  recipesCount_not?: Maybe<Int>;
-  recipesCount_in?: Maybe<Int[] | Int>;
-  recipesCount_not_in?: Maybe<Int[] | Int>;
-  recipesCount_lt?: Maybe<Int>;
-  recipesCount_lte?: Maybe<Int>;
-  recipesCount_gt?: Maybe<Int>;
-  recipesCount_gte?: Maybe<Int>;
+  count?: Maybe<Int>;
+  count_not?: Maybe<Int>;
+  count_in?: Maybe<Int[] | Int>;
+  count_not_in?: Maybe<Int[] | Int>;
+  count_lt?: Maybe<Int>;
+  count_lte?: Maybe<Int>;
+  count_gt?: Maybe<Int>;
+  count_gte?: Maybe<Int>;
   AND?: Maybe<RecipeAggregateWhereInput[] | RecipeAggregateWhereInput>;
   OR?: Maybe<RecipeAggregateWhereInput[] | RecipeAggregateWhereInput>;
   NOT?: Maybe<RecipeAggregateWhereInput[] | RecipeAggregateWhereInput>;
@@ -3396,32 +3396,32 @@ export interface TagPreviousValuesSubscription
 
 export interface IngredientAggregate {
   id: ID_Output;
-  ingredientsCount: Int;
-  newIngredientsCount: Int;
+  count: Int;
+  unverified: Int;
 }
 
 export interface IngredientAggregatePromise
   extends Promise<IngredientAggregate>,
     Fragmentable {
   id: () => Promise<ID_Output>;
-  ingredientsCount: () => Promise<Int>;
-  newIngredientsCount: () => Promise<Int>;
+  count: () => Promise<Int>;
+  unverified: () => Promise<Int>;
 }
 
 export interface IngredientAggregateSubscription
   extends Promise<AsyncIterator<IngredientAggregate>>,
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
-  ingredientsCount: () => Promise<AsyncIterator<Int>>;
-  newIngredientsCount: () => Promise<AsyncIterator<Int>>;
+  count: () => Promise<AsyncIterator<Int>>;
+  unverified: () => Promise<AsyncIterator<Int>>;
 }
 
 export interface IngredientAggregateNullablePromise
   extends Promise<IngredientAggregate | null>,
     Fragmentable {
   id: () => Promise<ID_Output>;
-  ingredientsCount: () => Promise<Int>;
-  newIngredientsCount: () => Promise<Int>;
+  count: () => Promise<Int>;
+  unverified: () => Promise<Int>;
 }
 
 export interface CategoryEdge {
@@ -4138,24 +4138,24 @@ export interface AggregateNoteAggregateSubscription
 
 export interface IngredientAggregatePreviousValues {
   id: ID_Output;
-  ingredientsCount: Int;
-  newIngredientsCount: Int;
+  count: Int;
+  unverified: Int;
 }
 
 export interface IngredientAggregatePreviousValuesPromise
   extends Promise<IngredientAggregatePreviousValues>,
     Fragmentable {
   id: () => Promise<ID_Output>;
-  ingredientsCount: () => Promise<Int>;
-  newIngredientsCount: () => Promise<Int>;
+  count: () => Promise<Int>;
+  unverified: () => Promise<Int>;
 }
 
 export interface IngredientAggregatePreviousValuesSubscription
   extends Promise<AsyncIterator<IngredientAggregatePreviousValues>>,
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
-  ingredientsCount: () => Promise<AsyncIterator<Int>>;
-  newIngredientsCount: () => Promise<AsyncIterator<Int>>;
+  count: () => Promise<AsyncIterator<Int>>;
+  unverified: () => Promise<AsyncIterator<Int>>;
 }
 
 export interface NoteAggregateConnection {
@@ -5159,21 +5159,21 @@ export interface AggregateRecipeAggregateSubscription
 
 export interface RecipeAggregatePreviousValues {
   id: ID_Output;
-  recipesCount: Int;
+  count: Int;
 }
 
 export interface RecipeAggregatePreviousValuesPromise
   extends Promise<RecipeAggregatePreviousValues>,
     Fragmentable {
   id: () => Promise<ID_Output>;
-  recipesCount: () => Promise<Int>;
+  count: () => Promise<Int>;
 }
 
 export interface RecipeAggregatePreviousValuesSubscription
   extends Promise<AsyncIterator<RecipeAggregatePreviousValues>>,
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
-  recipesCount: () => Promise<AsyncIterator<Int>>;
+  count: () => Promise<AsyncIterator<Int>>;
 }
 
 export interface AggregateProperties {
@@ -5522,28 +5522,28 @@ export interface RecipeIngredientPreviousValuesSubscription
 
 export interface RecipeAggregate {
   id: ID_Output;
-  recipesCount: Int;
+  count: Int;
 }
 
 export interface RecipeAggregatePromise
   extends Promise<RecipeAggregate>,
     Fragmentable {
   id: () => Promise<ID_Output>;
-  recipesCount: () => Promise<Int>;
+  count: () => Promise<Int>;
 }
 
 export interface RecipeAggregateSubscription
   extends Promise<AsyncIterator<RecipeAggregate>>,
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
-  recipesCount: () => Promise<AsyncIterator<Int>>;
+  count: () => Promise<AsyncIterator<Int>>;
 }
 
 export interface RecipeAggregateNullablePromise
   extends Promise<RecipeAggregate | null>,
     Fragmentable {
   id: () => Promise<ID_Output>;
-  recipesCount: () => Promise<Int>;
+  count: () => Promise<Int>;
 }
 
 export interface Ingredient {

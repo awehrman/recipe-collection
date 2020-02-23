@@ -1,5 +1,5 @@
 import { adopt } from 'react-adopt';
-import { Query, withApollo } from 'react-apollo';
+// import { Query, withApollo } from 'react-apollo';
 import { Component } from 'react';
 import { darken } from 'polished';
 import pluralize from 'pluralize';
@@ -1222,4 +1222,4 @@ Form.propTypes = {
 	})),
 };
 
-export default withApollo(Form);
+export default Form;

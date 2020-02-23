@@ -1,4 +1,4 @@
-import { withApollo } from 'react-apollo';
+// import { withApollo } from 'react-apollo';
 // import levenshtein from 'fast-levenshtein';
 import { Component } from 'react';
 import pluralize from 'pluralize';
@@ -221,7 +221,6 @@ const BottomFormStyles = styled.div`
 		}
 	}
 `;
-
 class Form extends Component {
 	initialState = {
 		pending: {},
@@ -1158,4 +1157,4 @@ Form.propTypes = {
 	view: PropTypes.oneOf([ 'all', 'new' ]).isRequired,
 };
 
-export default withApollo(Form);
+export default Form;

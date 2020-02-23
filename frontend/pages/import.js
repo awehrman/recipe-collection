@@ -1,7 +1,7 @@
+import { useMutation, useQuery } from '@apollo/client';
 import { withRouter } from 'next/router';
+import { compose, withHandlers, lifecycle, withProps } from 'recompose';
 import React from 'react';
-import { adopt } from 'react-adopt';
-import { Query, withApollo } from 'react-apollo';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import SyntaxHighlighter from 'react-syntax-highlighter';
@@ -10,7 +10,7 @@ import pretty from 'pretty';
 import { dark } from '../styles/dark';
 import Button from '../components/form/Button';
 import Header from '../components/Header';
-import ErrorMessage from '../components/ErrorMessage';
+// import ErrorMessage from '../components/ErrorMessage';
 import ParsedViewer from '../components/recipes/ParsedViewer';
 /* eslint-disable object-curly-newline */
 import {
@@ -25,31 +25,7 @@ import {
 	CONVERT_NOTES_MUTATION,
 } from '../lib/apollo/mutations';
 /* eslint-enable object-curly-newline */
-
 import { hasProperty } from '../lib/util';
-
-const Composed = adopt({
-	// eslint-disable-next-line react/prop-types
-	authentication: ({ render }) => (
-		<Query query={ IS_EVERNOTE_AUTHENTICATED_QUERY } ssr={ false }>
-			{ render }
-		</Query>
-	),
-
-	// eslint-disable-next-line react/prop-types
-	getNotes: ({ render }) => (
-		<Query query={ GET_ALL_NOTES_QUERY } ssr={ false }>
-			{ render }
-		</Query>
-	),
-
-	// eslint-disable-next-line react/prop-types
-	getNotesCount: ({ render }) => (
-		<Query query={ GET_NOTES_COUNT_QUERY } ssr={ false }>
-			{ render }
-		</Query>
-	),
-});
 
 const ImportStyles = styled.article`
 	button {
@@ -98,56 +74,32 @@ const Note = styled.div`
 
 `;
 
-class Import extends React.PureComponent {
-	componentDidMount() {
-		const { client, router, query } = this.props;
-
-		if (hasProperty(query, 'oauth_token') && hasProperty(query, 'oauth_verifier')) {
-			// eslint-disable-next-line camelcase
-			const { oauth_verifier } = query;
-
-			// go back to our server with our verifier string to receive our actual access token
-			client.mutate({
-				refetchQueries: [ { query: IS_EVERNOTE_AUTHENTICATED_QUERY } ],
-				mutation: AUTHENTICATE_EVERNOTE_MUTATION,
-				update: () => {
-					// TODO consider updating the cache directly instead of refetching
-					// update url
-					router.replace('/import', '/import', { shallow: true });
-				},
-				variables: { oauthVerifier: oauth_verifier },
-			});
-		}
-	}
-
-	authenticate = () => {
-		const { client } = this.props;
-
+const Import = ({ authenticate }) => {
+	const onAuthenticate = (e) => {
+		console.log('onAuthenticate');
+		e.preventDefault();
 		// call the authentication mutation to receive the request token
-		client.mutate({
-			mutation: AUTHENTICATE_EVERNOTE_MUTATION,
+		authenticate({
 			update: (cache, { data }) => {
-				const { authenticate } = data;
-				const { authURL } = authenticate;
+				const { authURL } = data.authenticate;
 
 				if (authURL) {
 					window.open(authURL, '_self');
 				}
 			},
 		});
-	}
+	};
 
-	convertNotes = (e) => {
+	const convertNotes = (e) => {
 		e.preventDefault();
-		const { client } = this.props;
+		/* TODO useMutation
 		client.mutate({
 			refetchQueries: [
 				{ query: GET_NOTES_COUNT_QUERY },
 			],
 			mutation: CONVERT_NOTES_MUTATION,
 			update: (cache, { data }) => {
-				const { convertNotes } = data;
-				const { errors } = convertNotes;
+				const { errors } = data.convertNotes;
 				// TODO handle errors
 				if (errors && (errors.length > 0)) {
 					console.error({ errors });
@@ -159,12 +111,13 @@ class Import extends React.PureComponent {
 				});
 			},
 		});
-	}
+		*/
+	};
 
-	importNotes = async (e, importDefault = 0) => {
+	const importNotes = async (e, importDefault = 0) => {
 		e.preventDefault();
-		const { client } = this.props;
 
+		/* TODO useMutation
 		await client.mutate({
 			refetchQueries: [
 				{ query: GET_NOTES_COUNT_QUERY },
@@ -186,13 +139,16 @@ class Import extends React.PureComponent {
 				},
 			},
 			update: (cache, { data }) => {
-				const { importNotes } = data;
-				const { errors } = importNotes;
+				const { errors } = data.importNotes;
 				if (errors && (errors.length > 0)) {
 					console.error({ errors });
 				}
 				const { notes } = cache.readQuery({ query: GET_ALL_NOTES_QUERY });
-				const updated = { notes: notes.concat([ importNotes.notes ]).flat() };
+				const updated = {
+					notes: notes
+						.concat([ data.importNotes.notes ])
+						.flat(),
+				};
 
 				cache.writeQuery({
 					query: GET_ALL_NOTES_QUERY,
@@ -200,20 +156,20 @@ class Import extends React.PureComponent {
 				});
 			},
 		});
-	}
+		*/
+	};
 
-	parseNotes = (e) => {
+	const parseNotes = (e) => {
 		e.preventDefault();
-		const { client } = this.props;
 		// TODO instead of refetching these queries, we could just update the cache manually with the response
+		/*
 		client.mutate({
 			refetchQueries: [
 				{ query: GET_NOTES_COUNT_QUERY },
 			],
 			mutation: PARSE_NOTES_MUTATION,
 			update: (cache, { data }) => {
-				const { parseNotes } = data;
-				const { errors } = parseNotes;
+				const { errors } = data.parseNotes;
 				// TODO handle errors
 				if (errors && (errors.length > 0)) {
 					console.error({ errors });
@@ -225,146 +181,184 @@ class Import extends React.PureComponent {
 				});
 			},
 		});
-	}
+		*/
+	};
 
-	render() {
-		return (
-			<ImportStyles>
-				<Header pageHeader="Import" />
-				<Composed>
+	// fetch authenticated status
+	const {
+		data,
+		// loading,
+		// error,
+	} = useQuery(IS_EVERNOTE_AUTHENTICATED_QUERY);
+
+	// TODO combine the note data and count into the same request
+	// fetch notes
+	const {
+		data: notesData,
+		// loading: notesLoading,
+		// error: notesError,
+	} = useQuery(GET_ALL_NOTES_QUERY);
+
+	// fetch note count
+	const {
+		data: countData,
+		// loading: countLoading,
+		// error: countError,
+	} = useQuery(GET_NOTES_COUNT_QUERY);
+
+	const { isAuthenticated = false } = (data && data.isEvernoteAuthenticated) ? data.isEvernoteAuthenticated : {};
+	const { isAuthenticationPending = false } = (data && data.isEvernoteAuthenticated) ? data.isEvernoteAuthenticated : {};
+	const { count, importDefault } = countData
+		? countData.noteAggregate
+		: 0;
+	const { notes = [] } = notesData || {};
+	console.log({ data, isAuthenticated, isAuthenticationPending });
+
+	return (
+		<ImportStyles>
+			<Header pageHeader="Import" />
+			<section>
+				<ActionBar>
+					{/* Authenticate Evernote */}
 					{
-						({
-							authentication,
-							getNotes,
-							getNotesCount,
-						}) => {
-							const { error, data } = authentication;
-							if (error) return <ErrorMessage error={ error } />;
-							const { isAuthenticated = false } = (data && data.isEvernoteAuthenticated) ? data.isEvernoteAuthenticated : {};
-							const { isAuthenticationPending = false } = (data && data.isEvernoteAuthenticated) ? data.isEvernoteAuthenticated : {};
-							const { count, importDefault } = (getNotesCount && getNotesCount.data)
-								? getNotesCount.data.noteAggregate
-								: 0;
-							const { notes = [] } = (getNotes && getNotes.data) ? getNotes.data : {};
-
-
-							return (
-								<section>
-									<ActionBar>
-										{/* Authenticate Evernote */}
-										{
-											(!isAuthenticated && !isAuthenticationPending)
-												? (
-													<Button
-														label="Authenticate Evernote"
-														onClick={ this.authenticate }
-														type="button"
-													/>
-												) : null
-										}
-
-										{/* Import Notes from Evernote */}
-										{
-											(isAuthenticated)
-												? (
-													<Button
-														label="Import Notes"
-														onClick={ (e) => this.importNotes(e, importDefault) }
-														type="button"
-													/>
-												) : null
-										}
-
-										{/* Parse Notes */}
-										{/* TODO update with count of just unparsed notes */
-											(isAuthenticated && (count > 0))
-												? (
-													<Button
-														label={ `Parse ${ count } Note${ (count === 1) ? '' : 's' }` }
-														onClick={ (e) => this.parseNotes(e) }
-														type="button"
-													/>
-												) : null
-										}
-
-										{/* Save Recipes */}
-										{
-											(isAuthenticated && (count > 0))
-												? (
-													<Button
-														label="Save Recipes"
-														onClick={ (e) => this.convertNotes(e) }
-														type="button"
-													/>
-												) : null
-										}
-									</ActionBar>
-									<NotesViewer>
-										{
-											(notes)
-												? (
-													notes.map((n, index) => (
-														// eslint-disable-next-line
-														<Note key={ `${ index }_${ n.id }` }>
-															<h1>{ n.title }</h1>
-															{
-																(n.content && (n.ingredients.length === 0))
-																	? (
-																		<Content>
-																			<SyntaxHighlighter
-																				className="highlighter"
-																				language="html"
-																				wrapLines
-																				style={ dark }
-																			>
-																				{pretty(n.content)}
-																			</SyntaxHighlighter>
-																		</Content>
-																	) : null
-															}
-															{
-																((n.ingredients.length > 0) || (n.instructions.length > 0))
-																	? (
-																		<ParsedViewer
-																			className="left"
-																			id={ n.id }
-																			ingredients={ n.ingredients }
-																			instructions={ n.instructions }
-																		/>
-																	) : null
-															}
-														</Note>
-													))
-												)
-												: null
-										}
-									</NotesViewer>
-								</section>
-							);
-						}
+						(!isAuthenticated && !isAuthenticationPending)
+							? (
+								<Button
+									label="Authenticate Evernote"
+									onClick={ (e) => onAuthenticate(e) }
+									type="button"
+								/>
+							) : null
 					}
-				</Composed>
-			</ImportStyles>
-		);
-	}
-}
 
-Import.defaultProps = { query: null };
+					{/* Import Notes from Evernote */}
+					{
+						(isAuthenticated)
+							? (
+								<Button
+									label="Import Notes"
+									onClick={ (e) => importNotes(e, importDefault) }
+									type="button"
+								/>
+							) : null
+					}
 
-Import.propTypes = {
-	client: PropTypes.shape({
-		cache: PropTypes.shape({
-			readQuery: PropTypes.func,
-			writeQuery: PropTypes.func,
-		}),
-		mutate: PropTypes.func,
-		query: PropTypes.func,
-	}).isRequired,
-	router: PropTypes.shape({ replace: PropTypes.func }).isRequired,
-	query: PropTypes.shape({
-		oauth_token: PropTypes.string,
-		oauth_verifier: PropTypes.string,
-	}),
+					{/* Parse Notes */}
+					{/* TODO update with count of just unparsed notes */
+						(isAuthenticated && (count > 0))
+							? (
+								<Button
+									label={ `Parse ${ count } Note${ (count === 1) ? '' : 's' }` }
+									onClick={ (e) => parseNotes(e) }
+									type="button"
+								/>
+							) : null
+					}
+
+					{/* Save Recipes */}
+					{
+						(isAuthenticated && (count > 0))
+							? (
+								<Button
+									label="Save Recipes"
+									onClick={ (e) => convertNotes(e) }
+									type="button"
+								/>
+							) : null
+					}
+				</ActionBar>
+				<NotesViewer>
+					{
+						(notes)
+							? (
+								notes.map((n, index) => (
+									// eslint-disable-next-line
+									<Note key={ `${ index }_${ n.id }` }>
+										<h1>{n.title}</h1>
+										{
+											(n.content && (n.ingredients.length === 0))
+												? (
+													<Content>
+														<SyntaxHighlighter
+															className="highlighter"
+															language="html"
+															wrapLines
+															style={ dark }
+														>
+															{ pretty(n.content) }
+														</SyntaxHighlighter>
+													</Content>
+												) : null
+										}
+										{
+											((n.ingredients.length > 0) || (n.instructions.length > 0))
+												? (
+													<ParsedViewer
+														className="left"
+														id={ n.id }
+														ingredients={ n.ingredients }
+														instructions={ n.instructions }
+													/>
+												) : null
+										}
+									</Note>
+								))
+							)
+							: null
+					}
+				</NotesViewer>
+			</section>
+		</ImportStyles>
+	);
 };
 
-export default withRouter(withApollo(Import));
+Import.propTypes = {
+	authenticate: PropTypes.func.isRequired,
+	router: PropTypes.shape({
+		query: PropTypes.shape({
+			oauth_token: PropTypes.string,
+			oauth_verifier: PropTypes.string,
+		}),
+		replace: PropTypes.func,
+	}).isRequired,
+};
+
+const enhance = compose(
+	withRouter,
+	withProps(() => {
+		const [ authenticate ] = useMutation(AUTHENTICATE_EVERNOTE_MUTATION);
+		return { authenticate };
+	}),
+	withHandlers({
+		handleAuthentication: ({ authenticate, router }) => ({ oauth_verifier }) => {
+			console.log('handleAuthentication', oauth_verifier);
+
+			authenticate({
+				refetchQueries: [{ query: IS_EVERNOTE_AUTHENTICATED_QUERY }],
+				update: () => {
+					console.log('update...');
+					// TODO consider updating the cache directly instead of refetching
+					// update url
+					router.replace('/import', '/import', { shallow: true });
+				},
+				variables: { oauthVerifier: oauth_verifier },
+			});
+		},
+	}),
+	lifecycle({
+		componentDidMount() {
+			console.log('componentDidMount');
+			const { handleAuthentication, router } = this.props;
+			const { query } = router;
+
+			if (hasProperty(query, 'oauth_token') && hasProperty(query, 'oauth_verifier')) {
+				// go back to our server with our verifier string to receive our actual access token
+				// eslint-disable-next-line camelcase
+				const { oauth_verifier } = query;
+				handleAuthentication({ oauth_verifier });
+			}
+		},
+	}),
+);
+
+export default withRouter(enhance(Import));

@@ -1,10 +1,13 @@
-import React from 'react';
-import { Query, withApollo } from 'react-apollo';
-import PropTypes from 'prop-types';
+import { useMutation, useQuery } from '@apollo/client';
+import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 
 import Container from './Container';
+import ErrorMessage from '../ErrorMessage';
+import Loading from '../Loading';
 import { GET_ALL_CONTAINERS_QUERY } from '../../lib/apollo/queries';
+import IngredientsContext from '../../lib/contexts/ingredientsContext';
+import { CREATE_CONTAINERS_MUTATION } from '../../lib/apollo/mutations';
 
 const ContainerStyles = styled.div`
 	display: flex;
@@ -26,67 +29,88 @@ const ContainerStyles = styled.div`
 	}
 `;
 
-const Containers = ({ group, view }) => {
-	console.log('Containers');
+const Containers = () => {
+	const { currentIngredientID, group, view } = useContext(IngredientsContext);
+	// don't show the containers until we've populated them
+	const [ showContainers, setShowContainers ] = useState(false);
+
+	// setup create/refresh containers mutation
+	const [ createContainers ] = useMutation(CREATE_CONTAINERS_MUTATION);
+
 	const message = (view === 'new')
 		? 'No new ingredients to review.'
 		: 'No ingredients have been added yet.';
 
-	return (
-		<Query
-			query={ GET_ALL_CONTAINERS_QUERY }
-			variables={ {
-				group,
-				view,
-			} }
-		>
-			{
-				({ loading, data = {} }) => {
-					if (loading) return null;
-					const { containers = [] } = data;
-					console.log({ containers });
-
-					return (
-						<ContainerStyles>
-							{/* no containers message */
-								(!containers.length)
-									? <span className="message">{ message }</span>
-									: null
-							}
-
-							{/* display grouped containers of ingredients */
-								containers && containers
-									.filter((ctn) => ctn.ingredients && (ctn.ingredients.length > 0))
-									.map((c) => (
-										<Container
-											group={ group }
-											id={ c.id }
-											key={ c.id }
-											view={ view }
-										/>
-									))
-							}
-						</ContainerStyles>
-					);
+	// query containers
+	const {
+		data,
+		error,
+		loading,
+	} = useQuery(GET_ALL_CONTAINERS_QUERY, {
+		// network-only will force us to go thru our local resolver every time
+		fetchPolicy: 'network-only',
+		notifyOnNetworkStatusChange: true,
+		onCompleted: async (d) => {
+			const { containers } = d;
+			console.warn('> [Containers] (GET_ALL_CONTAINERS_QUERY) onCompleted', containers);
+			if (containers && (containers.length === 0)) {
+				// if we didn't find any containers in the cache, then we'll have to create them
+				const response = await createContainers({
+					variables: {
+						currentIngredientID,
+						group,
+						view,
+					},
+				});
+				const { result } = response.data.createContainers;
+				if (result.containers && (result.containers.length > 0)) {
+					setShowContainers(true);
 				}
 			}
-		</Query>
+		},
+		variables: {
+			group,
+			view,
+		},
+	});
+
+	const { containers = [] } = data || {};
+	console.log('> [Containers]', (loading) ? 'loading...' : containers);
+
+	return (
+		<ContainerStyles>
+			{/* error message */
+				(error)
+					? <ErrorMessage error={ error } />
+					: null
+			}
+
+			{/* loading message */
+				(loading && !containers.length)
+					? <Loading />
+					: null
+			}
+
+			{/* no containers message */
+				(!loading && !containers.length)
+					? <span className="message">{ message }</span>
+					: null
+			}
+
+			{/* display grouped containers of ingredients */
+				(!loading && showContainers)
+					? (
+						containers && containers.map((c) => (
+							<Container
+								id={ c.id }
+								key={ c.id }
+							/>
+						))
+					)
+					: null
+			}
+		</ContainerStyles>
 	);
 };
 
-Containers.defaultProps = {
-	group: 'name',
-	view: 'all',
-};
-
-Containers.propTypes = {
-	client: PropTypes.shape({
-		mutate: PropTypes.func,
-		query: PropTypes.func,
-		readQuery: PropTypes.func,
-	}).isRequired,
-	group: PropTypes.oneOf([ 'name', 'property', 'relationship', 'count' ]),
-	view: PropTypes.oneOf([ 'all', 'new' ]),
-};
-
-export default withApollo(Containers);
+export default Containers;

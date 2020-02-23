@@ -1,63 +1,24 @@
-import gql from 'graphql-tag';
-// import { ContainerFields } from './fragments';
-
-// TODO utilize fragments here and clean this file up
+import { gql } from '@apollo/client';
+import { ALL_RECIPE_FIELDS, BASIC_CLIENT_INGREDIENT_FIELDS, ALL_CONTAINER_FIELDS } from './fragments';
 
 /* Containers */
 export const GET_CONTAINER_QUERY = gql`
 	query GET_CONTAINER_QUERY($id: String!) {
 		container(id: $id) @client {
-			id
-			ingredientID
-			ingredients {
-				id
-				isValidated
-				name
-				plural
-				properties {
-					meat
-					poultry
-					fish
-					dairy
-					soy
-					gluten
-				}
-			}
-			isExpanded
-			label
+			...ContainerFields
 		}
 	}
+	${ ALL_CONTAINER_FIELDS }
 `;
 
 export const GET_ALL_CONTAINERS_QUERY = gql`
 	query GET_ALL_CONTAINERS_QUERY($group: String, $view: String) {
 		containers(group: $group, view: $view) @client {
-			id
-			ingredientID
-			ingredients {
-				id
-				isValidated
-				name
-				parent {
-					id
-					name
-				}
-				plural
-				properties {
-					meat
-					poultry
-					fish
-					dairy
-					soy
-					gluten
-				}
-			}
-			isExpanded
-			label
+			...ContainerFields
 		}
 	}
+	${ ALL_CONTAINER_FIELDS }
 `;
-
 
 export const GET_SUGGESTED_INGREDIENTS_QUERY = gql`
 	query GET_SUGGESTED_INGREDIENTS_QUERY(
@@ -78,8 +39,8 @@ export const GET_SUGGESTED_INGREDIENTS_QUERY = gql`
 export const GET_INGREDIENTS_COUNT_QUERY = gql`
   query GET_INGREDIENTS_COUNT_QUERY {
   	ingredientAggregate {
-	  	ingredientsCount
-			newIngredientsCount
+			count
+			unverified
 		}
   }
 `;
@@ -87,36 +48,10 @@ export const GET_INGREDIENTS_COUNT_QUERY = gql`
 export const GET_ALL_INGREDIENTS_QUERY = gql`
   query GET_ALL_INGREDIENTS_QUERY {
   	ingredients {
-  		id
-			name
-			plural
-			alternateNames {
-				name
-			}
-			properties {
-				meat
-			  poultry
-			  fish
-			  dairy
-			  soy
-			  gluten
-			}
-			parent {
-				id
-			}
-			isComposedIngredient
-			isValidated
-			references {
-				id
-				recipe {
-					id
-				}
-				line {
-					reference
-				}
-			}
+  		...BasicClientIngredientFields
 		}
   }
+	${ BASIC_CLIENT_INGREDIENT_FIELDS }
 `;
 
 export const GET_INGREDIENT_BY_VALUE_QUERY = gql`
@@ -186,64 +121,26 @@ export const GET_INGREDIENT_BY_ID_QUERY = gql`
 export const GET_RECIPES_COUNT_QUERY = gql`
   query GET_RECIPES_COUNT_QUERY {
   	recipeAggregate {
-	  	recipesCount
+	  	count
 		}
   }
 `;
 
 export const GET_ALL_RECIPES_QUERY = gql`
-  query GET_ALL_RECIPES_QUERY {
-  	recipes {
-  		id
-			categories {
-				id
-				name
-			}
-			tags {
-				id
-				name
-			}
-			evernoteGUID
-			image
-			source
-			title
-			ingredients {
-				id
-				blockIndex
-				isParsed
-				lineIndex
-				parsed {
-					id
-					ingredient {
-						id
-						isValidated
-						name
-					}
-					rule
-					type
-					value
-				}
-				reference
-				rule
-			}
-			instructions {
-				blockIndex
-				reference
-			}
+  query GET_ALL_RECIPES_QUERY($cursor: Int) {
+  	recipes(cursor: $cursor) {
+  		...AllRecipeFields
 		}
   }
+	${ ALL_RECIPE_FIELDS }
 `;
 
 export const GET_PAGINATED_RECIPES_QUERY = gql`
   query GET_PAGINATED_RECIPES_QUERY($cursor: Int) {
   	recipes(cursor: $cursor) {
-			count
-			errors
-			recipes {
-				id
-				image
-				title
-			}
+			id
+			image
+			title
 		}
   }
 `;
