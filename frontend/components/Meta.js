@@ -1,0 +1,19 @@
+import Head from 'next/head';
+
+const Meta = () => (
+	<Head>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta charSet="utf-8" />
+		<link rel="shortcut icon" href="/static/favicon.ico" />
+		<link rel="stylesheet" type="text/css" href="/static/nprogress.css" />
+		<link
+			crossOrigin="anonymous"
+			href="https://pro.fontawesome.com/releases/v5.10.1/css/all.css"
+			integrity="sha384-y++enYq9sdV7msNmXr08kJdkX4zEI1gMjjkw0l9ttOepH7fMdhb7CePwuRQCfwCr"
+			rel="stylesheet"
+		/>
+		<title>Recipe Collection</title>
+	</Head>
+);
+
+export default Meta;

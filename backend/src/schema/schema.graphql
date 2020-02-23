@@ -1,0 +1,56 @@
+# import * from '../generated/prisma.graphql'
+# import * from './responseTypes.graphql'
+
+# TODO return response objects with error fields on all queries/mutations
+type Query {
+	category(where: CategoryWhereUniqueInput): Category
+  categories: [ Category! ]!
+  categoryAggregate: AggregateCategory!
+
+	dashboardIngredients: DashboardResponse
+	dashboardParsing: DashboardResponse
+	dashboardRecipes: DashboardResponse
+
+	isEvernoteAuthenticated: AuthenticationResponse!
+
+	ingredient(where: IngredientWhereUniqueInput!): Ingredient
+	ingredients: [ Ingredient! ]!
+	ingredientAggregate: IngredientAggregate!
+
+	note(where: NoteWhereUniqueInput!): Note
+	notes: [ Note! ]!
+	noteAggregate: NoteAggregate!
+
+	recipe(where: RecipeWhereUniqueInput): Recipe
+	recipes(cursor: Int): [ Recipe! ]!
+	recipeAggregate: RecipeAggregate!
+
+	tag(where: TagWhereUniqueInput!): Tag
+	tags: [ Tag! ]!
+	tagAggregate: AggregateTag!
+}
+
+type Mutation {
+	authenticate(oauthVerifier: String): AuthenticationResponse
+	clearAuthentication: AuthenticationResponse
+
+	convertNotes: RecipesResponse!
+	importNotes: EvernoteResponse!
+	parseNotes: EvernoteResponse!
+
+  createCategory(data: CategoryCreateInput): CategoryResponse!
+  deleteCategory(where: CategoryWhereUniqueInput!): CategoryResponse!
+  updateCategory(data: CategoryUpdateInput!, where: CategoryWhereUniqueInput!): CategoryResponse!
+
+	createIngredient(data: IngredientCreateInput!) : IngredientResponse!
+	deleteIngredient(where: IngredientWhereUniqueInput!): IngredientResponse!
+	updateIngredient(data: IngredientUpdateInput!, where: IngredientWhereUniqueInput!): IngredientResponse!
+
+	createRecipe(data: RecipeCreateInput): RecipeResponse!
+	deleteRecipe(where: RecipeWhereUniqueInput!): RecipeResponse!
+	updateRecipe(data: RecipeUpdateInput!, where: RecipeWhereUniqueInput!): RecipeResponse!
+
+	createTag(data: TagCreateInput): TagResponse!
+	deleteTag(where: TagWhereUniqueInput!): TagResponse!
+  updateTag(data: TagUpdateInput!, where: TagWhereUniqueInput!): TagResponse!
+}

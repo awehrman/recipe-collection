@@ -1,0 +1,157 @@
+## Ingredient Models
+
+	type Ingredient {
+		id: ID! @id
+		dateCreated: DateTime! @createdAt
+  	dateUpdated: DateTime! @updatedAt
+
+		name: String! @unique
+		plural: String @unique
+		# TODO 1.33: alternateNames: [ String ]! @unique @scalarList(strategy: RELATION)
+		alternateNames: [ AlternateName! ]! @relation(link: TABLE, name: "AlternateNames", onDelete: CASCADE)
+
+		# TODO 1.33:
+		# keep an eye out for 1.33 which should have a bug fix for this
+		# THEN WE CAN DO THE NONSTUPID COOL SCALARLIST CRAP
+		# https://github.com/prisma/prisma/issues/4421
+		# Properties: [ Properties ]! @scalarList(strategy: RELATION)
+		# FINE RELATION TABLE IT FUCKING IS THEN
+		properties: Properties! @relation(link: TABLE, name: "Properties", onDelete: CASCADE)
+		isComposedIngredient: Boolean! @default(value: false)
+		isValidated: Boolean! @default(value: false)
+
+		parent: Ingredient @relation(name: "ParentIngredient")
+		relatedIngredients: [ Ingredient! ]! @relation(name: "RelatedIngredients")
+		substitutes: [ Ingredient! ]! @relation(name: "Substitutes")
+		references: [ RecipeReference! ]! @relation(name: "RecipeReferences")
+	}
+
+	type RecipeReference {
+		id: ID! @id
+		recipe: Recipe! @relation(name: "RecipeRef")
+		line: RecipeIngredient! @relation(name: "LineRef")
+	}
+
+	# TODO 1.33: kill this with fire
+	type AlternateName {
+		id: ID! @id
+		name: String! @unique
+	}
+
+	# TODO 1.33: whenever that scalar list bug gets resolved uncomment
+	# enum Properties {
+	#	 DAIRY
+	#	 FISH
+	#	 GLUTEN
+	#	 MEAT
+	#	 POULTRY
+	#	 SOY
+	# }
+
+	type Properties {
+		id: ID! @id
+		meat: Boolean! @default(value: false)
+		poultry: Boolean! @default(value: false)
+		fish: Boolean! @default(value: false)
+		dairy: Boolean! @default(value: false)
+		soy: Boolean! @default(value: false)
+		gluten: Boolean! @default(value: false)
+	}
+
+## Recipe Models
+
+	type Recipe {
+		id: ID! @id
+		dateCreated: DateTime! @createdAt
+  	dateUpdated: DateTime! @updatedAt
+		evernoteGUID: String @unique
+		title: String!
+		source: String
+
+		categories: [ Category! ]! @relation(link: TABLE, name: "RecipeCategories")
+		tags: [ Tag! ]! @relation(link: TABLE, name: "RecipeTags")
+
+		image: String
+		ingredients: [ RecipeIngredient! ]! @relation(name: "RecipeIngredients" onDelete: CASCADE)
+		instructions: [ RecipeInstruction! ]! @relation(name: "RecipeInstructions" onDelete: CASCADE)
+	}
+
+	type RecipeInstruction {
+		id: ID! @id
+		blockIndex: Int!
+		reference: String!
+	}
+
+	type RecipeIngredient {
+		id: ID! @id
+		dateCreated: DateTime! @createdAt
+  	dateUpdated: DateTime! @updatedAt
+		blockIndex: Int!
+		lineIndex: Int!
+		reference: String!
+		rule: String
+		isParsed: Boolean! @default(value: false)
+		parsed: [ ParsedSegment! ] @relation(name: "ParsedSegments" onDelete: CASCADE)
+	}
+
+	type ParsedSegment {
+		id: ID! @id
+		dateCreated: DateTime! @createdAt
+  	dateUpdated: DateTime! @updatedAt
+		# TODO 1.33: consider setting up ENUMS for the rules & types
+		rule: String!
+		type: String!
+		value: String!
+		ingredient: Ingredient @relation(name: "ParsedSegmentIngredient")
+	}
+
+## Note Models
+
+	type Note {
+		id: ID! @id
+		dateCreated: DateTime! @createdAt
+  	dateUpdated: DateTime! @updatedAt
+		evernoteGUID: String @unique
+		title: String!
+		source: String
+
+		categories: [ String ] @scalarList(strategy: RELATION)
+		tags: [ String ] @scalarList(strategy: RELATION)
+
+		image: String
+		content: String # String values are currently limited to 256KB
+		ingredients: [ RecipeIngredient! ] @relation(name: "NoteIngredients" onDelete: CASCADE)
+		instructions: [ RecipeInstruction! ] @relation(name: "NoteInstructions" onDelete: CASCADE)
+	}
+
+## Attribute Models
+	# TODO idk how i feel about these as standalone types if i have to now slap an id on them
+
+	type Category {
+		id: ID! @id
+		evernoteGUID: String
+		name: String! @unique
+	}
+
+	type Tag {
+		id: ID! @id
+		evernoteGUID: String
+		name: String! @unique
+	}
+
+	type IngredientAggregate {
+		id: ID! @id
+		count: Int!
+		unverified: Int!
+	}
+
+	type RecipeAggregate {
+		id: ID! @id
+		count: Int!
+	}
+
+	type NoteAggregate {
+		id: ID! @id
+		count: Int!
+		importDefault: Int!
+	}
