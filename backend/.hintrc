@@ -1,0 +1,13 @@
+{
+  "extends": [
+      "development"
+  ],
+  "hints": {
+    "webpack-config/config-exists": "error",
+    "webpack-config/is-installed": "error",
+    "webpack-config/is-valid": "error",
+    "webpack-config/module-esnext-typescript": "error",
+    "webpack-config/no-devtool-in-prod": "error",
+  },
+  "parsers": ["webpack-config", "typescript-config"],
+}

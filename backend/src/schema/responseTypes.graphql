@@ -1,0 +1,70 @@
+# import * from '../generated/prisma.graphql'
+
+type AuthenticationResponse {
+	errors: [ String ]
+	isAuthenticationPending: Boolean
+	isAuthenticated: Boolean
+	authURL: String
+}
+
+type CategoryResponse {
+	category: Category
+	errors: [ String ]
+}
+
+type EvernoteResponse {
+	errors: [ String ]
+	notes: [ Note ]
+}
+
+type IngredientResponse {
+	errors: [ String ]
+	ingredient: Ingredient
+}
+
+type IngredientsResponse {
+	errors: [ String ]
+	ingredient: Ingredient
+}
+
+type DashboardResponse {
+	errors: [ String ]
+	newlyVerified: [ Ingredient! ]
+	newlyParsed: [ Ingredient! ]
+	newRecipes: [ Recipe! ]
+	parsingInstances: [ ParsingError! ]
+	parsingErrors: Int
+	numIngredients: Int
+	numUnverified: Int
+	numLines: Int
+	numRecipes: Int
+	semanticErrors: Int
+	dataErrors: Int
+	instruction: Int
+	equipment: Int
+	baseRate: Int
+	adjustedRate: Int
+	parsingRate: Int
+	dataAccuracy: Int
+}
+
+type ParsingError {
+	id: String!
+	reference: String!
+}
+
+type RecipeResponse {
+	errors: [ String ]
+	recipe: Recipe
+}
+
+type RecipesResponse {
+	errors: [ String ]
+	count: Int
+	recipes: [ Recipe ]
+}
+
+type TagResponse {
+	errors: [ String ]
+	tag: Tag
+}
