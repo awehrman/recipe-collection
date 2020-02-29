@@ -4,14 +4,7 @@ import styled from 'styled-components';
 
 const CardStyles = styled.div`
 	border: 2px solid coral;
-
-	img {
-		max-height: 175px;
-	}
-
-	/*
 	box-sizing: border-box;
-	width: 100%;
 	width: 23%;
 	max-height: 280px;
 	display: flex;
@@ -36,20 +29,16 @@ const CardStyles = styled.div`
 		font-size: 12px;
 		padding: 0 2px;
 	}
-	*/
 `;
 
 const AspectRatio16x9 = styled.div`
-/*
 	width: 100%;
   height: 0;
   padding-bottom: 62.5%;
   position: relative;
-	*/
 `;
 
 const AspectRatioInner = styled.div`
-	/*
 	position: absolute;
   top: 0;
   right: 0;
@@ -61,7 +50,6 @@ const AspectRatioInner = styled.div`
   	height: 100%;
 		object-fit: cover;
 	}
-	*/
 `;
 
 class Card extends React.PureComponent {
@@ -81,7 +69,7 @@ class Card extends React.PureComponent {
 							<img src={ image } alt={ title } style={ { width: '200px' } } />
 						</AspectRatioInner>
 					</AspectRatio16x9>
-				<h2>{ title }</h2>
+					<h2>{ title }</h2>
 				</a>
 			</CardStyles>
 		);

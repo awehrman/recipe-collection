@@ -10,21 +10,7 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
 const Cell = styled.div`
-	margin: 0 auto;
-  padding: 40px;
-  width: 80%;
-  color: #333;
-  background: #419be0;
-`;
-
-
-const Border = styled.div`
-	background: pink;
-	border: 2px solid coral;
-	width: 200px;
-	height: 150px;
-	display: block;
-	margin: 10px;
+	border: 2px solid purple;
 `;
 
 const Carousel = ({ query }) => {
@@ -61,9 +47,9 @@ const Carousel = ({ query }) => {
 			<Slider { ...settings }>
 				{
 					newRecipes.map((rp) => (
-						<div key={ rp.id }>
-							{ rp.title }
-						</div>
+						<Card
+							recipe={ rp }
+						/>
 					))
 				}
 			</Slider>
