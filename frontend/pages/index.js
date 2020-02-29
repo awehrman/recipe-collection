@@ -3,7 +3,8 @@ import styled from 'styled-components';
 import { GET_DASHBOARD_INGREDIENTS_QUERY, GET_DASHBOARD_PARSING_QUERY, GET_DASHBOARD_RECIPES_QUERY } from '../lib/apollo/queries';
 
 import Header from '../components/Header';
-import Card from '../components/recipes/Card';
+import ViewMoreList from '../components/ingredients/ViewMoreList';
+import Carousel from '../components/recipes/Carousel';
 
 const DashboardStyles = styled.article`
 	ul {
@@ -15,41 +16,29 @@ const DashboardStyles = styled.article`
 `;
 
 const Row = styled.div`
-	margin-bottom: 20px;
-	display: flex;
-	width: 100%;
-`;
+	/* mobile: everything is just one long list */
 
-const Cell = styled.div`
-	flex-basis: 25%;
-	padding: 10px;
-	line-height: 1.4;
-
-	ul.columns {
-		column-count: 2;
-  	column-gap: 4px;
+	/* small tablet wraps the top row into equally distributed columns */
+	@media (min-width: ${ (props) => props.theme.tablet_small }) {
+		&.tri-column {
+			display: flex;
+			justify-content: space-between;
+		}
 	}
 
-	ul.errors {
-		margin-top: 20px;
-	}
-`;
-
-const FullWidth = styled.div`
-	flex-basis: 100%;
-	padding: 10px;
-
-	.container {
+	/* as we get larger, keep the three columns to the left, and start to wrap the remaining row */
+	@media (min-width: ${ (props) => props.theme.tablet }) {
 		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
+		justify-content: flex-start;
+		div {
+			margin-right: 60px;
+		}
+
+		&.tri-column {
+			justify-content: flex-start;
+		}
 	}
 `;
-
-const onRecipeClick = (e) => {
-	e.preventDefault();
-	// TODO route to recipes page?
-};
 
 const Index = () => {
 	// fetch ingredients
@@ -89,148 +78,153 @@ const Index = () => {
 		dataAccuracy = 0,
 	} = dashboardParsing || {};
 
-	// fetch recipes
-	const {
-		data: recipeData,
-		// loading: recipeLoading,
-		// error: recipeError,
-	} = useQuery(GET_DASHBOARD_RECIPES_QUERY);
-	const { dashboardRecipes } = recipeData || {};
-	const { newRecipes = [] } = dashboardRecipes || {};
+	const dataSummary = [
+		{
+			id: 'ingredients',
+			name: 'Ingredients',
+			reference: `${ numIngredients }`,
+		},
+		{
+			id: 'unverified',
+			name: 'Unverified',
+			reference: `${ numUnverified }`,
+		},
+		{
+			id: 'lines',
+			name: 'Lines',
+			reference: `${ numLines }`,
+		},
+		{
+			id: 'recipes',
+			name: 'Recipes',
+			reference: `${ numRecipes }`,
+		},
+	];
 
-	// TODO mobile styles
-	// TODO error and loading
+	const errorSummary = [
+		{
+			id: 'parsingErrors',
+			name: 'Parsing Errors',
+			reference: `${ parsingErrors }`,
+		},
+		{
+			id: 'semanticErrors',
+			name: 'Semantic Errors',
+			reference: `${ semanticErrors }`,
+		},
+		{
+			id: 'dataErrors',
+			name: 'Data Errors',
+			reference: `${ dataErrors }`,
+		},
+		{
+			id: 'instructionErrors',
+			name: 'Instruction Errors',
+			reference: `${ instruction }`,
+		},
+		{
+			id: 'equipmentErrors',
+			name: 'Equipment Errors',
+			reference: `${ equipment }`,
+		},
+	];
+
+	const rates = [
+		{
+			id: 'baseRate',
+			name: 'Base Accuracy Rate',
+			reference: `${ baseRate }%`,
+		},
+		{
+			id: 'adjustedRate',
+			name: 'Adjusted Accuracy Rate',
+			reference: `${ adjustedRate }%`,
+		},
+		{
+			id: 'parsingRate',
+			name: 'Parsing Rate',
+			reference: `${ parsingRate }%`,
+		},
+		{
+			id: 'dataAccuracy',
+			name: 'Recipes',
+			reference: `${ dataAccuracy }%`,
+		},
+	];
+
 	return (
 		<DashboardStyles>
 			<Header pageHeader="Dashboard" />
 			<section>
-				<Row>
-					{/* New Ingredients */}
-					<Cell>
-						<h2>New Ingredients</h2>
-						<ul className="columns">
-							{
-								newlyVerified.map((ing) => (
-									<li key={ `newIng_${ ing.id }` }>
-										{ ing.name }
-									</li>
-								))
-							}
-						</ul>
-					</Cell>
-
-					{/* Recently Parsed Ingredients */}
-					<Cell>
-						<h2>Recently Parsed Ingredients</h2>
-						<ul className="columns">
-							{
-								newlyParsed.map((ing) => (
-									<li key={ `parsed_${ ing.id }` }>
-										{ing.name}
-									</li>
-								))
-							}
-						</ul>
-					</Cell>
-
-					{/* Recent Parsing Errors */}
-					<Cell>
-						<h2>Recent Parsing Errors</h2>
-						<ul>
-							{
-								parsingInstances.map((err) => (
-									<li key={ `parsingInstances_${ err.id }` }>
-										{ err.reference }
-									</li>
-								))
-							}
-						</ul>
-
-						<h2>Data Summary</h2>
-						<ul>
-							<li>
-								<span>Ingredients: </span>
-								{ numIngredients }
-							</li>
-							<li>
-								<span>Unverified: </span>
-								{ numUnverified }
-							</li>
-							<li>
-								<span>Lines: </span>
-								{ numLines }
-							</li>
-							<li>
-								<span>Recipes: </span>
-								{ numRecipes }
-							</li>
-						</ul>
-					</Cell>
+				<Row className="tri-column">
+					{/* Data Summary */}
+					<ViewMoreList
+						isLinkEnabled={ false }
+						list={ dataSummary }
+						title="Data Summary"
+						name="dataSummary"
+						type="label"
+					/>
 
 					{/* Error Summary */}
-					<Cell>
-						<h2>Error Summary</h2>
-						<ul>
-							<li>
-								<span>Parsing Errors: </span>
-								{ parsingErrors }
-							</li>
-							<li key="dashboardSemanticErrors">
-								<span>Semantic Errors: </span>
-								{ semanticErrors }
-							</li>
-							<li key="dashboardDataErrors">
-								<span>Data Errors: </span>
-								{ dataErrors }
-							</li>
-							<li key="dashboardInstructionsErrors">
-								<span>Instructions Errors: </span>
-								{ instruction }
-							</li>
-							<li key="dashboardEquipmentErrors">
-								<span>Equipment Instances: </span>
-								{ equipment }
-							</li>
-						</ul>
-						<ul className="errors">
-							<li>
-								<span>Base Accuracy Rate: </span>
-								{ `${ baseRate }%` }
-							</li>
-							<li>
-								<span>Adjusted Accuracy Rate: </span>
-								{ `${ adjustedRate }%` }
-							</li>
-							<li>
-								<span>Lines: </span>
-								{ `${ parsingRate }%` }
-							</li>
-							<li>
-								<span>Recipes: </span>
-								{ `${ dataAccuracy }%` }
-							</li>
-						</ul>
-					</Cell>
+					<ViewMoreList
+						list={ errorSummary }
+						title="Error Summary"
+						name="errorSummary"
+						type="label"
+					/>
+
+					{/* Error Rates */}
+					<ViewMoreList
+						list={ rates }
+						title="Error Rates"
+						name="errorRates"
+						type="label"
+					/>
 				</Row>
 
 				<Row>
-					{/* Recently Added Recipes */}
-					<FullWidth>
-						<h2>Recently Added Recipes</h2>
-						<div className="container">
-							{
-								newRecipes.map((rp) => (
-									<Card
-										className="dashboard"
-										key={ `newRp_${ rp.id }` }
-										onClick={ onRecipeClick }
-										recipe={ rp }
-									/>
-								))
-							}
-						</div>
-					</FullWidth>
+					{/* Recent Parsing Errors */
+						(parsingInstances && parsingInstances.length)
+							? (
+								<ViewMoreList
+									list={ parsingInstances }
+									title="Recent Parsing Errors"
+									name="recentlyParsedErrors"
+								/>
+							)
+							: null
+					}
+
+					{/* Recently Added */}
+					<ViewMoreList
+						href="/ingredients/?view=new"
+						isLinkEnabled
+						list={ newlyParsed }
+						title="Recently Added"
+						name="recentlyAdded"
+						type="column"
+					/>
+
+
+					{/* New Ingredients */}
+					<ViewMoreList
+						href="/ingredients"
+						isLinkEnabled
+						list={ newlyVerified }
+						title="New Ingredients"
+						name="newIngredients"
+						type="column"
+					/>
+
 				</Row>
+
+				{/* Recently Added Recipes */}
+				<Carousel
+					title="Recently Added Recipes"
+					query={ GET_DASHBOARD_RECIPES_QUERY }
+				/>
+
 			</section>
 		</DashboardStyles>
 	);

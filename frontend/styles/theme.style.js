@@ -17,6 +17,7 @@ export default {
 
 	bodyText: 'rgba(34, 34, 34, 1)',
 
+	tablet_small: '500px',
 	tablet: '768px',
 	desktop_small: '1024px',
 	desktop_large: '1300px',
