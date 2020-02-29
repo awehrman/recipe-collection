@@ -3,30 +3,21 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const CardStyles = styled.div`
-	border: 2px solid coral;
-	box-sizing: border-box;
-	width: 23%;
-	max-height: 280px;
-	display: flex;
+	margin: 0 10px;
 
-	img {
-		width: 300px;
+	&:first-of-type {
+		margin-left: 0;
 	}
 
-	a {
-		text-decoration: none;
-
-		&:hover {
-			box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  		transition: 0.3s;
-		}
+	a:hover h2 {
+		color: #000;
 	}
 
 	h2 {
 		color: #222;
-		margin: 10px 0;
-		font-weight: 400;
-		font-size: 12px;
+		display: inline-block;
+		font-size: 16px;
+		font-weight: 300;
 		padding: 0 2px;
 	}
 `;
@@ -44,7 +35,6 @@ const AspectRatioInner = styled.div`
   right: 0;
   bottom: 0;
   left: 0;
-
 	img {
 		width: 100%;
   	height: 100%;
@@ -66,7 +56,7 @@ class Card extends React.PureComponent {
 				<a href={ href } onClick={ (e) => onClick(e, id) } alt={ title }>
 					<AspectRatio16x9>
 						<AspectRatioInner>
-							<img src={ image } alt={ title } style={ { width: '200px' } } />
+							<img src={ image } alt={ title } />
 						</AspectRatioInner>
 					</AspectRatio16x9>
 					<h2>{ title }</h2>

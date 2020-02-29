@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import ButtonLink from '../form/ButtonLink';
 
 const Cell = styled.div`
-	/* background: rgba(230, 136, 136, 1); */
 	font-size: 14px;
 	margin-bottom: 30px;
 	display: flex;
