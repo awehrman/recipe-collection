@@ -1,11 +1,10 @@
-import { adopt } from 'react-adopt';
 // import { Query, withApollo } from 'react-apollo';
 import { Component } from 'react';
 import { darken } from 'polished';
 import pluralize from 'pluralize';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import uuid from 'uuid';
+// import uuid from 'uuid';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/pro-regular-svg-icons';
@@ -20,48 +19,31 @@ import ParserInput from './ParserInput';
 import ParsedViewer from './ParsedViewer';
 /* eslint-disable object-curly-newline */
 import {
-	GET_ALL_CATEGORIES_QUERY,
-	GET_ALL_RECIPES_QUERY,
-	GET_RECIPES_COUNT_QUERY,
-	GET_ALL_INGREDIENTS_QUERY,
-	GET_INGREDIENTS_COUNT_QUERY,
-	GET_ALL_TAGS_QUERY,
-	GET_INGREDIENT_BY_VALUE_QUERY,
+	// GET_ALL_RECIPES_QUERY,
+	// GET_RECIPES_COUNT_QUERY,
+	// GET_ALL_INGREDIENTS_QUERY,
+	// GET_INGREDIENTS_COUNT_QUERY,
+	// GET_INGREDIENT_BY_VALUE_QUERY,
 	GET_SUGGESTED_CATEGORIES_QUERY,
 	GET_SUGGESTED_TAGS_QUERY,
 } from '../../lib/apollo/queries';
+import {
+// CREATE_RECIPE_MUTATION,
+// UPDATE_RECIPE_MUTATION,
+} from '../../lib/apollo/mutations';
 /* eslint-enable object-curly-newline */
-import { CREATE_RECIPE_MUTATION, UPDATE_RECIPE_MUTATION } from '../../lib/apollo/mutations';
 
-const Composed = adopt({
-	// eslint-disable-next-line react/prop-types
-	getCategories: ({ render }) => (
-		<Query query={ GET_ALL_CATEGORIES_QUERY }>
-			{render}
-		</Query>
-	),
-
-	// eslint-disable-next-line react/prop-types
-	getIngredients: ({ render }) => (
-		<Query query={ GET_ALL_INGREDIENTS_QUERY }>
-			{render}
-		</Query>
-	),
-
-	// eslint-disable-next-line react/prop-types
-	getTags: ({ render }) => (
-		<Query query={ GET_ALL_TAGS_QUERY }>
-			{render}
-		</Query>
-	),
-
-});
 
 const FormStyles = styled.form`
 	flex-basis: 100%;
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-start;
+	background: white;
+	opacity: 1;
+	margin: 0 auto;
+	padding: 20px 40px;
+	width: 75%;
 
 	button {
 		border: 0;
@@ -290,6 +272,12 @@ const BottomFormStyles = styled.div`
 		}
 	}
 `;
+
+const ParsedViewerWrapper = styled.div`
+	margin-top: 54px; /* TODO ideally this would be equal to our h1 height */
+`;
+
+// TODO ughhhh i hate how huge this component is...
 class Form extends Component {
 	initialState = {
 		pending: {},
@@ -603,8 +591,6 @@ class Form extends Component {
 	}
 
 	lookupIngredients = async (lines) => {
-		const { client } = this.props;
-
 		const ingredientNames = lines.filter((l) => l.isParsed && l.parsed && (l.parsed.length > 0))
 			.map((l) => l.parsed.filter((p) => p.type === 'ingredient').map((p) => p.value)).flat();
 
@@ -637,12 +623,14 @@ class Form extends Component {
 			let ingredient = {};
 			// check if this is an existing ingredient
 			try {
+				/*
 				const { data } = await client.query({
 					query: GET_INGREDIENT_BY_VALUE_QUERY,
 					variables: { value: name },
 				});
 				({ ingredient } = data);
 				delete ingredient.__typename;
+				*/
 			} catch (err) {
 				// didn't find an existing ingredient
 			}
@@ -784,7 +772,8 @@ class Form extends Component {
 	}
 
 	createRecipe = async () => {
-		const { client, onSaveCallback } = this.props;
+		/* TODO re-wire
+		const { onSaveCallback } = this.props;
 		const { warnings } = this.state;
 
 		const data = this.getNetworkRecipe('create');
@@ -830,9 +819,11 @@ class Form extends Component {
 
 			return this.setState({ warnings: errorWarnings.concat(warnings) });
 		});
+		*/
 	}
 
 	updateRecipe = async () => {
+		/* TODO re-wire updateRecipe
 		const { client, onSaveCallback } = this.props;
 		const { warnings } = this.state;
 		const { id } = this.props;
@@ -885,6 +876,7 @@ class Form extends Component {
 
 			return this.setState({ warnings: errorWarnings.concat(warnings) });
 		});
+		*/
 	}
 
 	render() {
@@ -895,245 +887,241 @@ class Form extends Component {
 		} = this.props;
 		const { warnings } = this.state;
 		const pending = this.getPendingRecipe();
+
 		// go ahead and fetch our lookup queries for validation even though we're not concerned with showing it
 		return (
-			<Composed>
-				{
-					() => (
-						<FormStyles className={ className }>
-							<TopFormStyles>
-								{
-									(isEditMode)
-										? (
-											<Left>
-												{/* Title */}
-												<Input
-													className="title"
-													defaultValue={ title }
-													fieldName="title"
-													isEditMode={ isEditMode }
-													isRequiredField
-													loading={ loading }
-													onChange={ this.onInputChange }
-													placeholder="title"
-													suppressLocalWarnings
-													value={ pending.title }
-													warnings={ this.getWarning('title', warnings) || undefined }
-												/>
-
-												{/* Source */}
-												<Input
-													className="source"
-													defaultValue={ source }
-													fieldName="source"
-													isEditMode={ isEditMode }
-													isRequiredField
-													loading={ loading }
-													onChange={ this.onInputChange }
-													placeholder="source"
-													suppressLocalWarnings
-													value={ pending.source }
-													warnings={ this.getWarning('source', warnings) || undefined }
-												/>
-
-												{/* TODO Image Upload
-												<Input
-													className="image"
-													defaultValue={ image }
-													fieldName="image"
-													isEditMode={ isEditMode }
-													isRequiredField
-													loading={ loading }
-													onChange={ this.onInputChange }
-													placeholder="image"
-													suppressLocalWarnings
-													value={ pending.image }
-													warnings={ this.getWarning('image', warnings) || undefined }
-												/> TODO adjust input component to accept type 'file'
-												<input
-													type="file"
-													className="image"
-													defaultValue={ pending.image }
-													onChange={ this.onImageUpload }
-													placeholder="upload an image"
-												/> */}
-
-												{/* Evernote GUID */}
-												<Input
-													className="evernoteGUID"
-													defaultValue={ evernoteGUID }
-													fieldName="evernoteGUID"
-													isEditMode={ isEditMode }
-													isRequiredField
-													loading={ loading }
-													onChange={ this.onInputChange }
-													placeholder="evernote GUID"
-													suppressLocalWarnings
-													value={ pending.evernoteGUID }
-													warnings={ this.getWarning('evernoteGUID', warnings) || undefined }
-												/>
-
-												{/* Categories */}
-												<List
-													className="categories"
-													defaultValues={ categories }
-													fieldName="categories"
-													isEditMode={ isEditMode }
-													isRemovable
-													isSuggestionEnabled
-													label="Categories"
-													loading={ loading }
-													onListChange={ this.onListChange }
-													placeholder="category name"
-													suggestionQuery={ GET_SUGGESTED_CATEGORIES_QUERY }
-													suppressLocalWarnings
-													type="categories"
-													values={ pending.categories }
-												/>
-
-												{/* Tags */}
-												<List
-													className="tags"
-													defaultValues={ tags }
-													fieldName="tags"
-													isEditMode={ isEditMode }
-													isRemovable
-													isSuggestionEnabled
-													label="Tags"
-													loading={ loading }
-													onListChange={ this.onListChange }
-													placeholder="tags"
-													suggestionQuery={ GET_SUGGESTED_TAGS_QUERY }
-													suppressLocalWarnings
-													type="tags"
-													values={ pending.tags }
-												/>
-											</Left>
-										) : null
-								}
-								<Right>
-									{/* Title Preview */}
-									<Title>
-										{ pending.title }
-									</Title>
-
-									{/* Image Preview */}
-									<Image value={ pending.image } />
-
-									{/* Source Preview */}
-									<Source>
-										{pending.source}
-									</Source>
-								</Right>
-
-								{
-									(isEditMode)
-										? (
-											<Left>
-												{/* Recipe Content Editor */}
-												<ParserInput
-													loading={ loading }
-													onChange={ this.onParserInputChange }
-													onComplete={ this.onParserComplete }
-													placeholder="Recipe Content"
-												/>
-											</Left>
-										) : null
-								}
-
-								<Right>
-									{/* Cancel Button */
-										(showCloseButton)
-											? (
-												<Button
-													className="close"
-													icon={ <FontAwesomeIcon icon={ faWindowClose } /> }
-													onClick={ (e) => onCloseClick(e) }
-												/>
-											) : null
-									}
-
-									{/* Categories Preview */}
-									<Categories>
-										{
-											pending.categories.map((c) => (
-												<li key={ `categories_display_${ c.id }_${ pending.id }` }>
-													{ c.name }
-												</li>
-											))
-										}
-									</Categories>
-
-									{/* Tags Preview */}
-									<Tags>
-										{
-											pending.tags.map((c) => (
-												<li key={ `tags_display_${ c.id }_${ pending.id }` }>
-													{ c.name }
-												</li>
-											))
-										}
-									</Tags>
-
-									{/* Parsed Recipe Preview */}
-									<ParsedViewer
-										className={ className }
+			<FormStyles className={ className }>
+				<TopFormStyles>
+					{
+						(isEditMode)
+							? (
+								<Left>
+									{/* Title */}
+									<Input
+										className="title"
+										defaultValue={ title }
+										fieldName="title"
+										isEditMode={ isEditMode }
+										isRequiredField
 										loading={ loading }
-										ingredients={ pending.ingredients }
-										instructions={ pending.instructions }
+										onChange={ this.onInputChange }
+										placeholder="title"
+										suppressLocalWarnings
+										value={ pending.title }
+										warnings={ this.getWarning('title', warnings) || undefined }
 									/>
-								</Right>
-							</TopFormStyles>
+									{/* Source */}
+									<Input
+										className="source"
+										defaultValue={ source }
+										fieldName="source"
+										isEditMode={ isEditMode }
+										isRequiredField
+										loading={ loading }
+										onChange={ this.onInputChange }
+										placeholder="source"
+										suppressLocalWarnings
+										value={ pending.source }
+										warnings={ this.getWarning('source', warnings) || undefined }
+									/>
 
-							<BottomFormStyles>
-								{/* Warnings */
-									(warnings && warnings.length > 0)
-										? (
-											<ul className="warnings">
-												{
-													warnings.map((warning, index) => (
-														// eslint-disable-next-line react/no-array-index-key
-														<li key={ `${ warning.id }_${ index }` }>
-															{ warning.message }
-														</li>
-													))
-												}
-											</ul>
-										) : null
-								}
-								{/* Cancel Button */
-									(isEditMode && showCancelButton)
-										? (
-											<Button
-												className="cancel"
-												label="Cancel"
-												onClick={ (e) => onCancelClick(e) }
-											/>
-										) : null
-								}
+									{/* TODO Image Upload
+									<Input
+										className="image"
+										defaultValue={ image }
+										fieldName="image"
+										isEditMode={ isEditMode }
+										isRequiredField
+										loading={ loading }
+										onChange={ this.onInputChange }
+										placeholder="image"
+										suppressLocalWarnings
+										value={ pending.image }
+										warnings={ this.getWarning('image', warnings) || undefined }
+									/> TODO adjust input component to accept type 'file'
+									<input
+										type="file"
+										className="image"
+										defaultValue={ pending.image }
+										onChange={ this.onImageUpload }
+										placeholder="upload an image"
+									/> */}
 
-								{/* Edit / Save Button */
-									(!isEditMode)
-										? (
-											<Button
-												className="edit"
-												icon={ <FontAwesomeIcon icon={ faEdit } /> }
-												label="Edit"
-												onClick={ (e) => onEditClick(e) }
-											/>
-										) : (
-											<Button
-												className="save"
-												label={ saveLabel }
-												onClick={ (e) => this.onSaveRecipe(e) }
-											/>
-										)
-								}
-							</BottomFormStyles>
-						</FormStyles>
-					)
-				}
-			</Composed>
+									{/* Evernote GUID */}
+									<Input
+										className="evernoteGUID"
+										defaultValue={ evernoteGUID }
+										fieldName="evernoteGUID"
+										isEditMode={ isEditMode }
+										isRequiredField
+										loading={ loading }
+										onChange={ this.onInputChange }
+										placeholder="evernote GUID"
+										suppressLocalWarnings
+										value={ pending.evernoteGUID }
+										warnings={ this.getWarning('evernoteGUID', warnings) || undefined }
+									/>
+
+									{/* Categories */}
+									<List
+										className="categories"
+										defaultValues={ categories }
+										fieldName="categories"
+										isEditMode={ isEditMode }
+										isRemovable
+										isSuggestionEnabled
+										label="Categories"
+										loading={ loading }
+										onListChange={ this.onListChange }
+										placeholder="category name"
+										suggestionQuery={ GET_SUGGESTED_CATEGORIES_QUERY }
+										suppressLocalWarnings
+										type="categories"
+										values={ pending.categories }
+									/>
+
+									{/* Tags */}
+									<List
+										className="tags"
+										defaultValues={ tags }
+										fieldName="tags"
+										isEditMode={ isEditMode }
+										isRemovable
+										isSuggestionEnabled
+										label="Tags"
+										loading={ loading }
+										onListChange={ this.onListChange }
+										placeholder="tags"
+										suggestionQuery={ GET_SUGGESTED_TAGS_QUERY }
+										suppressLocalWarnings
+										type="tags"
+										values={ pending.tags }
+									/>
+								</Left>
+							) : null
+					}
+					<Right>
+						{/* Title Preview */}
+						<Title>
+							{ pending.title }
+						</Title>
+
+						{/* Image Preview */}
+						<Image value={ pending.image } />
+
+						{/* Source Preview */}
+						<Source>
+							{pending.source}
+						</Source>
+					</Right>
+
+					{
+						(isEditMode)
+							? (
+								<Left>
+									{/* Recipe Content Editor */}
+									<ParserInput
+										loading={ loading }
+										onChange={ this.onParserInputChange }
+										onComplete={ this.onParserComplete }
+										placeholder="Recipe Content"
+									/>
+								</Left>
+							) : null
+					}
+
+					<Right>
+						{/* Cancel Button */
+							(showCloseButton)
+								? (
+									<Button
+										className="close"
+										icon={ <FontAwesomeIcon icon={ faWindowClose } /> }
+										onClick={ (e) => onCloseClick(e) }
+									/>
+								) : null
+						}
+
+						{/* Categories Preview */}
+						<Categories>
+							{
+								pending.categories.map((c) => (
+									<li key={ `categories_display_${ c.id }_${ pending.id }` }>
+										{ c.name }
+									</li>
+								))
+							}
+						</Categories>
+
+						{/* Tags Preview */}
+						<Tags>
+							{
+								pending.tags.map((c) => (
+									<li key={ `tags_display_${ c.id }_${ pending.id }` }>
+										{ c.name }
+									</li>
+								))
+							}
+						</Tags>
+
+						{/* Parsed Recipe Preview */}
+						<ParsedViewerWrapper>
+							<ParsedViewer
+								className={ className }
+								loading={ loading }
+								ingredients={ pending.ingredients }
+								instructions={ pending.instructions }
+							/>
+						</ParsedViewerWrapper>
+					</Right>
+				</TopFormStyles>
+
+				<BottomFormStyles>
+					{/* Warnings */
+						(warnings && warnings.length > 0)
+							? (
+								<ul className="warnings">
+									{
+										warnings.map((warning, index) => (
+											// eslint-disable-next-line react/no-array-index-key
+											<li key={ `${ warning.id }_${ index }` }>
+												{ warning.message }
+											</li>
+										))
+									}
+								</ul>
+							) : null
+					}
+					{/* Cancel Button */
+						(isEditMode && showCancelButton)
+							? (
+								<Button
+									className="cancel"
+									label="Cancel"
+									onClick={ (e) => onCancelClick(e) }
+								/>
+							) : null
+					}
+
+					{/* Edit / Save Button */
+						(!isEditMode)
+							? (
+								<Button
+									className="edit"
+									icon={ <FontAwesomeIcon icon={ faEdit } /> }
+									label="Edit"
+									onClick={ (e) => onEditClick(e) }
+								/>
+							) : (
+								<Button
+									className="save"
+									label={ saveLabel }
+									onClick={ (e) => this.onSaveRecipe(e) }
+								/>
+							)
+					}
+				</BottomFormStyles>
+			</FormStyles>
 		);
 	}
 }
@@ -1152,7 +1140,7 @@ Form.defaultProps = {
 	onCancelClick: () => {},
 	onCloseClick: () => {},
 	onEditClick: () => {},
-	onSaveCallback: () => {},
+	// onSaveCallback: () => {},
 	resetForm: () => {},
 	saveLabel: 'Save',
 	showCancelButton: false,
@@ -1169,11 +1157,6 @@ Form.propTypes = {
 		name: PropTypes.string.isRequired,
 	})),
 	className: PropTypes.string,
-	client: PropTypes.shape({
-		readQuery: PropTypes.func,
-		query: PropTypes.func,
-		mutate: PropTypes.func,
-	}).isRequired,
 	evernoteGUID: PropTypes.string,
 	id: PropTypes.string,
 	image: PropTypes.string,
@@ -1208,7 +1191,7 @@ Form.propTypes = {
 	onCancelClick: PropTypes.func,
 	onCloseClick: PropTypes.func,
 	onEditClick: PropTypes.func,
-	onSaveCallback: PropTypes.func,
+	// onSaveCallback: PropTypes.func,
 	resetForm: PropTypes.func,
 	saveLabel: PropTypes.string,
 	showCancelButton: PropTypes.bool,

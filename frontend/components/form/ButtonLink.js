@@ -4,6 +4,7 @@ import Link from 'next/link';
 
 const ButtonLink = ({
 	className,
+	children,
 	disabled,
 	href,
 	onClick,
@@ -19,14 +20,16 @@ const ButtonLink = ({
 			onClick={ onClick }
 			type={ type }
 		>
-			{icon}
-			{label}
+			{ icon }
+			{ label }
+			{ children }
 		</button>
 	</Link>
 );
 
 ButtonLink.defaultProps = {
 	className: null,
+	children: null,
 	disabled: false,
 	icon: null,
 	label: null,
@@ -36,6 +39,7 @@ ButtonLink.defaultProps = {
 
 ButtonLink.propTypes = {
 	className: PropTypes.string,
+	children: PropTypes.shape({}),
 	disabled: PropTypes.bool,
 	href: PropTypes.string.isRequired,
 	icon: PropTypes.element,

@@ -1,7 +1,8 @@
 import { useQuery } from '@apollo/client';
-import React, { useState } from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import styled from 'styled-components';
-import { GET_CURRENT_RECIPE_QUERY, GET_PAGINATED_RECIPES_QUERY, GET_RECIPES_COUNT_QUERY } from '../lib/apollo/queries';
+import { GET_PAGINATED_RECIPES_QUERY, GET_RECIPES_COUNT_QUERY } from '../lib/apollo/queries';
 
 import AddNew from '../components/recipes/AddNew';
 import ErrorMessage from '../components/ErrorMessage';
@@ -31,9 +32,7 @@ const Count = styled.div`
 const RecipesStyles = styled.article`
 `;
 
-const Recipes = () => {
-	const [ currentRecipeID, setCurrentRecipeID ] = useState(null);
-
+const Recipes = ({ id = null }) => {
 	// fetch the recipe totals
 	const {
 		data: countData = {},
@@ -46,7 +45,7 @@ const Recipes = () => {
 	// fetch the initial batch of recipes
 	const {
 		data = {},
-		fetchMore,
+		// fetchMore,
 		loading,
 		error,
 	} = useQuery(GET_PAGINATED_RECIPES_QUERY);
@@ -72,27 +71,24 @@ const Recipes = () => {
 						: null
 				}
 
-				<Grid
-					count={ count || 0 }
-					fetchMore={ fetchMore }
-					recipes={ recipes || [] }
-					// onRecipeClick={ this.onRecipeClick }
-				/>
-
-				{/* TODO
-					(currentRecipeID && recipe)
-						? (
-							<Recipe
-								// onCloseClick={ this.onCloseClick }
-								recipe={ recipe }
+				{/* show the current recipe or the grid */
+					(id)
+						? <Recipe id={ id } />
+						: (
+							<Grid
+								count={ count || 0 }
+								recipes={ recipes || [] }
 							/>
 						)
-						: null
-				*/}
+				}
 				<AddNew />
 			</section>
 		</RecipesStyles>
 	);
 };
+
+Recipes.defaultProps = { id: null };
+
+Recipes.propTypes = { id: PropTypes.string };
 
 export default Recipes;

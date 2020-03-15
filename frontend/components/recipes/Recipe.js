@@ -1,99 +1,86 @@
+import { withRouter } from 'next/router';
+import { useQuery } from '@apollo/client';
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { GET_RECIPE_QUERY } from '../../lib/apollo/queries';
 
+import ErrorMessage from '../ErrorMessage';
 import Form from './Form';
 
 const RecipeStyles = styled.div`
-	background: rgba(0,0,0,.5);
+	background: white;
 	position: absolute;
 	top: 100px;
 	bottom: 0;
-	left: 44px;
-	right: 84px;
+	left: 40px;
+	right: 40px;
 	display: flex;
 	justify-content: center;
 	align-items: flex-start;
-`;
 
-const FormStyles = styled.div`
-	background: white;
-	opacity: 1;
-	margin: 0 auto;
-	padding: 20px 40px;
-	width: 75%;
-`;
-
-class Recipe extends React.PureComponent {
-	render() {
-		const { onCloseClick, recipe } = this.props;
-		return (
-			<RecipeStyles>
-				<FormStyles>
-					<Form
-						className="recipe"
-						key="current-recipe"
-						saveLabel="Save"
-						evernoteGUID={ recipe.evernoteGUID }
-						id={ recipe.id }
-						image={ recipe.image }
-						ingredients={ recipe.ingredients }
-						instructions={ recipe.instructions }
-						isEditMode={ false }
-						isFormReset={ false }
-						loading={ false }
-						onCloseClick={ onCloseClick }
-						showCancelButton
-						showCloseButton
-						source={ recipe.source }
-						title={ recipe.title }
-					/>
-				</FormStyles>
-			</RecipeStyles>
-		);
+	@media (min-width: ${ (props) => props.theme.tablet }) {
+		right: 80px;
 	}
-}
+`;
 
-Recipe.defaultProps = {
-	onCloseClick: () => {},
-	recipe: null,
+const onCloseClick = (router) => {
+	console.log('onCloseClick', { router });
+	// TODO unset currentRecipeID
+	router.replace('/recipes', '/recipes', { shallow: true });
+};
+
+const Recipe = ({ id, router }) => {
+	// fetch the recipe
+	const {
+		data,
+		loading,
+		error,
+	} = useQuery(GET_RECIPE_QUERY, { variables: { id } });
+	// eslint-disable-next-line object-curly-newline
+	console.log({ data, error, loading });
+	const { recipe = {} } = data || {};
+	const {
+		evernoteGUID = null,
+		image,
+		ingredients = [],
+		instructions = [],
+		source = null,
+		title,
+	} = recipe;
+
+	return (
+		<RecipeStyles>
+			{
+				(error)
+					? <ErrorMessage error={ error } />
+					: null
+			}
+			<Form
+				className="recipe"
+				key="current-recipe"
+				saveLabel="Save"
+				evernoteGUID={ evernoteGUID }
+				id={ id }
+				image={ image }
+				ingredients={ ingredients }
+				instructions={ instructions }
+				isEditMode={ false }
+				isFormReset={ false }
+				loading={ loading }
+				onCloseClick={ () => onCloseClick(router) }
+				showCancelButton
+				showCloseButton
+				source={ source }
+				title={ title }
+			/>
+		</RecipeStyles>
+	);
 };
 
 Recipe.propTypes = {
-	onCloseClick: PropTypes.func,
-	recipe: PropTypes.shape({
-		id: PropTypes.string,
-		evernoteGUID: PropTypes.string,
-		title: PropTypes.string,
-		image: PropTypes.string,
-		source: PropTypes.string,
-		ingredients: PropTypes.arrayOf(PropTypes.shape({
-			id: PropTypes.string,
-			blockIndex: PropTypes.number,
-			lineIndex: PropTypes.number,
-			reference: PropTypes.string.isRequired,
-			isParsed: PropTypes.bool,
-			/* TODO something is off between the AddNew use of this data and what we get back
-			parsed: PropTypes.arrayOf(
-				PropTypes.shape({
-					id: PropTypes.string,
-					rule: PropTypes.string,
-					type: PropTypes.string.isRequired,
-					value: PropTypes.string.isRequired,
-					ingredient: PropTypes.shape({
-						id: PropTypes.string,
-						name: PropTypes.string.isRequired,
-					}),
-				}),
-			),
-			*/
-		})),
-		instructions: PropTypes.arrayOf(PropTypes.shape({
-			id: PropTypes.string,
-			blockIndex: PropTypes.number,
-			reference: PropTypes.string.isRequired,
-		})),
-	}),
+	id: PropTypes.string.isRequired,
+	router: PropTypes.shape({}).isRequired,
 };
 
-export default Recipe;
+export default withRouter(Recipe);

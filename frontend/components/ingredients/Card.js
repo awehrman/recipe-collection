@@ -1,4 +1,3 @@
-import { adopt } from 'react-adopt';
 import React from 'react';
 // import { Query } from 'react-apollo';
 import PropTypes from 'prop-types';
@@ -7,16 +6,7 @@ import styled from 'styled-components';
 import ErrorMessage from '../ErrorMessage';
 import Form from './Form';
 
-import { GET_INGREDIENT_BY_ID_QUERY } from '../../lib/apollo/queries';
-
-const Composed = adopt({
-	// eslint-disable-next-line react/prop-types
-	getIngredient: ({ render, id }) => (
-		<Query query={ GET_INGREDIENT_BY_ID_QUERY } variables={ { id } }>
-			{ render }
-		</Query>
-	),
-});
+// import { GET_INGREDIENT_BY_ID_QUERY } from '../../lib/apollo/queries';
 
 const CardStyles = styled.div`
 	max-height: ${ (props) => (props.theme.mobileCardHeight) };

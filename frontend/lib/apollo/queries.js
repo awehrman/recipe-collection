@@ -1,5 +1,11 @@
 import { gql } from '@apollo/client';
-import { ALL_RECIPE_FIELDS, BASIC_CLIENT_INGREDIENT_FIELDS, ALL_CONTAINER_FIELDS } from './fragments';
+/* eslint-disable object-curly-newline */
+import {
+	ALL_RECIPE_FIELDS,
+	BASIC_CLIENT_INGREDIENT_FIELDS,
+	ALL_CONTAINER_FIELDS,
+} from './fragments';
+/* eslint-enable object-curly-newline */
 
 /* Containers */
 export const GET_CONTAINER_QUERY = gql`
@@ -145,47 +151,13 @@ export const GET_PAGINATED_RECIPES_QUERY = gql`
   }
 `;
 
-export const GET_CURRENT_RECIPE_QUERY = gql`
-	query GET_CURRENT_RECIPE_QUERY($id: ID) {
-		recipe(where: { id: $id }) {
-			id
-			categories {
-				id
-				name
-			}
-			tags {
-				id
-				name
-			}
-			evernoteGUID
-			image
-			source
-			title
-			ingredients {
-				id
-				blockIndex
-				isParsed
-				lineIndex
-				parsed {
-					id
-					ingredient {
-						id
-						isValidated
-						name
-					}
-					rule
-					type
-					value
-				}
-				reference
-				rule
-			}
-			instructions {
-				blockIndex
-				reference
-			}
+export const GET_RECIPE_QUERY = gql`
+	query GET_RECIPE_QUERY($id: ID!) {
+			recipe(where: { id: $id }) {
+  		...AllRecipeFields
 		}
-	}
+  }
+	${ ALL_RECIPE_FIELDS }
 `;
 
 /* Categories */
@@ -370,5 +342,5 @@ export default [
 	GET_DASHBOARD_PARSING_QUERY,
 	GET_DASHBOARD_RECIPES_QUERY,
 	GET_PAGINATED_RECIPES_QUERY,
-	GET_CURRENT_RECIPE_QUERY,
+	GET_RECIPE_QUERY,
 ];

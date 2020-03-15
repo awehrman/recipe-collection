@@ -3,6 +3,7 @@ import { GET_ALL_INGREDIENT_FIELDS, GET_ALL_RECIPE_FIELDS } from '../graphql/fra
 export default {
 	Query: {
 		recipe: async (parent, args, ctx) => {
+			console.log('recipe'.magenta);
 			const { where } = args || {};
 			const { id } = where || {};
 			if (!id) return null;
@@ -22,8 +23,7 @@ export default {
 				first,
 				skip,
 			}).$fragment(GET_ALL_RECIPE_FIELDS)
-				.catch(() => []);
-			console.log({ recipes });
+				.catch((err) => console.log(err));
 
 			return recipes;
 		},

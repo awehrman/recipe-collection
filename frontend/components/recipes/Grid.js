@@ -1,16 +1,16 @@
 // eslint-disable-next-line max-classes-per-file
 import AutoSizer from 'react-virtualized-auto-sizer';
 import InfiniteLoader from 'react-window-infinite-loader';
-import React, { useState } from 'react';
+import React from 'react';
 // import { withApollo } from 'react-apollo';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { FixedSizeList as List } from 'react-window';
+import { FixedSizeList } from 'react-window';
 import memoize from 'memoize-one';
 
 import Card from './Card';
 import Loading from '../Loading';
-import { GET_PAGINATED_RECIPES_QUERY } from '../../lib/apollo/queries';
+// import { GET_PAGINATED_RECIPES_QUERY } from '../../lib/apollo/queries';
 
 const GridStyles = styled.article`
   margin: 0;
@@ -23,24 +23,47 @@ const RowStyles = styled.div`
 	flex-wrap: wrap;
 	justify-content: space-between;
 	padding: 0 4px;
+`;
 
+const Cell = styled.div`
+	flex-basis: 100%;
+
+	@media (min-width: ${ (props) => props.theme.tablet_small }) {
+		flex-basis: 50%;
+	}
+
+	@media (min-width: ${ (props) => props.theme.tablet }) {
+		flex-basis: 33%;
+	}
+
+	@media (min-width: ${ (props) => props.theme.desktop_small }) {
+		flex-basis: 25%;
+	}
 `;
 
 /* eslint-disable react/prop-types */
+const RecipeCell = ({ recipe }) => (
+	<Cell key={ `cell_${ recipe.id }` }>
+		<Card recipe={ recipe } />
+	</Cell>
+);
+
 const Row = ({ data, index, style }) => {
-	const { count, itemsPerRow, onRecipeClick, recipes } = data;
+	const { count, itemsPerRow, recipes } = data;
 	const items = [];
 	const fromIndex = index * itemsPerRow;
 	const toIndex = Math.min(fromIndex + itemsPerRow, count);
+
 	for (let i = fromIndex; i < toIndex; i += 1) {
 		if (recipes[i]) {
-			items.push(<Card key={ `card_${ recipes[i].id }` } recipe={ recipes[i] } onClick={ onRecipeClick } />);
+			items.push(<RecipeCell key={ `cell_${ recipes[i].id }` } recipe={ recipes[i] } />);
 		} else {
-			items.push(<Loading className="card" key={ i } />);
+			items.push(<Loading key={ `loading${ i }` } className="card" />);
 		}
 	}
+
 	return (
-		<RowStyles style={ style }>
+		<RowStyles key={ `grid_${ index }` } style={ style }>
 			{ items }
 		</RowStyles>
 	);
@@ -48,14 +71,13 @@ const Row = ({ data, index, style }) => {
 
 /* eslint-enable react/prop-types */
 const itemStatusMap = {};
-const getItemData = memoize((count, itemsPerRow, onRecipeClick, recipes) => ({
+const getItemData = memoize((count, itemsPerRow, recipes) => ({
 	count,
 	itemsPerRow,
-	onRecipeClick,
 	recipes,
 }));
 
-const Grid = ({ count, fetchMore, onRecipeClick, recipes }) => {
+const Grid = ({ count, recipes }) => {
 	// [ cursor, setCursor ] = useState(0);
 
 	const isItemLoaded = (index) => {
@@ -63,9 +85,9 @@ const Grid = ({ count, fetchMore, onRecipeClick, recipes }) => {
 		return isLoaded;
 	};
 
+	/*
 	const loadMoreItems = (startIndex, stopIndex) => {
 		// TODO lol all this needs to be redone... what a mess
-		/*
 		return new Promise((resolve) => {
 			// fetch more data if we're past the first index (which our initial query will handle)
 			if (startIndex > 0) {
@@ -104,13 +126,13 @@ const Grid = ({ count, fetchMore, onRecipeClick, recipes }) => {
 
 			return resolve(response);
 		});
-		*/
 	};
+	*/
 
 	const itemsPerRow = 4;
 	// instead of recipes.length here, lets try the entire query count
 	const rowCount = Math.ceil(count / itemsPerRow);
-	const itemData = getItemData(count, itemsPerRow, onRecipeClick, recipes);
+	const itemData = getItemData(count, itemsPerRow, recipes);
 	return (
 		<GridStyles>
 			<AutoSizer>
@@ -118,10 +140,10 @@ const Grid = ({ count, fetchMore, onRecipeClick, recipes }) => {
 					<InfiniteLoader
 						isItemLoaded={ isItemLoaded }
 						itemCount={ count }
-						loadMoreItems={ loadMoreItems }
+						loadMoreItems={ /* TODO */ () => {} }
 					>
 						{({ onItemsRendered, ref }) => (
-							<List
+							<FixedSizeList
 								ref={ ref }
 								height={ height }
 								itemCount={ rowCount }
@@ -131,7 +153,7 @@ const Grid = ({ count, fetchMore, onRecipeClick, recipes }) => {
 								width={ width }
 							>
 								{ Row }
-							</List>
+							</FixedSizeList>
 						)}
 					</InfiniteLoader>
 				)}
@@ -140,19 +162,15 @@ const Grid = ({ count, fetchMore, onRecipeClick, recipes }) => {
 	);
 };
 
-Grid.defaultProps = {
-	fetchMore: () => {},
-	recipes: [],
-};
+Grid.defaultProps = { recipes: [] };
 
 Grid.propTypes = {
 	count: PropTypes.number.isRequired,
-	fetchMore: PropTypes.func,
+	// fetchMore: PropTypes.func.isRequired,
 	recipes: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string.isRequired,
 		title: PropTypes.string.isRequired,
 	})),
-	onRecipeClick: PropTypes.func.isRequired,
 };
 
 export default Grid;

@@ -72,6 +72,7 @@ const Carousel = ({ query }) => {
 				{
 					newRecipes.map((rp) => (
 						<Card
+							key={ `newRP_${ rp.id }` }
 							recipe={ rp }
 						/>
 					))
