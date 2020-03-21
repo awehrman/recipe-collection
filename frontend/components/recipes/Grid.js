@@ -10,7 +10,7 @@ import memoize from 'memoize-one';
 
 import Card from './Card';
 import Loading from '../Loading';
-// import { GET_PAGINATED_RECIPES_QUERY } from '../../lib/apollo/queries';
+// import { GET_PAGINATED_RECIPES_QUERY } from '../../lib/apollo/queries/recipes';
 
 const GridStyles = styled.article`
   margin: 0;

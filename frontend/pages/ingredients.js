@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { GET_INGREDIENTS_COUNT_QUERY, GET_ALL_INGREDIENTS_QUERY } from '../lib/apollo/queries';
+import { GET_INGREDIENTS_COUNT_QUERY, GET_ALL_INGREDIENTS_QUERY } from '../lib/apollo/queries/ingredients';
 import AddNew from '../components/ingredients/AddNew';
 import Containers from '../components/ingredients/Containers';
 import ErrorMessage from '../components/ErrorMessage';

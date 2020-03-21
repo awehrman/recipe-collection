@@ -12,19 +12,10 @@ import Button from '../components/form/Button';
 import Header from '../components/Header';
 // import ErrorMessage from '../components/ErrorMessage';
 import ParsedViewer from '../components/recipes/ParsedViewer';
-/* eslint-disable object-curly-newline */
-import {
-	GET_NOTES_COUNT_QUERY,
-	GET_ALL_NOTES_QUERY,
-	IS_EVERNOTE_AUTHENTICATED_QUERY,
-} from '../lib/apollo/queries';
-import {
-	IMPORT_NOTES_MUTATION,
-	PARSE_NOTES_MUTATION,
-	AUTHENTICATE_EVERNOTE_MUTATION,
-	CONVERT_NOTES_MUTATION,
-} from '../lib/apollo/mutations';
-/* eslint-enable object-curly-newline */
+import { IS_EVERNOTE_AUTHENTICATED_QUERY } from '../lib/apollo/queries/evernote';
+import { GET_NOTES_COUNT_QUERY, GET_ALL_NOTES_QUERY } from '../lib/apollo/queries/notes';
+// import { IMPORT_NOTES_MUTATION, PARSE_NOTES_MUTATION, CONVERT_NOTES_MUTATION } from '../lib/apollo/mutations/notes';
+import { AUTHENTICATE_EVERNOTE_MUTATION } from '../lib/apollo/mutations/evernote';
 import { hasProperty } from '../lib/util';
 
 const ImportStyles = styled.article`

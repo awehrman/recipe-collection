@@ -1,12 +1,11 @@
+import { useQuery } from '@apollo/client';
 import React from 'react';
-// import { Query } from 'react-apollo';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 import ErrorMessage from '../ErrorMessage';
-import Form from './Form';
-
-// import { GET_INGREDIENT_BY_ID_QUERY } from '../../lib/apollo/queries';
+// import Form from './Form';
+import { GET_INGREDIENT_QUERY } from '../../lib/apollo/queries/ingredients';
 
 const CardStyles = styled.div`
 	max-height: ${ (props) => (props.theme.mobileCardHeight) };
@@ -29,95 +28,52 @@ const CardStyles = styled.div`
 		border-bottom: 0;
 	}
 `;
+const Card = ({ className, id }) => {
+	console.log('Card', id);
 
-class Card extends React.PureComponent {
-	initialState = { isEditMode: false };
-
-	constructor(props) {
-		super(props);
-		const { view } = props;
-		this.state = { isEditMode: (view === 'new') };
-	}
-
-	onCancelClick = (e) => {
-		e.preventDefault();
-		this.setState(this.initialState);
-	}
-
-	onToggleEditMode = (e) => {
-		e.preventDefault();
-		const { isEditMode } = this.state;
-
-		this.setState({ isEditMode: !isEditMode });
-	}
-
-	resetState = () => {
-		this.setState(this.initialState);
-	}
-
-	showNextCard = (ing) => {
-		const { view, showNextCard } = this.props;
-		if (view !== 'new') return;
-		showNextCard(ing);
-	}
-
-	render() {
-		const { className, id, view } = this.props;
-		const { isEditMode } = this.state;
-
-		return (
-			<Composed id={ id }>
-				{
-					({ getIngredient }) => {
-						const { data, error, loading } = getIngredient || {};
-						const { ingredient } = data || {};
-						const {
-							alternateNames, isComposedIngredient, name, plural, properties,
-							relatedIngredients = [], substitutes = [], references = [],
-						} = ingredient || {};
-						if (error) return <ErrorMessage error={ error } />;
-
-						return (
-							<CardStyles className={ className }>
-								<Form
-									alternateNames={ alternateNames }
-									id={ (ingredient) ? ingredient.id : null }
-									isComposedIngredient={ isComposedIngredient }
-									isEditMode={ isEditMode }
-									key={ (ingredient) ? ingredient.id : 'empty' }
-									loading={ loading }
-									name={ name }
-									onCancelClick={ this.onCancelClick }
-									onEditClick={ this.onToggleEditMode }
-									onSaveCallback={ this.resetState }
-									plural={ plural }
-									properties={ properties }
-									showCancelButton
-									relatedIngredients={ relatedIngredients }
-									references={ references }
-									showNextCard={ this.showNextCard }
-									substitutes={ substitutes }
-									view={ view }
-								/>
-							</CardStyles>
-						);
-					}
-				}
-			</Composed>
-		);
-	}
-}
-
-Card.defaultProps = {
-	className: '',
-	showNextCard: () => {},
+	// query container
+	const {
+		data,
+		loading,
+		error,
+	} = useQuery(GET_INGREDIENT_QUERY, {
+		variables: { id },
+	});
+	const { ingredient } = data || {};
+	console.log({ loading, ingredient });
+	return (
+		<CardStyles className={ className }>
+			{ (error) ? <ErrorMessage error={ error } /> : null }
+			{/*
+				<Form
+					alternateNames={ alternateNames }
+					id={ (ingredient) ? ingredient.id : null }
+					isComposedIngredient={ isComposedIngredient }
+					isEditMode={ isEditMode }
+					key={ (ingredient) ? ingredient.id : 'empty' }
+					loading={ loading }
+					name={ name }
+					onCancelClick={ this.onCancelClick }
+					onEditClick={ this.onToggleEditMode }
+					onSaveCallback={ this.resetState }
+					plural={ plural }
+					properties={ properties }
+					showCancelButton
+					relatedIngredients={ relatedIngredients }
+					references={ references }
+					showNextCard={ showNextCard }
+					substitutes={ substitutes }
+				/>
+			*/}
+		</CardStyles>
+	);
 };
+
+Card.defaultProps = { className: '' };
 
 Card.propTypes = {
 	className: PropTypes.string,
 	id: PropTypes.string.isRequired,
-	showNextCard: PropTypes.func,
-	view: PropTypes.oneOf([ 'all', 'new' ]).isRequired,
 };
 
 export default Card;

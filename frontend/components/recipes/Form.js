@@ -17,22 +17,7 @@ import Input from '../form/Input';
 import List from '../form/List';
 import ParserInput from './ParserInput';
 import ParsedViewer from './ParsedViewer';
-/* eslint-disable object-curly-newline */
-import {
-	// GET_ALL_RECIPES_QUERY,
-	// GET_RECIPES_COUNT_QUERY,
-	// GET_ALL_INGREDIENTS_QUERY,
-	// GET_INGREDIENTS_COUNT_QUERY,
-	// GET_INGREDIENT_BY_VALUE_QUERY,
-	GET_SUGGESTED_CATEGORIES_QUERY,
-	GET_SUGGESTED_TAGS_QUERY,
-} from '../../lib/apollo/queries';
-import {
-// CREATE_RECIPE_MUTATION,
-// UPDATE_RECIPE_MUTATION,
-} from '../../lib/apollo/mutations';
-/* eslint-enable object-curly-newline */
-
+import { GET_SUGGESTED_CATEGORIES_QUERY, GET_SUGGESTED_TAGS_QUERY } from '../../lib/apollo/queries/suggestions';
 
 const FormStyles = styled.form`
 	flex-basis: 100%;
@@ -625,8 +610,8 @@ class Form extends Component {
 			try {
 				/*
 				const { data } = await client.query({
-					query: GET_INGREDIENT_BY_VALUE_QUERY,
-					variables: { value: name },
+					query: GET_INGREDIENT_QUERY,
+					variables: { name },
 				});
 				({ ingredient } = data);
 				delete ingredient.__typename;

@@ -2,7 +2,7 @@ import { useQuery } from '@apollo/client';
 import PropTypes from 'prop-types';
 import React from 'react';
 import styled from 'styled-components';
-import { GET_PAGINATED_RECIPES_QUERY, GET_RECIPES_COUNT_QUERY } from '../lib/apollo/queries';
+import { GET_PAGINATED_RECIPES_QUERY, GET_RECIPES_COUNT_QUERY } from '../lib/apollo/queries/recipes';
 
 import AddNew from '../components/recipes/AddNew';
 import ErrorMessage from '../components/ErrorMessage';

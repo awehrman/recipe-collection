@@ -67,7 +67,9 @@ const Carousel = ({ query }) => {
 					: null
 			}
 
-			{/* TODO react slick carousel */}
+			{/* TODO there's some warnings being thrown here
+				https://github.com/akiran/react-slick/issues/1720
+			*/}
 			<Slider { ...settings }>
 				{
 					newRecipes.map((rp) => (

@@ -17,15 +17,9 @@ import Button from '../form/Button';
 import CheckboxGroup from '../form/CheckboxGroup';
 import Input from '../form/Input';
 import List from '../form/List';
-import { CREATE_INGREDIENT_MUTATION, UPDATE_INGREDIENT_MUTATION } from '../../lib/apollo/mutations';
-/* eslint-disable object-curly-newline */
-import {
-	GET_INGREDIENT_BY_VALUE_QUERY,
-	GET_ALL_INGREDIENTS_QUERY,
-	GET_INGREDIENTS_COUNT_QUERY,
-	GET_SUGGESTED_INGREDIENTS_QUERY,
-} from '../../lib/apollo/queries';
-/* eslint-enable object-curly-newline */
+import { CREATE_INGREDIENT_MUTATION } from '../../lib/apollo/mutations/ingredients';
+import { GET_INGREDIENT_QUERY, GET_ALL_INGREDIENTS_QUERY, GET_INGREDIENTS_COUNT_QUERY } from '../../lib/apollo/queries/ingredients';
+import { GET_SUGGESTED_INGREDIENTS_QUERY } from '../../lib/apollo/queries/suggestions';
 
 const FormStyles = styled.form`
 	flex-basis: 100%;
@@ -800,8 +794,8 @@ class Form extends Component {
 		// if we found this value used on another ingredient, add a warning, but allow save
 		// saving will trigger a merge on these two ingredients
 		const { data } = await client.query({
-			query: GET_INGREDIENT_BY_VALUE_QUERY,
-			variables: { value: nameValue },
+			query: GET_INGREDIENT_QUERY,
+			variables: { name: nameValue },
 		});
 		const { ingredient } = data;
 

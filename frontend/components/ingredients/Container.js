@@ -7,8 +7,8 @@ import Card from './Card';
 import ErrorMessage from '../ErrorMessage';
 import Loading from '../Loading';
 import IngredientsContext from '../../lib/contexts/ingredientsContext';
-import { GET_CONTAINER_QUERY } from '../../lib/apollo/queries';
-import { TOGGLE_CONTAINER_MUTATION } from '../../lib/apollo/mutations';
+import { GET_CONTAINER_QUERY } from '../../lib/apollo/queries/containers';
+import { TOGGLE_CONTAINER_MUTATION, UPDATE_CONTAINER_INGREDIENT_MUTATION } from '../../lib/apollo/mutations/containers';
 
 const ContainerStyles = styled.div`
 	margin-bottom: 16px;
@@ -46,7 +46,7 @@ const IngredientsList = styled.ul`
 	max-height: 450px;
 	overflow: scroll;
 	position: relative;
-	padding: 0;
+	padding: 5px 0;
 
 	&.small {
 		display: flex;
@@ -138,8 +138,17 @@ const Container = ({ id }) => {
 	});
 	const { container } = data || {};
 
-	// setup mutation for toggle containers
+	// setup mutations
 	const [ toggleContainer ] = useMutation(TOGGLE_CONTAINER_MUTATION);
+	const [ toggleIngredientID ] = useMutation(UPDATE_CONTAINER_INGREDIENT_MUTATION);
+	const handleIngredientToggle = (containerID, ingredientID) => {
+		toggleIngredientID({
+			variables: {
+				id: containerID,
+				ingredientID,
+			},
+		});
+	};
 
 	if (error) return <ErrorMessage error={ error } />;
 	if (loading) return <Loading />;
@@ -169,8 +178,7 @@ const Container = ({ id }) => {
 						<Card
 							className={ className }
 							id={ container.ingredientID }
-							key={ container.ingredientID }
-							showNextCard={ (e) => e.preventDefault() /* TODO showNextCard */ }
+							// pass in the current ingredient defaults
 						/>
 					)
 					: null
@@ -187,8 +195,8 @@ const Container = ({ id }) => {
 									: (
 										<a
 											id={ i.id }
-											onClick={ (e) => e.preventDefault() /* TODO ingredients onClick */ }
-											onKeyPress={ (e) => e.preventDefault() /* TODO ingredients onKeyPress */ }
+											onClick={ (e) => handleIngredientToggle(container.id, e.target.id) }
+											onKeyPress={ (e) => handleIngredientToggle(container.id, e.target.id) }
 											role="link"
 											tabIndex="0"
 										>

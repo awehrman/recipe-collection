@@ -1,6 +1,8 @@
 import { useQuery } from '@apollo/client';
 import styled from 'styled-components';
-import { GET_DASHBOARD_INGREDIENTS_QUERY, GET_DASHBOARD_PARSING_QUERY, GET_DASHBOARD_RECIPES_QUERY } from '../lib/apollo/queries';
+import { GET_DASHBOARD_INGREDIENTS_QUERY } from '../lib/apollo/queries/ingredients';
+import { GET_DASHBOARD_PARSING_QUERY } from '../lib/apollo/queries/notes';
+import { GET_DASHBOARD_RECIPES_QUERY } from '../lib/apollo/queries/recipes';
 
 import Header from '../components/Header';
 import ViewMoreList from '../components/ingredients/ViewMoreList';

@@ -3,7 +3,7 @@ import { useQuery } from '@apollo/client';
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { GET_RECIPE_QUERY } from '../../lib/apollo/queries';
+import { GET_RECIPE_QUERY } from '../../lib/apollo/queries/recipes';
 
 import ErrorMessage from '../ErrorMessage';
 import Form from './Form';

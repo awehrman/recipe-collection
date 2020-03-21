@@ -5,9 +5,9 @@ import styled from 'styled-components';
 import Container from './Container';
 import ErrorMessage from '../ErrorMessage';
 import Loading from '../Loading';
-import { GET_ALL_CONTAINERS_QUERY } from '../../lib/apollo/queries';
+import { GET_ALL_CONTAINERS_QUERY } from '../../lib/apollo/queries/containers';
 import IngredientsContext from '../../lib/contexts/ingredientsContext';
-import { CREATE_CONTAINERS_MUTATION } from '../../lib/apollo/mutations';
+import { CREATE_CONTAINERS_MUTATION } from '../../lib/apollo/mutations/containers';
 
 const ContainerStyles = styled.div`
 	display: flex;
@@ -52,7 +52,7 @@ const Containers = () => {
 		notifyOnNetworkStatusChange: true,
 		onCompleted: async (d) => {
 			const { containers } = d;
-			console.warn('> [Containers] (GET_ALL_CONTAINERS_QUERY) onCompleted', containers);
+			// console.warn('> [Containers] (GET_ALL_CONTAINERS_QUERY) onCompleted', containers);
 			if (containers && (containers.length === 0)) {
 				// if we didn't find any containers in the cache, then we'll have to create them
 				const response = await createContainers({
@@ -75,7 +75,7 @@ const Containers = () => {
 	});
 
 	const { containers = [] } = data || {};
-	console.log('> [Containers]', (loading) ? 'loading...' : containers);
+	// console.log('> [Containers]', (loading) ? 'loading...' : containers);
 
 	return (
 		<ContainerStyles>

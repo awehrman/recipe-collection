@@ -10,7 +10,7 @@ import Button from './Button';
 import Input from './Input';
 import Suggestions from './Suggestions';
 import { hasProperty } from '../../lib/util';
-import { GET_SUGGESTED_INGREDIENTS_QUERY } from '../../lib/apollo/queries';
+import { GET_SUGGESTED_INGREDIENTS_QUERY } from '../../lib/apollo/queries/suggestions';
 
 const ListStyles = styled.fieldset`
 	border: 0;

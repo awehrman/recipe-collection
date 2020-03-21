@@ -1,8 +1,10 @@
 import { List as ImmutableList } from 'immutable';
 import buildContainers from '../buildContainers';
-import { setIsExpanded } from './fragments';
-// import { CREATE_CONTAINERS_MUTATION } from './mutations';
-import { GET_ALL_CONTAINERS_QUERY, GET_ALL_INGREDIENTS_QUERY } from './queries';
+import { setIsExpanded, toggleIngredientID } from './fragments/containers';
+import { ALL_INGREDIENT_FIELDS } from './fragments/ingredients';
+// import { CREATE_CONTAINERS_MUTATION } from './mutations/containers';
+import { GET_ALL_CONTAINERS_QUERY } from './queries/containers';
+import { GET_ALL_INGREDIENTS_QUERY } from './queries/ingredients';
 
 export default {
 	// assign client side field values
@@ -12,8 +14,28 @@ export default {
 	},
 	// client-side query resolvers
 	Query: {
+		/*
+		ingredient(_, { id, name }, { client }) {
+			// eslint-disable-next-line object-curly-newline
+			console.log('INGREDIENT QUERY', { id, name });
+
+			// see if its already in our cache
+			try {
+				const stuff = client.readFragment({
+					fragment: ALL_INGREDIENT_FIELDS, // BASIC_INGREDIENT_FIELDS, (it will return for basic)
+					id: `Ingredient:${ id }`,
+				});
+				console.log({ ...stuff });
+			} catch (e) {
+				console.log('no ingredients found in the cache');
+				// TODO fetch them from the server
+			}
+
+			return { };
+		},
+		*/
 		container(_, { id }, { client, group, view }) {
-			console.log('CONTAINER QUERY', id);
+			// console.log('CONTAINER QUERY', id);
 
 			const { containers } = client.readQuery({
 				query: GET_ALL_CONTAINERS_QUERY,
@@ -28,7 +50,7 @@ export default {
 		},
 		containers(_, { group, view }, { client }) {
 			// eslint-disable-next-line object-curly-newline
-			console.log('CONTAINERS QUERY', { group, view });
+			// console.log('CONTAINERS QUERY', { group, view });
 			let containers = [];
 			try {
 				({ containers } = client.readQuery({
@@ -40,9 +62,9 @@ export default {
 				}));
 			} catch (e) {
 				// no containers found in the cache
-				console.log('no matching containers found in cache');
+				// console.log('no matching containers found in cache');
 			}
-			console.warn({ ...containers });
+			// console.warn({ ...containers });
 			return containers;
 		},
 	},
@@ -50,7 +72,7 @@ export default {
 	Mutation: {
 		createContainers(_, { group = 'name', view = 'all' }, ctx) {
 			// eslint-disable-next-line object-curly-newline
-			console.log('BUILD CONTAINERS MUTATION', { ctx, group, view });
+			// console.log('BUILD CONTAINERS MUTATION', { ctx, group, view });
 			const { client, currentIngredientID = null } = ctx; // don't store the ingredients in here, we can always query those ourself here
 			const { ingredients } = client.readQuery({ query: GET_ALL_INGREDIENTS_QUERY });
 
@@ -60,13 +82,14 @@ export default {
 				result: { containers: new ImmutableList() },
 			};
 
+
 			// can we get the view and group here?, or should these be passed in as variables
 			// writeQuery containers with these variables
 			const data = {
 				containers: buildContainers(currentIngredientID, group, view, ingredients)
 					.map((c) => ({
 						...c,
-						ingredients: c.ingredients.toJS(),
+						ingredients: c.ingredients.sort((a, b) => a.name.localeCompare(b.name)).toJS(),
 					})),
 			};
 
@@ -83,8 +106,32 @@ export default {
 
 			return response;
 		},
+		toggleIngredientID(_, { id, ingredientID }, { cache }) {
+			// eslint-disable-next-line object-curly-newline
+			// console.log('TOGGLE CONTAINER INGREDIENT', { id, ingredientID });
+			if (!id) {
+				return {
+					__typename: 'ContainerResponse',
+					errors: [ { message: 'No id parameter provided!' } ],
+				};
+			}
+
+			cache.writeFragment({
+				fragment: toggleIngredientID,
+				id: `Container:${ id }`,
+				data: {
+					__typename: 'Container',
+					ingredientID,
+				},
+			});
+
+			return {
+				__typename: 'ContainerResponse',
+				errors: [],
+			};
+		},
 		toggleContainer(_, { id, isExpanded }, { cache }) {
-			console.log('TOGGLE CONTAINER');
+			// console.log('TOGGLE CONTAINER');
 
 			cache.writeFragment({
 				fragment: setIsExpanded,

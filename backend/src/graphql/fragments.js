@@ -104,6 +104,7 @@ export const GET_ALL_INGREDIENT_FIELDS = `
 		}
 		plural
 		properties {
+			id
 			meat
 		  poultry
 		  fish
@@ -125,6 +126,7 @@ export const GET_ALL_INGREDIENT_FIELDS = `
 				id
 			}
 			line {
+				id
 				reference
 			}
 		}
@@ -153,6 +155,7 @@ export const GET_ALL_INGREDIENT_FIELDS_FOR_VALIDATION = `
 		}
 		plural
 		properties {
+			id
 			meat
 		  poultry
 		  fish
@@ -166,6 +169,7 @@ export const GET_ALL_INGREDIENT_FIELDS_FOR_VALIDATION = `
 				id
 			}
 			line {
+				id
 				reference
 			}
 		}
