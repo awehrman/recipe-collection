@@ -1,6 +1,6 @@
 import { darken } from 'polished';
 import PropTypes from 'prop-types';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import IngredientFormContext from '../../lib/contexts/ingredientFormContext';
 
@@ -181,9 +181,25 @@ const BottomFormStyles = styled.div`
 	}
 `;
 
+const Warning = styled.div`
+	color: tomato;
+	position: absolute;
+	right: 0;
+	margin-top: 4px;
+	font-size: .8em;
+`;
+
 const IngredientForm = ({ className }) => {
-	const { isEditMode, onCancelClick, onChange, onSubmit, state } = useContext(IngredientFormContext);
+	const [ allWarnings, setAllWarnings ] = useState([]);
+	const { isEditMode, onCancelClick, onChange, onSubmit, state, validationWarnings } = useContext(IngredientFormContext);
 	const { name } = state;
+	const { errors = {}, warnings = {} } = validationWarnings || {};
+	console.log('IngredientForm', { validationWarnings });
+
+	useEffect(
+		() => setAllWarnings([ ...Object.values(errors) ].concat([ ...Object.values(warnings) ])),
+		[ validationWarnings ],
+	);
 
 	return (
 		<FormStyles className={ className } onSubmit={ onSubmit }>
@@ -200,7 +216,14 @@ const IngredientForm = ({ className }) => {
 				(isEditMode)
 					? (
 						<BottomFormStyles>
-							{/* <TodoBorder>Warnings</TodoBorder> */}
+							{/* Warnings */}
+							{
+								allWarnings && allWarnings.map((err) => (
+									<Warning key={ `${ err }` }>{ err }</Warning>
+								))
+							}
+
+							{/* Cancel Button */}
 							<Button
 								className="cancel"
 								label="Cancel"

@@ -54,7 +54,6 @@ const useIngredientForm = ({ id, name }) => {
 		}
 		*/
 
-		console.log('B');
 		// otherwise update our warnings
 		return setValidationWarnings({
 			errors: updatedErrors,

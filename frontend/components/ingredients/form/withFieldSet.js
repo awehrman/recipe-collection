@@ -11,7 +11,7 @@ const FieldSetStyles = styled.fieldset`
 		display: none;
 	}
 
-	// TODO AHHH I still hate this... this needs to be cleaned up and thought through more
+	// TODO this needs to be pulled out of fieldset component
 	&.editable input {
 		cursor: text;
 		caret-color: #222;
