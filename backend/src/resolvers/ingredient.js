@@ -55,7 +55,6 @@ export default {
 			console.log(JSON.stringify(response, null, 2));
 			return response;
 		},
-
 		deleteIngredient: async (parent, args, ctx, info) => {
 			console.log('deleteIngredient');
 			const response = {
@@ -82,7 +81,6 @@ export default {
 			console.log(JSON.stringify(response, null, 2));
 			return response;
 		},
-
 		updateIngredient: async (parent, args, ctx, info) => {
 			console.log('updateIngredient');
 			const response = {

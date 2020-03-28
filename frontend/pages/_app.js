@@ -1,9 +1,15 @@
 import { ApolloProvider } from '@apollo/client';
 import App from 'next/app';
+import React from 'react';
 import { withRouter } from 'next/router';
+import whyDidYouRender from '@welldone-software/why-did-you-render';
 
 import Page from '../components/Page';
 import withData from '../lib/withData';
+
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+	whyDidYouRender(React);
+}
 
 class RecipesApp extends App {
 	render() {

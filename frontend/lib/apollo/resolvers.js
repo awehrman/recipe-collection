@@ -1,8 +1,6 @@
 import { List as ImmutableList } from 'immutable';
 import buildContainers from '../buildContainers';
 import { setIsExpanded, toggleIngredientID } from './fragments/containers';
-import { ALL_INGREDIENT_FIELDS } from './fragments/ingredients';
-// import { CREATE_CONTAINERS_MUTATION } from './mutations/containers';
 import { GET_ALL_CONTAINERS_QUERY } from './queries/containers';
 import { GET_ALL_INGREDIENTS_QUERY } from './queries/ingredients';
 
@@ -14,26 +12,6 @@ export default {
 	},
 	// client-side query resolvers
 	Query: {
-		/*
-		ingredient(_, { id, name }, { client }) {
-			// eslint-disable-next-line object-curly-newline
-			console.log('INGREDIENT QUERY', { id, name });
-
-			// see if its already in our cache
-			try {
-				const stuff = client.readFragment({
-					fragment: ALL_INGREDIENT_FIELDS, // BASIC_INGREDIENT_FIELDS, (it will return for basic)
-					id: `Ingredient:${ id }`,
-				});
-				console.log({ ...stuff });
-			} catch (e) {
-				console.log('no ingredients found in the cache');
-				// TODO fetch them from the server
-			}
-
-			return { };
-		},
-		*/
 		container(_, { id }, { client, group, view }) {
 			// console.log('CONTAINER QUERY', id);
 
@@ -82,7 +60,6 @@ export default {
 				result: { containers: new ImmutableList() },
 			};
 
-
 			// can we get the view and group here?, or should these be passed in as variables
 			// writeQuery containers with these variables
 			const data = {
@@ -116,12 +93,18 @@ export default {
 				};
 			}
 
+			const fragment = cache.readFragment({
+				fragment: toggleIngredientID,
+				id: `Container:${ id }`,
+			});
+
 			cache.writeFragment({
 				fragment: toggleIngredientID,
 				id: `Container:${ id }`,
 				data: {
 					__typename: 'Container',
-					ingredientID,
+					// if we click on the current ingredient, we'll collapse the card
+					ingredientID: (ingredientID !== fragment.ingredientID) ? ingredientID : null,
 				},
 			});
 

@@ -47,7 +47,6 @@ const Ingredients = ({ group, id, view }) => {
 		// once we've fetched the ingredients, we can safely render the containers
 		onCompleted: () => (!showContainers && setShowContainers(true)),
 	});
-	// console.log('[ingredients] render', (!loading && showContainers), (loading || countLoading) ? 'loading...' : 'finished');
 
 	return (
 		<IngredientsContext.Provider value={ context }>

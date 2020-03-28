@@ -155,11 +155,17 @@ const Container = ({ id }) => {
 
 	const className = (`${ (!container.isExpanded) ? 'hidden' : '' } ${ (container.ingredientID) ? 'expanded' : '' }`).trim();
 
+	// TODO consider memoizing this or throwing it in the cache
+	const currentIngredientName = container.ingredients
+		.filter((i) => i.id === container.ingredientID)
+		.map((i) => i.name)[0] || '';
+
 	return (
 		<ContainerStyles className={ (container.isExpanded) ? 'expanded' : '' }>
 			{/* container header */}
 			<HeaderStyles
 				onClick={
+					/* TODO move these mutations into reducers */
 					() => toggleContainer({
 						variables: {
 							id: container.id,
@@ -178,7 +184,7 @@ const Container = ({ id }) => {
 						<Card
 							className={ className }
 							id={ container.ingredientID }
-							// pass in the current ingredient defaults
+							name={ currentIngredientName }
 						/>
 					)
 					: null
@@ -211,7 +217,6 @@ const Container = ({ id }) => {
 		</ContainerStyles>
 	);
 };
-
 
 Container.propTypes = { id: PropTypes.string.isRequired };
 

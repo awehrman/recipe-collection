@@ -1,38 +1,37 @@
 import { gql } from '@apollo/client';
 
 export const ALL_NOTE_FIELDS = gql`
-fragment NoteFields on Note {
-	id
-	content
-	ingredients {
+	fragment NoteFields on Note {
 		id
-		blockIndex
-		isParsed
-		lineIndex
-		parsed {
+		content
+		ingredients {
 			id
-			ingredient {
+			blockIndex
+			isParsed
+			lineIndex
+			parsed {
 				id
-				isValidated
-				name
+				ingredient {
+					id
+					isValidated
+					name
+				}
+				rule
+				type
+				value
 			}
+			reference
 			rule
-			type
-			value
 		}
-		reference
-		rule
+		instructions {
+			id
+			blockIndex
+			reference
+		}
+		image
+		source
+		title
 	}
-	instructions {
-		id
-		blockIndex
-		reference
-	}
-	image
-	source
-	title
 `;
 
-export default {
-	ALL_NOTE_FIELDS,
-};
+export default { ALL_NOTE_FIELDS };

@@ -1,11 +1,19 @@
 import { useQuery } from '@apollo/client';
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit } from '@fortawesome/pro-regular-svg-icons';
+
+import { actions } from '../../reducers/ingredient';
+
+import Button from '../form/Button';
 import ErrorMessage from '../ErrorMessage';
-// import Form from './Form';
+import IngredientForm from './IngredientForm';
+import IngredientFormContext from '../../lib/contexts/ingredientFormContext';
 import { GET_INGREDIENT_QUERY } from '../../lib/apollo/queries/ingredients';
+import useIngredientForm from './form/useIngredientForm';
 
 const CardStyles = styled.div`
 	max-height: ${ (props) => (props.theme.mobileCardHeight) };
@@ -19,6 +27,20 @@ const CardStyles = styled.div`
 		display: none;
 	}
 
+	button.edit {
+		border: 0;
+		background: transparent;
+		cursor: pointer;
+		color: ${ (props) => props.theme.highlight };
+		font-weight: 600;
+		font-size: 14px;
+
+	 	svg {
+			margin-right: 8px;
+			height: 14px;
+		}
+	}
+
 	@media (min-width: ${ (props) => (props.theme.desktopCardWidth) }) {
 		flex-basis: 70%;
 		flex-grow: 2;
@@ -28,52 +50,74 @@ const CardStyles = styled.div`
 		border-bottom: 0;
 	}
 `;
-const Card = ({ className, id }) => {
-	console.log('Card', id);
 
-	// query container
+const Card = ({ className, id, name }) => {
+	// setup our form helpers
+	const formUtilities = useIngredientForm({
+		id,
+		name,
+	});
 	const {
-		data,
+		dispatch,
+		isEditMode,
+		setEditMode,
+	} = formUtilities;
+
+	// query the full ingredient
+	const {
 		loading,
 		error,
 	} = useQuery(GET_INGREDIENT_QUERY, {
+		onCompleted: async ({ ingredient }) => {
+			dispatch({
+				type: actions.loadIngredient,
+				payload: { ...ingredient },
+			});
+		},
 		variables: { id },
 	});
-	const { ingredient } = data || {};
-	console.log({ loading, ingredient });
+
+	const context = {
+		...formUtilities,
+		loading,
+	};
+
 	return (
-		<CardStyles className={ className }>
-			{ (error) ? <ErrorMessage error={ error } /> : null }
-			{/*
-				<Form
-					alternateNames={ alternateNames }
-					id={ (ingredient) ? ingredient.id : null }
-					isComposedIngredient={ isComposedIngredient }
-					isEditMode={ isEditMode }
-					key={ (ingredient) ? ingredient.id : 'empty' }
-					loading={ loading }
-					name={ name }
-					onCancelClick={ this.onCancelClick }
-					onEditClick={ this.onToggleEditMode }
-					onSaveCallback={ this.resetState }
-					plural={ plural }
-					properties={ properties }
-					showCancelButton
-					relatedIngredients={ relatedIngredients }
-					references={ references }
-					showNextCard={ showNextCard }
-					substitutes={ substitutes }
-				/>
-			*/}
-		</CardStyles>
+		<IngredientFormContext.Provider value={ context }>
+			<CardStyles className={ className }>
+				{/* Error Message */}
+				{ (error) ? <ErrorMessage error={ error } /> : null }
+
+				{/* Ingredient Form */}
+				<IngredientForm className="card" />
+
+				{/* Edit Button */
+					(!isEditMode)
+						? (
+							<Button
+								className="edit"
+								icon={ <FontAwesomeIcon icon={ faEdit } /> }
+								label="Edit"
+								onClick={ () => setEditMode(true) }
+							/>
+						) : null
+				}
+			</CardStyles>
+		</IngredientFormContext.Provider>
 	);
 };
 
-Card.defaultProps = { className: '' };
+Card.whyDidYouRender = true;
+
+Card.defaultProps = {
+	className: '',
+	name: '',
+};
 
 Card.propTypes = {
 	className: PropTypes.string,
 	id: PropTypes.string.isRequired,
+	name: PropTypes.string,
 };
 
-export default Card;
+export default memo(Card);

@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@apollo/client';
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 
 import Container from './Container';
@@ -31,8 +31,6 @@ const ContainerStyles = styled.div`
 
 const Containers = () => {
 	const { currentIngredientID, group, view } = useContext(IngredientsContext);
-	// don't show the containers until we've populated them
-	const [ showContainers, setShowContainers ] = useState(false);
 
 	// setup create/refresh containers mutation
 	const [ createContainers ] = useMutation(CREATE_CONTAINERS_MUTATION);
@@ -47,25 +45,19 @@ const Containers = () => {
 		error,
 		loading,
 	} = useQuery(GET_ALL_CONTAINERS_QUERY, {
-		// network-only will force us to go thru our local resolver every time
-		fetchPolicy: 'network-only',
-		notifyOnNetworkStatusChange: true,
+		fetchPolicy: 'cache-and-network',
 		onCompleted: async (d) => {
 			const { containers } = d;
 			// console.warn('> [Containers] (GET_ALL_CONTAINERS_QUERY) onCompleted', containers);
 			if (containers && (containers.length === 0)) {
 				// if we didn't find any containers in the cache, then we'll have to create them
-				const response = await createContainers({
+				await createContainers({
 					variables: {
 						currentIngredientID,
 						group,
 						view,
 					},
 				});
-				const { result } = response.data.createContainers;
-				if (result.containers && (result.containers.length > 0)) {
-					setShowContainers(true);
-				}
 			}
 		},
 		variables: {
@@ -98,7 +90,7 @@ const Containers = () => {
 			}
 
 			{/* display grouped containers of ingredients */
-				(!loading && showContainers)
+				(!loading)
 					? (
 						containers && containers.map((c) => (
 							<Container

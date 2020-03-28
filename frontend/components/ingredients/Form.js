@@ -15,12 +15,13 @@ import { faEdit } from '@fortawesome/pro-regular-svg-icons';
 import { deepCopy, hasProperty } from '../../lib/util';
 import Button from '../form/Button';
 import CheckboxGroup from '../form/CheckboxGroup';
-import Input from '../form/Input';
+import Input from '../form/_Input';
 import List from '../form/List';
 import { CREATE_INGREDIENT_MUTATION } from '../../lib/apollo/mutations/ingredients';
 import { GET_INGREDIENT_QUERY, GET_ALL_INGREDIENTS_QUERY, GET_INGREDIENTS_COUNT_QUERY } from '../../lib/apollo/queries/ingredients';
 import { GET_SUGGESTED_INGREDIENTS_QUERY } from '../../lib/apollo/queries/suggestions';
 
+// DEPRECATED IN FAVOR OF INGREDIENT FORM
 const FormStyles = styled.form`
 	flex-basis: 100%;
 	display: flex;
@@ -215,6 +216,8 @@ const BottomFormStyles = styled.div`
 		}
 	}
 `;
+
+// DEPRECATED in favor of IngredientForm
 class Form extends Component {
 	initialState = {
 		pending: {},
@@ -709,7 +712,6 @@ class Form extends Component {
 			name: data.name,
 		}));
 */
-
 	}
 
 	onSuggestPlural = async (e, pluralBasis) => {
@@ -866,12 +868,6 @@ class Form extends Component {
 		const { pending, warnings } = this.state;
 		// cleanup properties data
 		const checkboxes = (isEditMode && hasProperty(pending, 'properties')) ? pending.properties : properties;
-		if (hasProperty(checkboxes, '__typename')) {
-			// eslint-disable-next-line no-underscore-dangle
-			delete checkboxes.__typename;
-		}
-
-		// cleanup alternateNames data
 		const pendingIngredient = this.getPendingIngredient();
 
 		return (
@@ -921,10 +917,10 @@ class Form extends Component {
 							isEditMode={ isEditMode }
 							loading={ loading }
 							key={ `card_properties_${ id }` }
-							keys={ [ ...Object.keys(checkboxes) ] }
+							keys={ [ ...Object.keys(checkboxes) ].filter((p) => p !== '__typename') }
 							onChange={ (e) => this.onCheckboxChange(e, 'properties', properties) }
 							onKeyDown={ (e) => this.onCheckboxKeyDown(e, 'properties', properties) }
-							values={ [ ...Object.values(checkboxes) ] }
+							values={ [ ...Object.values(checkboxes) ].filter((p) => p !== 'Properties') }
 						/>
 
 						{/* Is Composed Ingredient */}
