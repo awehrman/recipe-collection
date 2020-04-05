@@ -11,6 +11,11 @@ const FieldSetStyles = styled.fieldset`
 		display: none;
 	}
 
+	&.plural {
+		height: 20px;
+		margin-top: -10px;
+	}
+
 	// TODO this needs to be pulled out of fieldset component
 	&.editable input {
 		cursor: text;
@@ -42,13 +47,13 @@ const FieldSetStyles = styled.fieldset`
 	}
 `;
 
-const FieldSet = (WrappedComponent) => ({ children, ...props }) => {
+const FieldSet = (WrappedComponent) => ({ children, className, ...props }) => {
 	const { isEditMode, loading } = useContext(IngredientFormContext);
 
 	return (
 		<FieldSetStyles
 			aria-busy={ loading }
-			className={ isEditMode ? 'editable' : '' }
+			className={ isEditMode ? `${ className } editable` : className }
 			disabled={ loading }
 		>
 			{/* eslint-disable-next-line react/jsx-props-no-spreading */}

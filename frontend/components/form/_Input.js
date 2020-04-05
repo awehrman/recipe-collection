@@ -4,6 +4,8 @@ import { faMagic } from '@fortawesome/pro-regular-svg-icons';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
+// DEPRECATED: in lieu or current Input component; will delete once all ing form components are updated
+
 const FieldSet = styled.fieldset`
 	position: relative;
 	border: 0;

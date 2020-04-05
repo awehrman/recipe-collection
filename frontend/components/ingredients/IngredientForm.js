@@ -1,11 +1,13 @@
 import { darken } from 'polished';
 import PropTypes from 'prop-types';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
+import pure from 'recompose/pure';
 import styled from 'styled-components';
 import IngredientFormContext from '../../lib/contexts/ingredientFormContext';
 
 import Button from '../form/Button';
 import Name from './form/components/Name';
+import Plural from './form/components/Plural';
 
 const FormStyles = styled.form`
 	flex-basis: 100%;
@@ -74,7 +76,6 @@ const TopFormStyles = styled.div`
 	}
 `;
 
-/*
 const MiddleFormStyles = styled.div`
 	@media (min-width: ${ (props) => props.theme.desktopCardWidth }) {
 		display: flex;
@@ -99,10 +100,10 @@ const MiddleFormStyles = styled.div`
 		}
 	}
 `;
-*/
 
 const BottomFormStyles = styled.div`
 	margin-top: auto; /* stick to the bottom of the card */
+	padding-top: 10px;
 
 	.warnings {
 		flex-basis: 100%;
@@ -190,26 +191,44 @@ const Warning = styled.div`
 `;
 
 const IngredientForm = ({ className }) => {
-	const [ allWarnings, setAllWarnings ] = useState([]);
-	const { isEditMode, onCancelClick, onChange, onSubmit, state, validationWarnings } = useContext(IngredientFormContext);
-	const { name } = state;
-	const { errors = {}, warnings = {} } = validationWarnings || {};
-	console.log('IngredientForm', { validationWarnings });
+	const { isEditMode, onCancelClick, onChange, onSubmit, state } = useContext(IngredientFormContext);
+	const { ingredient, validationWarnings } = state;
 
-	useEffect(
-		() => setAllWarnings([ ...Object.values(errors) ].concat([ ...Object.values(warnings) ])),
-		[ validationWarnings ],
-	);
+	const errors = validationWarnings.get('errors').toJS() || {};
+	const warnings = validationWarnings.get('warnings').toJS() || {};
+	const allWarnings = [ ...Object.values(errors) ].concat([ ...Object.values(warnings) ]);
+
+	console.log('form', { allWarnings });
+
+	const name = (ingredient && ingredient.get('name')) || '';
+	const plural = (ingredient && ingredient.get('plural')) || '';
 
 	return (
 		<FormStyles className={ className } onSubmit={ onSubmit }>
 			{/* Top Form Elements (Name, Plural, Properties, IsComposedIngredient) */}
 			<TopFormStyles>
-				<Name
-					onChange={ onChange }
-					value={ name }
-				/>
+				<div className="left">
+					<Name
+						onChange={ onChange }
+						value={ name }
+					/>
+
+					<Plural
+						// pass a className for the fieldSet height adjustment
+						className="plural"
+						isSuggestEnabled
+						onChange={ onChange }
+						value={ plural }
+					/>
+				</div>
+				<div className="right">
+					{ /* TODO properties, isComposedIngredient */ }
+				</div>
 			</TopFormStyles>
+
+			<MiddleFormStyles>
+				{/* TODO alternateNames, relatedIngredients, substitutes, references */}
+			</MiddleFormStyles>
 
 			{/* Bottom Form Elements (Warnings, Cancel, Save) */}
 			{
@@ -218,8 +237,9 @@ const IngredientForm = ({ className }) => {
 						<BottomFormStyles>
 							{/* Warnings */}
 							{
-								allWarnings && allWarnings.map((err) => (
-									<Warning key={ `${ err }` }>{ err }</Warning>
+								allWarnings && allWarnings.map((err, i) => (
+									// eslint-disable-next-line react/no-array-index-key
+									<Warning key={ `${ err }_${ i }` }>{ err }</Warning>
 								))
 							}
 
@@ -245,7 +265,9 @@ const IngredientForm = ({ className }) => {
 	);
 };
 
+IngredientForm.whyDidYouRender = true;
+
 IngredientForm.defaultProps = { className: '' };
 IngredientForm.propTypes = { className: PropTypes.string };
 
-export default IngredientForm;
+export default pure(IngredientForm);

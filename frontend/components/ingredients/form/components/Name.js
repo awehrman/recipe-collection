@@ -7,22 +7,17 @@ import withFieldSet from '../withFieldSet';
 import Input from '../../../form/Input';
 
 const LabelStyles = styled.label`
-
 `;
 
 const Name = ({ onChange, value }) => {
-	const { isEditMode, loading, validationWarnings } = useContext(IngredientFormContext);
-	const { errors, warnings } = validationWarnings;
-	const hasWarning = Boolean(errors.name) || Boolean(warnings.name);
+	const { isEditMode, loading, state } = useContext(IngredientFormContext);
+	const { validationWarnings } = state;
+	const errors = validationWarnings.get('errors');
+	const warnings = validationWarnings.get('warnings');
+	const hasWarning = errors.size || warnings.size;
 	let className = (value.length) ? '' : 'enabled';
-	if (hasWarning) {
-		className += ' warning';
-	}
-	if (isEditMode) {
-		className += ' editable';
-	}
-
-	console.log('Name', { className });
+	if (hasWarning) className += ' warning';
+	if (isEditMode) className += ' editable';
 
 	return (
 		<LabelStyles>

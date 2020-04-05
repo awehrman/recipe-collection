@@ -1,29 +1,57 @@
-import { Map as ImmutableMap, List as ImmutableList } from 'immutable';
+import { fromJS, Map as ImmutableMap, List as ImmutableList } from 'immutable';
+import validate from '../components/ingredients/form/validator';
 
 export const actions = {
 	loadIngredient: 'LOAD_INGREDIENT',
 	updateIngredient: 'UPDATE_INGREDIENT',
 	resetIngredient: 'RESET_INGREDIENT',
+	resetValidation: 'RESET_VALIDATION',
 	saveIngredient: 'SAVE_INGREDIENT',
+	validateIngredient: 'VALIDATE_INGREDIENT',
 };
 
-export const initialState = (id, name = '') => ({
-	alternateNames: [],
-	id,
-	isComposedIngredient: false,
-	isValidated: false,
-	name,
-	parent: null,
-	plural: null,
-	properties: {
-		meat: false,
-		poultry: false,
-		fish: false,
-		dairy: false,
-		soy: false,
-		gluten: false,
-	},
-	references: [],
+// TODO move these into a constants file
+const defaultProperties = ImmutableMap({
+	meat: false,
+	poultry: false,
+	fish: false,
+	dairy: false,
+	soy: false,
+	gluten: false,
+});
+
+const defaultWarnings = () => ImmutableMap({
+	errors: ImmutableMap(),
+	warnings: ImmutableMap(),
+});
+
+export const getInitialState = (ing) => ({
+	// ingredient form fields
+	ingredient: ImmutableMap({
+		alternateNames: ing.alternateNames || new ImmutableList(),
+		id: ing.id,
+		isComposedIngredient: ing.isComposedIngredient || false,
+		isValidated: ing.isValidated || false,
+		name: ing.name || '',
+		parent: ing.parent || null,
+		plural: ing.plural || null,
+		properties: ing.properties || defaultProperties,
+		references: ing.references || new ImmutableList(),
+	}),
+	// reset values
+	reset: ImmutableMap({
+		alternateNames: ing.alternateNames || new ImmutableList(),
+		id: ing.id,
+		isComposedIngredient: ing.isComposedIngredient || false,
+		isValidated: ing.isValidated || false,
+		name: ing.name || '',
+		parent: ing.parent || null,
+		plural: ing.plural || null,
+		properties: ing.properties || defaultProperties,
+		references: ing.references || new ImmutableList(),
+	}),
+	// validation warnings
+	validationWarnings: defaultWarnings(),
 });
 
 const noChangesDetected = (state) => {
@@ -34,50 +62,69 @@ const noChangesDetected = (state) => {
 };
 
 export const reducer = (state, action) => {
-	// load ingredient
-	if (action.type === actions.loadIngredient) {
-		const initialLoadedState = {
-			...action.payload,
-			properties: new ImmutableMap(action.payload.properties),
-			alternateNames: new ImmutableList(action.payload.alternateNames),
-			relatedIngredients: new ImmutableList(action.payload.relatedIngredients),
-			substitutes: new ImmutableList(action.payload.substitutes),
-			references: new ImmutableList(action.payload.references),
-			errors: new ImmutableList(),
-		};
+	if (!action) return state;
+	const { ingredient, reset, validationWarnings } = state;
+	const { payload, type } = action || {};
+	const { fieldName, value } = payload || {};
+	console.log('>>> reducer', type);
+	const updatedState = {};
 
-		return {
-			...initialLoadedState,
-			reset: { ...initialLoadedState },
-		};
+	// load ingredient
+	if (type === actions.loadIngredient) {
+		const initialLoadedState = getInitialState(payload);
+		// console.log('LOAD', { loaded: initialLoadedState.ingredient.toJS() });
+
+		return initialLoadedState;
 	}
 
 	// on input change
-	if (action.type === actions.updateIngredient) {
-		const { fieldName, value } = action.payload;
+	if (type === actions.updateIngredient) {
+		updatedState.reset = reset;
+		updatedState.validationWarnings = validationWarnings;
+		const updatedIngredient = ingredient.toJS();
+		updatedIngredient[fieldName] = value;
+		updatedState.ingredient = fromJS(updatedIngredient);
 
-		const updatedState = {
-			...state,
-			[fieldName]: value,
-		};
+		// console.log('UPDATED', { state: state.ingredient.toJS().plural, updatedState: updatedState.ingredient.toJS() });
 		return updatedState;
 	}
 
 	// reset ingredient form
-	if (action.type === actions.resetIngredient) {
+	if (type === actions.resetIngredient) {
 		// if we haven't made any adjustments to the state, and these are considered equal by value,
 		// just return the original object
 		if (noChangesDetected(state)) return state;
-
-		return {
-			...state.reset,
-			reset: state.reset,
-		};
+		updatedState.ingredient = reset;
+		updatedState.validationWarnings = defaultWarnings();
+		console.log('RESET INGREDIENT FORM');
+		return updatedState;
 	}
 
 	// save ingredient
-	if (action.type === actions.saveIngredient) {
+	if (type === actions.saveIngredient) {
 		// TODO useMutation
+		// update reset fields
+	}
+
+	// on validation
+	if (type === actions.validateIngredient) {
+		updatedState.ingredient = ingredient;
+		updatedState.reset = reset;
+		console.log(`VALIDATE ${ fieldName } ${ value }`);
+
+		updatedState.validationWarnings = ImmutableMap({ ...validate(fieldName, value, ingredient) });
+		console.log({ updatedState: updatedState.validationWarnings.toJS() });
+
+		return updatedState;
+	}
+
+	// on reset validation
+	if (type === actions.resetValidation) {
+		updatedState.ingredient = ingredient;
+		updatedState.reset = reset;
+		updatedState.validationWarnings = defaultWarnings();
+		console.log('RESET WARNINGS');
+		return updatedState;
 	}
 
 	return state;
