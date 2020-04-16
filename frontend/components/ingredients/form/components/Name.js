@@ -12,9 +12,10 @@ const LabelStyles = styled.label`
 const Name = ({ onChange, value }) => {
 	const { isEditMode, loading, state } = useContext(IngredientFormContext);
 	const { validationWarnings } = state;
-	const errors = validationWarnings.get('errors');
-	const warnings = validationWarnings.get('warnings');
-	const hasWarning = errors.size || warnings.size;
+	const errors = validationWarnings.get('errors').get('name');
+	const warnings = validationWarnings.get('warnings').get('name');
+	const hasWarning = errors || warnings;
+
 	let className = (value.length) ? '' : 'enabled';
 	if (hasWarning) className += ' warning';
 	if (isEditMode) className += ' editable';

@@ -1,6 +1,9 @@
-import { fromJS } from 'immutable';
+import { fromJS, Map as ImmutableMap } from 'immutable';
 
-const validate = (fieldName = '', value = '', ingredient) => {
+const noErrors = ImmutableMap();
+const noWarnings = ImmutableMap();
+
+const validate = (fieldName = '', value = '', ingredient, ingredients = []) => {
 	const errors = {};
 	const warnings = {};
 
@@ -13,27 +16,23 @@ const validate = (fieldName = '', value = '', ingredient) => {
 	const matchesOnName = (v) => ((fieldName !== 'name') && Boolean(clean(v) === clean(ingredient.get('name'))));
 	const matchesOnPlural = (v) => ((fieldName !== 'plural') && Boolean(clean(v) === clean(ingredient.get('plural'))));
 	console.log(ingredient.toJS().name, ingredient.toJS().plural);
-	// TODO const matchesOnAlt = (v) => Boolean(state.alternateNames.find((n) => clean(v) === clean(n.name)));
-	// eslint-disable-next-line object-curly-newline
-	console.log('validate', { fieldName, value });
+	// TODO const matchesOnAlt = (v) => Boolean(state.alternateNames.find((n) => clean(v) === clean(n.name))); TODO validate altNames
 
 	if (value.length && (matchesOnName(value) || matchesOnPlural(value) /* || matchesOnAlt(value) */)) { // TODO update temp value with actual search
 		// add error
 		errors[fieldName] = `"${ value }" is already used on this ingredient.`;
-		console.log({ errors });
-	}
+	} else if (value.length && ingredients.find((i) => clean(i) === clean(value))) { // TODO update temp value with actual search
+		// if this value is used on another ingredient then add a warning that it will trigger a merge
+		// see if this value is used on any other ingredients
 
-	// if this value is used on another ingredient then add a warning that it will trigger a merge
-	if (value.length && (value === 'bread')) { // TODO update temp value with actual search
 		// add warnings
 		warnings[fieldName] = `"${ value }" is used on another ingredient.`;
-		console.log({ warnings });
 	}
 
 	// otherwise update our warnings
 	return {
-		errors: fromJS(errors),
-		warnings: fromJS(warnings),
+		errors: (Object.values(errors).length) ? fromJS(errors) : noErrors,
+		warnings: (Object.values(warnings).length) ? fromJS(warnings) : noWarnings,
 	};
 };
 

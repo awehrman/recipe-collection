@@ -22,7 +22,7 @@ export default {
 	desktop_small: '1024px',
 	desktop_large: '1300px',
 
-	mobileCardHeight: '500px',
+	mobileCardHeight: '300px',
 	desktopCardHeight: '500px',
 
 	mobileListHeight: '200px',

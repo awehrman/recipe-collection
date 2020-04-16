@@ -11,12 +11,11 @@ import { actions } from '../../reducers/ingredient';
 import Button from '../form/Button';
 import ErrorMessage from '../ErrorMessage';
 import IngredientForm from './IngredientForm';
-import IngredientFormContext from '../../lib/contexts/ingredientFormContext';
 import { GET_INGREDIENT_QUERY } from '../../lib/apollo/queries/ingredients';
 import useIngredientForm from './form/useIngredientForm';
 
 const CardStyles = styled.div`
-	max-height: ${ (props) => (props.theme.mobileCardHeight) };
+	height: ${ (props) => (props.theme.mobileCardHeight) };
 	padding: 20px;
 	border-bottom: 1px solid #ddd;
 	width: 100%;
@@ -45,7 +44,7 @@ const CardStyles = styled.div`
 		flex-basis: 70%;
 		flex-grow: 2;
 		order: 1;
-		max-height: ${ (props) => (props.theme.desktopCardHeight) };
+		height: ${ (props) => (props.theme.desktopCardHeight) };
 		border-left: 1px solid #ddd;
 		border-bottom: 0;
 	}
@@ -63,12 +62,10 @@ const Card = ({ className, id, name }) => {
 		setEditMode,
 	} = formUtilities;
 
-	// query the full ingredient
-	const {
-		loading,
-		error,
-	} = useQuery(GET_INGREDIENT_QUERY, {
+	// query the full ingredient from the server so that our form can pull it straight from the cache
+	const { error } = useQuery(GET_INGREDIENT_QUERY, {
 		onCompleted: async ({ ingredient }) => {
+			// populate form with ingredient information
 			dispatch({
 				type: actions.loadIngredient,
 				payload: { ...ingredient },
@@ -77,33 +74,32 @@ const Card = ({ className, id, name }) => {
 		variables: { id },
 	});
 
-	const context = {
-		...formUtilities,
-		loading,
-	};
-
+	console.log({ formUtilities });
 	return (
-		<IngredientFormContext.Provider value={ context }>
-			<CardStyles className={ className }>
-				{/* Error Message */}
-				{ (error) ? <ErrorMessage error={ error } /> : null }
+		<CardStyles className={ className }>
+			{/* Error Message */}
+			{ (error) ? <ErrorMessage error={ error } /> : null }
 
-				{/* Ingredient Form */}
-				<IngredientForm className="card" />
+			{/* Ingredient Form
+			<IngredientForm
+				className="card"
+				id={ id }
+				name={ name }
+			/>
+			 */}
 
-				{/* Edit Button */
-					(!isEditMode)
-						? (
-							<Button
-								className="edit"
-								icon={ <FontAwesomeIcon icon={ faEdit } /> }
-								label="Edit"
-								onClick={ () => setEditMode(true) }
-							/>
-						) : null
-				}
-			</CardStyles>
-		</IngredientFormContext.Provider>
+			{/* Edit Button */
+				(!isEditMode)
+					? (
+						<Button
+							className="edit"
+							icon={ <FontAwesomeIcon icon={ faEdit } /> }
+							label="Edit"
+							onClick={ () => setEditMode(true) }
+						/>
+					) : null
+			}
+		</CardStyles>
 	);
 };
 

@@ -1,11 +1,11 @@
 import throttle from 'lodash/throttle';
-import { useContext, useEffect, useReducer, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useReducer, useRef, useState } from 'react';
 import { actions, getInitialState, reducer } from '../../../reducers/ingredient';
-import IngredientsContext from '../../../lib/contexts/ingredientsContext';
+import ViewContext from '../../../lib/contexts/ingredients/viewContext';
 
 const useIngredientForm = ({ id, name }) => {
 	const [ state, dispatch ] = useReducer(reducer, getInitialState(id, name));
-	const { view } = useContext(IngredientsContext);
+	const { ingredients, view } = useContext(ViewContext);
 	// if we're in the newly imported ingredient view, start the user off in edit mode
 	const [ isEditMode, setEditMode ] = useState(Boolean(view === 'new'));
 	const [ isSubmitting, setIsSubmitting ] = useState(false);
@@ -15,6 +15,7 @@ const useIngredientForm = ({ id, name }) => {
 			(fieldName, value) => dispatch({
 				type: actions.validateIngredient,
 				payload: {
+					ingredients,
 					fieldName,
 					value,
 				},
@@ -37,13 +38,13 @@ const useIngredientForm = ({ id, name }) => {
 	useEffect(handleValidation('plural'), [ state.ingredient ]);
 	// TODO useEffect(handleValidation('alternateNames'), [ state.ingredient || [] ]);
 
-	const onCancelClick = (e) => {
+	const onCancelClick = useCallback((e) => {
 		e.persist();
 		setEditMode(false);
 		dispatch({ type: actions.resetIngredient });
-	};
+	}, [ 'dispatch', 'setEditMode' ]);
 
-	const onChange = (e, passedFieldName = null, passedValue = null) => {
+	const onChange = useCallback((e, passedFieldName = null, passedValue = null) => {
 		e.persist();
 		const { target: { value, name: fieldName } } = e;
 
@@ -54,13 +55,13 @@ const useIngredientForm = ({ id, name }) => {
 				value: (passedValue || value),
 			},
 		});
-	};
+	}, [ 'dispatch' ]);
 
-	const onSubmit = (e) => {
+	const onSubmit = useCallback((e) => {
 		e.preventDefault();
 		setIsSubmitting(true);
 		dispatch({ type: actions.saveIngredient });
-	};
+	}, [ 'dispatch', 'setIsSubmitting' ]);
 
 	return {
 		dispatch,

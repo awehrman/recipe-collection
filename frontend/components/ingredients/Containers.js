@@ -6,7 +6,7 @@ import Container from './Container';
 import ErrorMessage from '../ErrorMessage';
 import Loading from '../Loading';
 import { GET_ALL_CONTAINERS_QUERY } from '../../lib/apollo/queries/containers';
-import IngredientsContext from '../../lib/contexts/ingredientsContext';
+import ViewContext from '../../lib/contexts/ingredients/viewContext';
 import { CREATE_CONTAINERS_MUTATION } from '../../lib/apollo/mutations/containers';
 
 const ContainerStyles = styled.div`
@@ -30,7 +30,7 @@ const ContainerStyles = styled.div`
 `;
 
 const Containers = () => {
-	const { currentIngredientID, group, view } = useContext(IngredientsContext);
+	const { currentIngredientID, group, view } = useContext(ViewContext);
 
 	// setup create/refresh containers mutation
 	const [ createContainers ] = useMutation(CREATE_CONTAINERS_MUTATION);
@@ -67,7 +67,8 @@ const Containers = () => {
 	});
 
 	const { containers = [] } = data || {};
-	// console.log('> [Containers]', (loading) ? 'loading...' : containers);
+	// eslint-disable-next-line object-curly-newline
+	// console.log('> [Containers]', (loading) ? 'loading...' : { containers }, { group, view });
 
 	return (
 		<ContainerStyles>

@@ -65,7 +65,7 @@ export const reducer = (state, action) => {
 	if (!action) return state;
 	const { ingredient, reset, validationWarnings } = state;
 	const { payload, type } = action || {};
-	const { fieldName, value } = payload || {};
+	const { ingredients = [], fieldName, value } = payload || {};
 	console.log('>>> reducer', type);
 	const updatedState = {};
 
@@ -112,8 +112,7 @@ export const reducer = (state, action) => {
 		updatedState.reset = reset;
 		console.log(`VALIDATE ${ fieldName } ${ value }`);
 
-		updatedState.validationWarnings = ImmutableMap({ ...validate(fieldName, value, ingredient) });
-		console.log({ updatedState: updatedState.validationWarnings.toJS() });
+		updatedState.validationWarnings = ImmutableMap({ ...validate(fieldName, value, ingredient, ingredients) });
 
 		return updatedState;
 	}

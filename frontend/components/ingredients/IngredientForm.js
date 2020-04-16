@@ -1,9 +1,10 @@
+import { useQuery } from '@apollo/client';
 import { darken } from 'polished';
 import PropTypes from 'prop-types';
-import React, { useContext } from 'react';
+import React, { useMemo } from 'react';
 import pure from 'recompose/pure';
 import styled from 'styled-components';
-import IngredientFormContext from '../../lib/contexts/ingredientFormContext';
+import { GET_ALL_INGREDIENTS_QUERY } from '../../lib/apollo/queries/ingredients';
 
 import Button from '../form/Button';
 import Name from './form/components/Name';
@@ -104,20 +105,47 @@ const MiddleFormStyles = styled.div`
 const BottomFormStyles = styled.div`
 	margin-top: auto; /* stick to the bottom of the card */
 	padding-top: 10px;
-
-	.warnings {
-		flex-basis: 100%;
-		text-align: right;
-		font-size: .875em;
-		color: ${ (props) => props.theme.red };
-		list-style-type: none;
-		margin: 0;
-		padding: 0;
-	}
+	flex-direction: column;
 
 	.right {
 		margin-top: auto;
 	}
+
+	@media (min-width: ${ (props) => props.theme.desktopCardWidth }) {
+		display: flex;
+		justify-content: flex-end;
+
+		.left {
+			flex: 1;
+		}
+
+		.right {
+			flex: 1;
+			text-align: right;
+			flex-grow: 2;
+		}
+	}
+`;
+
+const Warning = styled.li`
+	color: tomato;
+	margin-top: 4px;
+	font-size: .8em;
+	flex: 1;
+`;
+
+const Warnings = styled.ul`
+	text-align: right;
+	font-size: .875em;
+	color: ${ (props) => props.theme.red };
+	list-style-type: none;
+	margin-bottom: 10px;;
+	padding: 0;
+`;
+
+const Controls = styled.div`
+	/* float: right; */
+	align-self: flex-end;
 
 	button.cancel {
 		color: #ccc;
@@ -161,49 +189,33 @@ const BottomFormStyles = styled.div`
 			}
 		}
 	}
-
-	@media (min-width: ${ (props) => props.theme.desktopCardWidth }) {
-		display: flex;
-		justify-content: flex-end;
-
-		.left {
-			flex: 1;
-		}
-
-		.right {
-			flex: 1;
-			text-align: right;
-			flex-grow: 2;
-		}
-
-		.save {
-			margin-left: 20px;
-		}
-	}
-`;
-
-const Warning = styled.div`
-	color: tomato;
-	position: absolute;
-	right: 0;
-	margin-top: 4px;
-	font-size: .8em;
 `;
 
 const IngredientForm = ({ className }) => {
-	const { isEditMode, onCancelClick, onChange, onSubmit, state } = useContext(IngredientFormContext);
+	// const { isEditMode, onCancelClick, onChange, onSubmit, state } = useContext(IngredientFormContext);
 	const { ingredient, validationWarnings } = state;
 
 	const errors = validationWarnings.get('errors').toJS() || {};
 	const warnings = validationWarnings.get('warnings').toJS() || {};
 	const allWarnings = [ ...Object.values(errors) ].concat([ ...Object.values(warnings) ]);
 
-	console.log('form', { allWarnings });
-
 	const name = (ingredient && ingredient.get('name')) || '';
 	const plural = (ingredient && ingredient.get('plural')) || '';
 
-	return (
+	// get the ingredients from the cache to create the validation list
+	useQuery(GET_ALL_INGREDIENTS_QUERY, {
+		// once we've fetched the ingredients, we can safely render the containers
+		onCompleted: ({ ingredients }) => {
+			const getNamesOnly = (i) => [i.name, i.plural, ...i.alternateNames.map((n) => n.name)].filter((x) => (x && (x !== '')));
+			const validationIngredients = ingredients.map(getNamesOnly).flat();
+			console.log('onCompleted', validationIngredients);
+			// TODO idk this should be sorted or indexed or something to be efficient. do some research here
+			// it might be worth having the db return this list for us too as a secondary query call
+			// setContext(validationIngredients);
+		},
+	});
+
+	return useMemo(() => (
 		<FormStyles className={ className } onSubmit={ onSubmit }>
 			{/* Top Form Elements (Name, Plural, Properties, IsComposedIngredient) */}
 			<TopFormStyles>
@@ -236,33 +248,37 @@ const IngredientForm = ({ className }) => {
 					? (
 						<BottomFormStyles>
 							{/* Warnings */}
-							{
-								allWarnings && allWarnings.map((err, i) => (
-									// eslint-disable-next-line react/no-array-index-key
-									<Warning key={ `${ err }_${ i }` }>{ err }</Warning>
-								))
-							}
+							<Warnings>
+								{
+									allWarnings && allWarnings.map((err, i) => (
+										// eslint-disable-next-line react/no-array-index-key
+										<Warning key={ `${ err }_${ i }` }>{ err }</Warning>
+									))
+								}
+							</Warnings>
 
-							{/* Cancel Button */}
-							<Button
-								className="cancel"
-								label="Cancel"
-								onClick={ onCancelClick }
-								type="button"
-							/>
+							<Controls>
+								{/* Cancel Button */}
+								<Button
+									className="cancel"
+									label="Cancel"
+									onClick={ onCancelClick }
+									type="button"
+								/>
 
-							{/* Save Button */}
-							<Button
-								className="save"
-								label="Save"
-								type="submit"
-							/>
+								{/* Save Button */}
+								<Button
+									className="save"
+									label="Save"
+									type="submit"
+								/>
+							</Controls>
 						</BottomFormStyles>
 					)
 					: null
 			}
 		</FormStyles>
-	);
+	), [ isEditMode, onCancelClick, onChange, onSubmit, state ]);
 };
 
 IngredientForm.whyDidYouRender = true;

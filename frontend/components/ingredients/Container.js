@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import Card from './Card';
 import ErrorMessage from '../ErrorMessage';
 import Loading from '../Loading';
-import IngredientsContext from '../../lib/contexts/ingredientsContext';
+import ViewContext from '../../lib/contexts/ingredients/viewContext';
 import { GET_CONTAINER_QUERY } from '../../lib/apollo/queries/containers';
 import { TOGGLE_CONTAINER_MUTATION, UPDATE_CONTAINER_INGREDIENT_MUTATION } from '../../lib/apollo/mutations/containers';
 
@@ -121,8 +121,10 @@ const IngredientsList = styled.ul`
 
 const Container = ({ id }) => {
 	// console.log('Container', id);
-	const ctx = useContext(IngredientsContext);
+	const ctx = useContext(ViewContext);
 	const { group, view } = ctx;
+	// eslint-disable-next-line object-curly-newline
+	console.log('Container', { group, view });
 
 	// query container
 	const {
@@ -155,10 +157,13 @@ const Container = ({ id }) => {
 
 	const className = (`${ (!container.isExpanded) ? 'hidden' : '' } ${ (container.ingredientID) ? 'expanded' : '' }`).trim();
 
-	// TODO consider memoizing this or throwing it in the cache
-	const currentIngredientName = container.ingredients
-		.filter((i) => i.id === container.ingredientID)
-		.map((i) => i.name)[0] || '';
+	// eslint-disable-next-line react/prop-types
+	const currentIngredientName = React.memo(({ ingredients, ingredientID }) => (
+		ingredients
+			// eslint-disable-next-line react/prop-types
+			.filter((i) => i.id === ingredientID)
+			.map((i) => i.name)[0] || ''
+	));
 
 	return (
 		<ContainerStyles className={ (container.isExpanded) ? 'expanded' : '' }>
@@ -184,7 +189,7 @@ const Container = ({ id }) => {
 						<Card
 							className={ className }
 							id={ container.ingredientID }
-							name={ currentIngredientName }
+							name={ currentIngredientName(container) }
 						/>
 					)
 					: null

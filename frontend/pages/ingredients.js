@@ -1,16 +1,17 @@
-import { useQuery } from '@apollo/client';
+// import { useQuery } from '@apollo/client';
+import { Map as ImmutableMap } from 'immutable';
 import PropTypes from 'prop-types';
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-
-import { GET_INGREDIENTS_COUNT_QUERY, GET_ALL_INGREDIENTS_QUERY } from '../lib/apollo/queries/ingredients';
+/*
 import AddNew from '../components/ingredients/AddNew';
 import Containers from '../components/ingredients/Containers';
 import ErrorMessage from '../components/ErrorMessage';
+import Loading from '../components/Loading';
+*/
 import Filters from '../components/ingredients/Filters';
 import Header from '../components/Header';
-import Loading from '../components/Loading';
-import IngredientsContext from '../lib/contexts/ingredientsContext';
+import ViewContext from '../lib/contexts/ingredients/viewContext';
 
 const IngredientsPageStyles = styled.article`
 `;
@@ -20,24 +21,13 @@ const IngredientsPageStyles = styled.article`
 
 const Ingredients = ({ group, id, view }) => {
 	// don't show the containers until we've populated them
-	const [ showContainers, setShowContainers ] = useState(false);
-
-	// store our query param props in our context
-	const context = {
+	// const [ showContainers, setShowContainers ] = useState(false);
+	const context = new ImmutableMap({
 		currentIngredientID: id, // TODO consider converting this to an array; we may have multiple ingredients open in different containers
 		group,
 		view,
-	};
-
-	// fetch the ingredient totals
-	const {
-		data: countData,
-		loading: countLoading,
-		error: countError,
-	} = useQuery(GET_INGREDIENTS_COUNT_QUERY);
-	const { ingredientAggregate } = countData || {};
-	const { count = 0, unverified = 0 } = ingredientAggregate || {};
-
+	});
+/*
 	// fetch the ingredients from the server
 	// then go thru our local query resolver to create or update the containers
 	const {
@@ -45,45 +35,50 @@ const Ingredients = ({ group, id, view }) => {
 		loading,
 	} = useQuery(GET_ALL_INGREDIENTS_QUERY, {
 		// once we've fetched the ingredients, we can safely render the containers
-		onCompleted: () => (!showContainers && setShowContainers(true)),
+		onCompleted: () => ((!showContainers) ? setShowContainers(true) : null),
 	});
+	*/
 
 	return (
-		<IngredientsContext.Provider value={ context }>
+		<ViewContext.Provider value={ context }>
 			<IngredientsPageStyles>
 				<Header pageHeader="Ingredients" />
 				<section>
 					{/* view and group filters */}
-					<Filters
-						count={ count }
-						newCount={ unverified }
-					/>
+					<Filters />
 
-					{/* loading ingredients message */
+					{/* loading ingredients message
 						(loading || countLoading)
 							? <Loading name="ingredients" />
 							: null
-					}
+					 */}
 
-					{/* error message */
+					{/* error message
 						(error || countError)
 							? <ErrorMessage error={ error || countError } />
 							: null
-					}
+					 */}
 
-					{/* show the containers once they're available in the cache */
+					{/* show the containers once they're available in the cache
 						(!loading && showContainers)
 							? <Containers />
 							: null
-					}
+					 */}
 
-					{/* add new ingredient form */}
+					{/* add new ingredient form
 					<AddNew view={ view } />
+					 */}
 				</section>
 			</IngredientsPageStyles>
-		</IngredientsContext.Provider>
+		</ViewContext.Provider>
 	);
 };
+
+// NOTE: i'm pretty sure this is yelling about apollo client
+// https://github.com/apollographql/react-apollo/issues/3595
+// whenever i get around to updating next i can try to swap out my _app for a functional
+// component that will allow me to try useMemo around the apollo client
+// Ingredients.whyDidYouRender = true;
 
 Ingredients.defaultProps = {
 	group: 'name',

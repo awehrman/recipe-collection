@@ -1,10 +1,14 @@
-import { useContext } from 'react';
-import Link from 'next/link';
-import PropTypes from 'prop-types';
+import { useQuery } from '@apollo/client';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
+import Link from 'next/link';
+// import PropTypes from 'prop-types';
+import compose from 'recompose/compose';
+import pure from 'recompose/pure';
 
+import { GET_INGREDIENTS_COUNT_QUERY } from '../../lib/apollo/queries/ingredients';
 import { getNextIngredientGroup } from '../../lib/util';
-import IngredientsContext from '../../lib/contexts/ingredientsContext';
+import ViewContext from '../../lib/contexts/ingredients/viewContext';
 
 const FilterStyles = styled.div`
 	display: flex;
@@ -47,8 +51,16 @@ const FilterStyles = styled.div`
 		}
 `;
 
-const Filters = ({ count, newCount }) => {
-	const { group, view } = useContext(IngredientsContext);
+const Filters = () => {
+	const ctx = useContext(ViewContext);
+	const group = ctx.get('group');
+	const view = ctx.get('view');
+	console.log('Filters', { group, view });
+	// fetch the ingredient totals
+	const { data } = useQuery(GET_INGREDIENTS_COUNT_QUERY);
+	const { ingredientAggregate } = data || {};
+	const { count = 0, unverified = 0 } = ingredientAggregate || {};
+
 
 	return (
 		<FilterStyles>
@@ -74,7 +86,7 @@ const Filters = ({ count, newCount }) => {
 						role="button"
 						tabIndex="0"
 					>
-						{ `Newly${ '\xa0' }Imported${ '\xa0' }${ newCount }` }
+						{ `Newly${ '\xa0' }Imported${ '\xa0' }${ unverified }` }
 					</a>
 				</Link>
 			</div>
@@ -99,14 +111,18 @@ const Filters = ({ count, newCount }) => {
 	);
 };
 
+Filters.whyDidYouRender = true;
+
 Filters.defaultProps = {
-	count: 0,
-	newCount: 0,
+
 };
 
 Filters.propTypes = {
-	count: PropTypes.number,
-	newCount: PropTypes.number,
+
 };
 
-export default Filters;
+const enhance = compose(
+	pure,
+);
+
+export default enhance(Filters);

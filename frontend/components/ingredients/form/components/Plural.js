@@ -80,9 +80,9 @@ const Plural = ({ className, isSuggestEnabled, onChange, value }) => {
 	const { ingredient, validationWarnings } = state;
 	const name = (ingredient && ingredient.get('name')) || '';
 
-	const errors = validationWarnings.get('errors').toJS();
-	const warnings = validationWarnings.get('warnings').toJS();
-	const hasWarning = errors.length || warnings.length;
+	const errors = validationWarnings.get('errors').get('plural');
+	const warnings = validationWarnings.get('warnings').get('plural');
+	const hasWarning = errors || warnings;
 
 	let classNameWithWarnings = (value.length) ? `${ className }` : `${ className } enabled`;
 	if (hasWarning) classNameWithWarnings += ' warning';
