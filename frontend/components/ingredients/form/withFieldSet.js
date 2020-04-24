@@ -1,6 +1,32 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-import IngredientFormContext from '../../../lib/contexts/ingredientFormContext';
+import CardContext from '../../../lib/contexts/ingredients/cardContext';
+
+const FieldSet = (WrappedComponent) => ({
+	children,
+	loading,
+	className,
+	...props
+}) => {
+	const ctx = useContext(CardContext);
+	const isEditMode = ctx.get('isEditMode');
+	const editableClassName = isEditMode ? `${ className } editable` : className;
+
+	return (
+		<FieldSetStyles
+			aria-busy={ loading }
+			className={ editableClassName }
+			disabled={ loading }
+		>
+			{/* eslint-disable-next-line react/jsx-props-no-spreading */}
+			<WrappedComponent { ...props }>
+				{ children }
+			</WrappedComponent>
+		</FieldSetStyles>
+	);
+};
+
+export default FieldSet;
 
 const FieldSetStyles = styled.fieldset`
 	position: relative;
@@ -46,22 +72,3 @@ const FieldSetStyles = styled.fieldset`
 		}
 	}
 `;
-
-const FieldSet = (WrappedComponent) => ({ children, className, ...props }) => {
-	const { isEditMode, loading } = useContext(IngredientFormContext);
-
-	return (
-		<FieldSetStyles
-			aria-busy={ loading }
-			className={ isEditMode ? `${ className } editable` : className }
-			disabled={ loading }
-		>
-			{/* eslint-disable-next-line react/jsx-props-no-spreading */}
-			<WrappedComponent { ...props }>
-				{ children }
-			</WrappedComponent>
-		</FieldSetStyles>
-	);
-};
-
-export default FieldSet;

@@ -1,14 +1,12 @@
 import { fromJS, Map as ImmutableMap, List as ImmutableList } from 'immutable';
-import validate from '../components/ingredients/form/validator';
+// import validate from '../components/ingredients/form/validator';
 
 export const actions = {
 	loadIngredient: 'LOAD_INGREDIENT',
-	updateIngredient: 'UPDATE_INGREDIENT',
-	resetIngredient: 'RESET_INGREDIENT',
-	resetValidation: 'RESET_VALIDATION',
 	saveIngredient: 'SAVE_INGREDIENT',
-	validateIngredient: 'VALIDATE_INGREDIENT',
+	updateIngredient: 'UPDATE_INGREDIENT',
 };
+
 
 // TODO move these into a constants file
 const defaultProperties = ImmutableMap({
@@ -20,111 +18,63 @@ const defaultProperties = ImmutableMap({
 	gluten: false,
 });
 
-const defaultWarnings = () => ImmutableMap({
-	errors: ImmutableMap(),
-	warnings: ImmutableMap(),
-});
-
-export const getInitialState = (ing) => ({
-	// ingredient form fields
-	ingredient: ImmutableMap({
-		alternateNames: ing.alternateNames || new ImmutableList(),
-		id: ing.id,
-		isComposedIngredient: ing.isComposedIngredient || false,
-		isValidated: ing.isValidated || false,
+function loadIngredient(ing) {
+	return ImmutableMap({
+		alternateNames: fromJS(ing.alternateNames) || ImmutableList(),
+		id: ing.id || null,
+		isComposedIngredient: Boolean(ing.isComposedIngredient),
+		isValidated: Boolean(ing.isValidated),
 		name: ing.name || '',
 		parent: ing.parent || null,
-		plural: ing.plural || null,
-		properties: ing.properties || defaultProperties,
-		references: ing.references || new ImmutableList(),
-	}),
-	// reset values
-	reset: ImmutableMap({
-		alternateNames: ing.alternateNames || new ImmutableList(),
-		id: ing.id,
-		isComposedIngredient: ing.isComposedIngredient || false,
-		isValidated: ing.isValidated || false,
-		name: ing.name || '',
-		parent: ing.parent || null,
-		plural: ing.plural || null,
-		properties: ing.properties || defaultProperties,
-		references: ing.references || new ImmutableList(),
-	}),
-	// validation warnings
-	validationWarnings: defaultWarnings(),
-});
-
-const noChangesDetected = (state) => {
-	const currentState = { ...state };
-	delete currentState.reset;
-
-	return (JSON.stringify(currentState) === JSON.stringify(state.reset));
-};
+		plural: ing.plural || '',
+		properties: (ing.properties) ? ImmutableMap({ ...ing.properties }) : defaultProperties,
+		substitutes: fromJS(ing.substitutes) || ImmutableList(),
+		relatedIngredients: fromJS(ing.relatedIngredients) || ImmutableList(),
+		references: ImmutableList(),
+	});
+}
 
 export const reducer = (state, action) => {
-	if (!action) return state;
-	const { ingredient, reset, validationWarnings } = state;
+	// TODO can i use context here? or should things like isEditMode be submitted via payload?
+	const { ingredient, reset } = state;
 	const { payload, type } = action || {};
-	const { ingredients = [], fieldName, value } = payload || {};
-	console.log('>>> reducer', type);
-	const updatedState = {};
+	const { data, fieldName, value /* , updateIngredientMutation */ } = payload || {};
+	// eslint-disable-next-line object-curly-newline
+	console.log('*** reducer', { state, action });
 
-	// load ingredient
+	// load ingredient data
 	if (type === actions.loadIngredient) {
-		const initialLoadedState = getInitialState(payload);
-		// console.log('LOAD', { loaded: initialLoadedState.ingredient.toJS() });
+		console.log('   *** Loading ingredient data!');
+		const loaded = loadIngredient(data.ingredient);
 
-		return initialLoadedState;
+		return {
+			...state,
+			ingredient: loaded,
+			reset: loaded,
+		};
 	}
 
-	// on input change
+	// update ingredient data
 	if (type === actions.updateIngredient) {
-		updatedState.reset = reset;
-		updatedState.validationWarnings = validationWarnings;
-		const updatedIngredient = ingredient.toJS();
+		console.log('updateIngredient', value);
+
+		const updatedIngredient = state.ingredient.toJS();
 		updatedIngredient[fieldName] = value;
-		updatedState.ingredient = fromJS(updatedIngredient);
 
-		// console.log('UPDATED', { state: state.ingredient.toJS().plural, updatedState: updatedState.ingredient.toJS() });
-		return updatedState;
-	}
-
-	// reset ingredient form
-	if (type === actions.resetIngredient) {
-		// if we haven't made any adjustments to the state, and these are considered equal by value,
-		// just return the original object
-		if (noChangesDetected(state)) return state;
-		updatedState.ingredient = reset;
-		updatedState.validationWarnings = defaultWarnings();
-		console.log('RESET INGREDIENT FORM');
-		return updatedState;
+		return {
+			...state,
+			ingredient: fromJS(updatedIngredient),
+		};
 	}
 
 	// save ingredient
 	if (type === actions.saveIngredient) {
-		// TODO useMutation
-		// update reset fields
+		// eslint-disable-next-line object-curly-newline
+		console.log('   *** TODO saveIngredient', { ingredient, reset });
+		// TODO re-validate ingredient
+		// TODO call save mutation (which i can setup in the IngredientForm and pass via payload)
 	}
 
-	// on validation
-	if (type === actions.validateIngredient) {
-		updatedState.ingredient = ingredient;
-		updatedState.reset = reset;
-		console.log(`VALIDATE ${ fieldName } ${ value }`);
-
-		updatedState.validationWarnings = ImmutableMap({ ...validate(fieldName, value, ingredient, ingredients) });
-
-		return updatedState;
-	}
-
-	// on reset validation
-	if (type === actions.resetValidation) {
-		updatedState.ingredient = ingredient;
-		updatedState.reset = reset;
-		updatedState.validationWarnings = defaultWarnings();
-		console.log('RESET WARNINGS');
-		return updatedState;
-	}
 
 	return state;
 };

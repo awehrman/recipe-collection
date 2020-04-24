@@ -1,50 +1,49 @@
-import throttle from 'lodash/throttle';
-import { useCallback, useContext, useEffect, useReducer, useRef, useState } from 'react';
-import { actions, getInitialState, reducer } from '../../../reducers/ingredient';
-import ViewContext from '../../../lib/contexts/ingredients/viewContext';
+import { Map as ImmutableMap, List as ImmutableList } from 'immutable';
+import { useCallback, useReducer } from 'react';
+import { reducer as ingredientReducer, actions } from '../../../reducers/ingredient';
 
-const useIngredientForm = ({ id, name }) => {
-	const [ state, dispatch ] = useReducer(reducer, getInitialState(id, name));
-	const { ingredients, view } = useContext(ViewContext);
-	// if we're in the newly imported ingredient view, start the user off in edit mode
-	const [ isEditMode, setEditMode ] = useState(Boolean(view === 'new'));
-	const [ isSubmitting, setIsSubmitting ] = useState(false);
+// TODO move these into a constants file
+const defaultProperties = ImmutableMap({
+	meat: false,
+	poultry: false,
+	fish: false,
+	dairy: false,
+	soy: false,
+	gluten: false,
+});
 
-	const throttledValidation = useRef(
-		throttle(
-			(fieldName, value) => dispatch({
-				type: actions.validateIngredient,
-				payload: {
-					ingredients,
-					fieldName,
-					value,
-				},
-			}),
-			1000,
-		),
-	);
+function useIngredientForm({ id }) {
+	// console.log('>> >> >> useIngredientForm');
+	const initialState = () => {
+		const ingredient = ImmutableMap({
+			alternateNames: ImmutableList(),
+			id,
+			isComposedIngredient: false,
+			isValidated: false,
+			name: null,
+			parent: null,
+			plural: null,
+			properties: defaultProperties,
+			references: ImmutableList(),
+		});
 
-	const handleValidation = (fieldName) => () => {
-		const value = state.ingredient.get(fieldName) || '';
-		const { reset } = state;
-		// const altListHasSize = (fieldName === 'alternateNames') ? Boolean(value.size) : true;
-		const isNotResetValue = (reset && reset.get(fieldName)) ? Boolean(reset.get(fieldName) !== value) : true;
-		if (value && isNotResetValue) return throttledValidation.current(fieldName, value);
-		return dispatch();
+		return {
+			ingredient,
+			reset: ingredient,
+		};
 	};
 
-	// watch for input changes and validate every soften
-	useEffect(handleValidation('name'), [ state.ingredient ]);
-	useEffect(handleValidation('plural'), [ state.ingredient ]);
-	// TODO useEffect(handleValidation('alternateNames'), [ state.ingredient || [] ]);
+	const [values, dispatch] = useReducer(ingredientReducer, initialState());
 
-	const onCancelClick = useCallback((e) => {
-		e.persist();
-		setEditMode(false);
-		dispatch({ type: actions.resetIngredient });
-	}, [ 'dispatch', 'setEditMode' ]);
+	function handleFormLoad({ ingredient }) {
+		console.log('  >> handleFormLoad', ingredient);
+		dispatch({
+			type: actions.loadIngredient,
+			payload: { data: { ingredient } },
+		});
+	}
 
-	const onChange = useCallback((e, passedFieldName = null, passedValue = null) => {
+	const handleIngredientChange = useCallback((e, passedFieldName = null, passedValue = null) => {
 		e.persist();
 		const { target: { value, name: fieldName } } = e;
 
@@ -55,25 +54,27 @@ const useIngredientForm = ({ id, name }) => {
 				value: (passedValue || value),
 			},
 		});
-	}, [ 'dispatch' ]);
+	}, ['dispatch']);
 
-	const onSubmit = useCallback((e) => {
-		e.preventDefault();
-		setIsSubmitting(true);
+	function handleIngredientSave() {
+		console.log('  >> handleIngredientSave');
+
 		dispatch({ type: actions.saveIngredient });
-	}, [ 'dispatch', 'setIsSubmitting' ]);
+	}
+
+	function handleQueryError() {
+		console.log('  >> handleQueryError');
+		// TODO
+	}
 
 	return {
-		dispatch,
-		isEditMode,
-		isSubmitting,
-		onCancelClick,
-		onChange,
-		onSubmit,
-		setEditMode,
-		setIsSubmitting,
-		state,
+		handleFormLoad,
+		handleIngredientChange,
+		handleIngredientSave,
+		handleQueryError,
+		// validation: {}, // form errors
+		values, // form values
 	};
-};
+}
 
 export default useIngredientForm;

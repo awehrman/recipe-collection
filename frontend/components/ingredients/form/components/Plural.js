@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 
-import IngredientFormContext from '../../../../lib/contexts/ingredientFormContext';
+import ViewContext from '../../../../lib/contexts/ingredients/viewContext';
 import withFieldSet from '../withFieldSet';
 import Input from '../../../form/Input';
 
@@ -76,7 +76,7 @@ const onSuggestPlural = (e, name, onChange) => {
 };
 
 const Plural = ({ className, isSuggestEnabled, onChange, value }) => {
-	const { isEditMode, loading, state } = useContext(IngredientFormContext);
+	const { isEditMode, loading, state } = useContext(ViewContext);
 	const { ingredient, validationWarnings } = state;
 	const name = (ingredient && ingredient.get('name')) || '';
 

@@ -13,7 +13,7 @@ export default {
 	// client-side query resolvers
 	Query: {
 		container(_, { id }, { client, group, view }) {
-			// console.log('CONTAINER QUERY', id);
+			// console.log('CONTAINER QUERY', id, group, view);
 
 			const { containers } = client.readQuery({
 				query: GET_ALL_CONTAINERS_QUERY,
@@ -42,7 +42,6 @@ export default {
 				// no containers found in the cache
 				// console.log('no matching containers found in cache');
 			}
-			// console.warn({ ...containers });
 			return containers;
 		},
 	},

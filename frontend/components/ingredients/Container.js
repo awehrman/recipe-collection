@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from '@apollo/client';
 import PropTypes from 'prop-types';
 import React, { useContext } from 'react';
+import pure from 'recompose/pure';
 import styled from 'styled-components';
 
 import Card from './Card';
@@ -119,12 +120,17 @@ const IngredientsList = styled.ul`
 	}
 `;
 
+// TODO virtualize that ingredients list
+// TODO scroll to list item on click
+
 const Container = ({ id }) => {
 	// console.log('Container', id);
 	const ctx = useContext(ViewContext);
-	const { group, view } = ctx;
+	const group = ctx.get('group');
+	const view = ctx.get('view');
+
 	// eslint-disable-next-line object-curly-newline
-	console.log('Container', { group, view });
+	// console.log('Container', { group, view });
 
 	// query container
 	const {
@@ -157,14 +163,6 @@ const Container = ({ id }) => {
 
 	const className = (`${ (!container.isExpanded) ? 'hidden' : '' } ${ (container.ingredientID) ? 'expanded' : '' }`).trim();
 
-	// eslint-disable-next-line react/prop-types
-	const currentIngredientName = React.memo(({ ingredients, ingredientID }) => (
-		ingredients
-			// eslint-disable-next-line react/prop-types
-			.filter((i) => i.id === ingredientID)
-			.map((i) => i.name)[0] || ''
-	));
-
 	return (
 		<ContainerStyles className={ (container.isExpanded) ? 'expanded' : '' }>
 			{/* container header */}
@@ -189,7 +187,6 @@ const Container = ({ id }) => {
 						<Card
 							className={ className }
 							id={ container.ingredientID }
-							name={ currentIngredientName(container) }
 						/>
 					)
 					: null
@@ -223,6 +220,8 @@ const Container = ({ id }) => {
 	);
 };
 
+// Container.whyDidYouRender = true;
+
 Container.propTypes = { id: PropTypes.string.isRequired };
 
-export default Container;
+export default pure(Container);

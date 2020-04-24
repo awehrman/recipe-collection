@@ -1,14 +1,172 @@
 import { useQuery } from '@apollo/client';
 import { darken } from 'polished';
 import PropTypes from 'prop-types';
-import React, { useMemo } from 'react';
+import React, { useContext, useState } from 'react';
 import pure from 'recompose/pure';
 import styled from 'styled-components';
-import { GET_ALL_INGREDIENTS_QUERY } from '../../lib/apollo/queries/ingredients';
 
 import Button from '../form/Button';
 import Name from './form/components/Name';
-import Plural from './form/components/Plural';
+// import Plural from './form/components/Plural';
+import useIngredientForm from './form/useIngredientForm';
+import CardContext from '../../lib/contexts/ingredients/cardContext';
+import { GET_INGREDIENT_QUERY } from '../../lib/apollo/queries/ingredients';
+
+const IngredientForm = ({ className, id }) => {
+	// console.log('[IngredientForm]');
+	const [ isSubmitting, setIsSubmitting ] = useState(false);
+
+	const ctx = useContext(CardContext);
+	const isEditMode = ctx.get('isEditMode');
+	const disableEditMode = ctx.get('disableEditMode');
+
+	let error = null;
+	let loading = Boolean(id);
+
+	const {
+		handleFormLoad,
+		handleIngredientChange,
+		handleIngredientSave,
+		handleQueryError,
+		// validation, // form errors
+		values, // form values
+	} = useIngredientForm({ id });
+
+	const { ingredient } = values;
+
+	const name = ingredient.get('name') || '';
+	const plural = ingredient.get('plural');
+	const isComposedIngredient = ingredient.get('isComposedIngredient');
+	const properties = ingredient.get('properties');
+	const alternateNames = ingredient.get('alternateNames');
+	const relatedIngredients = ingredient.get('relatedIngredients');
+	const substitutes = ingredient.get('substitutes');
+	const references = ingredient.get('references');
+
+	// TODO setup save mutation; on update setIsSubmitting(false)
+
+	// if we have an id, query this ingredient from the server
+	if (id) {
+		({
+			error,
+			loading,
+		} = useQuery(GET_INGREDIENT_QUERY, {
+			onCompleted: handleFormLoad,
+			variables: { id },
+		}));
+		if (error) handleQueryError(error);
+	}
+
+	// on form submit
+	function onSubmit(e) {
+		console.log('onSubmit');
+		e.preventDefault();
+		setIsSubmitting(true);
+		handleIngredientSave();
+	}
+
+	// TODO base classnames on validation errors
+	const classNameFields = [
+		'name',
+		'plural',
+		'alternateNames',
+	];
+
+	const classNames = classNameFields.reduce((acc, field) => {
+		const fieldValue = ingredient.get(field);
+
+		const fieldClassName = (isEditMode && (field !== 'alternateNames') && fieldValue && fieldValue.length)
+			? 'enabled'
+			: '';
+		// TODO add warning validation classNames
+
+		return {
+			...acc,
+			[field]: fieldClassName,
+		};
+	}, {});
+
+	return (
+		<FormStyles className={ className } id="ingForm" onSubmit={ onSubmit }>
+			{/* Top Form Elements (Name, Plural, Properties, IsComposedIngredient) */}
+			<TopFormStyles>
+				<div className="left">
+					<Name
+						className={ classNames.name || '' }
+						loading={ loading }
+						onChange={ handleIngredientChange }
+						value={ name || '' }
+					/>
+					{ plural }
+				</div>
+				<div className="right">
+					{ `${ properties }` }
+					{ isComposedIngredient }
+				</div>
+			</TopFormStyles>
+
+			<MiddleFormStyles>
+				{ `${ alternateNames }` }
+				{ `${ relatedIngredients }` }
+				{ `${ substitutes }` }
+				{ `${ references }` }
+			</MiddleFormStyles>
+
+			{/* Bottom Form Elements (Warnings, Cancel, Save) */}
+			{
+				(isEditMode)
+					? (
+						<BottomFormStyles>
+							{/* Warnings
+							<Warnings>
+								{
+									allWarnings && allWarnings.map((err, i) => (
+										// eslint-disable-next-line react/no-array-index-key
+										<Warning key={ `${ err }_${ i }` }>{ err }</Warning>
+									))
+								}
+							</Warnings>
+							 */}
+
+							<Controls>
+								{/* Cancel Button */}
+								<Button
+									className="cancel"
+									disable={ isSubmitting }
+									label="Cancel"
+									onClick={ disableEditMode }
+									type="button"
+								/>
+
+								{/* Save Button */}
+								<Button
+									className="save"
+									formName="ingForm"
+									label="Save"
+									type="submit"
+								/>
+							</Controls>
+						</BottomFormStyles>
+					)
+					: null
+			}
+		</FormStyles>
+	);
+};
+
+IngredientForm.whyDidYouRender = true;
+
+IngredientForm.defaultProps = {
+	className: '',
+	id: null,
+};
+
+IngredientForm.propTypes = {
+	className: PropTypes.string,
+	id: PropTypes.string,
+};
+
+export default pure(IngredientForm);
 
 const FormStyles = styled.form`
 	flex-basis: 100%;
@@ -126,7 +284,7 @@ const BottomFormStyles = styled.div`
 		}
 	}
 `;
-
+/*
 const Warning = styled.li`
 	color: tomato;
 	margin-top: 4px;
@@ -142,6 +300,7 @@ const Warnings = styled.ul`
 	margin-bottom: 10px;;
 	padding: 0;
 `;
+*/
 
 const Controls = styled.div`
 	/* float: right; */
@@ -190,100 +349,3 @@ const Controls = styled.div`
 		}
 	}
 `;
-
-const IngredientForm = ({ className }) => {
-	// const { isEditMode, onCancelClick, onChange, onSubmit, state } = useContext(IngredientFormContext);
-	const { ingredient, validationWarnings } = state;
-
-	const errors = validationWarnings.get('errors').toJS() || {};
-	const warnings = validationWarnings.get('warnings').toJS() || {};
-	const allWarnings = [ ...Object.values(errors) ].concat([ ...Object.values(warnings) ]);
-
-	const name = (ingredient && ingredient.get('name')) || '';
-	const plural = (ingredient && ingredient.get('plural')) || '';
-
-	// get the ingredients from the cache to create the validation list
-	useQuery(GET_ALL_INGREDIENTS_QUERY, {
-		// once we've fetched the ingredients, we can safely render the containers
-		onCompleted: ({ ingredients }) => {
-			const getNamesOnly = (i) => [i.name, i.plural, ...i.alternateNames.map((n) => n.name)].filter((x) => (x && (x !== '')));
-			const validationIngredients = ingredients.map(getNamesOnly).flat();
-			console.log('onCompleted', validationIngredients);
-			// TODO idk this should be sorted or indexed or something to be efficient. do some research here
-			// it might be worth having the db return this list for us too as a secondary query call
-			// setContext(validationIngredients);
-		},
-	});
-
-	return useMemo(() => (
-		<FormStyles className={ className } onSubmit={ onSubmit }>
-			{/* Top Form Elements (Name, Plural, Properties, IsComposedIngredient) */}
-			<TopFormStyles>
-				<div className="left">
-					<Name
-						onChange={ onChange }
-						value={ name }
-					/>
-
-					<Plural
-						// pass a className for the fieldSet height adjustment
-						className="plural"
-						isSuggestEnabled
-						onChange={ onChange }
-						value={ plural }
-					/>
-				</div>
-				<div className="right">
-					{ /* TODO properties, isComposedIngredient */ }
-				</div>
-			</TopFormStyles>
-
-			<MiddleFormStyles>
-				{/* TODO alternateNames, relatedIngredients, substitutes, references */}
-			</MiddleFormStyles>
-
-			{/* Bottom Form Elements (Warnings, Cancel, Save) */}
-			{
-				(isEditMode)
-					? (
-						<BottomFormStyles>
-							{/* Warnings */}
-							<Warnings>
-								{
-									allWarnings && allWarnings.map((err, i) => (
-										// eslint-disable-next-line react/no-array-index-key
-										<Warning key={ `${ err }_${ i }` }>{ err }</Warning>
-									))
-								}
-							</Warnings>
-
-							<Controls>
-								{/* Cancel Button */}
-								<Button
-									className="cancel"
-									label="Cancel"
-									onClick={ onCancelClick }
-									type="button"
-								/>
-
-								{/* Save Button */}
-								<Button
-									className="save"
-									label="Save"
-									type="submit"
-								/>
-							</Controls>
-						</BottomFormStyles>
-					)
-					: null
-			}
-		</FormStyles>
-	), [ isEditMode, onCancelClick, onChange, onSubmit, state ]);
-};
-
-IngredientForm.whyDidYouRender = true;
-
-IngredientForm.defaultProps = { className: '' };
-IngredientForm.propTypes = { className: PropTypes.string };
-
-export default pure(IngredientForm);

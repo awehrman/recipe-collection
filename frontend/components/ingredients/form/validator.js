@@ -30,10 +30,10 @@ const validate = (fieldName = '', value = '', ingredient, ingredients = []) => {
 	}
 
 	// otherwise update our warnings
-	return {
+	return new ImmutableMap({
 		errors: (Object.values(errors).length) ? fromJS(errors) : noErrors,
 		warnings: (Object.values(warnings).length) ? fromJS(warnings) : noWarnings,
-	};
+	});
 };
 
 export default validate;

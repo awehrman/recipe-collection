@@ -2,8 +2,6 @@ import { useQuery } from '@apollo/client';
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
-// import PropTypes from 'prop-types';
-import compose from 'recompose/compose';
 import pure from 'recompose/pure';
 
 import { GET_INGREDIENTS_COUNT_QUERY } from '../../lib/apollo/queries/ingredients';
@@ -55,12 +53,11 @@ const Filters = () => {
 	const ctx = useContext(ViewContext);
 	const group = ctx.get('group');
 	const view = ctx.get('view');
-	console.log('Filters', { group, view });
+
 	// fetch the ingredient totals
 	const { data } = useQuery(GET_INGREDIENTS_COUNT_QUERY);
 	const { ingredientAggregate } = data || {};
 	const { count = 0, unverified = 0 } = ingredientAggregate || {};
-
 
 	return (
 		<FilterStyles>
@@ -111,18 +108,4 @@ const Filters = () => {
 	);
 };
 
-Filters.whyDidYouRender = true;
-
-Filters.defaultProps = {
-
-};
-
-Filters.propTypes = {
-
-};
-
-const enhance = compose(
-	pure,
-);
-
-export default enhance(Filters);
+export default pure(Filters);

@@ -25,10 +25,12 @@ export const UPDATE_CONTAINER_INGREDIENT_MUTATION = gql`
 	mutation toggleIngredientID(
 		$id: ID!,
 		$ingredientID: Boolean,
+		$name: String!,
 	) {
 		toggleIngredientID(
 			id: $id,
 			ingredientID: $ingredientID,
+			name: $name,
 		) @client {
 			errors
 			containers {

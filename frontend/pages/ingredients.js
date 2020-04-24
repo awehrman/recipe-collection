@@ -1,14 +1,14 @@
-// import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { Map as ImmutableMap } from 'immutable';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-/*
+
+import { GET_ALL_INGREDIENTS_QUERY } from '../lib/apollo/queries/ingredients';
 import AddNew from '../components/ingredients/AddNew';
 import Containers from '../components/ingredients/Containers';
 import ErrorMessage from '../components/ErrorMessage';
 import Loading from '../components/Loading';
-*/
 import Filters from '../components/ingredients/Filters';
 import Header from '../components/Header';
 import ViewContext from '../lib/contexts/ingredients/viewContext';
@@ -20,16 +20,15 @@ const IngredientsPageStyles = styled.article`
 // maybe do the same with parent since the recipe references are clogging up the cache
 
 const Ingredients = ({ group, id, view }) => {
-	// don't show the containers until we've populated them
-	// const [ showContainers, setShowContainers ] = useState(false);
+	// don't show the containers until we've downloaded all the ingredient info
+	const [ showContainers, setShowContainers ] = useState(false);
 	const context = new ImmutableMap({
-		currentIngredientID: id, // TODO consider converting this to an array; we may have multiple ingredients open in different containers
+		currentIngredientID: id,
 		group,
 		view,
 	});
-/*
+
 	// fetch the ingredients from the server
-	// then go thru our local query resolver to create or update the containers
 	const {
 		error,
 		loading,
@@ -37,7 +36,6 @@ const Ingredients = ({ group, id, view }) => {
 		// once we've fetched the ingredients, we can safely render the containers
 		onCompleted: () => ((!showContainers) ? setShowContainers(true) : null),
 	});
-	*/
 
 	return (
 		<ViewContext.Provider value={ context }>
@@ -47,37 +45,27 @@ const Ingredients = ({ group, id, view }) => {
 					{/* view and group filters */}
 					<Filters />
 
-					{/* loading ingredients message
-						(loading || countLoading)
-							? <Loading name="ingredients" />
-							: null
-					 */}
+					{ (loading) ? <Loading name="ingredients" /> : null }
+					{ (error) ? <ErrorMessage error={ error } /> : null }
 
-					{/* error message
-						(error || countError)
-							? <ErrorMessage error={ error || countError } />
-							: null
-					 */}
-
-					{/* show the containers once they're available in the cache
+					{/* show the containers once they're available in the cache */
 						(!loading && showContainers)
 							? <Containers />
 							: null
-					 */}
+					}
 
-					{/* add new ingredient form
+					{/* add new ingredient form */}
 					<AddNew view={ view } />
-					 */}
 				</section>
 			</IngredientsPageStyles>
 		</ViewContext.Provider>
 	);
 };
 
-// NOTE: i'm pretty sure this is yelling about apollo client
-// https://github.com/apollographql/react-apollo/issues/3595
-// whenever i get around to updating next i can try to swap out my _app for a functional
-// component that will allow me to try useMemo around the apollo client
+// NOTE: so basically anytime i utilize apollo, it's going to cause an unnecessary re-render
+// i'm hoping this will be resolved once i do some package upgrading bc slapping a useMemo
+// on the client given to the ApolloProvider in _app BREAKS ALL SORTS OF SHIT
+
 // Ingredients.whyDidYouRender = true;
 
 Ingredients.defaultProps = {

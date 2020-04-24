@@ -1,18 +1,15 @@
-import { useQuery } from '@apollo/client';
-import React, { memo } from 'react';
+import { Map as ImmutableMap } from 'immutable';
+import React, { memo, useContext, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/pro-regular-svg-icons';
 
-import { actions } from '../../reducers/ingredient';
-
 import Button from '../form/Button';
-import ErrorMessage from '../ErrorMessage';
 import IngredientForm from './IngredientForm';
-import { GET_INGREDIENT_QUERY } from '../../lib/apollo/queries/ingredients';
-import useIngredientForm from './form/useIngredientForm';
+import ViewContext from '../../lib/contexts/ingredients/viewContext';
+import CardContext from '../../lib/contexts/ingredients/cardContext';
 
 const CardStyles = styled.div`
 	height: ${ (props) => (props.theme.mobileCardHeight) };
@@ -50,70 +47,53 @@ const CardStyles = styled.div`
 	}
 `;
 
-const Card = ({ className, id, name }) => {
-	// setup our form helpers
-	const formUtilities = useIngredientForm({
-		id,
-		name,
-	});
-	const {
-		dispatch,
+const Card = ({ className, id }) => {
+	// console.log('[Card]');
+	const viewContext = useContext(ViewContext);
+	const view = viewContext.get('view');
+
+	const [ isEditMode, setEditMode ] = useState(view === 'new');
+	const disableEditMode = useCallback(() => setEditMode(false), [ setEditMode ]);
+	const enableEditMode = useCallback(() => setEditMode(true), [ setEditMode ]);
+
+	const cardContext = new ImmutableMap({
 		isEditMode,
-		setEditMode,
-	} = formUtilities;
-
-	// query the full ingredient from the server so that our form can pull it straight from the cache
-	const { error } = useQuery(GET_INGREDIENT_QUERY, {
-		onCompleted: async ({ ingredient }) => {
-			// populate form with ingredient information
-			dispatch({
-				type: actions.loadIngredient,
-				payload: { ...ingredient },
-			});
-		},
-		variables: { id },
+		disableEditMode,
 	});
 
-	console.log({ formUtilities });
 	return (
-		<CardStyles className={ className }>
-			{/* Error Message */}
-			{ (error) ? <ErrorMessage error={ error } /> : null }
+		<CardContext.Provider value={ cardContext }>
+			<CardStyles className={ className }>
+				<IngredientForm
+					className="card"
+					id={ id }
+				/>
 
-			{/* Ingredient Form
-			<IngredientForm
-				className="card"
-				id={ id }
-				name={ name }
-			/>
-			 */}
-
-			{/* Edit Button */
-				(!isEditMode)
-					? (
-						<Button
-							className="edit"
-							icon={ <FontAwesomeIcon icon={ faEdit } /> }
-							label="Edit"
-							onClick={ () => setEditMode(true) }
-						/>
-					) : null
-			}
-		</CardStyles>
+				{/* Edit Button
+					TODO update the styling of this button so that it sticks to the bottom of the card and has a restricted height
+				*/
+					(!isEditMode)
+						? (
+							<Button
+								className="edit"
+								icon={ <FontAwesomeIcon icon={ faEdit } /> }
+								label="Edit"
+								onClick={ enableEditMode }
+							/>
+						) : null
+				}
+			</CardStyles>
+		</CardContext.Provider>
 	);
 };
 
 Card.whyDidYouRender = true;
 
-Card.defaultProps = {
-	className: '',
-	name: '',
-};
+Card.defaultProps = { className: '' };
 
 Card.propTypes = {
 	className: PropTypes.string,
 	id: PropTypes.string.isRequired,
-	name: PropTypes.string,
 };
 
 export default memo(Card);

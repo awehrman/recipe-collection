@@ -30,7 +30,10 @@ const ContainerStyles = styled.div`
 `;
 
 const Containers = () => {
-	const { currentIngredientID, group, view } = useContext(ViewContext);
+	const ctx = useContext(ViewContext);
+	const currentIngredientID = ctx.get('currentIngredientID');
+	const group = ctx.get('group');
+	const view = ctx.get('view');
 
 	// setup create/refresh containers mutation
 	const [ createContainers ] = useMutation(CREATE_CONTAINERS_MUTATION);
@@ -41,14 +44,14 @@ const Containers = () => {
 
 	// query containers
 	const {
-		data,
+		data = {},
 		error,
 		loading,
 	} = useQuery(GET_ALL_CONTAINERS_QUERY, {
 		fetchPolicy: 'cache-and-network',
 		onCompleted: async (d) => {
 			const { containers } = d;
-			// console.warn('> [Containers] (GET_ALL_CONTAINERS_QUERY) onCompleted', containers);
+			// console.log('> [Containers] (GET_ALL_CONTAINERS_QUERY) onCompleted', containers);
 			if (containers && (containers.length === 0)) {
 				// if we didn't find any containers in the cache, then we'll have to create them
 				await createContainers({
@@ -66,9 +69,7 @@ const Containers = () => {
 		},
 	});
 
-	const { containers = [] } = data || {};
-	// eslint-disable-next-line object-curly-newline
-	// console.log('> [Containers]', (loading) ? 'loading...' : { containers }, { group, view });
+	const { containers = [] } = data;
 
 	return (
 		<ContainerStyles>
@@ -105,5 +106,7 @@ const Containers = () => {
 		</ContainerStyles>
 	);
 };
+
+// Containers.whyDidYouRender = true;
 
 export default Containers;

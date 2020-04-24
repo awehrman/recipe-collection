@@ -1,49 +1,48 @@
 import PropTypes from 'prop-types';
-import React, { useContext } from 'react';
+import React from 'react';
+import pure from 'recompose/pure';
 import styled from 'styled-components';
 
-import IngredientFormContext from '../../../../lib/contexts/ingredientFormContext';
+// NOTE: i feel like when i pull context i get duplicate re-renders?
+// maybe come back to this and confirm vs prop passings
+// import PageContext from '../../../../lib/contexts/ingredients/viewContext';
 import withFieldSet from '../withFieldSet';
 import Input from '../../../form/Input';
 
 const LabelStyles = styled.label`
 `;
 
-const Name = ({ onChange, value }) => {
-	const { isEditMode, loading, state } = useContext(IngredientFormContext);
-	const { validationWarnings } = state;
-	const errors = validationWarnings.get('errors').get('name');
-	const warnings = validationWarnings.get('warnings').get('name');
-	const hasWarning = errors || warnings;
-
-	let className = (value.length) ? '' : 'enabled';
-	if (hasWarning) className += ' warning';
-	if (isEditMode) className += ' editable';
-
-	return (
-		<LabelStyles>
-			<Input
-				className={ className }
-				fieldName="name"
-				isRequired
-				isSpellCheck={ isEditMode }
-				loading={ loading }
-				onChange={ onChange }
-				placeholder="Name"
-				value={ value }
-			/>
-		</LabelStyles>
-	);
-};
+const Name = ({ className, isEditMode, loading, onChange, value }) => (
+	<LabelStyles>
+		<Input
+			className={ className }
+			fieldName="name"
+			isRequired
+			isSpellCheck={ isEditMode }
+			loading={ loading }
+			onChange={ onChange }
+			placeholder="Name"
+			value={ value }
+		/>
+	</LabelStyles>
+);
 
 Name.defaultProps = {
+	className: '',
+	isEditMode: false,
+	loading: false,
 	onChange: (e) => e.preventDefault(),
 	value: '',
 };
 
+Name.whyDidYouRender = true;
+
 Name.propTypes = {
+	className: PropTypes.string,
+	isEditMode: PropTypes.bool,
+	loading: PropTypes.bool,
 	onChange: PropTypes.func,
 	value: PropTypes.string,
 };
 
-export default withFieldSet(Name);
+export default withFieldSet(pure(Name));
