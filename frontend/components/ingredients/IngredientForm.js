@@ -9,6 +9,7 @@ import Button from '../form/Button';
 import Name from './form/components/Name';
 // import Plural from './form/components/Plural';
 import useIngredientForm from './form/useIngredientForm';
+import useValidation from './form/useValidation';
 import CardContext from '../../lib/contexts/ingredients/cardContext';
 import { GET_INGREDIENT_QUERY } from '../../lib/apollo/queries/ingredients';
 
@@ -28,9 +29,12 @@ const IngredientForm = ({ className, id }) => {
 		handleIngredientChange,
 		handleIngredientSave,
 		handleQueryError,
-		// validation, // form errors
-		values, // form values
+		values,
 	} = useIngredientForm({ id });
+
+	// enable form validation
+	const { validation } = useValidation({ values });
+	const { errors, warnings } = validation;
 
 	const { ingredient } = values;
 
@@ -57,7 +61,6 @@ const IngredientForm = ({ className, id }) => {
 		if (error) handleQueryError(error);
 	}
 
-	// on form submit
 	function onSubmit(e) {
 		console.log('onSubmit');
 		e.preventDefault();
@@ -65,20 +68,23 @@ const IngredientForm = ({ className, id }) => {
 		handleIngredientSave();
 	}
 
-	// TODO base classnames on validation errors
 	const classNameFields = [
 		'name',
 		'plural',
 		'alternateNames',
 	];
 
+	// TODO maybe move this into a util func
 	const classNames = classNameFields.reduce((acc, field) => {
 		const fieldValue = ingredient.get(field);
 
-		const fieldClassName = (isEditMode && (field !== 'alternateNames') && fieldValue && fieldValue.length)
+		let fieldClassName = (isEditMode && (field !== 'alternateNames') && fieldValue && fieldValue.length)
 			? 'enabled'
 			: '';
-		// TODO add warning validation classNames
+
+			if (errors.get(field) || warnings.get(field)) {
+				fieldClassName += ' warning';
+			}
 
 		return {
 			...acc,

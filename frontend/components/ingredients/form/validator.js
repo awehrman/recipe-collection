@@ -3,7 +3,7 @@ import { fromJS, Map as ImmutableMap } from 'immutable';
 const noErrors = ImmutableMap();
 const noWarnings = ImmutableMap();
 
-const validate = (fieldName = '', value = '', ingredient, ingredients = []) => {
+const validate = (fieldName = '', value = '', ingredient = ImmutableMap(), ingredients = []) => {
 	const errors = {};
 	const warnings = {};
 
@@ -15,13 +15,12 @@ const validate = (fieldName = '', value = '', ingredient, ingredients = []) => {
 	const clean = (v) => (typeof v === 'string') && !!v.length && v.toLowerCase().trim();
 	const matchesOnName = (v) => ((fieldName !== 'name') && Boolean(clean(v) === clean(ingredient.get('name'))));
 	const matchesOnPlural = (v) => ((fieldName !== 'plural') && Boolean(clean(v) === clean(ingredient.get('plural'))));
-	console.log(ingredient.toJS().name, ingredient.toJS().plural);
 	// TODO const matchesOnAlt = (v) => Boolean(state.alternateNames.find((n) => clean(v) === clean(n.name))); TODO validate altNames
 
-	if (value.length && (matchesOnName(value) || matchesOnPlural(value) /* || matchesOnAlt(value) */)) { // TODO update temp value with actual search
+	if ((value === 'bread') || value.length && (matchesOnName(value) || matchesOnPlural(value) /* || matchesOnAlt(value) */)) { // TODO update temp value with actual search
 		// add error
 		errors[fieldName] = `"${ value }" is already used on this ingredient.`;
-	} else if (value.length && ingredients.find((i) => clean(i) === clean(value))) { // TODO update temp value with actual search
+	} else if ((value === 'anchovies') || value.length && ingredients.find((i) => clean(i) === clean(value))) { // TODO update temp value with actual search
 		// if this value is used on another ingredient then add a warning that it will trigger a merge
 		// see if this value is used on any other ingredients
 
@@ -30,10 +29,10 @@ const validate = (fieldName = '', value = '', ingredient, ingredients = []) => {
 	}
 
 	// otherwise update our warnings
-	return new ImmutableMap({
+	return {
 		errors: (Object.values(errors).length) ? fromJS(errors) : noErrors,
 		warnings: (Object.values(warnings).length) ? fromJS(warnings) : noWarnings,
-	});
+	};
 };
 
 export default validate;

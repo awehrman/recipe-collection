@@ -3,14 +3,15 @@ import throttle from 'lodash/throttle';
 import { useCallback, useEffect, useReducer, useRef } from 'react';
 import { reducer as validationReducer, actions } from '../../../reducers/validation/ingredient';
 
-function useValidation({ ingredient, reset }) {
-	console.log('>> >> >> useValidation');
+function useValidation({ values }) {
+	// console.log('>> >> >> useValidation', values);
+	const { ingredient, reset } = values; // ImmutableMaps
 	const initialState = () => ({
 		errors: ImmutableMap({}),
 		warnings: ImmutableMap({}),
 	});
 
-	const [ values, dispatch ] = useReducer(validationReducer, initialState());
+	const [ validation, dispatch ] = useReducer(validationReducer, initialState());
 
 	// current state variables
 	const name = ingredient.get('name');
@@ -20,7 +21,7 @@ function useValidation({ ingredient, reset }) {
 			(fieldName, value) => dispatch({
 				type: actions.validate,
 				payload: {
-					// TODO ingredients,
+					// TODO ingredients, // gonna need to feed a validation source
 					fieldName,
 					value,
 				},
@@ -31,59 +32,19 @@ function useValidation({ ingredient, reset }) {
 
 	const handleValidation = (fieldName, value) => () => {
 		// const altListHasSize = (fieldName === 'alternateNames') ? Boolean(value.size) : true;
-		const isNotResetValue = (reset && reset.get(fieldName)) ? Boolean(reset.get(fieldName) !== value) : true;
-		if (value && isNotResetValue) return throttledValidation.current(fieldName, value);
+		const originalValue = reset && reset.get(fieldName);
+		const isNewValue = (originalValue) ? Boolean(originalValue !== value) : true;
+		if (value && isNewValue) return throttledValidation.current(fieldName, value);
 		return dispatch();
 	};
 
 	// watch for input changes and validate every soften
-	useEffect(() => {
-		console.log('useEffect', name);
-		handleValidation('name', name);
-	}, [ name ]);
+	useEffect(handleValidation('name', name), [ name ]);
 	// useEffect(handleValidation('plural'), [state.ingredient]);
 	// TODO useEffect(handleValidation('alternateNames'), [ state.ingredient || [] ]);
 
-	function handleFormLoad({ ing }) {
-		console.log('  >> handleFormLoad');
-		dispatch({
-			type: actions.loadIngredient,
-			payload: { data: { ingredient: ing } },
-		});
-	}
 
-	const handleIngredientChange = useCallback((e, passedFieldName = null, passedValue = null) => {
-		e.persist();
-		const { target: { value, name: fieldName } } = e;
-
-		dispatch({
-			type: actions.updateIngredient,
-			payload: {
-				fieldName: (passedFieldName || fieldName),
-				value: (passedValue || value),
-			},
-		});
-	}, ['dispatch']);
-
-	function handleIngredientSave() {
-		console.log('  >> handleIngredientSave');
-
-		dispatch({ type: actions.saveIngredient });
-	}
-
-	function handleQueryError() {
-		console.log('  >> handleQueryError');
-		// TODO
-	}
-
-	return {
-		handleFormLoad,
-		handleIngredientChange,
-		handleIngredientSave,
-		handleQueryError,
-		// validation: {}, // form errors
-		values, // form values
-	};
+	return { validation }; // errors and warnings
 }
 
 export default useValidation;

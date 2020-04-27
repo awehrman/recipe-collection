@@ -11,6 +11,11 @@ const FieldSet = (WrappedComponent) => ({
 	const ctx = useContext(CardContext);
 	const isEditMode = ctx.get('isEditMode');
 	const editableClassName = isEditMode ? `${ className } editable` : className;
+	const inputProps = {
+		...props,
+		className,
+		loading,
+	};
 
 	return (
 		<FieldSetStyles
@@ -19,7 +24,7 @@ const FieldSet = (WrappedComponent) => ({
 			disabled={ loading }
 		>
 			{/* eslint-disable-next-line react/jsx-props-no-spreading */}
-			<WrappedComponent { ...props }>
+			<WrappedComponent { ...inputProps }>
 				{ children }
 			</WrappedComponent>
 		</FieldSetStyles>
