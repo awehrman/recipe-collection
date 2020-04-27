@@ -5,7 +5,7 @@ import pluralize from 'pluralize';
 import { darken } from 'polished';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/pro-regular-svg-icons';
@@ -625,7 +625,7 @@ class Form extends Component {
 			if (errors) {
 				console.error({ errors });
 				errorWarnings.push({
-					id: uuid.v4(),
+					id: uuidv4(),
 					fieldName: 'Card',
 					preventSave: false,
 					message: errors.message,
@@ -637,7 +637,7 @@ class Form extends Component {
 				console.error(res.data.createIngredient.errors);
 				res.data.createIngredient.errors.forEach((error) => {
 					errorWarnings.push({
-						id: uuid.v4(),
+						id: uuidv4(),
 						fieldName: 'Card',
 						preventSave: false,
 						message: error,
@@ -684,7 +684,7 @@ class Form extends Component {
 			if (errors) {
 				console.error({ errors });
 				errorWarnings.push({
-					id: uuid.v4(),
+					id: uuidv4(),
 					fieldName: 'Card',
 					preventSave: false,
 					message: errors.message,
@@ -695,7 +695,7 @@ class Form extends Component {
 				console.error(res.data.updateIngredient.errors);
 				res.data.updateIngredient.errors.forEach((error) => {
 					errorWarnings.push({
-						id: uuid.v4(),
+						id: uuidv4(),
 						fieldName: 'Card',
 						preventSave: false,
 						message: error,
@@ -748,7 +748,7 @@ class Form extends Component {
 		// ensure we have a name value
 		if ((fieldName === 'name') && !value) {
 			warnings.push({
-				id: uuid.v4(),
+				id: uuidv4(),
 				fieldName,
 				preventSave: true,
 				message: 'An ingredient name must be provided.',
@@ -806,7 +806,7 @@ class Form extends Component {
 		const isNotCurrentIngredient = ingredient && (currentIngredientID !== ingredient.id);
 		if (isNotCurrentIngredient && ingredient && (!~warnings.findIndex((w) => w.value === nameValue))) {
 			warnings.push({
-				id: uuid.v4(),
+				id: uuidv4(),
 				fieldName,
 				preventSave: false,
 				message: `"${ nameValue }" is already in use on the "${ ingredient.name }" ingredient.`,
@@ -829,7 +829,7 @@ class Form extends Component {
 			// if we find any matches on the name or plural fields, add a warning
 			if (nameValue && ing[f] && (typeof ing[f] === 'string') && (ing[f].toLowerCase() === nameValue.toLowerCase())) {
 				warnings.push({
-					id: uuid.v4(),
+					id: uuidv4(),
 					fieldName: f,
 					preventSave: true,
 					message: `"${ nameValue }" is already in use on the "${ f }" field.`,
@@ -837,7 +837,7 @@ class Form extends Component {
 				});
 
 				warnings.push({
-					id: uuid.v4(),
+					id: uuidv4(),
 					fieldName,
 					preventSave: true,
 					message: `"${ nameValue }" is already in use on the "${ fieldName }" field.`,
@@ -848,7 +848,7 @@ class Form extends Component {
 			// if we find any matches within the alternateNames, add a warning
 			if (nameValue && ing[f] && (typeof ing[f] === 'object') && (!ing[f].findIndex((n) => n.name.toLowerCase() === nameValue.toLowerCase()))) {
 				warnings.push({
-					id: uuid.v4(),
+					id: uuidv4(),
 					fieldName,
 					preventSave: true,
 					message: `"${ nameValue }" is already listed in the "${ f }" field.`,

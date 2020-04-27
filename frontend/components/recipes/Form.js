@@ -4,7 +4,7 @@ import { darken } from 'polished';
 import pluralize from 'pluralize';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-// import uuid from 'uuid';
+// import { v4 as uuidv4 } from 'uuid';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/pro-regular-svg-icons';
@@ -779,7 +779,7 @@ class Form extends Component {
 			if (errors) {
 				console.error({ errors });
 				errorWarnings.push({
-					id: uuid.v4(),
+					id: uuidv4,
 					fieldName: 'Card',
 					preventSave: false,
 					message: errors.message,
@@ -791,7 +791,7 @@ class Form extends Component {
 				console.error(res.data.createRecipe.errors);
 				res.data.createRecipe.errors.forEach((error) => {
 					errorWarnings.push({
-						id: uuid.v4(),
+						id: uuidv4,
 						fieldName: 'Card',
 						preventSave: false,
 						message: error,
@@ -836,7 +836,7 @@ class Form extends Component {
 			if (errors) {
 				console.error({ errors });
 				errorWarnings.push({
-					id: uuid.v4(),
+					id: uuidv4,
 					fieldName: 'Card',
 					preventSave: false,
 					message: errors.message,
@@ -848,7 +848,7 @@ class Form extends Component {
 				console.error(res.data.updateRecipe.errors);
 				res.data.updateRecipe.errors.forEach((error) => {
 					errorWarnings.push({
-						id: uuid.v4(),
+						id: uuidv4,
 						fieldName: 'Card',
 						preventSave: false,
 						message: error,

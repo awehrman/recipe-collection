@@ -1,5 +1,5 @@
 import { List as ImmutableList } from 'immutable';
-import uuidv1 from 'uuid/v1';
+import { v4 as uuidv4 } from 'uuid';
 import { hasProperty } from './util';
 
 const generateByCount = (id, ingredients) => {
@@ -32,7 +32,7 @@ const generateByCount = (id, ingredients) => {
 			containerIngredients = ingredients.filter((i) => i.referenceCount === 0);
 			return {
 				__typename: 'Container',
-				id: uuidv1(),
+				id: uuidv4(),
 				ingredientID: id,
 				ingredients: containerIngredients,
 				isExpanded: false,
@@ -47,7 +47,7 @@ const generateByCount = (id, ingredients) => {
 
 			return {
 				__typename: 'Container',
-				id: uuidv1(),
+				id: uuidv4(),
 				ingredientID: id,
 				ingredients: containerIngredients,
 				isExpanded: false,
@@ -68,7 +68,7 @@ const generateByCount = (id, ingredients) => {
 
 		return {
 			__typename: 'Container',
-			id: uuidv1(),
+			id: uuidv4(),
 			ingredientID: id,
 			ingredients: containerIngredients,
 			isExpanded: false,
@@ -89,7 +89,7 @@ const generateByName = (id, ingredients, view) => {
 	if (ingredients.size <= 500) {
 		containers.push({
 			__typename: 'Container',
-			id: uuidv1(),
+			id: uuidv4(),
 			ingredientID: id,
 			ingredients,
 			isExpanded: true,
@@ -119,7 +119,7 @@ const generateByName = (id, ingredients, view) => {
 
 			return {
 				__typename: 'Container',
-				id: uuidv1(),
+				id: uuidv4(),
 				ingredientID: id,
 				ingredients: containerIngredients,
 				isExpanded: true,
@@ -151,7 +151,7 @@ const generateByProperty = (id, ingredients) => {
 
 		const container = {
 			__typename: 'Container',
-			id: uuidv1(),
+			id: uuidv4(),
 			ingredientID: id,
 			ingredients: containerIngredients,
 			isExpanded: true,
@@ -173,7 +173,7 @@ const generateByRelationship = (id, ingredients) => {
 	if (childIngredients.size > 0) {
 		containers.push({
 			__typename: 'Container',
-			id: uuidv1(),
+			id: uuidv4(),
 			ingredientID: id,
 			ingredients: childIngredients,
 			isExpanded: true,
@@ -185,7 +185,7 @@ const generateByRelationship = (id, ingredients) => {
 	if (parentIngredients.size > 0) {
 		containers.push({
 			__typename: 'Container',
-			id: uuidv1(),
+			id: uuidv4(),
 			ingredientID: id,
 			ingredients: parentIngredients,
 			isExpanded: true,
