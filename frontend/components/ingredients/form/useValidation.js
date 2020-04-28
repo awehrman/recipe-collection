@@ -1,28 +1,34 @@
-import { Map as ImmutableMap } from 'immutable';
 import throttle from 'lodash/throttle';
-import { useCallback, useEffect, useReducer, useRef } from 'react';
+import { useContext, useEffect, useReducer, useRef } from 'react';
 import { reducer as validationReducer, actions } from '../../../reducers/validation/ingredient';
+import ValidationContext from '../../../lib/contexts/ingredients/validationContext';
+import { noValidationMessages, noValidationWarnings } from './constants';
 
-function useValidation({ values }) {
-	// console.log('>> >> >> useValidation', values);
+function useValidation({ currentIngredientState, values }) {
+	// console.log('>> >> >> useValidation', { currentIngredientState: currentIngredientState.toJS() });
 	const { ingredient, reset } = values; // ImmutableMaps
-	const initialState = () => ({
-		errors: ImmutableMap({}),
-		warnings: ImmutableMap({}),
-	});
+	const validationList = useContext(ValidationContext);
 
-	const [ validation, dispatch ] = useReducer(validationReducer, initialState());
+	const [ validation, dispatch ] = useReducer(validationReducer, noValidationWarnings);
+	const { errors, warnings } = validation;
+	const validationMessages = Object.values({
+		...errors.toJS(),
+		...warnings.toJS(),
+	});
 
 	// current state variables
 	const name = ingredient.get('name');
+	const plural = ingredient.get('plural');
+	// const alternateNames = ingredient.get('alternateNames');
 
 	const throttledValidation = useRef(
 		throttle(
-			(fieldName, value) => dispatch({
+			(fieldName, ing, list, value) => dispatch({
 				type: actions.validate,
 				payload: {
-					// TODO ingredients, // gonna need to feed a validation source
 					fieldName,
+					ingredient: ing,
+					validationList: list,
 					value,
 				},
 			}),
@@ -34,17 +40,24 @@ function useValidation({ values }) {
 		// const altListHasSize = (fieldName === 'alternateNames') ? Boolean(value.size) : true;
 		const originalValue = reset && reset.get(fieldName);
 		const isNewValue = (originalValue) ? Boolean(originalValue !== value) : true;
-		if (value && isNewValue) return throttledValidation.current(fieldName, value);
+		if (value && isNewValue) return throttledValidation.current(fieldName, currentIngredientState, validationList, value);
 		return dispatch();
 	};
 
 	// watch for input changes and validate every soften
 	useEffect(handleValidation('name', name), [ name ]);
-	// useEffect(handleValidation('plural'), [state.ingredient]);
+	useEffect(handleValidation('plural', plural), [ plural ]);
 	// TODO useEffect(handleValidation('alternateNames'), [ state.ingredient || [] ]);
 
+	function clearValidation() {
+		dispatch({ type: actions.clearValidation });
+	}
 
-	return { validation }; // errors and warnings
+	return {
+		clearValidation,
+		validation: (!validationMessages.length) ? noValidationWarnings : validation,
+		validationMessages: (!validationMessages.length) ? noValidationMessages : validationMessages, // idk maybe memoize this still?
+	};
 }
 
 export default useValidation;

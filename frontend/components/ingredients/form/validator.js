@@ -3,7 +3,8 @@ import { fromJS, Map as ImmutableMap } from 'immutable';
 const noErrors = ImmutableMap();
 const noWarnings = ImmutableMap();
 
-const validate = (fieldName = '', value = '', ingredient = ImmutableMap(), ingredients = []) => {
+const validate = (fieldName = '', value = '', ingredient = ImmutableMap(), validationList = []) => {
+	// console.log('VALIDATE', { fieldName, value, ingredient: ingredient.toJS(), validationList });
 	const errors = {};
 	const warnings = {};
 
@@ -17,10 +18,10 @@ const validate = (fieldName = '', value = '', ingredient = ImmutableMap(), ingre
 	const matchesOnPlural = (v) => ((fieldName !== 'plural') && Boolean(clean(v) === clean(ingredient.get('plural'))));
 	// TODO const matchesOnAlt = (v) => Boolean(state.alternateNames.find((n) => clean(v) === clean(n.name))); TODO validate altNames
 
-	if ((value === 'bread') || value.length && (matchesOnName(value) || matchesOnPlural(value) /* || matchesOnAlt(value) */)) { // TODO update temp value with actual search
+	if (value.length && (matchesOnName(value) || matchesOnPlural(value) /* || matchesOnAlt(value) */)) { // TODO update temp value with actual search
 		// add error
 		errors[fieldName] = `"${ value }" is already used on this ingredient.`;
-	} else if ((value === 'anchovies') || value.length && ingredients.find((i) => clean(i) === clean(value))) { // TODO update temp value with actual search
+	} else if (value.length && validationList.find((i) => clean(i) === clean(value))) { // TODO update temp value with actual search
 		// if this value is used on another ingredient then add a warning that it will trigger a merge
 		// see if this value is used on any other ingredients
 

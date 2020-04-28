@@ -1,5 +1,7 @@
 import { Map as ImmutableMap, List as ImmutableList } from 'immutable';
 import { useCallback, useReducer } from 'react';
+
+import useValidation from './useValidation';
 import { reducer as ingredientReducer, actions } from '../../../reducers/ingredient';
 
 // TODO move these into a constants file
@@ -33,7 +35,18 @@ function useIngredientForm({ id }) {
 		};
 	};
 
-	const [values, dispatch] = useReducer(ingredientReducer, initialState());
+	// setup form reducer calls
+	const [ values, dispatch ] = useReducer(ingredientReducer, initialState());
+
+	// setup form validation
+	const {
+		clearValidation,
+		validation,
+		validationMessages,
+	} = useValidation({
+		currentIngredientState: values.ingredient,
+		values,
+	});
 
 	function handleFormLoad({ ingredient }) {
 		console.log('  >> handleFormLoad', ingredient);
@@ -54,7 +67,7 @@ function useIngredientForm({ id }) {
 				value: (passedValue || value),
 			},
 		});
-	}, ['dispatch']);
+	}, [ 'dispatch' ]);
 
 	function handleIngredientSave() {
 		console.log('  >> handleIngredientSave');
@@ -68,11 +81,14 @@ function useIngredientForm({ id }) {
 	}
 
 	return {
+		clearValidation,
 		handleFormLoad,
 		handleIngredientChange,
 		handleIngredientSave,
 		handleQueryError,
-		// validation: {}, // form errors
+		// TODO i get duplicate re-renders on empty errors
+		validation, // form specific errors
+		validationMessages, // list of current warning messages
 		values, // form values
 	};
 }

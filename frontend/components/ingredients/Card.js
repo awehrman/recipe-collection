@@ -11,42 +11,6 @@ import IngredientForm from './IngredientForm';
 import ViewContext from '../../lib/contexts/ingredients/viewContext';
 import CardContext from '../../lib/contexts/ingredients/cardContext';
 
-const CardStyles = styled.div`
-	height: ${ (props) => (props.theme.mobileCardHeight) };
-	padding: 20px;
-	border-bottom: 1px solid #ddd;
-	width: 100%;
-	display: flex;
-	position: relative;
-
-	&.hidden {
-		display: none;
-	}
-
-	button.edit {
-		border: 0;
-		background: transparent;
-		cursor: pointer;
-		color: ${ (props) => props.theme.highlight };
-		font-weight: 600;
-		font-size: 14px;
-
-	 	svg {
-			margin-right: 8px;
-			height: 14px;
-		}
-	}
-
-	@media (min-width: ${ (props) => (props.theme.desktopCardWidth) }) {
-		flex-basis: 70%;
-		flex-grow: 2;
-		order: 1;
-		height: ${ (props) => (props.theme.desktopCardHeight) };
-		border-left: 1px solid #ddd;
-		border-bottom: 0;
-	}
-`;
-
 const Card = ({ className, id }) => {
 	// console.log('[Card]');
 	const viewContext = useContext(ViewContext);
@@ -97,3 +61,40 @@ Card.propTypes = {
 };
 
 export default memo(Card);
+
+
+const CardStyles = styled.div`
+	height: ${ (props) => (props.theme.mobileCardHeight) };
+	padding: 20px;
+	border-bottom: 1px solid #ddd;
+	width: 100%;
+	display: flex;
+	position: relative;
+
+	&.hidden {
+		display: none;
+	}
+
+	button.edit {
+		border: 0;
+		background: transparent;
+		cursor: pointer;
+		color: ${ (props) => props.theme.highlight };
+		font-weight: 600;
+		font-size: 14px;
+
+	 	svg {
+			margin-right: 8px;
+			height: 14px;
+		}
+	}
+
+	@media (min-width: ${ (props) => (props.theme.desktopCardWidth) }) {
+		flex-basis: 70%;
+		flex-grow: 2;
+		order: 1;
+		height: ${ (props) => (props.theme.desktopCardHeight) };
+		border-left: 1px solid #ddd;
+		border-bottom: 0;
+	}
+`;

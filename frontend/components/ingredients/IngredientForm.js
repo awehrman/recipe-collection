@@ -9,35 +9,34 @@ import Button from '../form/Button';
 import Name from './form/components/Name';
 // import Plural from './form/components/Plural';
 import useIngredientForm from './form/useIngredientForm';
-import useValidation from './form/useValidation';
+// import useValidation from './form/useValidation';
 import CardContext from '../../lib/contexts/ingredients/cardContext';
 import { GET_INGREDIENT_QUERY } from '../../lib/apollo/queries/ingredients';
 
 const IngredientForm = ({ className, id }) => {
 	// console.log('[IngredientForm]');
-	const [ isSubmitting, setIsSubmitting ] = useState(false);
+	const [ isSubmitting, setIsSubmitting ] = useState(false); // TODO should this be in context, or does that still cause re-renders?
 
 	const ctx = useContext(CardContext);
 	const isEditMode = ctx.get('isEditMode');
 	const disableEditMode = ctx.get('disableEditMode');
 
-	let error = null;
-	let loading = Boolean(id);
-
+	// setup form utilities and validation
 	const {
+		clearValidation,
 		handleFormLoad,
 		handleIngredientChange,
 		handleIngredientSave,
 		handleQueryError,
+		validation: {
+			errors,
+			warnings,
+		},
+		validationMessages,
 		values,
 	} = useIngredientForm({ id });
 
-	// enable form validation
-	const { validation } = useValidation({ values });
-	const { errors, warnings } = validation;
-
 	const { ingredient } = values;
-
 	const name = ingredient.get('name') || '';
 	const plural = ingredient.get('plural');
 	const isComposedIngredient = ingredient.get('isComposedIngredient');
@@ -49,6 +48,9 @@ const IngredientForm = ({ className, id }) => {
 
 	// TODO setup save mutation; on update setIsSubmitting(false)
 
+	let error = null;
+	let loading = Boolean(id);
+
 	// if we have an id, query this ingredient from the server
 	if (id) {
 		({
@@ -59,6 +61,12 @@ const IngredientForm = ({ className, id }) => {
 			variables: { id },
 		}));
 		if (error) handleQueryError(error);
+	}
+
+	function onCancelClick(e) {
+		e.preventDefault();
+		clearValidation();
+		disableEditMode();
 	}
 
 	function onSubmit(e) {
@@ -82,9 +90,9 @@ const IngredientForm = ({ className, id }) => {
 			? 'enabled'
 			: '';
 
-			if (errors.get(field) || warnings.get(field)) {
-				fieldClassName += ' warning';
-			}
+		if (errors.get(field) || warnings.get(field)) {
+			fieldClassName += ' warning';
+		}
 
 		return {
 			...acc,
@@ -123,16 +131,15 @@ const IngredientForm = ({ className, id }) => {
 				(isEditMode)
 					? (
 						<BottomFormStyles>
-							{/* Warnings
+							{/* Warnings */}
 							<Warnings>
 								{
-									allWarnings && allWarnings.map((err, i) => (
+									validationMessages.map((err, i) => (
 										// eslint-disable-next-line react/no-array-index-key
 										<Warning key={ `${ err }_${ i }` }>{ err }</Warning>
 									))
 								}
 							</Warnings>
-							 */}
 
 							<Controls>
 								{/* Cancel Button */}
@@ -140,7 +147,7 @@ const IngredientForm = ({ className, id }) => {
 									className="cancel"
 									disable={ isSubmitting }
 									label="Cancel"
-									onClick={ disableEditMode }
+									onClick={ onCancelClick }
 									type="button"
 								/>
 
@@ -290,7 +297,6 @@ const BottomFormStyles = styled.div`
 		}
 	}
 `;
-/*
 const Warning = styled.li`
 	color: tomato;
 	margin-top: 4px;
@@ -306,7 +312,6 @@ const Warnings = styled.ul`
 	margin-bottom: 10px;;
 	padding: 0;
 `;
-*/
 
 const Controls = styled.div`
 	/* float: right; */

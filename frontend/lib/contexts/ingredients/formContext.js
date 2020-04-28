@@ -1,7 +1,7 @@
 import { Map as ImmutableMap } from 'immutable';
 import React from 'react';
 
-const defaultValue = new ImmutableMap({
+const defaultValue = ImmutableMap({
 	alternateNames: [],
 	id: '-1',
 	isComposedIngredient: false,

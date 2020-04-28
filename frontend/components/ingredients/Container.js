@@ -11,6 +11,113 @@ import ViewContext from '../../lib/contexts/ingredients/viewContext';
 import { GET_CONTAINER_QUERY } from '../../lib/apollo/queries/containers';
 import { TOGGLE_CONTAINER_MUTATION, UPDATE_CONTAINER_INGREDIENT_MUTATION } from '../../lib/apollo/mutations/containers';
 
+// TODO virtualize that ingredients list
+// TODO scroll to list item on click
+
+const Container = ({ id }) => {
+	// console.log('Container', id);
+	const ctx = useContext(ViewContext);
+	const group = ctx.get('group');
+	const view = ctx.get('view');
+
+	// eslint-disable-next-line object-curly-newline
+	// console.log('Container', { group, view });
+
+	// query container
+	const {
+		data,
+		loading,
+		error,
+	} = useQuery(GET_CONTAINER_QUERY, {
+		context: {
+			group,
+			view,
+		},
+		variables: { id },
+	});
+	const { container } = data || {};
+
+	// setup mutations
+	const [ toggleContainer ] = useMutation(TOGGLE_CONTAINER_MUTATION);
+	const [ toggleIngredientID ] = useMutation(UPDATE_CONTAINER_INGREDIENT_MUTATION);
+	const handleIngredientToggle = (containerID, ingredientID) => {
+		toggleIngredientID({
+			variables: {
+				id: containerID,
+				ingredientID,
+			},
+		});
+	};
+
+	if (error) return <ErrorMessage error={ error } />;
+	if (loading) return <Loading />;
+
+	const className = (`${ (!container.isExpanded) ? 'hidden' : '' } ${ (container.ingredientID) ? 'expanded' : '' }`).trim();
+
+	return (
+		<ContainerStyles className={ (container.isExpanded) ? 'expanded' : '' }>
+			{/* container header */}
+			<HeaderStyles
+				onClick={
+					/* TODO move these mutations into reducers */
+					() => toggleContainer({
+						variables: {
+							id: container.id,
+							isExpanded: !container.isExpanded,
+						},
+					})
+				}
+			>
+				{ container.label }
+				<span className="count">{ container.referenceCount }</span>
+			</HeaderStyles>
+
+			{/* current ingredient card */
+				(container.ingredientID)
+					? (
+						<Card
+							className={ className }
+							id={ container.ingredientID }
+						/>
+					)
+					: null
+			}
+
+			{/* ingredients list */}
+			<IngredientsList className={ `${ className } ${ (container.ingredients.length < 10) ? 'small' : '' }` }>
+				{
+					container.ingredients.map((i) => (
+						<li className={ i.className } key={ i.id }>
+							{
+								(i.type === 'header')
+									? <span className="header">{ i.name }</span>
+									: (
+										<a
+											id={ i.id }
+											onClick={ (e) => handleIngredientToggle(container.id, e.target.id) }
+											onKeyPress={ (e) => handleIngredientToggle(container.id, e.target.id) }
+											role="link"
+											tabIndex="0"
+										>
+											{ i.name }
+										</a>
+									)
+							}
+						</li>
+					))
+				}
+			</IngredientsList>
+		</ContainerStyles>
+	);
+};
+
+// Container.whyDidYouRender = true;
+
+Container.propTypes = { id: PropTypes.string.isRequired };
+
+export default pure(Container);
+
+
 const ContainerStyles = styled.div`
 	margin-bottom: 16px;
 	display: flex;
@@ -119,109 +226,3 @@ const IngredientsList = styled.ul`
 		column-count: 5;
 	}
 `;
-
-// TODO virtualize that ingredients list
-// TODO scroll to list item on click
-
-const Container = ({ id }) => {
-	// console.log('Container', id);
-	const ctx = useContext(ViewContext);
-	const group = ctx.get('group');
-	const view = ctx.get('view');
-
-	// eslint-disable-next-line object-curly-newline
-	// console.log('Container', { group, view });
-
-	// query container
-	const {
-		data,
-		loading,
-		error,
-	} = useQuery(GET_CONTAINER_QUERY, {
-		context: {
-			group,
-			view,
-		},
-		variables: { id },
-	});
-	const { container } = data || {};
-
-	// setup mutations
-	const [ toggleContainer ] = useMutation(TOGGLE_CONTAINER_MUTATION);
-	const [ toggleIngredientID ] = useMutation(UPDATE_CONTAINER_INGREDIENT_MUTATION);
-	const handleIngredientToggle = (containerID, ingredientID) => {
-		toggleIngredientID({
-			variables: {
-				id: containerID,
-				ingredientID,
-			},
-		});
-	};
-
-	if (error) return <ErrorMessage error={ error } />;
-	if (loading) return <Loading />;
-
-	const className = (`${ (!container.isExpanded) ? 'hidden' : '' } ${ (container.ingredientID) ? 'expanded' : '' }`).trim();
-
-	return (
-		<ContainerStyles className={ (container.isExpanded) ? 'expanded' : '' }>
-			{/* container header */}
-			<HeaderStyles
-				onClick={
-					/* TODO move these mutations into reducers */
-					() => toggleContainer({
-						variables: {
-							id: container.id,
-							isExpanded: !container.isExpanded,
-						},
-					})
-				}
-			>
-				{ container.label }
-				<span className="count">{ container.referenceCount }</span>
-			</HeaderStyles>
-
-			{/* current ingredient card */
-				(container.ingredientID)
-					? (
-						<Card
-							className={ className }
-							id={ container.ingredientID }
-						/>
-					)
-					: null
-			}
-
-			{/* ingredients list */}
-			<IngredientsList className={ `${ className } ${ (container.ingredients.length < 10) ? 'small' : '' }` }>
-				{
-					container.ingredients.map((i) => (
-						<li className={ i.className } key={ i.id }>
-							{
-								(i.type === 'header')
-									? <span className="header">{ i.name }</span>
-									: (
-										<a
-											id={ i.id }
-											onClick={ (e) => handleIngredientToggle(container.id, e.target.id) }
-											onKeyPress={ (e) => handleIngredientToggle(container.id, e.target.id) }
-											role="link"
-											tabIndex="0"
-										>
-											{ i.name }
-										</a>
-									)
-							}
-						</li>
-					))
-				}
-			</IngredientsList>
-		</ContainerStyles>
-	);
-};
-
-// Container.whyDidYouRender = true;
-
-Container.propTypes = { id: PropTypes.string.isRequired };
-
-export default pure(Container);

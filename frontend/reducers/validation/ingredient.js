@@ -1,7 +1,8 @@
-import { Map as ImmutableMap } from 'immutable';
 import validate from '../../components/ingredients/form/validator';
+import { noValidationWarnings } from '../../components/ingredients/form/constants';
 
 export const actions = {
+	clearValidation: 'CLEAR_VALIDATION',
 	validate: 'VALIDATE_INGREDIENT',
 	//
 };
@@ -9,15 +10,17 @@ export const actions = {
 export const reducer = (state, action) => {
 	if (!action) return state;
 	const { payload, type } = action || {};
-	const { fieldName, value } = payload || {};
-	// console.log('>>> VALIDATION reducer', { payload, type });
+	const { fieldName, ingredient, validationList, value } = payload || {};
 
-	if (type === actions.validate) {
-		// console.log('VALIDATING!!', { fieldName, value });
-		const validation = validate(fieldName, value /* TODO, ingredient, ingredients */);
-		return validation;
+	if (type === actions.clearValidation) {
+		console.log('#########', { noValidationWarnings });
+		return noValidationWarnings;
 	}
 
+	if (type === actions.validate) {
+		const validation = validate(fieldName, value, ingredient, validationList);
+		return validation;
+	}
 
 	return state;
 };
