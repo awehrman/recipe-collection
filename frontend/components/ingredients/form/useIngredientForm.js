@@ -15,7 +15,7 @@ const defaultProperties = ImmutableMap({
 });
 
 function useIngredientForm({ id }) {
-	// console.log('>> >> >> useIngredientForm');
+	console.log('>> >> >> useIngredientForm');
 	const initialState = () => {
 		const ingredient = ImmutableMap({
 			alternateNames: ImmutableList(),
@@ -57,6 +57,7 @@ function useIngredientForm({ id }) {
 	}
 
 	const handleIngredientChange = useCallback((e, passedFieldName = null, passedValue = null) => {
+		console.log('handleIngredientChange');
 		e.persist();
 		const { target: { value, name: fieldName } } = e;
 
@@ -75,17 +76,11 @@ function useIngredientForm({ id }) {
 		dispatch({ type: actions.saveIngredient });
 	}
 
-	function handleQueryError() {
-		console.log('  >> handleQueryError');
-		// TODO
-	}
-
 	return {
 		clearValidation,
 		handleFormLoad,
 		handleIngredientChange,
 		handleIngredientSave,
-		handleQueryError,
 		// TODO i get duplicate re-renders on empty errors
 		validation, // form specific errors
 		validationMessages, // list of current warning messages

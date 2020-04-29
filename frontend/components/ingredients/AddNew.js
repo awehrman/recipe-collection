@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import styled from 'styled-components';
 
-import Button from '../form/Button';
+import Button from '../_form/Button';
 import Form from './Form';
 
 const AddNewStyles = styled.div`
@@ -121,6 +121,6 @@ class AddNew extends React.PureComponent {
 }
 
 AddNew.defaultProps = { view: 'all' };
-AddNew.propTypes = { view: PropTypes.oneOf(['all', 'new']) };
+AddNew.propTypes = { view: PropTypes.oneOf([ 'all', 'new' ]) };
 
 export default AddNew;

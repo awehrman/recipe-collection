@@ -13,10 +13,10 @@ import { faEdit } from '@fortawesome/pro-regular-svg-icons';
 // import { faExclamation } from '@fortawesome/pro-solid-svg-icons';
 
 import { deepCopy, hasProperty } from '../../lib/util';
-import Button from '../form/Button';
-import CheckboxGroup from '../form/CheckboxGroup';
-import Input from '../form/_Input';
-import List from '../form/List';
+import Button from '../_form/Button';
+import CheckboxGroup from '../_form/CheckboxGroup';
+import Input from '../_form/_Input';
+import List from '../_form/List';
 import { CREATE_INGREDIENT_MUTATION } from '../../lib/apollo/mutations/ingredients';
 import { GET_INGREDIENT_QUERY, GET_ALL_INGREDIENTS_QUERY, GET_INGREDIENTS_COUNT_QUERY } from '../../lib/apollo/queries/ingredients';
 import { GET_SUGGESTED_INGREDIENTS_QUERY } from '../../lib/apollo/queries/suggestions';

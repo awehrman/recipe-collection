@@ -1,35 +1,34 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useContext } from 'react';
 import pure from 'recompose/pure';
 import styled from 'styled-components';
 
-// NOTE: i feel like when i pull context i get duplicate re-renders?
-// maybe come back to this and confirm vs prop passings
-// import PageContext from '../../../../lib/contexts/ingredients/viewContext';
+import CardContext from '../../../../lib/contexts/ingredients/cardContext';
 import withFieldSet from '../withFieldSet';
-import Input from '../../../form/Input';
+import Input from '../../../_form/Input';
 
-const LabelStyles = styled.label`
-`;
+const Name = ({ className, loading, onChange, value }) => {
+	const ctx = useContext(CardContext);
+	const isEditMode = ctx.get('isEditMode');
 
-const Name = ({ className, isEditMode, loading, onChange, value }) => (
-	<LabelStyles>
-		<Input
-			className={ className }
-			fieldName="name"
-			isRequired
-			isSpellCheck={ isEditMode }
-			loading={ loading }
-			onChange={ onChange }
-			placeholder="Name"
-			value={ value }
-		/>
-	</LabelStyles>
-);
+	return (
+		<LabelStyles>
+			<Input
+				className={ className }
+				fieldName="name"
+				isRequired
+				isSpellCheck={ isEditMode }
+				loading={ loading }
+				onChange={ onChange }
+				placeholder="name"
+				value={ value }
+			/>
+		</LabelStyles>
+	);
+};
 
 Name.defaultProps = {
 	className: '',
-	isEditMode: false,
 	loading: false,
 	onChange: (e) => e.preventDefault(),
 	value: '',
@@ -39,10 +38,12 @@ Name.whyDidYouRender = true;
 
 Name.propTypes = {
 	className: PropTypes.string,
-	isEditMode: PropTypes.bool,
 	loading: PropTypes.bool,
 	onChange: PropTypes.func,
 	value: PropTypes.string,
 };
 
 export default withFieldSet(pure(Name));
+
+const LabelStyles = styled.label`
+`;

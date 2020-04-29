@@ -1,16 +1,17 @@
 import { useQuery } from '@apollo/client';
 import { darken } from 'polished';
 import PropTypes from 'prop-types';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import pure from 'recompose/pure';
 import styled from 'styled-components';
 
-import Button from '../form/Button';
+import Button from '../_form/Button';
 import Name from './form/components/Name';
-// import Plural from './form/components/Plural';
+import Plural from './form/components/Plural';
 import useIngredientForm from './form/useIngredientForm';
 // import useValidation from './form/useValidation';
 import CardContext from '../../lib/contexts/ingredients/cardContext';
+import ViewContext from '../../lib/contexts/ingredients/viewContext';
 import { GET_INGREDIENT_QUERY } from '../../lib/apollo/queries/ingredients';
 
 const IngredientForm = ({ className, id }) => {
@@ -19,6 +20,7 @@ const IngredientForm = ({ className, id }) => {
 
 	const ctx = useContext(CardContext);
 	const isEditMode = ctx.get('isEditMode');
+	const enableEditMode = ctx.get('enableEditMode');
 	const disableEditMode = ctx.get('disableEditMode');
 
 	// setup form utilities and validation
@@ -27,7 +29,6 @@ const IngredientForm = ({ className, id }) => {
 		handleFormLoad,
 		handleIngredientChange,
 		handleIngredientSave,
-		handleQueryError,
 		validation: {
 			errors,
 			warnings,
@@ -38,7 +39,7 @@ const IngredientForm = ({ className, id }) => {
 
 	const { ingredient } = values;
 	const name = ingredient.get('name') || '';
-	const plural = ingredient.get('plural');
+	const plural = ingredient.get('plural') || '';
 	const isComposedIngredient = ingredient.get('isComposedIngredient');
 	const properties = ingredient.get('properties');
 	const alternateNames = ingredient.get('alternateNames');
@@ -48,20 +49,27 @@ const IngredientForm = ({ className, id }) => {
 
 	// TODO setup save mutation; on update setIsSubmitting(false)
 
-	let error = null;
 	let loading = Boolean(id);
 
 	// if we have an id, query this ingredient from the server
 	if (id) {
-		({
-			error,
-			loading,
-		} = useQuery(GET_INGREDIENT_QUERY, {
+		({ loading } = useQuery(GET_INGREDIENT_QUERY, {
 			onCompleted: handleFormLoad,
 			variables: { id },
 		}));
-		if (error) handleQueryError(error);
 	}
+
+	// reset edit mode on ingredient switch
+	const viewContext = useContext(ViewContext);
+	const view = viewContext.get('view');
+	useEffect(() => {
+		clearValidation();
+		if (view !== 'new') {
+			disableEditMode();
+		} else {
+			enableEditMode();
+		}
+	}, [ id ]);
 
 	function onCancelClick(e) {
 		e.preventDefault();
@@ -85,10 +93,13 @@ const IngredientForm = ({ className, id }) => {
 	// TODO maybe move this into a util func
 	const classNames = classNameFields.reduce((acc, field) => {
 		const fieldValue = ingredient.get(field);
-
 		let fieldClassName = (isEditMode && (field !== 'alternateNames') && fieldValue && fieldValue.length)
 			? 'enabled'
 			: '';
+
+		if (isEditMode) {
+			fieldClassName += ' editable';
+		}
 
 		if (errors.get(field) || warnings.get(field)) {
 			fieldClassName += ' warning';
@@ -100,18 +111,26 @@ const IngredientForm = ({ className, id }) => {
 		};
 	}, {});
 
+	console.log({ classNames });
 	return (
 		<FormStyles className={ className } id="ingForm" onSubmit={ onSubmit }>
 			{/* Top Form Elements (Name, Plural, Properties, IsComposedIngredient) */}
 			<TopFormStyles>
 				<div className="left">
 					<Name
-						className={ classNames.name || '' }
+						className={ classNames.name }
 						loading={ loading }
 						onChange={ handleIngredientChange }
-						value={ name || '' }
+						value={ name }
 					/>
-					{ plural }
+					<Plural
+						className={ classNames.plural }
+						isPluralSuggestEnabled
+						loading={ loading }
+						onChange={ handleIngredientChange }
+						singular={ name }
+						value={ plural }
+					/>
 				</div>
 				<div className="right">
 					{ `${ properties }` }

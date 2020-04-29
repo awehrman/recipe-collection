@@ -4,7 +4,6 @@ import { noValidationWarnings } from '../../components/ingredients/form/constant
 export const actions = {
 	clearValidation: 'CLEAR_VALIDATION',
 	validate: 'VALIDATE_INGREDIENT',
-	//
 };
 
 export const reducer = (state, action) => {

@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import ButtonLink from '../form/ButtonLink';
+import ButtonLink from '../_form/ButtonLink';
 
 const Cell = styled.div`
 	font-size: 14px;

@@ -6,22 +6,22 @@ import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/pro-regular-svg-icons';
 
-import Button from '../form/Button';
+import Button from '../_form/Button';
 import IngredientForm from './IngredientForm';
 import ViewContext from '../../lib/contexts/ingredients/viewContext';
 import CardContext from '../../lib/contexts/ingredients/cardContext';
 
 const Card = ({ className, id }) => {
-	// console.log('[Card]');
 	const viewContext = useContext(ViewContext);
 	const view = viewContext.get('view');
-
 	const [ isEditMode, setEditMode ] = useState(view === 'new');
+	console.log('[Card]', isEditMode);
 	const disableEditMode = useCallback(() => setEditMode(false), [ setEditMode ]);
 	const enableEditMode = useCallback(() => setEditMode(true), [ setEditMode ]);
 
 	const cardContext = new ImmutableMap({
 		isEditMode,
+		enableEditMode,
 		disableEditMode,
 	});
 

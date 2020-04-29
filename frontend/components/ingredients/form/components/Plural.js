@@ -1,15 +1,95 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagic } from '@fortawesome/pro-regular-svg-icons';
-import pluralize from 'pluralize';
 import PropTypes from 'prop-types';
 import React, { useContext } from 'react';
+import pluralize from 'pluralize';
+import pure from 'recompose/pure';
 import styled from 'styled-components';
 
-import ViewContext from '../../../../lib/contexts/ingredients/viewContext';
+// NOTE: i feel like when i pull context i get duplicate re-renders?
+// maybe come back to this and confirm vs prop passings
+// import PageContext from '../../../../lib/contexts/ingredients/viewContext';
 import withFieldSet from '../withFieldSet';
-import Input from '../../../form/Input';
+import Input from '../../../_form/Input';
+import CardContext from '../../../../lib/contexts/ingredients/cardContext';
+
+const Plural = ({
+	className,
+	isPluralSuggestEnabled,
+	loading,
+	onChange,
+	singular,
+	value,
+}) => {
+	const ctx = useContext(CardContext);
+	const isEditMode = ctx.get('isEditMode');
+
+	function onSuggestPlural(e) {
+		console.log('onSuggestPlural', singular);
+		e.persist();
+		if (!singular || (singular === '')) return null;
+
+		let plural = null;
+		try {
+			plural = pluralize(singular);
+		} catch { /* if it doesn't work then oh well */ }
+
+		return onChange(e, 'plural', plural);
+	}
+
+	return (
+		<LabelStyles>
+			{/* suggest plural icon */}
+			{
+				(isEditMode && isPluralSuggestEnabled)
+					? (
+						<FontAwesomeIcon
+							className={ (!isEditMode) ? 'disabled' : '' }
+							icon={ faMagic }
+							onClick={ (e) => onSuggestPlural(e) }
+						/>
+					) : null
+			}
+			<Input
+				className={ (isEditMode && isPluralSuggestEnabled) ? `${ className } withSuggest` : className }
+				fieldName="plural"
+				isRequired
+				isSpellCheck={ isEditMode }
+				loading={ loading }
+				onChange={ onChange }
+				placeholder="plural"
+				value={ value }
+			/>
+		</LabelStyles>
+	);
+};
+
+Plural.defaultProps = {
+	className: '',
+	isPluralSuggestEnabled: false,
+	loading: false,
+	onChange: (e) => e.preventDefault(),
+	singular: '',
+	value: '',
+};
+
+Plural.whyDidYouRender = true;
+
+Plural.propTypes = {
+	className: PropTypes.string,
+	isPluralSuggestEnabled: PropTypes.bool,
+	loading: PropTypes.bool,
+	onChange: PropTypes.func,
+	singular: PropTypes.string,
+	value: PropTypes.string,
+};
+
+export default withFieldSet(pure(Plural));
+
 
 const LabelStyles = styled.label`
+	display: flex;
+
 	&.withSuggestion div {
 		display: inline-block;
 		margin-left: 8px;
@@ -61,72 +141,3 @@ const LabelStyles = styled.label`
 		color: #ccc;
 	}
 `;
-
-const onSuggestPlural = (e, name, onChange) => {
-	e.persist();
-	let plural = null;
-
-	try {
-		plural = pluralize(name);
-	} catch {
-		// eh if it doesn't work it doesn't work
-	}
-
-	if (plural) onChange(e, 'plural', plural);
-};
-
-const Plural = ({ className, isSuggestEnabled, onChange, value }) => {
-	const { isEditMode, loading, state } = useContext(ViewContext);
-	const { ingredient, validationWarnings } = state;
-	const name = (ingredient && ingredient.get('name')) || '';
-
-	const errors = validationWarnings.get('errors').get('plural');
-	const warnings = validationWarnings.get('warnings').get('plural');
-	const hasWarning = errors || warnings;
-
-	let classNameWithWarnings = (value.length) ? `${ className }` : `${ className } enabled`;
-	if (hasWarning) classNameWithWarnings += ' warning';
-	if (isEditMode) classNameWithWarnings += ' editable';
-
-	return (
-		<LabelStyles className={ (isSuggestEnabled) ? 'withSuggestion' : '' }>
-			{/* suggest plural icon */}
-			{
-				(isEditMode && isSuggestEnabled)
-					? (
-						<FontAwesomeIcon
-							className={ (!isEditMode) ? 'disabled' : '' }
-							icon={ faMagic }
-							onClick={ (e) => onSuggestPlural(e, name, onChange) }
-						/>
-					) : null
-			}
-
-			<Input
-				className={ classNameWithWarnings }
-				fieldName="plural"
-				isRequired
-				isSpellCheck={ isEditMode }
-				loading={ loading }
-				onChange={ onChange }
-				value={ value }
-			/>
-		</LabelStyles>
-	);
-};
-
-Plural.defaultProps = {
-	className: 'plural',
-	isSuggestEnabled: true,
-	onChange: (e) => e.preventDefault(),
-	value: '',
-};
-
-Plural.propTypes = {
-	className: PropTypes.string,
-	isSuggestEnabled: PropTypes.bool,
-	onChange: PropTypes.func,
-	value: PropTypes.string,
-};
-
-export default withFieldSet(Plural);

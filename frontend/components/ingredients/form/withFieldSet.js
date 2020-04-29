@@ -1,16 +1,15 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import CardContext from '../../../lib/contexts/ingredients/cardContext';
 
+/* TODO
+	gurl, your styles are still a mess between this and your individual form components. this could still use some work.
+*/
 const FieldSet = (WrappedComponent) => ({
 	children,
 	loading,
 	className,
 	...props
 }) => {
-	const ctx = useContext(CardContext);
-	const isEditMode = ctx.get('isEditMode');
-	const editableClassName = isEditMode ? `${ className } editable` : className;
 	const inputProps = {
 		...props,
 		className,
@@ -20,7 +19,7 @@ const FieldSet = (WrappedComponent) => ({
 	return (
 		<FieldSetStyles
 			aria-busy={ loading }
-			className={ editableClassName }
+			className={ className }
 			disabled={ loading }
 		>
 			{/* eslint-disable-next-line react/jsx-props-no-spreading */}
