@@ -1,46 +1,6 @@
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import ButtonLink from '../_form/ButtonLink';
-
-const Cell = styled.div`
-	font-size: 14px;
-	margin-bottom: 30px;
-	display: flex;
-	flex-direction: column;
-	flex-wrap: wrap;
-
-	h2 {
-		margin-top: 0;
-		margin-bottom: 10px;
-		font-weight: 600;
-	}
-
-	.more {
-		color: ${ (props) => props.theme.highlight };
-		text-decoration: none;
-		font-weight: 600;
-		border: 0;
-		background: none;
-		align-self: flex-end;
-		margin: 10px 0;
-	}
-
-	ul li {
-		margin-bottom: 2px;
-	}
-
-	@media (min-width: ${ (props) => props.theme.tablet_small }) {
-		&.label {
-		}
-
-		&.column {
-			ul {
-				column-count: 2;
-				column-gap: 10px;
-			}
-		}
-	}
-`;
+import ButtonLink from '../common/ButtonLink';
 
 const ViewMoreList = ({ href, isLinkEnabled, list, name, title, type }) => (
 	<Cell className={ type }>
@@ -108,3 +68,44 @@ ViewMoreList.propTypes = {
 };
 
 export default ViewMoreList;
+
+
+const Cell = styled.div`
+	font-size: 14px;
+	margin-bottom: 30px;
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+
+	h2 {
+		margin-top: 0;
+		margin-bottom: 10px;
+		font-weight: 600;
+	}
+
+	.more {
+		color: ${ (props) => props.theme.highlight };
+		text-decoration: none;
+		font-weight: 600;
+		border: 0;
+		background: none;
+		align-self: flex-end;
+		margin: 10px 0;
+	}
+
+	ul li {
+		margin-bottom: 2px;
+	}
+
+	@media (min-width: ${ (props) => props.theme.tablet_small }) {
+		&.label {
+		}
+
+		&.column {
+			ul {
+				column-count: 2;
+				column-gap: 10px;
+			}
+		}
+	}
+`;

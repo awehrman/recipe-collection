@@ -3,8 +3,8 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 
 import Container from './Container';
-import ErrorMessage from '../ErrorMessage';
-import Loading from '../Loading';
+import ErrorMessage from '../common/ErrorMessage';
+import Loading from '../common/Loading';
 import { GET_ALL_CONTAINERS_QUERY } from '../../lib/apollo/queries/containers';
 import ViewContext from '../../lib/contexts/ingredients/viewContext';
 import { CREATE_CONTAINERS_MUTATION } from '../../lib/apollo/mutations/containers';

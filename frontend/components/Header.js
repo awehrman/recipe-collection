@@ -1,6 +1,19 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import pure from 'recompose/pure';
 import styled from 'styled-components';
+
+const Header = ({ pageHeader }) => (
+	<HeaderStyles>
+		{/* TODO incorporate <Search /> */}
+		<h1>{ pageHeader }</h1>
+	</HeaderStyles>
+);
+
+Header.propTypes = { pageHeader: PropTypes.string.isRequired };
+
+export default pure(Header);
+
 
 const HeaderStyles = styled.div`
 	background: ${ (props) => props.theme.headerBackground };
@@ -17,20 +30,3 @@ const HeaderStyles = styled.div`
 		color: ${ (props) => props.theme.headerColor };
 	}
 `;
-
-class Header extends React.PureComponent {
-	render() {
-		const { pageHeader } = this.props;
-
-		return (
-			<HeaderStyles>
-				{/* TODO incorporate <Search /> */}
-				<h1>{ pageHeader }</h1>
-			</HeaderStyles>
-		);
-	}
-}
-
-Header.propTypes = { pageHeader: PropTypes.string.isRequired };
-
-export default Header;

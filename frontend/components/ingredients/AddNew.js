@@ -1,9 +1,44 @@
+// import { Map as ImmutableMap } from 'immutable';
+// import { useMutation, useQuery } from '@apollo/client';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useContext } from 'react';
+import pure from 'recompose/pure';
 import styled from 'styled-components';
+import Button from './../common/Button';
 
-import Button from '../_form/Button';
-import Form from './Form';
+
+const AddNew = () => (
+	// className={ `slide${ isExpanded ? '_expanded' : '' }` }
+	<AddNewStyles>
+		<Button
+			className="add-new-btn"
+			isEditMode
+			label="Add New Ingredient"
+			// onClick={ (e) => this.onToggleAddNew(e) }
+		/>
+		{/*
+			(isExpanded)
+				? (
+					<Form
+						className="add"
+						isFormReset={ isFormReset }
+						key="add-new"
+						onSaveCallback={ this.resetForm }
+						resetForm={ this.resetForm }
+						saveLabel="Add"
+						view={ view }
+					/>
+				)
+				: null
+			*/}
+	</AddNewStyles>
+);
+
+// AddNew.whyDidYouRender = true;
+
+AddNew.propTypes = {};
+
+export default pure(AddNew);
 
 const AddNewStyles = styled.div`
 	background: ${ (props) => props.theme.greenBackground };
@@ -63,64 +98,3 @@ const AddNewStyles = styled.div`
 		left: 40px;
 	}
 `;
-
-class AddNew extends React.PureComponent {
-	constructor(props) {
-		super(props);
-
-		this.state = {
-			isExpanded: false,
-			isFormReset: false,
-		};
-	}
-
-	resetForm = () => {
-		this.setState({
-			isExpanded: false,
-			isFormReset: true,
-		});
-	}
-
-	onToggleAddNew = (e) => {
-		e.preventDefault();
-		const { isExpanded } = this.state;
-
-		this.setState({ isExpanded: !isExpanded });
-	}
-
-	render() {
-		const { isExpanded, isFormReset } = this.state;
-		const { view } = this.props;
-
-		return (
-			<AddNewStyles className={ `slide${ isExpanded ? '_expanded' : '' }` }>
-				<Button
-					className="add-new-btn"
-					isEditMode
-					label="Add New Ingredient"
-					onClick={ (e) => this.onToggleAddNew(e) }
-				/>
-				{
-					(isExpanded)
-						? (
-							<Form
-								className="add"
-								isFormReset={ isFormReset }
-								key="add-new"
-								onSaveCallback={ this.resetForm }
-								resetForm={ this.resetForm }
-								saveLabel="Add"
-								view={ view }
-							/>
-						)
-						: null
-				}
-			</AddNewStyles>
-		);
-	}
-}
-
-AddNew.defaultProps = { view: 'all' };
-AddNew.propTypes = { view: PropTypes.oneOf([ 'all', 'new' ]) };
-
-export default AddNew;

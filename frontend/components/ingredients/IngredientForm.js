@@ -5,7 +5,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import pure from 'recompose/pure';
 import styled from 'styled-components';
 
-import Button from '../_form/Button';
+import Button from '../common/Button';
 import Name from './form/components/Name';
 import Plural from './form/components/Plural';
 import useIngredientForm from './form/useIngredientForm';

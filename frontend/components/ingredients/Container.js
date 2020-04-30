@@ -6,8 +6,8 @@ import pure from 'recompose/pure';
 import styled from 'styled-components';
 
 import Card from './Card';
-import ErrorMessage from '../ErrorMessage';
-import Loading from '../Loading';
+import ErrorMessage from '../common/ErrorMessage';
+import Loading from '../common/Loading';
 
 import ContainerContext from '../../lib/contexts/ingredients/containerContext';
 import ViewContext from '../../lib/contexts/ingredients/viewContext';

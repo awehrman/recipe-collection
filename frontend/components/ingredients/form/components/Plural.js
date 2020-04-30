@@ -10,7 +10,7 @@ import styled from 'styled-components';
 // maybe come back to this and confirm vs prop passings
 // import PageContext from '../../../../lib/contexts/ingredients/viewContext';
 import withFieldSet from '../withFieldSet';
-import Input from '../../../_form/Input';
+import Input from '../../../common/Input';
 import CardContext from '../../../../lib/contexts/ingredients/cardContext';
 
 const Plural = ({

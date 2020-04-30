@@ -1,15 +1,6 @@
 import styled from 'styled-components';
 import React from 'react';
-
 import PropTypes from 'prop-types';
-
-const ErrorStyles = styled.div`
-	color: tomato;
-
-	strong {
-		padding-right: 5px;
-	}
-`;
 
 const ErrorMessage = ({ error }) => {
 	if (!error || !error.message) return null;
@@ -46,3 +37,12 @@ ErrorMessage.propTypes = {
 };
 
 export default ErrorMessage;
+
+
+const ErrorStyles = styled.div`
+	color: tomato;
+
+	strong {
+		padding-right: 5px;
+	}
+`;

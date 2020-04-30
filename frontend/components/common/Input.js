@@ -74,7 +74,6 @@ const InputStyles = styled.div`
 	}
 `;
 
-// something here is breaking the initial EditMode input
 const InputField = styled.input`
 	width: 100%;
 	min-width: 100%;

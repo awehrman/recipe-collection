@@ -5,24 +5,8 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { GET_RECIPE_QUERY } from '../../lib/apollo/queries/recipes';
 
-import ErrorMessage from '../ErrorMessage';
+import ErrorMessage from '../common/ErrorMessage';
 import Form from './Form';
-
-const RecipeStyles = styled.div`
-	background: white;
-	position: absolute;
-	top: 100px;
-	bottom: 0;
-	left: 40px;
-	right: 40px;
-	display: flex;
-	justify-content: center;
-	align-items: flex-start;
-
-	@media (min-width: ${ (props) => props.theme.tablet }) {
-		right: 80px;
-	}
-`;
 
 const onCloseClick = (router) => {
 	console.log('onCloseClick', { router });
@@ -84,3 +68,19 @@ Recipe.propTypes = {
 };
 
 export default withRouter(Recipe);
+
+const RecipeStyles = styled.div`
+	background: white;
+	position: absolute;
+	top: 100px;
+	bottom: 0;
+	left: 40px;
+	right: 40px;
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+
+	@media (min-width: ${ (props) => props.theme.tablet }) {
+		right: 80px;
+	}
+`;

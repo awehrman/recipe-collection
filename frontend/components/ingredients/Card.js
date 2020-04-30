@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/pro-regular-svg-icons';
 
-import Button from '../_form/Button';
+import Button from '../common/Button';
 import IngredientForm from './IngredientForm';
 import ViewContext from '../../lib/contexts/ingredients/viewContext';
 import CardContext from '../../lib/contexts/ingredients/cardContext';

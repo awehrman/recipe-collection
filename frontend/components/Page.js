@@ -7,6 +7,36 @@ import Meta from './Meta';
 import Nav from './Nav';
 import theme from '../styles/theme.style';
 
+// setup NProgress bar events
+Router.onRouteChangeStart = () => {
+	NProgress.start();
+};
+
+Router.onRouteChangeComplete = () => {
+	NProgress.done();
+};
+
+Router.onRouteChangeError = () => {
+	NProgress.done();
+};
+
+const Page = ({ children }) => (
+	<ThemeProvider theme={ theme }>
+		<Canvas>
+			<Meta />
+			<Wrapper>
+				<Nav />
+				{ children }
+			</Wrapper>
+		</Canvas>
+	</ThemeProvider>
+);
+
+Page.propTypes = { children: PropTypes.node.isRequired };
+
+export default Page;
+export { theme };
+
 const Canvas = styled.div`
 	position: absolute;
 	overflow-x: hidden;
@@ -37,33 +67,3 @@ const Wrapper = styled.div`
 
 	}
 `;
-
-// setup NProgress bar events
-Router.onRouteChangeStart = () => {
-	NProgress.start();
-};
-
-Router.onRouteChangeComplete = () => {
-	NProgress.done();
-};
-
-Router.onRouteChangeError = () => {
-	NProgress.done();
-};
-
-const Page = ({ children }) => (
-	<ThemeProvider theme={ theme }>
-		<Canvas>
-			<Meta />
-			<Wrapper>
-				<Nav />
-				{ children }
-			</Wrapper>
-		</Canvas>
-	</ThemeProvider>
-);
-
-Page.propTypes = { children: PropTypes.node.isRequired };
-
-export default Page;
-export { theme };

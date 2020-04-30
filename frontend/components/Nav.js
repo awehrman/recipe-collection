@@ -5,94 +5,9 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import styled, { withTheme } from 'styled-components';
 
-import ButtonLink from './_form/ButtonLink';
+import ButtonLink from './common/ButtonLink';
 
-const NavStyles = styled.nav`
-	/* mobile top nav */
-	background: ${ (props) => props.theme.menuBackground };
-	position: fixed;
-	top: 0;
-	width: 100%;
-	z-index: 1000; /* we want this higher than the nprogress bar*/
-
-	.navigationIcon {
-		color: ${ (props) => props.theme.menuColor };
-		cursor: pointer;
-		display: block;
-		padding: 10px;
-		text-align: left;
-		margin-right: 10px;
-		float: right;
-		border: 0;
-		background: transparent;
-		font-size: 1em;
-
-		svg {
-			/* TODO look into SVG FOUT issues */
-			height: 16px !important;
-		}
-
-		&:hover {
-			color: ${ (props) => lighten(0.1, props.theme.menuColor) };
-		}
-	}
-
-	ul {
-		display: ${ (props) => (props.expanded ? 'block' : 'none') };
-		list-style-type: none;
-		padding: 0;
-		margin: 20px;
-
-		li {
-			margin: 20px 0;
-
-			&:first-of-type {
-				margin-top: 0;
-			}
-
-			button {
-				border: 0;
-				background: transparent;
-				cursor: pointer;
-				text-decoration: none;
-				color: ${ (props) => props.theme.menuColor };
-				font-size: .875em;
-				font-weight: 400;
-
-				&:hover {
-					color: ${ (props) => lighten(0.1, props.theme.menuColor) };
-				}
-
-				svg {
-					margin-right: 10px;
-					height: 14px;
-				}
-			}
-		}
-	}
-
-	/* tablet and larger moves the nav to the left */
-	@media (min-width: ${ (props) => props.theme.tablet }) {
-		width: ${ (props) => props.theme.menuWidth };
-		left: -${ (props) => (props.expanded ? 0 : props.theme.menuOffset) };
-		bottom: 0;
-		transition: .2s ease-out;
-
-		button.navigationIcon {
-			position: relative;
-			width: 40px;
-			text-align: center;
-			margin: 0 auto;
-			margin-right: 0;
-
-			&:focus {
-				outline-width: 0;
-				color: ${ (props) => props.theme.highlight };
-			}
-		}
-	}
-`;
-
+// TODO convert to functional component
 class Nav extends React.PureComponent {
 	constructor(props) {
 		super(props);
@@ -220,3 +135,89 @@ Nav.propTypes = { theme: PropTypes.shape({ tablet: PropTypes.string }).isRequire
 
 // withTheme() gives us access to the styled-components global theme variable
 export default withTheme(Nav);
+
+const NavStyles = styled.nav`
+	/* mobile top nav */
+	background: ${ (props) => props.theme.menuBackground };
+	position: fixed;
+	top: 0;
+	width: 100%;
+	z-index: 1000; /* we want this higher than the nprogress bar*/
+
+	.navigationIcon {
+		color: ${ (props) => props.theme.menuColor };
+		cursor: pointer;
+		display: block;
+		padding: 10px;
+		text-align: left;
+		margin-right: 10px;
+		float: right;
+		border: 0;
+		background: transparent;
+		font-size: 1em;
+
+		svg {
+			/* TODO look into SVG FOUT issues */
+			height: 16px !important;
+		}
+
+		&:hover {
+			color: ${ (props) => lighten(0.1, props.theme.menuColor) };
+		}
+	}
+
+	ul {
+		display: ${ (props) => (props.expanded ? 'block' : 'none') };
+		list-style-type: none;
+		padding: 0;
+		margin: 20px;
+
+		li {
+			margin: 20px 0;
+
+			&:first-of-type {
+				margin-top: 0;
+			}
+
+			button {
+				border: 0;
+				background: transparent;
+				cursor: pointer;
+				text-decoration: none;
+				color: ${ (props) => props.theme.menuColor };
+				font-size: .875em;
+				font-weight: 400;
+
+				&:hover {
+					color: ${ (props) => lighten(0.1, props.theme.menuColor) };
+				}
+
+				svg {
+					margin-right: 10px;
+					height: 14px;
+				}
+			}
+		}
+	}
+
+	/* tablet and larger moves the nav to the left */
+	@media (min-width: ${ (props) => props.theme.tablet }) {
+		width: ${ (props) => props.theme.menuWidth };
+		left: -${ (props) => (props.expanded ? 0 : props.theme.menuOffset) };
+		bottom: 0;
+		transition: .2s ease-out;
+
+		button.navigationIcon {
+			position: relative;
+			width: 40px;
+			text-align: center;
+			margin: 0 auto;
+			margin-right: 0;
+
+			&:focus {
+				outline-width: 0;
+				color: ${ (props) => props.theme.highlight };
+			}
+		}
+	}
+`;

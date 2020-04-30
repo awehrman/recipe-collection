@@ -5,7 +5,7 @@ import styled from 'styled-components';
 
 import CardContext from '../../../../lib/contexts/ingredients/cardContext';
 import withFieldSet from '../withFieldSet';
-import Input from '../../../_form/Input';
+import Input from '../../../common/Input';
 
 const Name = ({ className, loading, onChange, value }) => {
 	const ctx = useContext(CardContext);

@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import Slider from 'react-slick';
 import styled from 'styled-components';
 import Card from './Card';
-import ErrorMessage from '../ErrorMessage';
-import Loading from '../Loading';
+import ErrorMessage from '../common/ErrorMessage';
+import Loading from '../common/Loading';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 

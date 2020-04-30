@@ -73,19 +73,23 @@ export const reducer = (state, action) => {
 		console.log('   *** TODO saveIngredient', { ingredient: ingredient.toJS() });
 		const ing = ingredient.toJS();
 
+		const properties = { ...ing.properties };
+		delete properties.id;
+		delete properties.__typename;
+
 		saveIngredientMutation({
 			variables: {
 				data: {
 					name: ing.name,
 					plural: ing.plural || null,
 					isValidated: true,
+					properties: { update: { ...properties } },
 					// TODO remaining ing values...
 				},
 				where: { id: ing.id },
 			},
 		});
 	}
-
 
 	return state;
 };

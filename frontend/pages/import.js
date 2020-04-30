@@ -8,9 +8,8 @@ import SyntaxHighlighter from 'react-syntax-highlighter';
 import pretty from 'pretty';
 
 import { dark } from '../styles/dark';
-import Button from '../components/form/Button';
+import Button from '../components/common/Button';
 import Header from '../components/Header';
-// import ErrorMessage from '../components/ErrorMessage';
 import ParsedViewer from '../components/recipes/ParsedViewer';
 import { IS_EVERNOTE_AUTHENTICATED_QUERY } from '../lib/apollo/queries/evernote';
 import { GET_NOTES_COUNT_QUERY, GET_ALL_NOTES_QUERY } from '../lib/apollo/queries/notes';
@@ -105,7 +104,7 @@ const Import = ({ authenticate }) => {
 		*/
 	};
 
-	const importNotes = async (e, importDefault = 0) => {
+	const importNotes = async (e) => {
 		e.preventDefault();
 
 		/* TODO useMutation
@@ -203,7 +202,7 @@ const Import = ({ authenticate }) => {
 		? countData.noteAggregate
 		: 0;
 	const { notes = [] } = notesData || {};
-	console.log({ data, isAuthenticated, isAuthenticationPending });
+	// console.log({ data, isAuthenticated, isAuthenticationPending });
 
 	return (
 		<ImportStyles>
@@ -321,11 +320,12 @@ const enhance = compose(
 		return { authenticate };
 	}),
 	withHandlers({
+		// eslint-disable-next-line camelcase
 		handleAuthentication: ({ authenticate, router }) => ({ oauth_verifier }) => {
 			console.log('handleAuthentication', oauth_verifier);
 
 			authenticate({
-				refetchQueries: [{ query: IS_EVERNOTE_AUTHENTICATED_QUERY }],
+				refetchQueries: [ { query: IS_EVERNOTE_AUTHENTICATED_QUERY } ],
 				update: () => {
 					console.log('update...');
 					// TODO consider updating the cache directly instead of refetching

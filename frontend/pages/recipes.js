@@ -5,10 +5,10 @@ import styled from 'styled-components';
 import { GET_PAGINATED_RECIPES_QUERY, GET_RECIPES_COUNT_QUERY } from '../lib/apollo/queries/recipes';
 
 import AddNew from '../components/recipes/AddNew';
-import ErrorMessage from '../components/ErrorMessage';
+import ErrorMessage from '../components/common/ErrorMessage';
 import Header from '../components/Header';
 import Grid from '../components/recipes/Grid';
-import Loading from '../components/Loading';
+import Loading from '../components/common/Loading';
 import Recipe from '../components/recipes/Recipe';
 
 const Count = styled.div`
