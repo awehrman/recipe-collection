@@ -9,6 +9,7 @@ import Button from '../common/Button';
 import Name from './form/components/Name';
 import Plural from './form/components/Plural';
 import Properties from './form/components/Properties';
+import IsComposedIngredient from './form/components/IsComposedIngredient';
 import useIngredientForm from './form/useIngredientForm';
 import ContainerContext from '../../lib/contexts/ingredients/containerContext';
 import CardContext from '../../lib/contexts/ingredients/cardContext';
@@ -39,6 +40,7 @@ const Form = ({ className, id }) => {
 		handleFormLoad,
 		handleIngredientChange,
 		handleIngredientSave,
+		restoreForm,
 		validation: {
 			errors,
 			warnings,
@@ -50,7 +52,7 @@ const Form = ({ className, id }) => {
 	const { ingredient } = values;
 	const name = ingredient.get('name') || '';
 	const plural = ingredient.get('plural') || '';
-	const isComposedIngredient = ingredient.get('isComposedIngredient');
+	const isComposedIngredient = Boolean(ingredient.get('isComposedIngredient'));
 	const properties = ingredient.get('properties');
 	const alternateNames = ingredient.get('alternateNames');
 	const relatedIngredients = ingredient.get('relatedIngredients');
@@ -103,6 +105,7 @@ const Form = ({ className, id }) => {
 		e.preventDefault();
 		clearValidation();
 		disableEditMode();
+		restoreForm();
 	}
 
 	function onSubmit(e) {
@@ -165,7 +168,10 @@ const Form = ({ className, id }) => {
 						onChange={ handleIngredientChange }
 						values={ properties }
 					/>
-					{ isComposedIngredient }
+					<IsComposedIngredient
+						onChange={ handleIngredientChange }
+						value={ isComposedIngredient }
+					/>
 				</div>
 			</TopFormStyles>
 

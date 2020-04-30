@@ -14,6 +14,11 @@ const Properties = ({ onChange, values }) => {
 	delete properties.__typename; // TODO it feels like this shouldn't even be passed around
 	console.log({ properties });
 
+	function onPropertyChange(e, property) {
+		if (!isEditMode) return e.preventDefault();
+		return onChange(e, 'properties', { [property]: !properties[property] });
+	}
+
 	return (
 		<PropertiesStyles>
 			{
@@ -28,7 +33,7 @@ const Properties = ({ onChange, values }) => {
 										id={ property }
 										checked={ properties[property] }
 										name={ `properties_${ property }` }
-										onChange={ (e) => onChange(e, 'properties', { [property]: !properties[property] }) }
+										onChange={ (e) => onPropertyChange(e, property) }
 										// onKeyDown={ onKeyDown }
 										value={ property }
 									/>

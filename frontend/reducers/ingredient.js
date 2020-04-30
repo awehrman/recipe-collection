@@ -3,6 +3,7 @@ import { defaultProperties } from '../components/ingredients/form/constants';
 
 export const actions = {
 	loadIngredient: 'LOAD_INGREDIENT',
+	resetIngredient: 'RESET_INGREDIENT',
 	saveIngredient: 'SAVE_INGREDIENT',
 	updateIngredient: 'UPDATE_INGREDIENT',
 };
@@ -24,7 +25,7 @@ function loadIngredient(ing) {
 }
 
 export const reducer = (state, action) => {
-	const { ingredient } = state;
+	const { ingredient, reset } = state;
 	const { payload, type } = action || {};
 	const { data, fieldName, saveIngredientMutation, value } = payload || {};
 	// eslint-disable-next-line object-curly-newline
@@ -34,6 +35,19 @@ export const reducer = (state, action) => {
 	if (type === actions.loadIngredient) {
 		// console.log('   *** Loading ingredient data!');
 		const loaded = loadIngredient(data.ingredient);
+
+		return {
+			...state,
+			ingredient: loaded,
+			reset: loaded,
+		};
+	}
+
+	// reset ingredient data
+	if (type === actions.resetIngredient) {
+		console.log('   *** Resetting ingredient data!');
+		const loaded = loadIngredient(reset.toJS());
+		console.log({ loaded });
 
 		return {
 			...state,

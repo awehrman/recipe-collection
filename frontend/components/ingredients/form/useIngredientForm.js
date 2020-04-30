@@ -73,11 +73,16 @@ function useIngredientForm({ id }) {
 		}
 	}
 
+	function restoreForm() {
+		dispatch({ type: actions.resetIngredient });
+	}
+
 	return {
 		clearValidation,
 		handleFormLoad,
 		handleIngredientChange,
 		handleIngredientSave,
+		restoreForm,
 		// TODO i get duplicate re-renders on empty errors
 		validation, // form specific errors
 		validationMessages, // list of current warning messages
