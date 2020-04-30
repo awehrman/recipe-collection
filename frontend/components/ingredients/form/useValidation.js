@@ -19,7 +19,7 @@ function useValidation({ currentIngredientState, values }) {
 	// current state variables
 	const name = ingredient.get('name');
 	const plural = ingredient.get('plural');
-	// const alternateNames = ingredient.get('alternateNames');
+	// TODO add validation support for alt names const alternateNames = ingredient.get('alternateNames');
 
 	const throttledValidation = useRef(
 		throttle(

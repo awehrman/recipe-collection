@@ -19,6 +19,7 @@ export default gql`
 			ingredients: [ Ingredient ]!
 			isExpanded: Boolean!
 			label: String!
+			nextIngredientID: String
 			referenceCount: Int!
 		}
 

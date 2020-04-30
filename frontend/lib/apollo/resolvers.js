@@ -1,8 +1,27 @@
 import { List as ImmutableList } from 'immutable';
 import buildContainers from '../buildContainers';
-import { setIsExpanded, toggleIngredientID } from './fragments/containers';
+import { setIsExpanded, toggleIngredientID, toggleNextIngredientID, getContainerIngredients } from './fragments/containers';
 import { GET_ALL_CONTAINERS_QUERY } from './queries/containers';
 import { GET_ALL_INGREDIENTS_QUERY } from './queries/ingredients';
+
+// TODO move to a util file
+function getNextIngredientID(c) {
+	if (c.ingredientID) {
+		const currentIndex = c.ingredients.findIndex((i) => i.id === c.ingredientID);
+		const nextIngredientIndex = currentIndex + 1;
+
+		// if the next item in the list exists then return that id
+		if (c.ingredients.length && c.ingredients[nextIngredientIndex]) {
+			return c.ingredients[nextIngredientIndex].id;
+		}
+
+		// otherwise if we were at the end of the list, go-to the first item
+		if (c.ingredients.length && c.ingredients[0]) {
+			return c.ingredients[0].id;
+		}
+	}
+	return null;
+}
 
 export default {
 	// assign client side field values
@@ -47,10 +66,10 @@ export default {
 	},
 	// client-side mutation resolvers
 	Mutation: {
-		createContainers(_, { group = 'name', view = 'all' }, ctx) {
+		createContainers(_, { currentIngredientID = null, group = 'name', view = 'all' }, ctx) {
 			// eslint-disable-next-line object-curly-newline
-			// console.log('BUILD CONTAINERS MUTATION', { ctx, group, view });
-			const { client, currentIngredientID = null } = ctx; // don't store the ingredients in here, we can always query those ourself here
+			// console.log('BUILD CONTAINERS MUTATION', { currentIngredientID });
+			const { client } = ctx;
 			const { ingredients } = client.readQuery({ query: GET_ALL_INGREDIENTS_QUERY });
 
 			const response = {
@@ -65,7 +84,12 @@ export default {
 				containers: buildContainers(currentIngredientID, group, view, ingredients)
 					.map((c) => ({
 						...c,
-						ingredients: c.ingredients.sort((a, b) => a.name.localeCompare(b.name)).toJS(),
+						// TODO ugh what a mess, try to tidy this all up
+						ingredients: c.ingredients.toJS().sort((a, b) => a.name.localeCompare(b.name)),
+						nextIngredientID: getNextIngredientID({
+							ingredientID: currentIngredientID,
+							ingredients: c.ingredients.toJS().sort((a, b) => a.name.localeCompare(b.name)),
+						}),
 					})),
 			};
 
@@ -95,7 +119,10 @@ export default {
 			const fragment = cache.readFragment({
 				fragment: toggleIngredientID,
 				id: `Container:${ id }`,
+				fragmentName: 'toggleIngredientID',
 			});
+
+			const updatedIngredientID = (ingredientID !== fragment.ingredientID) ? ingredientID : null;
 
 			cache.writeFragment({
 				fragment: toggleIngredientID,
@@ -103,7 +130,27 @@ export default {
 				data: {
 					__typename: 'Container',
 					// if we click on the current ingredient, we'll collapse the card
-					ingredientID: (ingredientID !== fragment.ingredientID) ? ingredientID : null,
+					ingredientID: updatedIngredientID,
+				},
+			});
+
+			const ingFrag = cache.readFragment({
+				fragment: getContainerIngredients,
+				id: `Container:${ id }`,
+				fragmentName: 'getContainerIngredients',
+			});
+
+			const nextIngredientID = getNextIngredientID({
+				ingredientID: updatedIngredientID,
+				ingredients: ingFrag.ingredients,
+			});
+
+			cache.writeFragment({
+				fragment: toggleNextIngredientID,
+				id: `Container:${ id }`,
+				data: {
+					__typename: 'Container',
+					nextIngredientID,
 				},
 			});
 

@@ -1,3 +1,4 @@
+import { Map as ImmutableMap } from 'immutable';
 import { useMutation, useQuery } from '@apollo/client';
 import PropTypes from 'prop-types';
 import React, { useContext } from 'react';
@@ -7,6 +8,8 @@ import styled from 'styled-components';
 import Card from './Card';
 import ErrorMessage from '../ErrorMessage';
 import Loading from '../Loading';
+
+import ContainerContext from '../../lib/contexts/ingredients/containerContext';
 import ViewContext from '../../lib/contexts/ingredients/viewContext';
 import { GET_CONTAINER_QUERY } from '../../lib/apollo/queries/containers';
 import { TOGGLE_CONTAINER_MUTATION, UPDATE_CONTAINER_INGREDIENT_MUTATION } from '../../lib/apollo/mutations/containers';
@@ -54,60 +57,64 @@ const Container = ({ id }) => {
 
 	const className = (`${ (!container.isExpanded) ? 'hidden' : '' } ${ (container.ingredientID) ? 'expanded' : '' }`).trim();
 
+	const containerContext = ImmutableMap({ nextIngredientID: container.nextIngredientID || null });
+
 	return (
-		<ContainerStyles className={ (container.isExpanded) ? 'expanded' : '' }>
-			{/* container header */}
-			<HeaderStyles
-				onClick={
-					/* TODO move these mutations into reducers */
-					() => toggleContainer({
-						variables: {
-							id: container.id,
-							isExpanded: !container.isExpanded,
-						},
-					})
-				}
-			>
-				{ container.label }
-				<span className="count">{ container.referenceCount }</span>
-			</HeaderStyles>
+		<ContainerContext.Provider value={ containerContext }>
+			<ContainerStyles className={ (container.isExpanded) ? 'expanded' : '' }>
+				{/* container header */}
+				<HeaderStyles
+					onClick={
+						/* TODO move these mutations into reducers */
+						() => toggleContainer({
+							variables: {
+								id: container.id,
+								isExpanded: !container.isExpanded,
+							},
+						})
+					}
+				>
+					{ container.label }
+					<span className="count">{ container.referenceCount }</span>
+				</HeaderStyles>
 
-			{/* current ingredient card */
-				(container.ingredientID)
-					? (
-						<Card
-							className={ className }
-							id={ container.ingredientID }
-						/>
-					)
-					: null
-			}
-
-			{/* ingredients list */}
-			<IngredientsList className={ `${ className } ${ (container.ingredients.length < 10) ? 'small' : '' }` }>
-				{
-					container.ingredients.map((i) => (
-						<li className={ i.className } key={ i.id }>
-							{
-								(i.type === 'header')
-									? <span className="header">{ i.name }</span>
-									: (
-										<a
-											id={ i.id }
-											onClick={ (e) => handleIngredientToggle(container.id, e.target.id) }
-											onKeyPress={ (e) => handleIngredientToggle(container.id, e.target.id) }
-											role="link"
-											tabIndex="0"
-										>
-											{ i.name }
-										</a>
-									)
-							}
-						</li>
-					))
+				{/* current ingredient card */
+					(container.ingredientID)
+						? (
+							<Card
+								className={ className }
+								id={ container.ingredientID }
+							/>
+						)
+						: null
 				}
-			</IngredientsList>
-		</ContainerStyles>
+
+				{/* ingredients list */}
+				<IngredientsList className={ `${ className } ${ (container.ingredients.length < 10) ? 'small' : '' }` }>
+					{
+						container.ingredients.map((i) => (
+							<li className={ i.className } key={ i.id }>
+								{
+									(i.type === 'header')
+										? <span className="header">{ i.name }</span>
+										: (
+											<a
+												id={ i.id }
+												onClick={ (e) => handleIngredientToggle(container.id, e.target.id) }
+												onKeyPress={ (e) => handleIngredientToggle(container.id, e.target.id) }
+												role="link"
+												tabIndex="0"
+											>
+												{ i.name }
+											</a>
+										)
+								}
+							</li>
+						))
+					}
+				</IngredientsList>
+			</ContainerStyles>
+		</ContainerContext.Provider>
 	);
 };
 

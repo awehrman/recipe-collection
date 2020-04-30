@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { darken } from 'polished';
 import PropTypes from 'prop-types';
 import React, { useContext, useEffect, useState } from 'react';
@@ -9,10 +9,12 @@ import Button from '../_form/Button';
 import Name from './form/components/Name';
 import Plural from './form/components/Plural';
 import useIngredientForm from './form/useIngredientForm';
-// import useValidation from './form/useValidation';
+import ContainerContext from '../../lib/contexts/ingredients/containerContext';
 import CardContext from '../../lib/contexts/ingredients/cardContext';
 import ViewContext from '../../lib/contexts/ingredients/viewContext';
-import { GET_INGREDIENT_QUERY } from '../../lib/apollo/queries/ingredients';
+import { GET_INGREDIENT_QUERY, GET_INGREDIENTS_COUNT_QUERY } from '../../lib/apollo/queries/ingredients';
+import { UPDATE_INGREDIENT_MUTATION } from '../../lib/apollo/mutations/ingredients';
+import { CREATE_CONTAINERS_MUTATION } from '../../lib/apollo/mutations/containers';
 
 const IngredientForm = ({ className, id }) => {
 	// console.log('[IngredientForm]');
@@ -22,6 +24,13 @@ const IngredientForm = ({ className, id }) => {
 	const isEditMode = ctx.get('isEditMode');
 	const enableEditMode = ctx.get('enableEditMode');
 	const disableEditMode = ctx.get('disableEditMode');
+
+	const viewContext = useContext(ViewContext);
+	const group = viewContext.get('group');
+	const view = viewContext.get('view');
+
+	const containerContext = useContext(ContainerContext);
+	const nextIngredientID = containerContext.get('nextIngredientID');
 
 	// setup form utilities and validation
 	const {
@@ -47,7 +56,27 @@ const IngredientForm = ({ className, id }) => {
 	const substitutes = ingredient.get('substitutes');
 	const references = ingredient.get('references');
 
-	// TODO setup save mutation; on update setIsSubmitting(false)
+	// setup save mutation
+	const [ createContainers ] = useMutation(CREATE_CONTAINERS_MUTATION);
+	const [ saveIngredient ] = useMutation(UPDATE_INGREDIENT_MUTATION, {
+		refetchQueries: [
+			{ query: GET_INGREDIENTS_COUNT_QUERY },
+		],
+		update(cache, { data: { updateIngredient } }) {
+			setIsSubmitting(false);
+
+			if (!updateIngredient.errors.length) {
+				createContainers({
+					variables: {
+						currentIngredientID: (view === 'new') ? nextIngredientID : null, // TODO this should be the next ingredient in the list
+						group,
+						view,
+					},
+				});
+			}
+			// TODO progress card to the next ingredient item in the container
+		},
+	});
 
 	let loading = Boolean(id);
 
@@ -60,8 +89,6 @@ const IngredientForm = ({ className, id }) => {
 	}
 
 	// reset edit mode on ingredient switch
-	const viewContext = useContext(ViewContext);
-	const view = viewContext.get('view');
 	useEffect(() => {
 		clearValidation();
 		if (view !== 'new') {
@@ -81,7 +108,7 @@ const IngredientForm = ({ className, id }) => {
 		console.log('onSubmit');
 		e.preventDefault();
 		setIsSubmitting(true);
-		handleIngredientSave();
+		handleIngredientSave(saveIngredient);
 	}
 
 	const classNameFields = [
@@ -111,7 +138,6 @@ const IngredientForm = ({ className, id }) => {
 		};
 	}, {});
 
-	console.log({ classNames });
 	return (
 		<FormStyles className={ className } id="ingForm" onSubmit={ onSubmit }>
 			{/* Top Form Elements (Name, Plural, Properties, IsComposedIngredient) */}

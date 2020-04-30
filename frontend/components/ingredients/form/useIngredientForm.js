@@ -15,7 +15,7 @@ const defaultProperties = ImmutableMap({
 });
 
 function useIngredientForm({ id }) {
-	console.log('>> >> >> useIngredientForm');
+	// console.log('>> >> >> useIngredientForm');
 	const initialState = () => {
 		const ingredient = ImmutableMap({
 			alternateNames: ImmutableList(),
@@ -48,8 +48,9 @@ function useIngredientForm({ id }) {
 		values,
 	});
 
+	const { errors } = validation;
+
 	function handleFormLoad({ ingredient }) {
-		console.log('  >> handleFormLoad', ingredient);
 		dispatch({
 			type: actions.loadIngredient,
 			payload: { data: { ingredient } },
@@ -57,7 +58,6 @@ function useIngredientForm({ id }) {
 	}
 
 	const handleIngredientChange = useCallback((e, passedFieldName = null, passedValue = null) => {
-		console.log('handleIngredientChange');
 		e.persist();
 		const { target: { value, name: fieldName } } = e;
 
@@ -70,10 +70,16 @@ function useIngredientForm({ id }) {
 		});
 	}, [ 'dispatch' ]);
 
-	function handleIngredientSave() {
-		console.log('  >> handleIngredientSave');
-
-		dispatch({ type: actions.saveIngredient });
+	function handleIngredientSave(saveIngredientMutation) {
+		// TODO since i have the valiation throttled, it's theorhetically possible to submit this without
+		// going thru the most up-to-date valdiation; i should come back to this and manually re-trigger that here
+		if (!errors.size) {
+			// if there aren't any blocking changes then dispatch
+			dispatch({
+				type: actions.saveIngredient,
+				payload: { saveIngredientMutation },
+			});
+		}
 	}
 
 	return {

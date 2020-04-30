@@ -10,6 +10,7 @@ export const ALL_CONTAINER_FIELDS = gql`
 		}
 		isExpanded
 		label
+		nextIngredientID
 		referenceCount
 	}
 	${ BASIC_INGREDIENT_FIELDS }
@@ -21,6 +22,21 @@ export const toggleIngredientID = gql`
 	}
 `;
 
+export const toggleNextIngredientID = gql`
+	fragment toggleNextIngredientID on Container {
+		nextIngredientID
+	}
+`;
+
+export const getContainerIngredients = gql`
+	fragment getContainerIngredients on Container {
+		ingredients {
+			...BasicIngredientFields
+		}
+	}
+	${ BASIC_INGREDIENT_FIELDS }
+`;
+
 export const setIsExpanded = gql`
 	fragment setIsExpanded on Container {
 		isExpanded
@@ -29,6 +45,8 @@ export const setIsExpanded = gql`
 
 export default {
 	ALL_CONTAINER_FIELDS,
+	getContainerIngredients,
 	setIsExpanded,
 	toggleIngredientID,
+	toggleNextIngredientID,
 };

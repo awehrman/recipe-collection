@@ -36,15 +36,15 @@ function loadIngredient(ing) {
 
 export const reducer = (state, action) => {
 	// TODO can i use context here? or should things like isEditMode be submitted via payload?
-	const { ingredient, reset } = state;
+	const { ingredient } = state;
 	const { payload, type } = action || {};
-	const { data, fieldName, value /* , updateIngredientMutation */ } = payload || {};
+	const { data, fieldName, saveIngredientMutation, value } = payload || {};
 	// eslint-disable-next-line object-curly-newline
 	console.log('*** reducer', { state, action });
 
 	// load ingredient data
 	if (type === actions.loadIngredient) {
-		console.log('   *** Loading ingredient data!');
+		// console.log('   *** Loading ingredient data!');
 		const loaded = loadIngredient(data.ingredient);
 
 		return {
@@ -56,7 +56,7 @@ export const reducer = (state, action) => {
 
 	// update ingredient data
 	if (type === actions.updateIngredient) {
-		console.log('updateIngredient', value);
+		// console.log('updateIngredient', value);
 
 		const updatedIngredient = state.ingredient.toJS();
 		updatedIngredient[fieldName] = value;
@@ -70,9 +70,20 @@ export const reducer = (state, action) => {
 	// save ingredient
 	if (type === actions.saveIngredient) {
 		// eslint-disable-next-line object-curly-newline
-		console.log('   *** TODO saveIngredient', { ingredient, reset });
-		// TODO re-validate ingredient
-		// TODO call save mutation (which i can setup in the IngredientForm and pass via payload)
+		console.log('   *** TODO saveIngredient', { ingredient: ingredient.toJS() });
+		const ing = ingredient.toJS();
+
+		saveIngredientMutation({
+			variables: {
+				data: {
+					name: ing.name,
+					plural: ing.plural || null,
+					isValidated: true,
+					// TODO remaining ing values...
+				},
+				where: { id: ing.id },
+			},
+		});
 	}
 
 

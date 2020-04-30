@@ -16,7 +16,6 @@ const Input = ({
 	const trimmedValue = value && value.replace(/ /g, '\u00a0');
 	const ctx = useContext(CardContext);
 	const isEditMode = ctx.get('isEditMode');
-	console.log('Input', { isEditMode });
 
 	return (
 		<InputStyles className={ className }>

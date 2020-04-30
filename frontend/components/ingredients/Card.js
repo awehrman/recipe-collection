@@ -15,7 +15,7 @@ const Card = ({ className, id }) => {
 	const viewContext = useContext(ViewContext);
 	const view = viewContext.get('view');
 	const [ isEditMode, setEditMode ] = useState(view === 'new');
-	console.log('[Card]', isEditMode);
+	// console.log('[Card]', isEditMode);
 	const disableEditMode = useCallback(() => setEditMode(false), [ setEditMode ]);
 	const enableEditMode = useCallback(() => setEditMode(true), [ setEditMode ]);
 
@@ -33,9 +33,7 @@ const Card = ({ className, id }) => {
 					id={ id }
 				/>
 
-				{/* Edit Button
-					TODO update the styling of this button so that it sticks to the bottom of the card and has a restricted height
-				*/
+				{/* Edit Button - TODO update the styling of this button so that it sticks to the bottom of the card and has a restricted height */
 					(!isEditMode)
 						? (
 							<Button

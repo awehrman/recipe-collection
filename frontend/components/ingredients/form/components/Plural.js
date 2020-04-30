@@ -25,7 +25,6 @@ const Plural = ({
 	const isEditMode = ctx.get('isEditMode');
 
 	function onSuggestPlural(e) {
-		console.log('onSuggestPlural', singular);
 		e.persist();
 		if (!singular || (singular === '')) return null;
 
@@ -53,7 +52,6 @@ const Plural = ({
 			<Input
 				className={ (isEditMode && isPluralSuggestEnabled) ? `${ className } withSuggest` : className }
 				fieldName="plural"
-				isRequired
 				isSpellCheck={ isEditMode }
 				loading={ loading }
 				onChange={ onChange }

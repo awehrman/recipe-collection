@@ -54,7 +54,7 @@ const Containers = () => {
 			// console.log('> [Containers] (GET_ALL_CONTAINERS_QUERY) onCompleted', containers);
 			if (containers && (containers.length === 0)) {
 				// if we didn't find any containers in the cache, then we'll have to create them
-				await createContainers({
+				createContainers({
 					variables: {
 						currentIngredientID,
 						group,

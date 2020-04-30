@@ -12,7 +12,6 @@ export const reducer = (state, action) => {
 	const { fieldName, ingredient, validationList, value } = payload || {};
 
 	if (type === actions.clearValidation) {
-		console.log('#########', { noValidationWarnings });
 		return noValidationWarnings;
 	}
 

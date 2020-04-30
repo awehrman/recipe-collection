@@ -56,6 +56,7 @@ export const BASIC_INGREDIENT_FIELDS = gql`
 		name
 		plural
 		properties {
+			id
 			meat
 		  poultry
 		  fish
