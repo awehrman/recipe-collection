@@ -66,6 +66,7 @@ export const reducer = (state, action) => {
 			const val = Object.values(value)[0];
 			updatedIngredient[fieldName][key] = val;
 		} else {
+			console.log({ fieldName, value });
 			updatedIngredient[fieldName] = value;
 		}
 
@@ -90,6 +91,7 @@ export const reducer = (state, action) => {
 				data: {
 					name: ing.name,
 					plural: ing.plural || null,
+					isComposedIngredient: Boolean(ing.isComposedIngredient),
 					isValidated: true,
 					properties: { update: { ...properties } },
 					// TODO remaining ing values...

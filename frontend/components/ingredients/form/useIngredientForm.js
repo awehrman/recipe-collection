@@ -56,7 +56,7 @@ function useIngredientForm({ id }) {
 			type: actions.updateIngredient,
 			payload: {
 				fieldName: (passedFieldName || fieldName),
-				value: (passedValue || value),
+				value: ((passedValue !== null) ? passedValue : value),
 			},
 		});
 	}, [ 'dispatch' ]);

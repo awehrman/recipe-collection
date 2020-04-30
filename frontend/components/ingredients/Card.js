@@ -67,6 +67,7 @@ const CardStyles = styled.div`
 	border-bottom: 1px solid #ddd;
 	width: 100%;
 	display: flex;
+	flex-direction: column;
 	position: relative;
 
 	&.hidden {
@@ -80,6 +81,7 @@ const CardStyles = styled.div`
 		color: ${ (props) => props.theme.highlight };
 		font-weight: 600;
 		font-size: 14px;
+		align-self: flex-end;
 
 	 	svg {
 			margin-right: 8px;

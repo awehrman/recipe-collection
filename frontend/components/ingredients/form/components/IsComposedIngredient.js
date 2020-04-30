@@ -11,8 +11,11 @@ const Properties = ({ onChange, value }) => {
 	const isEditMode = ctx.get('isEditMode');
 
 	function onValueChange(e) {
+		console.log('onValueChange', { isEditMode, value });
 		if (!isEditMode) return e.preventDefault();
-		return onChange(e, 'isComposedIngredient', value);
+		const clickedValue = !value;
+		console.log({ clickedValue });
+		return onChange(e, 'isComposedIngredient', clickedValue);
 	}
 
 	return (
