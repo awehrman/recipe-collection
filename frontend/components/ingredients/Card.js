@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/pro-regular-svg-icons';
 
 import Button from '../common/Button';
-import IngredientForm from './IngredientForm';
+import Form from './Form';
 import ViewContext from '../../lib/contexts/ingredients/viewContext';
 import CardContext from '../../lib/contexts/ingredients/cardContext';
 
@@ -28,7 +28,7 @@ const Card = ({ className, id }) => {
 	return (
 		<CardContext.Provider value={ cardContext }>
 			<CardStyles className={ className }>
-				<IngredientForm
+				<Form
 					className="card"
 					id={ id }
 				/>

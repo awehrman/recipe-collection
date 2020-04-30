@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import Button from '../common/Button';
 import Name from './form/components/Name';
 import Plural from './form/components/Plural';
+import Properties from './form/components/Properties';
 import useIngredientForm from './form/useIngredientForm';
 import ContainerContext from '../../lib/contexts/ingredients/containerContext';
 import CardContext from '../../lib/contexts/ingredients/cardContext';
@@ -16,8 +17,8 @@ import { GET_INGREDIENT_QUERY, GET_INGREDIENTS_COUNT_QUERY } from '../../lib/apo
 import { UPDATE_INGREDIENT_MUTATION } from '../../lib/apollo/mutations/ingredients';
 import { CREATE_CONTAINERS_MUTATION } from '../../lib/apollo/mutations/containers';
 
-const IngredientForm = ({ className, id }) => {
-	// console.log('[IngredientForm]');
+const Form = ({ className, id }) => {
+	// console.log('[Form]');
 	const [ isSubmitting, setIsSubmitting ] = useState(false); // TODO should this be in context, or does that still cause re-renders?
 
 	const ctx = useContext(CardContext);
@@ -159,7 +160,11 @@ const IngredientForm = ({ className, id }) => {
 					/>
 				</div>
 				<div className="right">
-					{ `${ properties }` }
+					<Properties
+						loading={ loading }
+						onChange={ handleIngredientChange }
+						values={ properties }
+					/>
 					{ isComposedIngredient }
 				</div>
 			</TopFormStyles>
@@ -212,19 +217,19 @@ const IngredientForm = ({ className, id }) => {
 	);
 };
 
-IngredientForm.whyDidYouRender = true;
+Form.whyDidYouRender = true;
 
-IngredientForm.defaultProps = {
+Form.defaultProps = {
 	className: '',
 	id: null,
 };
 
-IngredientForm.propTypes = {
+Form.propTypes = {
 	className: PropTypes.string,
 	id: PropTypes.string,
 };
 
-export default pure(IngredientForm);
+export default pure(Form);
 
 const FormStyles = styled.form`
 	flex-basis: 100%;

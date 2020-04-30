@@ -5,30 +5,34 @@ import styled from 'styled-components';
 
 import CardContext from '../../../../lib/contexts/ingredients/cardContext';
 import withFieldSet from '../withFieldSet';
-import Input from '../../../common/Input';
 
-const Properties = ({ className, loading, onChange, values }) => {
+const Properties = ({ onChange, values }) => {
 	const ctx = useContext(CardContext);
 	const isEditMode = ctx.get('isEditMode');
+	const properties = values.toJS();
+	delete properties.id;
+	delete properties.__typename; // TODO it feels like this shouldn't even be passed around
+	console.log({ properties });
 
 	return (
 		<PropertiesStyles>
 			{
-				keys.map((k, i) => {
+				Object.keys(properties).map((property) => {
 					// if we're not in edit mode, only show the checked values
-					if (isEditMode || values[i]) {
+					if (isEditMode || properties[property]) {
 						return (
-							<Checkbox key={ k } className={ (isEditMode) ? `editable ${ className }` : className }>
-								<label htmlFor={ k }>
+							<Checkbox key={ property } className={ (isEditMode) ? 'editable' : '' }>
+								<label htmlFor={ property }>
 									<input
-										type={ type }
-										id={ k }
-										checked={ values[i] }
-										onChange={ this.onChange }
-										onKeyDown={ (isEditMode) ? (e) => onKeyDown(e, fieldName) : (e) => e.preventDefault() }
-										value={ k }
+										type="checkbox"
+										id={ property }
+										checked={ properties[property] }
+										name={ `properties_${ property }` }
+										onChange={ (e) => onChange(e, 'properties', { [property]: !properties[property] }) }
+										// onKeyDown={ onKeyDown }
+										value={ property }
 									/>
-									<span>{ k }</span>
+									<span>{ property }</span>
 								</label>
 							</Checkbox>
 						);
@@ -40,23 +44,77 @@ const Properties = ({ className, loading, onChange, values }) => {
 	);
 };
 
-Properties.defaultProps = {
-	className: '',
-	loading: false,
-	onChange: (e) => e.preventDefault(),
-	values: '',
-};
+Properties.defaultProps = { onChange: () => {} };
 
 Properties.whyDidYouRender = true;
 
 Properties.propTypes = {
-	className: PropTypes.string,
-	loading: PropTypes.bool,
 	onChange: PropTypes.func,
-	values: PropTypes.string,
+	values: PropTypes.shape({ toJS: PropTypes.func }).isRequired,
 };
 
 export default withFieldSet(pure(Properties));
 
-const PropertiesStyles = styled.label`
+const PropertiesStyles = styled.div`
+`;
+
+const Checkbox = styled.div`
+	display: inline-block;
+	margin-right: 10px;
+	color: #222;
+
+	label {
+		font-weight: 400 !important;
+		position: relative;
+		padding-left: 18px;
+
+		input {
+			background: tomato;
+			margin-right: 8px;
+			position: absolute;
+			top: 0;
+		  left: 0;
+		  width: 0;
+		  height: 0;
+		  pointer-events: none;
+			opacity: 0; /* we want to hide the original input, but maintain focus state */
+
+			&:checked + span::after {
+		    position: absolute;
+		    top: 0;
+				color: ${ (props) => props.theme.altGreen };
+				display: block;
+				font-style: normal;
+				font-variant: normal;
+				text-rendering: auto;
+				-webkit-font-smoothing: antialiased;
+
+				font-family: "Font Awesome 5 Pro";
+				font-weight: 900;
+				content: "\f00c";
+		  }
+		}
+	}
+
+	label::before {
+	  display: block;
+	  position: absolute;
+	  top: 5px;
+	  left: 0;
+	  width: 11px;
+	  height: 11px;
+	  border-radius: 3px;
+	  background-color: white;
+	  border: 1px solid #aaa;
+	  content: '';
+	}
+
+	&.editable > label {
+		cursor: pointer;
+	}
+
+		/* apply fake focus highlighting */
+	&.editable > input:focus + label::before {
+    outline: ${ (props) => props.theme.altGreen } auto 3px;
+	}
 `;

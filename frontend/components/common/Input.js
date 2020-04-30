@@ -10,6 +10,7 @@ const Input = ({
 	isSpellCheck,
 	loading,
 	onChange,
+	onKeyDown,
 	placeholder,
 	value,
 }) => {
@@ -27,6 +28,7 @@ const Input = ({
 				id={ fieldName }
 				name={ fieldName }
 				onChange={ onChange }
+				onKeyDown={ onKeyDown }
 				placeholder={ placeholder }
 				required={ isRequired }
 				spellCheck={ isSpellCheck }
@@ -47,6 +49,7 @@ Input.defaultProps = {
 	isRequired: false,
 	isSpellCheck: false,
 	loading: false,
+	onKeyDown: () => {},
 	placeholder: '',
 	value: '',
 };
@@ -58,6 +61,7 @@ Input.propTypes = {
 	isSpellCheck: PropTypes.bool,
 	loading: PropTypes.bool,
 	onChange: PropTypes.func.isRequired,
+	onKeyDown: PropTypes.func,
 	placeholder: PropTypes.string,
 	value: PropTypes.string,
 };

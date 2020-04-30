@@ -2,17 +2,8 @@ import { Map as ImmutableMap, List as ImmutableList } from 'immutable';
 import { useCallback, useReducer } from 'react';
 
 import useValidation from './useValidation';
+import { defaultProperties } from './constants';
 import { reducer as ingredientReducer, actions } from '../../../reducers/ingredient';
-
-// TODO move these into a constants file
-const defaultProperties = ImmutableMap({
-	meat: false,
-	poultry: false,
-	fish: false,
-	dairy: false,
-	soy: false,
-	gluten: false,
-});
 
 function useIngredientForm({ id }) {
 	// console.log('>> >> >> useIngredientForm');

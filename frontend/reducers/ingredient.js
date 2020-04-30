@@ -1,22 +1,11 @@
 import { fromJS, Map as ImmutableMap, List as ImmutableList } from 'immutable';
-// import validate from '../components/ingredients/form/validator';
+import { defaultProperties } from '../components/ingredients/form/constants';
 
 export const actions = {
 	loadIngredient: 'LOAD_INGREDIENT',
 	saveIngredient: 'SAVE_INGREDIENT',
 	updateIngredient: 'UPDATE_INGREDIENT',
 };
-
-
-// TODO move these into a constants file
-const defaultProperties = ImmutableMap({
-	meat: false,
-	poultry: false,
-	fish: false,
-	dairy: false,
-	soy: false,
-	gluten: false,
-});
 
 function loadIngredient(ing) {
 	return ImmutableMap({
@@ -35,7 +24,6 @@ function loadIngredient(ing) {
 }
 
 export const reducer = (state, action) => {
-	// TODO can i use context here? or should things like isEditMode be submitted via payload?
 	const { ingredient } = state;
 	const { payload, type } = action || {};
 	const { data, fieldName, saveIngredientMutation, value } = payload || {};
@@ -59,7 +47,13 @@ export const reducer = (state, action) => {
 		// console.log('updateIngredient', value);
 
 		const updatedIngredient = state.ingredient.toJS();
-		updatedIngredient[fieldName] = value;
+		if (fieldName === 'properties') {
+			const key = Object.keys(value)[0];
+			const val = Object.values(value)[0];
+			updatedIngredient[fieldName][key] = val;
+		} else {
+			updatedIngredient[fieldName] = value;
+		}
 
 		return {
 			...state,

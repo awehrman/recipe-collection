@@ -7,7 +7,17 @@ export const noValidationWarnings = {
 
 export const noValidationMessages = [];
 
+export const defaultProperties = ImmutableMap({
+	meat: false,
+	poultry: false,
+	fish: false,
+	dairy: false,
+	soy: false,
+	gluten: false,
+});
+
 export default {
+	defaultProperties,
 	noValidationMessages,
 	noValidationWarnings,
 };
