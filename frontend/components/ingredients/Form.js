@@ -1,4 +1,5 @@
 import { useMutation, useQuery } from '@apollo/client';
+import { Map as ImmutableMap, List as ImmutableList } from 'immutable';
 import { darken } from 'polished';
 import PropTypes from 'prop-types';
 import React, { useContext, useEffect, useState } from 'react';
@@ -6,6 +7,10 @@ import pure from 'recompose/pure';
 import styled from 'styled-components';
 
 import Button from '../common/Button';
+import AlternateNames from './form/components/AlternateNames';
+import Substitutes from './form/components/Substitutes';
+import RelatedIngredients from './form/components/RelatedIngredients';
+import References from './form/components/References';
 import Name from './form/components/Name';
 import Plural from './form/components/Plural';
 import Properties from './form/components/Properties';
@@ -40,6 +45,7 @@ const Form = ({ className, id }) => {
 		handleFormLoad,
 		handleIngredientChange,
 		handleIngredientSave,
+		handleListChange,
 		restoreForm,
 		validation: {
 			errors,
@@ -49,15 +55,15 @@ const Form = ({ className, id }) => {
 		values,
 	} = useIngredientForm({ id });
 
-	const { ingredient } = values;
+	const { ingredient, inputFields } = values;
 	const name = ingredient.get('name') || '';
 	const plural = ingredient.get('plural') || '';
 	const isComposedIngredient = Boolean(ingredient.get('isComposedIngredient'));
-	const properties = ingredient.get('properties');
-	const alternateNames = ingredient.get('alternateNames');
-	const relatedIngredients = ingredient.get('relatedIngredients');
-	const substitutes = ingredient.get('substitutes');
-	const references = ingredient.get('references');
+	const properties = ingredient.get('properties') || ImmutableMap({});
+	const alternateNames = ingredient.get('alternateNames') || ImmutableList([]);
+	const relatedIngredients = ingredient.get('relatedIngredients') || ImmutableList([]);
+	const substitutes = ingredient.get('substitutes') || ImmutableList([]);
+	const references = ingredient.get('references') || ImmutableList([]);
 
 	// setup save mutation
 	const [ createContainers ] = useMutation(CREATE_CONTAINERS_MUTATION);
@@ -109,16 +115,20 @@ const Form = ({ className, id }) => {
 	}
 
 	function onSubmit(e) {
-		console.log('onSubmit');
 		e.preventDefault();
-		setIsSubmitting(true);
-		handleIngredientSave(saveIngredient);
+		if (e.key !== 'Enter') {
+			setIsSubmitting(true);
+			handleIngredientSave(saveIngredient);
+		}
 	}
 
 	const classNameFields = [
 		'name',
 		'plural',
 		'alternateNames',
+		'alternateNames_list',
+		'relatedIngredients_list',
+		'substitutes_list',
 	];
 
 	// TODO maybe move this into a util func
@@ -136,6 +146,10 @@ const Form = ({ className, id }) => {
 			fieldClassName += ' warning';
 		}
 
+		if (field.includes('list')) {
+			fieldClassName += ' list';
+		}
+
 		return {
 			...acc,
 			[field]: fieldClassName,
@@ -146,7 +160,7 @@ const Form = ({ className, id }) => {
 		<FormStyles className={ className } id="ingForm" onSubmit={ onSubmit }>
 			{/* Top Form Elements (Name, Plural, Properties, IsComposedIngredient) */}
 			<TopFormStyles>
-				<div className="left">
+				<Left>
 					<Name
 						className={ classNames.name }
 						loading={ loading }
@@ -161,25 +175,79 @@ const Form = ({ className, id }) => {
 						singular={ name }
 						value={ plural }
 					/>
-				</div>
-				<div className="right">
+				</Left>
+				<Right>
 					<Properties
+						className="properties"
 						loading={ loading }
 						onChange={ handleIngredientChange }
 						values={ properties }
 					/>
 					<IsComposedIngredient
+						className="isComposedIngredient"
 						onChange={ handleIngredientChange }
 						value={ isComposedIngredient }
 					/>
-				</div>
+				</Right>
 			</TopFormStyles>
 
 			<MiddleFormStyles>
-				{ `${ alternateNames }` }
-				{ `${ relatedIngredients }` }
-				{ `${ substitutes }` }
-				{ `${ references }` }
+				<Left>
+					{/* Alternate Names */
+						(isEditMode || (!isEditMode && alternateNames.size > 0))
+							? (
+								<AlternateNames
+									className={ classNames.alternateNames_list }
+									isPluralSuggestEnabled
+									isRemoveable
+									list={ alternateNames }
+									loading={ loading }
+									onChange={ handleIngredientChange }
+									onListChange={ handleListChange }
+									value={ inputFields.alternateNames }
+								/>
+							) : null
+					}
+
+					{/* Related Ingredients
+						(isEditMode || (!isEditMode && relatedIngredients.size > 0))
+							? (
+								<RelatedIngredients
+									isRemoveable
+									list={ relatedIngredients }
+									loading={ loading }
+									onChange={ handleIngredientChange }
+									onListChange={ handleListChange }
+									value={ inputFields.relatedIngredients }
+								/>
+							) : null
+					 */}
+
+					{/* Substitutes
+						(isEditMode || (!isEditMode && substitutes.size > 0))
+							? (
+								<Substitutes
+									isRemoveable
+									list={ substitutes }
+									loading={ loading }
+									onChange={ handleIngredientChange }
+									onListChange={ handleListChange }
+									value={ inputFields.substitutes }
+								/>
+							) : null
+					 */}
+				</Left>
+				<Right>
+					{/* References
+						(isEditMode || (!isEditMode && references.size > 0))
+							? (
+								<References
+									loading={ loading }
+									list={ references }
+								/>
+							) : null
+					 */}
+				</Right>
 			</MiddleFormStyles>
 
 			{/* Bottom Form Elements (Warnings, Cancel, Save) */}
@@ -236,6 +304,14 @@ Form.propTypes = {
 };
 
 export default pure(Form);
+
+const Left = styled.div`
+	flex: 1;
+`;
+
+const Right = styled.div`
+	flex: 1;
+`;
 
 const FormStyles = styled.form`
 	flex-basis: 100%;

@@ -7,33 +7,33 @@ import CardContext from '../../../../lib/contexts/ingredients/cardContext';
 import withFieldSet from '../withFieldSet';
 import Input from '../../../common/Input';
 
-const References = ({ loading, onChange, value }) => {
+const Substitutes = ({ loading, onChange, value }) => {
 	const ctx = useContext(CardContext);
 	const isEditMode = ctx.get('isEditMode');
 	console.log({ value });
 
 	return (
 		<LabelStyles>
-			References
+			Substitutes
 		</LabelStyles>
 	);
 };
 
-References.defaultProps = {
+Substitutes.defaultProps = {
 	loading: false,
 	onChange: (e) => e.preventDefault(),
 	value: '',
 };
 
-References.whyDidYouRender = true;
+Substitutes.whyDidYouRender = true;
 
-References.propTypes = {
+Substitutes.propTypes = {
 	loading: PropTypes.bool,
 	onChange: PropTypes.func,
 	value: PropTypes.shape({ toJS: PropTypes.func }),
 };
 
-export default withFieldSet(pure(References));
+export default withFieldSet(pure(Substitutes));
 
 const LabelStyles = styled.label`
 `;

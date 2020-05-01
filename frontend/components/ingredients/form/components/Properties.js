@@ -12,7 +12,6 @@ const Properties = ({ onChange, values }) => {
 	const properties = values.toJS();
 	delete properties.id;
 	delete properties.__typename; // TODO it feels like this shouldn't even be passed around
-	console.log({ properties });
 
 	function onPropertyChange(e, property) {
 		if (!isEditMode) return e.preventDefault();

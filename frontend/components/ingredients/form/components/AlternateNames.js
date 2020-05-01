@@ -1,35 +1,48 @@
+import { List as ImmutableList } from 'immutable';
 import PropTypes from 'prop-types';
 import React from 'react';
-import List from '../../form/List';
+import pure from 'recompose/pure';
+import styled from 'styled-components';
 
-const AlternateNames = ({}) => {
-	return (
+import withFieldSet from '../withFieldSet';
+import List from './List';
+
+const AlternateNames = ({ className, ...props }) => (
+	<AlternateNameStyles>
 		<List
-			className="alternateNames"
-			defaultValues={alternateNames}
+			className={ className }
 			fieldName="alternateNames"
-			isEditMode={isEditMode}
-			isPluralSuggestEnabled
-			isRemovable
 			label="Alternate Names"
-			loading={loading}
-			onListChange={this.onListChange}
-			onSuggestPlural={this.onSuggestPlural}
-			placeholder="alternate name"
-			suggestionQuery={GET_SUGGESTED_INGREDIENTS_QUERY}
-			suppressLocalWarnings
-			warnings={this.getWarning('alternateNames', warnings) || undefined}
-			validate={this.validate}
-			values={pendingIngredient.alternateNames}
+			// eslint-disable-next-line react/jsx-props-no-spreading
+			{ ...props }
 		/>
-	);
-};
+	</AlternateNameStyles>
+);
 
 AlternateNames.defaultProps = {
-
+	className: 'list',
+	isRemoveable: true,
+	isPluralSuggestEnabled: true,
+	list: ImmutableList([]),
+	loading: false,
+	onChange: (e) => e.preventDefault(),
+	value: null,
 };
+
+AlternateNames.whyDidYouRender = true;
 
 AlternateNames.propTypes = {
-
+	className: PropTypes.string,
+	isRemoveable: PropTypes.bool,
+	isPluralSuggestEnabled: PropTypes.bool,
+	list: PropTypes.instanceOf(ImmutableList),
+	loading: PropTypes.bool,
+	onChange: PropTypes.func,
+	onListChange: PropTypes.func.isRequired,
+	value: PropTypes.string,
 };
 
+export default withFieldSet(pure(AlternateNames));
+
+const AlternateNameStyles = styled.div`
+`;

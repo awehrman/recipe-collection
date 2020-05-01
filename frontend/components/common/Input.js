@@ -95,7 +95,6 @@ const InputField = styled.input`
 	background-color: white; /* TODO will need to adjust this for the AddNew form */
 	border-bottom: 3px solid #ddd;
 
-
 	&::placeholder {
 		font-style: italic;
 		color: #ccc;
@@ -103,6 +102,10 @@ const InputField = styled.input`
 
 	&.warning {
 		color: tomato;
+	}
+
+	&.list {
+		border-bottom: 3px solid ${ (props) => props.theme.headerBackground };
 	}
 `;
 

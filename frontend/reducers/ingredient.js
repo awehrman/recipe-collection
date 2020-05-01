@@ -27,7 +27,13 @@ function loadIngredient(ing) {
 export const reducer = (state, action) => {
 	const { ingredient, reset } = state;
 	const { payload, type } = action || {};
-	const { data, fieldName, saveIngredientMutation, value } = payload || {};
+	const {
+		data,
+		fieldName,
+		listAction = null,
+		saveIngredientMutation,
+		value,
+	} = payload || {};
 	// eslint-disable-next-line object-curly-newline
 	console.log('*** reducer', { state, action });
 
@@ -58,20 +64,40 @@ export const reducer = (state, action) => {
 
 	// update ingredient data
 	if (type === actions.updateIngredient) {
-		// console.log('updateIngredient', value);
+		// eslint-disable-next-line object-curly-newline
+		console.log('updateIngredient', { fieldName, listAction, value });
 
 		const updatedIngredient = state.ingredient.toJS();
+		const updatedInputFields = state.inputFields;
+
 		if (fieldName === 'properties') {
 			const key = Object.keys(value)[0];
 			const val = Object.values(value)[0];
 			updatedIngredient[fieldName][key] = val;
+		} else if (listAction === 'add') {
+			// add the value to the fieldName
+			updatedIngredient[fieldName].push({ name: value });
+			// if this value matches a value in this field's inputFields, then clear out the input
+			if (updatedInputFields[fieldName] === value) {
+				updatedInputFields[fieldName] = '';
+			}
+
+		} else if (listAction === 'remove') {
+			// remove the value from the fieldName
+			updatedIngredient[fieldName] = [ ...updatedIngredient[fieldName] ]
+				.filter((i) => i.name !== value);
+
+		} else if (fieldName.includes('input')) {
+			const field = fieldName.split('_')[0];
+			// update input field
+			updatedInputFields[field] = value;
 		} else {
-			console.log({ fieldName, value });
 			updatedIngredient[fieldName] = value;
 		}
 
 		return {
 			...state,
+			inputFields: updatedInputFields,
 			ingredient: fromJS(updatedIngredient),
 		};
 	}

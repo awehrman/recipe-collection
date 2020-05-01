@@ -22,6 +22,11 @@ function useIngredientForm({ id }) {
 
 		return {
 			ingredient,
+			inputFields: {
+				alternateNames: '',
+				relatedIngredients: '',
+				substitutes: '',
+			},
 			reset: ingredient,
 		};
 	};
@@ -49,8 +54,8 @@ function useIngredientForm({ id }) {
 	}
 
 	const handleIngredientChange = useCallback((e, passedFieldName = null, passedValue = null) => {
-		e.persist();
 		const { target: { value, name: fieldName } } = e;
+		e.stopPropagation();
 
 		dispatch({
 			type: actions.updateIngredient,
@@ -77,11 +82,23 @@ function useIngredientForm({ id }) {
 		dispatch({ type: actions.resetIngredient });
 	}
 
+	const handleListChange = useCallback((type, listItem, fieldName) => {
+		dispatch({
+			type: actions.updateIngredient,
+			payload: {
+				fieldName,
+				listAction: type,
+				value: listItem,
+			},
+		});
+	}, [ 'dispatch' ]);
+
 	return {
 		clearValidation,
 		handleFormLoad,
 		handleIngredientChange,
 		handleIngredientSave,
+		handleListChange,
 		restoreForm,
 		// TODO i get duplicate re-renders on empty errors
 		validation, // form specific errors

@@ -37,8 +37,20 @@ const FieldSetStyles = styled.fieldset`
 	border: 0;
 	padding: 0;
 
+	&.properties {
+		text-align: right;
+	}
+
+	&.isComposedIngredient {
+		text-align: right;
+	}
+
 	&.hidden {
 		display: none;
+	}
+
+	&.list {
+		margin: 0 !important;
 	}
 
 	&.plural {
