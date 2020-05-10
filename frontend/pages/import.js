@@ -17,53 +17,6 @@ import { GET_NOTES_COUNT_QUERY, GET_ALL_NOTES_QUERY } from '../lib/apollo/querie
 import { AUTHENTICATE_EVERNOTE_MUTATION } from '../lib/apollo/mutations/evernote';
 import { hasProperty } from '../lib/util';
 
-const ImportStyles = styled.article`
-	button {
-		cursor: pointer;
-		border: 0;
-		color: white;
-		background: ${ (props) => props.theme.altGreen };
-		border-radius: 5px;
-		padding: 6px 10px;
-		font-size: 16px;
-		font-weight: 600;
-		margin: 0 10px 10px;
-	}
-`;
-
-const ActionBar = styled.div`
-	button:first-of-type {
-		margin-left: 0;
-	}
-`;
-
-const Content = styled.div`
-	overflow-y: auto !important;
-	overflow-x: auto !important;
-	max-height: 250px;
-	display: 'flex';
-	font-size: 10px;
-`;
-
-const NotesViewer = styled.div`
-	margin: 20px 0;
-	max-width: 850px;
-`;
-
-const Note = styled.div`
-	background: ${ (props) => props.theme.headerBackground };
-	padding: 10px;
-	margin-bottom: 8px;
-
-	h1 {
-		font-weight: 100;
-		font-size: 16px;
-		margin: 0;
-		padding: 0;
-	}
-
-`;
-
 const Import = ({ authenticate }) => {
 	const onAuthenticate = (e) => {
 		console.log('onAuthenticate');
@@ -175,12 +128,16 @@ const Import = ({ authenticate }) => {
 	};
 
 	// fetch authenticated status
+
 	const {
 		data,
-		// loading,
+		loading,
 		// error,
-	} = useQuery(IS_EVERNOTE_AUTHENTICATED_QUERY);
-
+	} = useQuery(IS_EVERNOTE_AUTHENTICATED_QUERY, {
+		// idk ssr: false,
+	});
+	console.log({ data, loading });
+/*
 	// TODO combine the note data and count into the same request
 	// fetch notes
 	const {
@@ -196,6 +153,10 @@ const Import = ({ authenticate }) => {
 		// error: countError,
 	} = useQuery(GET_NOTES_COUNT_QUERY);
 
+	*/
+	// TEMP
+	const notesData = {};
+	const countData = 0;
 	const { isAuthenticated = false } = (data && data.isEvernoteAuthenticated) ? data.isEvernoteAuthenticated : {};
 	const { isAuthenticationPending = false } = (data && data.isEvernoteAuthenticated) ? data.isEvernoteAuthenticated : {};
 	const { count, importDefault } = countData
@@ -346,10 +307,59 @@ const enhance = compose(
 				// go back to our server with our verifier string to receive our actual access token
 				// eslint-disable-next-line camelcase
 				const { oauth_verifier } = query;
+				console.log('handleAuthentication?');
 				handleAuthentication({ oauth_verifier });
 			}
 		},
 	}),
 );
 
+Import.whyDidYouRender = true;
+
 export default withRouter(enhance(Import));
+
+const ImportStyles = styled.article`
+	button {
+		cursor: pointer;
+		border: 0;
+		color: white;
+		background: ${ (props) => props.theme.altGreen };
+		border-radius: 5px;
+		padding: 6px 10px;
+		font-size: 16px;
+		font-weight: 600;
+		margin: 0 10px 10px;
+	}
+`;
+
+const ActionBar = styled.div`
+	button:first-of-type {
+		margin-left: 0;
+	}
+`;
+
+const Content = styled.div`
+	overflow-y: auto !important;
+	overflow-x: auto !important;
+	max-height: 250px;
+	display: 'flex';
+	font-size: 10px;
+`;
+
+const NotesViewer = styled.div`
+	margin: 20px 0;
+	max-width: 850px;
+`;
+
+const Note = styled.div`
+	background: ${ (props) => props.theme.headerBackground };
+	padding: 10px;
+	margin-bottom: 8px;
+
+	h1 {
+		font-weight: 100;
+		font-size: 16px;
+		margin: 0;
+		padding: 0;
+	}
+`;

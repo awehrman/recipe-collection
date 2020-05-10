@@ -175,7 +175,7 @@ List.defaultProps = {
 	className: 'list',
 	isPluralSuggestEnabled: false,
 	isRemovable: true,
-	list: ImmutableList([]),
+	list: ImmutableList.of([]),
 	loading: false,
 	onChange: (e) => e.preventDefault(),
 	onListChange: () => {},

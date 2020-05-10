@@ -47,7 +47,7 @@ const ListInput = ({
 ListInput.defaultProps = {
 	className: 'list',
 	hideInput: () => {},
-	// list: ImmutableList([]),
+	// list: ImmutableList.of([]),
 	loading: false,
 	onChange: (e) => e.preventDefault(),
 	onAddItem: () => {},

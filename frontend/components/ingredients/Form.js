@@ -60,10 +60,10 @@ const Form = ({ className, id }) => {
 	const plural = ingredient.get('plural') || '';
 	const isComposedIngredient = Boolean(ingredient.get('isComposedIngredient'));
 	const properties = ingredient.get('properties') || ImmutableMap({});
-	const alternateNames = ingredient.get('alternateNames') || ImmutableList([]);
-	const relatedIngredients = ingredient.get('relatedIngredients') || ImmutableList([]);
-	const substitutes = ingredient.get('substitutes') || ImmutableList([]);
-	const references = ingredient.get('references') || ImmutableList([]);
+	const alternateNames = ingredient.get('alternateNames') || ImmutableList.of([]);
+	const relatedIngredients = ingredient.get('relatedIngredients') || ImmutableList.of([]);
+	const substitutes = ingredient.get('substitutes') || ImmutableList.of([]);
+	const references = ingredient.get('references') || ImmutableList.of([]);
 
 	// setup save mutation
 	const [ createContainers ] = useMutation(CREATE_CONTAINERS_MUTATION);

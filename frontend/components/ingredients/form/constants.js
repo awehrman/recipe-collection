@@ -1,4 +1,24 @@
-import { Map as ImmutableMap } from 'immutable';
+import { Map as ImmutableMap, List as ImmutableList } from 'immutable';
+
+export const defaultListActions = {
+	// create
+	create_alternateNames: ImmutableList.of([]),
+	create_relatedIngredients: ImmutableList.of([]),
+	create_substitutes: ImmutableList.of([]),
+
+	// delete
+	delete_alternateNames: ImmutableList.of([]),
+	delete_relatedIngredients: ImmutableList.of([]),
+	delete_substitutes: ImmutableList.of([]),
+
+	// connect
+	connect_relatedIngredients: ImmutableList.of([]),
+	connect_substitutes: ImmutableList.of([]),
+
+	// disconnect
+	disconnect_relatedIngredients: ImmutableList.of([]),
+	disconnect_substitutes: ImmutableList.of([]),
+};
 
 export const noValidationWarnings = {
 	errors: ImmutableMap({}),
@@ -17,6 +37,7 @@ export const defaultProperties = ImmutableMap({
 });
 
 export default {
+	defaultListActions,
 	defaultProperties,
 	noValidationMessages,
 	noValidationWarnings,

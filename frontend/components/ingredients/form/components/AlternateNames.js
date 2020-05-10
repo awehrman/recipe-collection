@@ -21,9 +21,9 @@ const AlternateNames = ({ className, ...props }) => (
 
 AlternateNames.defaultProps = {
 	className: 'list',
-	isRemoveable: true,
+	isRemovable: true,
 	isPluralSuggestEnabled: true,
-	list: ImmutableList([]),
+	list: ImmutableList.of([]),
 	loading: false,
 	onChange: (e) => e.preventDefault(),
 	value: null,
@@ -33,7 +33,7 @@ AlternateNames.whyDidYouRender = true;
 
 AlternateNames.propTypes = {
 	className: PropTypes.string,
-	isRemoveable: PropTypes.bool,
+	isRemovable: PropTypes.bool,
 	isPluralSuggestEnabled: PropTypes.bool,
 	list: PropTypes.instanceOf(ImmutableList),
 	loading: PropTypes.bool,

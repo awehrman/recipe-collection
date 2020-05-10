@@ -1,5 +1,5 @@
 import { fromJS, Map as ImmutableMap, List as ImmutableList } from 'immutable';
-import { defaultProperties } from '../components/ingredients/form/constants';
+import { defaultListActions, defaultProperties } from '../components/ingredients/form/constants';
 
 export const actions = {
 	loadIngredient: 'LOAD_INGREDIENT',
@@ -58,6 +58,7 @@ export const reducer = (state, action) => {
 		return {
 			...state,
 			ingredient: loaded,
+			listActions: { ...defaultListActions },
 			reset: loaded,
 		};
 	}
@@ -67,26 +68,35 @@ export const reducer = (state, action) => {
 		// eslint-disable-next-line object-curly-newline
 		console.log('updateIngredient', { fieldName, listAction, value });
 
+		console.log({ state });
 		const updatedIngredient = state.ingredient.toJS();
-		const updatedInputFields = state.inputFields;
+		const updatedInputFields = state.inputFields; // TODO make this immutable
+		const updatedListActions = state.listActions;
 
 		if (fieldName === 'properties') {
 			const key = Object.keys(value)[0];
 			const val = Object.values(value)[0];
 			updatedIngredient[fieldName][key] = val;
 		} else if (listAction === 'add') {
-			// add the value to the fieldName
+			// add this to the appropriate create or connect list actions
+			const listActionPrefix = (fieldName === 'alternateNames')
+				? 'create'
+				: 'connect';
+			console.log(`${ listActionPrefix }_${ fieldName }`, { name: value });
+			updatedListActions[`${ listActionPrefix }_${ fieldName }`].push({ name: value });
+			console.log(updatedListActions[`${ listActionPrefix }_${ fieldName }`]);
+			// add the value to the fieldName list
 			updatedIngredient[fieldName].push({ name: value });
 			// if this value matches a value in this field's inputFields, then clear out the input
 			if (updatedInputFields[fieldName] === value) {
 				updatedInputFields[fieldName] = '';
 			}
-
 		} else if (listAction === 'remove') {
+			// TODO need to add to a removeList
+
 			// remove the value from the fieldName
 			updatedIngredient[fieldName] = [ ...updatedIngredient[fieldName] ]
 				.filter((i) => i.name !== value);
-
 		} else if (fieldName.includes('input')) {
 			const field = fieldName.split('_')[0];
 			// update input field
@@ -97,6 +107,7 @@ export const reducer = (state, action) => {
 
 		return {
 			...state,
+			listActions: updatedListActions,
 			inputFields: updatedInputFields,
 			ingredient: fromJS(updatedIngredient),
 		};
@@ -120,6 +131,10 @@ export const reducer = (state, action) => {
 					isComposedIngredient: Boolean(ing.isComposedIngredient),
 					isValidated: true,
 					properties: { update: { ...properties } },
+					alternateNames: {
+						// create: {},
+						// delete: {},
+					},
 					// TODO remaining ing values...
 				},
 				where: { id: ing.id },

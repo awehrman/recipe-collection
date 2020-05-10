@@ -6,6 +6,7 @@ export const ALL_INGREDIENT_FIELDS = gql`
 		name
 		plural
 		alternateNames {
+			id
 			name
 		}
 		properties {
@@ -48,6 +49,7 @@ export const BASIC_INGREDIENT_FIELDS = gql`
 	fragment BasicIngredientFields on Ingredient {
 		id
 		alternateNames {
+			id
 			name
 		}
 		hasParent @client

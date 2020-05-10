@@ -8,6 +8,8 @@ const createClient = ({ /* ctx, headers */ initialState }) => new ApolloClient({
 	cache: new InMemoryCache().restore(initialState || {}),
 	link: new HttpLink({ uri: GRAPHQL_ENDPOINT }),
 	resolvers,
+	// ssrForceFetchDelay: 100,
+	ssrComplete: true,
 	typeDefs,
 });
 

@@ -2,7 +2,7 @@ import { Map as ImmutableMap, List as ImmutableList } from 'immutable';
 import { useCallback, useReducer } from 'react';
 
 import useValidation from './useValidation';
-import { defaultProperties } from './constants';
+import { defaultListActions, defaultProperties } from './constants';
 import { reducer as ingredientReducer, actions } from '../../../reducers/ingredient';
 
 function useIngredientForm({ id }) {
@@ -27,6 +27,7 @@ function useIngredientForm({ id }) {
 				relatedIngredients: '',
 				substitutes: '',
 			},
+			listActions: { ...defaultListActions },
 			reset: ingredient,
 		};
 	};
@@ -67,8 +68,8 @@ function useIngredientForm({ id }) {
 	}, [ 'dispatch' ]);
 
 	function handleIngredientSave(saveIngredientMutation) {
-		// TODO since i have the valiation throttled, it's theorhetically possible to submit this without
-		// going thru the most up-to-date valdiation; i should come back to this and manually re-trigger that here
+		// TODO since i have the validation throttled, it's theoretically possible to submit this without
+		// going thru the most up-to-date validation; i should come back to this and manually re-trigger that here
 		if (!errors.size) {
 			// if there aren't any blocking changes then dispatch
 			dispatch({

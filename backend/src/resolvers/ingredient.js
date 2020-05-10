@@ -3,6 +3,7 @@ import { GET_ALL_INGREDIENT_FIELDS_FOR_VALIDATION, GET_ALL_INGREDIENT_FIELDS } f
 export default {
 	Query: {
 		ingredientAggregate: async (parent, args, ctx) => {
+			console.log('ingredientAggregate');
 			const count = await ctx.prisma.ingredientsConnection().aggregate().count();
 			const unverified = await ctx.prisma.ingredientsConnection({ where: { isValidated: false } }).aggregate().count();
 
@@ -19,6 +20,7 @@ export default {
 			return ingredient;
 		},
 		ingredients: async (parent, args, ctx) => {
+			console.log('ingredients');
 			const ingredients = await ctx.prisma.ingredients().$fragment(GET_ALL_INGREDIENT_FIELDS_FOR_VALIDATION);
 			return ingredients;
 		},

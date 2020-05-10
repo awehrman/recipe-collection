@@ -93,6 +93,7 @@ export const GET_NOTE_CONTENT_FIELDS = `
 export const GET_ALL_INGREDIENT_FIELDS = `
 	{
 		alternateNames {
+			id
 			name
 		}
 		id
@@ -144,6 +145,7 @@ export const GET_BASIC_INGREDIENT_FIELDS = `
 export const GET_ALL_INGREDIENT_FIELDS_FOR_VALIDATION = `
 	{
 		alternateNames {
+			id
 			name
 		}
 		isComposedIngredient
