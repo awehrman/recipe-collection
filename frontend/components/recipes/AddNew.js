@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import Button from '../form/Button';
+import Button from '../common/Button';
 import Form from './Form';
 
 const AddNewStyles = styled.div`

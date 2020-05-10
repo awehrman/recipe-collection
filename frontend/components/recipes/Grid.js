@@ -9,7 +9,7 @@ import { FixedSizeList } from 'react-window';
 import memoize from 'memoize-one';
 
 import Card from './Card';
-import Loading from '../Loading';
+import Loading from '../common/Loading';
 // import { GET_PAGINATED_RECIPES_QUERY } from '../../lib/apollo/queries/recipes';
 
 const GridStyles = styled.article`

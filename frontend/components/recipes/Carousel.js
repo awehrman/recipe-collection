@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/react-hooks';
 import PropTypes from 'prop-types';
 import Slider from 'react-slick';
 import styled from 'styled-components';

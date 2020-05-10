@@ -1,21 +1,19 @@
-import { useMutation, useQuery } from '@apollo/client';
-import { withRouter } from 'next/router';
-import { compose, withHandlers, lifecycle, withProps } from 'recompose';
+import { useMutation, useQuery } from '@apollo/react-hooks';
 import React from 'react';
 import styled from 'styled-components';
+import { withRouter } from 'next/router';
+import { compose, withHandlers, lifecycle, withProps } from 'recompose';
 import PropTypes from 'prop-types';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import pretty from 'pretty';
 
+import { withApollo } from '../lib/apollo';
 import { dark } from '../styles/dark';
 import Button from '../components/common/Button';
 import Header from '../components/Header';
 import ParsedViewer from '../components/recipes/ParsedViewer';
 import { IS_EVERNOTE_AUTHENTICATED_QUERY } from '../lib/apollo/queries/evernote';
-import { GET_NOTES_COUNT_QUERY, GET_ALL_NOTES_QUERY } from '../lib/apollo/queries/notes';
-// import { IMPORT_NOTES_MUTATION, PARSE_NOTES_MUTATION, CONVERT_NOTES_MUTATION } from '../lib/apollo/mutations/notes';
 import { AUTHENTICATE_EVERNOTE_MUTATION } from '../lib/apollo/mutations/evernote';
-import { hasProperty } from '../lib/util';
 
 const Import = ({ authenticate }) => {
 	const onAuthenticate = (e) => {
@@ -127,17 +125,15 @@ const Import = ({ authenticate }) => {
 		*/
 	};
 
-	// fetch authenticated status
-
 	const {
 		data,
 		loading,
 		// error,
-	} = useQuery(IS_EVERNOTE_AUTHENTICATED_QUERY, {
-		// idk ssr: false,
+	} = useQuery(IS_EVERNOTE_AUTHENTICATED_QUERY);
+	console.log({
+		data, loading,
 	});
-	console.log({ data, loading });
-/*
+	/*
 	// TODO combine the note data and count into the same request
 	// fetch notes
 	const {
@@ -157,11 +153,9 @@ const Import = ({ authenticate }) => {
 	// TEMP
 	const notesData = {};
 	const countData = 0;
-	const { isAuthenticated = false } = (data && data.isEvernoteAuthenticated) ? data.isEvernoteAuthenticated : {};
-	const { isAuthenticationPending = false } = (data && data.isEvernoteAuthenticated) ? data.isEvernoteAuthenticated : {};
-	const { count, importDefault } = countData
-		? countData.noteAggregate
-		: 0;
+	const { isAuthenticated = false } =		data && data.isEvernoteAuthenticated ? data.isEvernoteAuthenticated : {};
+	const { isAuthenticationPending = false } =		data && data.isEvernoteAuthenticated ? data.isEvernoteAuthenticated : {};
+	const { count, importDefault } = countData ? countData.noteAggregate : 0;
 	const { notes = [] } = notesData || {};
 	// console.log({ data, isAuthenticated, isAuthenticationPending });
 
@@ -171,90 +165,78 @@ const Import = ({ authenticate }) => {
 			<section>
 				<ActionBar>
 					{/* Authenticate Evernote */}
-					{
-						(!isAuthenticated && !isAuthenticationPending)
-							? (
-								<Button
-									label="Authenticate Evernote"
-									onClick={ (e) => onAuthenticate(e) }
-									type="button"
-								/>
-							) : null
-					}
+					{!isAuthenticated && !isAuthenticationPending ? (
+						<Button
+							label="Authenticate Evernote"
+							onClick={ (e) => onAuthenticate(e) }
+							type="button"
+						/>
+					) : null}
 
 					{/* Import Notes from Evernote */}
-					{
-						(isAuthenticated)
-							? (
-								<Button
-									label="Import Notes"
-									onClick={ (e) => importNotes(e, importDefault) }
-									type="button"
-								/>
-							) : null
-					}
+					{isAuthenticated ? (
+						<Button
+							label="Import Notes"
+							onClick={ (e) => importNotes(e, importDefault) }
+							type="button"
+						/>
+					) : null}
 
 					{/* Parse Notes */}
-					{/* TODO update with count of just unparsed notes */
-						(isAuthenticated && (count > 0))
-							? (
-								<Button
-									label={ `Parse ${ count } Note${ (count === 1) ? '' : 's' }` }
-									onClick={ (e) => parseNotes(e) }
-									type="button"
-								/>
-							) : null
+					{
+						/* TODO update with count of just unparsed notes */
+						isAuthenticated && count > 0 ? (
+							<Button
+								label={ `Parse ${ count } Note${ count === 1 ? '' : 's' }` }
+								onClick={ (e) => parseNotes(e) }
+								type="button"
+							/>
+						) : null
 					}
 
 					{/* Save Recipes */}
-					{
-						(isAuthenticated && (count > 0))
-							? (
-								<Button
-									label="Save Recipes"
-									onClick={ (e) => convertNotes(e) }
-									type="button"
-								/>
-							) : null
-					}
+					{isAuthenticated && count > 0 ? (
+						<Button
+							label="Save Recipes"
+							onClick={ (e) => convertNotes(e) }
+							type="button"
+						/>
+					) : null}
 				</ActionBar>
 				<NotesViewer>
 					{
-						(notes)
-							? (
-								notes.map((n, index) => (
-									// eslint-disable-next-line
-									<Note key={ `${ index }_${ n.id }` }>
-										<h1>{n.title}</h1>
-										{
-											(n.content && (n.ingredients.length === 0))
-												? (
-													<Content>
-														<SyntaxHighlighter
-															className="highlighter"
-															language="html"
-															wrapLines
-															style={ dark }
-														>
-															{ pretty(n.content) }
-														</SyntaxHighlighter>
-													</Content>
-												) : null
-										}
-										{
-											((n.ingredients.length > 0) || (n.instructions.length > 0))
-												? (
-													<ParsedViewer
-														className="left"
-														id={ n.id }
-														ingredients={ n.ingredients }
-														instructions={ n.instructions }
-													/>
-												) : null
-										}
-									</Note>
-								))
-							)
+						notes
+							? notes.map((n, index) => (
+								// eslint-disable-next-line
+								<Note key={`${index}_${n.id}`}>
+									<h1>{n.title}</h1>
+									{
+										n.content && n.ingredients.length === 0 ? (
+											<Content>
+												<SyntaxHighlighter
+													className="highlighter"
+													language="html"
+													wrapLines
+													style={ dark }
+												>
+													{pretty(n.content)}
+												</SyntaxHighlighter>
+											</Content>
+										) : null
+									}
+									{
+										(n.ingredients.length > 0 || n.instructions.length > 0)
+											? (
+												<ParsedViewer
+													className="left"
+													id={ n.id }
+													ingredients={ n.ingredients }
+													instructions={ n.instructions }
+												/>
+											) : null
+									}
+								</Note>
+							))
 							: null
 					}
 				</NotesViewer>
@@ -281,6 +263,7 @@ const enhance = compose(
 		return { authenticate };
 	}),
 	withHandlers({
+		// TODO memoize this
 		// eslint-disable-next-line camelcase
 		handleAuthentication: ({ authenticate, router }) => ({ oauth_verifier }) => {
 			console.log('handleAuthentication', oauth_verifier);
@@ -303,7 +286,7 @@ const enhance = compose(
 			const { handleAuthentication, router } = this.props;
 			const { query } = router;
 
-			if (hasProperty(query, 'oauth_token') && hasProperty(query, 'oauth_verifier')) {
+			if (query && query.oauth_token && query.oauth_verifier) {
 				// go back to our server with our verifier string to receive our actual access token
 				// eslint-disable-next-line camelcase
 				const { oauth_verifier } = query;
@@ -316,7 +299,7 @@ const enhance = compose(
 
 Import.whyDidYouRender = true;
 
-export default withRouter(enhance(Import));
+export default withApollo({ ssr: true })(enhance(Import));
 
 const ImportStyles = styled.article`
 	button {
@@ -342,7 +325,7 @@ const Content = styled.div`
 	overflow-y: auto !important;
 	overflow-x: auto !important;
 	max-height: 250px;
-	display: 'flex';
+	display: "flex";
 	font-size: 10px;
 `;
 

@@ -55,7 +55,7 @@ export default {
 				isAuthenticated: false,
 			};
 			const { req } = ctx;
-			console.log(req.session);
+			// console.log(req.session);
 			const {
 				authToken,
 				requestToken,

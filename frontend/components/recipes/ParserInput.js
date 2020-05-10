@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import Button from '../form/Button';
+import Button from '../common/Button';
 import { parseHTML } from '../../lib/parser';
 
 const ParserInputStyles = styled.div`

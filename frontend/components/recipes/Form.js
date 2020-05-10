@@ -11,256 +11,13 @@ import { faEdit } from '@fortawesome/pro-regular-svg-icons';
 import { faWindowClose } from '@fortawesome/pro-light-svg-icons';
 
 import { deepCopy, hasProperty } from '../../lib/util';
-import Button from '../form/Button';
-import Image from '../form/Image';
-import Input from '../form/Input';
-import List from '../form/List';
+import Button from '../common/Button';
+import Image from '../common/Image';
+import Input from '../common/Input';
+// import List from '../common/List';
 import ParserInput from './ParserInput';
 import ParsedViewer from './ParsedViewer';
 import { GET_SUGGESTED_CATEGORIES_QUERY, GET_SUGGESTED_TAGS_QUERY } from '../../lib/apollo/queries/suggestions';
-
-const FormStyles = styled.form`
-	flex-basis: 100%;
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	background: white;
-	opacity: 1;
-	margin: 0 auto;
-	padding: 20px 40px;
-	width: 75%;
-
-	button {
-		border: 0;
-		background: transparent;
-		cursor: pointer;
-		font-weight: 600;
-		font-size: 14px;
-	}
-
-	button.close {
-		color: ${ (props) => props.theme.lighterGrey };
-		text-align: right;
-		float: right;
-
-		svg {
-			height: 16px;
-		}
-	}
-
-	fieldset {
-		margin-bottom: 10px;
-	}
-
-	fieldset input {
-	 	border-bottom: 0;
-	}
-
-	@media (min-width: ${ (props) => props.theme.desktopCardWidth }) {
-		fieldset {
-			margin-bottom: 6px;
-		}
-	}
-
-	/* add new recipe form styles */
-	&.add {
-		.save {
-			position: relative;
-			bottom: 20px;
-			margin-top: 20px;
-		}
-	}
-`;
-
-const TopFormStyles = styled.div`
-	fieldset.source, fieldset.image, fieldset.evernoteGUID {
-		font-size: 12px;
-		margin-bottom: 0 !important;
-
-		span#highlight {
-			top: 22px !important;
-		}
-	}
-
-	fieldset.title, input, fieldset.source input, fieldset.image input {
-		color: #222! important;
-		text-overflow: ellipsis;
-	}
-
-	@media (min-width: ${ (props) => props.theme.desktopCardWidth }) {
-		display: flex;
-		justify-content: space-between;
-
-		.left {
-			flex-grow: 1;
-		}
-
-		.right {
-			text-align: right;
-			flex-shrink: 2;
-		}
-	}
-
-	flex-wrap: wrap;
-	justify-content: space-between;
-`;
-
-const Left = styled.div`
-	flex-basis: 49%;
-	justify-content: start;
-	min-height: 300px;
-`;
-
-const Right = styled.div`
-	flex-basis: 49%;
-	justify-content: start;
-	min-height: 300px;
-`;
-
-const Title = styled.h1`
-	font-size: 24px;
-	font-weight: 100;
-	margin-top: 0;
-`;
-
-const Source = styled.div`
-	font-style: italic;
-	font-size: 12px;
-	color: #bbb !important;
-	margin-top: 4px;
-	text-align: right;
-`;
-
-const Categories = styled.ul`
-	list-style: none;
-	display: inline-block;
-	color: ${ (props) => props.theme.altGreen };
-	width: 45%;
-	padding: 0;
-	margin: 15px 5px 0px 0;
-	font-size: 14px;
-`;
-
-const Tags = styled.ul`
-	margin-bottom: 8px;
-	list-style: none;
-	display: inline-block;
-	color: white;
-	width: 45%;
-	margin: 15px 10px 10px 0;
-	padding: 0;
-	float: right;
-	text-align: right;
-
-	li {
-		font-size: 12px;
-		padding: 4px 10px;
-		font-weight: 900;
-		display: inline;
-		background: ${ (props) => props.theme.altGreen };
-		border-radius: 50px;
-		width: 100%;
-		margin-left: 5px;
-	}
-`;
-
-const BottomFormStyles = styled.div`
-	margin-top: auto; /* stick to the bottom of the card */
-
-	.warnings {
-		flex-basis: 100%;
-		text-align: right;
-		font-size: .875em;
-		color: ${ (props) => props.theme.red };
-		list-style-type: none;
-		margin: 0;
-		padding: 0;
-	}
-
-	.right {
-		margin-top: auto;
-	}
-
-	button.edit {
-		border: 0;
-		background: transparent;
-		cursor: pointer;
-		color: ${ (props) => props.theme.highlight };
-		font-weight: 600;
-		font-size: 14px;
-
-	 	svg {
-			margin-right: 8px;
-			height: 14px;
-		}
-	}
-
-	button.cancel {
-		color: #ccc;
-		font-weight: 400;
-		margin-right: 10px;
-	}
-
-	button.save {
-		background: ${ (props) => props.theme.altGreen };
-		color: white;
-		border-radius: 5px;
-		padding: 4px 10px;
-
-		&:hover {
-			background: ${ (props) => darken(0.1, props.theme.altGreen) };
-		}
-	}
-
-	button.merge {
-		color: ${ (props) => props.theme.highlight };
-	}
-
-	button.parent {
-		color: ${ (props) => props.theme.orange };
-	}
-
-	button.parsingError {
-		color: tomato;
-	}
-
-	.actions {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-
-		button {
-			margin-bottom: 6px;
-
-			svg {
-				margin-right: 10px;
-			}
-		}
-	}
-
-	@media (min-width: ${ (props) => props.theme.desktopCardWidth }) {
-		display: flex;
-		justify-content: flex-end;
-
-		.left {
-			flex: 1;
-		}
-
-		.right {
-			flex: 1;
-			text-align: right;
-			flex-grow: 2;
-		}
-
-		.save {
-			margin-left: 20px;
-		}
-	}
-`;
-
-const ParsedViewerWrapper = styled.div`
-	margin-top: 54px; /* TODO ideally this would be equal to our h1 height */
-`;
 
 // TODO ughhhh i hate how huge this component is...
 class Form extends Component {
@@ -947,7 +704,7 @@ class Form extends Component {
 										warnings={ this.getWarning('evernoteGUID', warnings) || undefined }
 									/>
 
-									{/* Categories */}
+									{/* Categories
 									<List
 										className="categories"
 										defaultValues={ categories }
@@ -965,7 +722,7 @@ class Form extends Component {
 										values={ pending.categories }
 									/>
 
-									{/* Tags */}
+									{/* Tags
 									<List
 										className="tags"
 										defaultValues={ tags }
@@ -982,6 +739,7 @@ class Form extends Component {
 										type="tags"
 										values={ pending.tags }
 									/>
+								*/}
 								</Left>
 							) : null
 					}
@@ -1191,3 +949,252 @@ Form.propTypes = {
 };
 
 export default Form;
+
+
+const FormStyles = styled.form`
+	flex-basis: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	background: white;
+	opacity: 1;
+	margin: 0 auto;
+	padding: 20px 40px;
+	width: 75%;
+
+	button {
+		border: 0;
+		background: transparent;
+		cursor: pointer;
+		font-weight: 600;
+		font-size: 14px;
+	}
+
+	button.close {
+		color: ${ (props) => props.theme.lighterGrey };
+		text-align: right;
+		float: right;
+
+		svg {
+			height: 16px;
+		}
+	}
+
+	fieldset {
+		margin-bottom: 10px;
+	}
+
+	fieldset input {
+		border-bottom: 0;
+	}
+
+	@media (min-width: ${ (props) => props.theme.desktopCardWidth }) {
+		fieldset {
+			margin-bottom: 6px;
+		}
+	}
+
+	/* add new recipe form styles */
+	&.add {
+		.save {
+			position: relative;
+			bottom: 20px;
+			margin-top: 20px;
+		}
+	}
+`;
+
+const TopFormStyles = styled.div`
+	fieldset.source,
+	fieldset.image,
+	fieldset.evernoteGUID {
+		font-size: 12px;
+		margin-bottom: 0 !important;
+
+		span#highlight {
+			top: 22px !important;
+		}
+	}
+
+	fieldset.title,
+	input,
+	fieldset.source input,
+	fieldset.image input {
+		color: #222 !important;
+		text-overflow: ellipsis;
+	}
+
+	@media (min-width: ${ (props) => props.theme.desktopCardWidth }) {
+		display: flex;
+		justify-content: space-between;
+
+		.left {
+			flex-grow: 1;
+		}
+
+		.right {
+			text-align: right;
+			flex-shrink: 2;
+		}
+	}
+
+	flex-wrap: wrap;
+	justify-content: space-between;
+`;
+
+const Left = styled.div`
+	flex-basis: 49%;
+	justify-content: start;
+	min-height: 300px;
+`;
+
+const Right = styled.div`
+	flex-basis: 49%;
+	justify-content: start;
+	min-height: 300px;
+`;
+
+const Title = styled.h1`
+	font-size: 24px;
+	font-weight: 100;
+	margin-top: 0;
+`;
+
+const Source = styled.div`
+	font-style: italic;
+	font-size: 12px;
+	color: #bbb !important;
+	margin-top: 4px;
+	text-align: right;
+`;
+
+const Categories = styled.ul`
+	list-style: none;
+	display: inline-block;
+	color: ${ (props) => props.theme.altGreen };
+	width: 45%;
+	padding: 0;
+	margin: 15px 5px 0px 0;
+	font-size: 14px;
+`;
+
+const Tags = styled.ul`
+	margin-bottom: 8px;
+	list-style: none;
+	display: inline-block;
+	color: white;
+	width: 45%;
+	margin: 15px 10px 10px 0;
+	padding: 0;
+	float: right;
+	text-align: right;
+
+	li {
+		font-size: 12px;
+		padding: 4px 10px;
+		font-weight: 900;
+		display: inline;
+		background: ${ (props) => props.theme.altGreen };
+		border-radius: 50px;
+		width: 100%;
+		margin-left: 5px;
+	}
+`;
+
+const BottomFormStyles = styled.div`
+	margin-top: auto; /* stick to the bottom of the card */
+
+	.warnings {
+		flex-basis: 100%;
+		text-align: right;
+		font-size: 0.875em;
+		color: ${ (props) => props.theme.red };
+		list-style-type: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.right {
+		margin-top: auto;
+	}
+
+	button.edit {
+		border: 0;
+		background: transparent;
+		cursor: pointer;
+		color: ${ (props) => props.theme.highlight };
+		font-weight: 600;
+		font-size: 14px;
+
+		svg {
+			margin-right: 8px;
+			height: 14px;
+		}
+	}
+
+	button.cancel {
+		color: #ccc;
+		font-weight: 400;
+		margin-right: 10px;
+	}
+
+	button.save {
+		background: ${ (props) => props.theme.altGreen };
+		color: white;
+		border-radius: 5px;
+		padding: 4px 10px;
+
+		&:hover {
+			background: ${ (props) => darken(0.1, props.theme.altGreen) };
+		}
+	}
+
+	button.merge {
+		color: ${ (props) => props.theme.highlight };
+	}
+
+	button.parent {
+		color: ${ (props) => props.theme.orange };
+	}
+
+	button.parsingError {
+		color: tomato;
+	}
+
+	.actions {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+
+		button {
+			margin-bottom: 6px;
+
+			svg {
+				margin-right: 10px;
+			}
+		}
+	}
+
+	@media (min-width: ${ (props) => props.theme.desktopCardWidth }) {
+		display: flex;
+		justify-content: flex-end;
+
+		.left {
+			flex: 1;
+		}
+
+		.right {
+			flex: 1;
+			text-align: right;
+			flex-grow: 2;
+		}
+
+		.save {
+			margin-left: 20px;
+		}
+	}
+`;
+
+const ParsedViewerWrapper = styled.div`
+	margin-top: 54px; /* TODO ideally this would be equal to our h1 height */
+`;

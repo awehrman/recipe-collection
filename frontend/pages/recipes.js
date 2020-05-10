@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/react-hooks';
 import PropTypes from 'prop-types';
 import React from 'react';
 import styled from 'styled-components';
@@ -10,27 +10,7 @@ import Header from '../components/Header';
 import Grid from '../components/recipes/Grid';
 import Loading from '../components/common/Loading';
 import Recipe from '../components/recipes/Recipe';
-
-const Count = styled.div`
-	display: flex;
-	font-size: .875em;
-	color: #222;
-	margin-bottom: 20px;
-
-	&.left {
-		flex: 1;
-	}
-
-	&.right {
-		flex: 1;
-		text-align: right;
-		font-weight: 600;
-		justify-content: flex-end;
-	}
-`;
-
-const RecipesStyles = styled.article`
-`;
+import { withApollo } from '../lib/apollo';
 
 const Recipes = ({ id = null }) => {
 	// fetch the recipe totals
@@ -91,4 +71,24 @@ Recipes.defaultProps = { id: null };
 
 Recipes.propTypes = { id: PropTypes.string };
 
-export default Recipes;
+export default withApollo({ ssr: true })(Recipes);
+
+const Count = styled.div`
+	display: flex;
+	font-size: 0.875em;
+	color: #222;
+	margin-bottom: 20px;
+
+	&.left {
+		flex: 1;
+	}
+
+	&.right {
+		flex: 1;
+		text-align: right;
+		font-weight: 600;
+		justify-content: flex-end;
+	}
+`;
+
+const RecipesStyles = styled.article``;

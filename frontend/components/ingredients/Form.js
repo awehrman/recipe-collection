@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/react-hooks';
 import { Map as ImmutableMap, List as ImmutableList } from 'immutable';
 import { darken } from 'polished';
 import PropTypes from 'prop-types';

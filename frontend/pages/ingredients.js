@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/react-hooks';
 import { Map as ImmutableMap } from 'immutable';
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
@@ -13,9 +13,7 @@ import Filters from '../components/ingredients/Filters';
 import Header from '../components/Header';
 import ValidationContext from '../lib/contexts/ingredients/validationContext';
 import ViewContext from '../lib/contexts/ingredients/viewContext';
-
-const IngredientsPageStyles = styled.article`
-`;
+import { withApollo } from '../lib/apollo';
 
 // TODO remove references from the ingredients query and just have the backend provide a count for us
 // maybe do the same with parent since the recipe references are clogging up the cache
@@ -50,6 +48,9 @@ const Ingredients = ({ group, id, view }) => {
 		onCompleted: () => ((!showContainers) ? setShowContainers(true) : null),
 	});
 
+	console.log({
+		data, error, loading,
+	});
 	const { ingredients = [] } = data || {};
 
 	return (
@@ -61,13 +62,11 @@ const Ingredients = ({ group, id, view }) => {
 						{/* view and group filters */}
 						<Filters />
 
-						{ (loading) ? <Loading name="ingredients" /> : null }
-						{ (error) ? <ErrorMessage error={ error } /> : null }
+						{loading ? <Loading name="ingredients" /> : null}
+						{error ? <ErrorMessage error={ error } /> : null}
 
 						{/* show the containers once they're available in the cache */
-							(!loading && showContainers)
-								? <Containers />
-								: null
+							!loading && showContainers ? <Containers /> : null
 						}
 
 						{/* add new ingredient form */}
@@ -83,7 +82,7 @@ const Ingredients = ({ group, id, view }) => {
 // i'm hoping this will be resolved once i do some package upgrading bc slapping a useMemo
 // on the client given to the ApolloProvider in _app BREAKS ALL SORTS OF SHIT
 
-// Ingredients.whyDidYouRender = true;
+Ingredients.whyDidYouRender = true;
 
 Ingredients.defaultProps = {
 	group: 'name',
@@ -97,4 +96,6 @@ Ingredients.propTypes = {
 	view: PropTypes.string,
 };
 
-export default Ingredients;
+export default withApollo({ ssr: true })(Ingredients);
+
+const IngredientsPageStyles = styled.article``;

@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/react-hooks';
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';

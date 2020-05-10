@@ -1,5 +1,5 @@
 import { withRouter } from 'next/router';
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/react-hooks';
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';

@@ -1,46 +1,13 @@
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/react-hooks';
 import styled from 'styled-components';
 import { GET_DASHBOARD_INGREDIENTS_QUERY } from '../lib/apollo/queries/ingredients';
 import { GET_DASHBOARD_PARSING_QUERY } from '../lib/apollo/queries/notes';
 import { GET_DASHBOARD_RECIPES_QUERY } from '../lib/apollo/queries/recipes';
+import { withApollo } from '../lib/apollo';
 
 import Header from '../components/Header';
 import ViewMoreList from '../components/ingredients/ViewMoreList';
 import Carousel from '../components/recipes/Carousel';
-
-const DashboardStyles = styled.article`
-	ul {
-		list-style-type: none;
-		margin: 0;
-		padding: 0;
-		font-size: 14px;
-	}
-`;
-
-const Row = styled.div`
-	/* mobile: everything is just one long list */
-
-	/* small tablet wraps the top row into equally distributed columns */
-	@media (min-width: ${ (props) => props.theme.tablet_small }) {
-		&.tri-column {
-			display: flex;
-			justify-content: space-between;
-		}
-	}
-
-	/* as we get larger, keep the three columns to the left, and start to wrap the remaining row */
-	@media (min-width: ${ (props) => props.theme.tablet }) {
-		display: flex;
-		justify-content: flex-start;
-		div {
-			margin-right: 60px;
-		}
-
-		&.tri-column {
-			justify-content: flex-start;
-		}
-	}
-`;
 
 const Index = () => {
 	// fetch ingredients
@@ -232,4 +199,39 @@ const Index = () => {
 	);
 };
 
-export default Index;
+export default withApollo({ ssr: true })(Index);
+
+
+const DashboardStyles = styled.article`
+	ul {
+		list-style-type: none;
+		margin: 0;
+		padding: 0;
+		font-size: 14px;
+	}
+`;
+
+const Row = styled.div`
+	/* mobile: everything is just one long list */
+
+	/* small tablet wraps the top row into equally distributed columns */
+	@media (min-width: ${ (props) => props.theme.tablet_small }) {
+		&.tri-column {
+			display: flex;
+			justify-content: space-between;
+		}
+	}
+
+	/* as we get larger, keep the three columns to the left, and start to wrap the remaining row */
+	@media (min-width: ${ (props) => props.theme.tablet }) {
+		display: flex;
+		justify-content: flex-start;
+		div {
+			margin-right: 60px;
+		}
+
+		&.tri-column {
+			justify-content: flex-start;
+		}
+	}
+`;

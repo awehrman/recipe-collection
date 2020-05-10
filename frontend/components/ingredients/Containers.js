@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/react-hooks';
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 

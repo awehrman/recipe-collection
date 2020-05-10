@@ -1,5 +1,5 @@
 // import { Map as ImmutableMap } from 'immutable';
-// import { useMutation, useQuery } from '@apollo/client';
+// import { useMutation, useQuery } from '@apollo/react-hooks';
 import PropTypes from 'prop-types';
 import React, { useContext } from 'react';
 import pure from 'recompose/pure';
