@@ -12,6 +12,7 @@ const resolveRequestToken = (req, response) => new Promise((resolve, reject) => 
 	console.log('resolveRequestToken');
 	console.log({ client });
 	client.getRequestToken(process.env.OAuthCallback, (err, requestToken, requestTokenSecret) => {
+		console.log({ err });
 		if (err) reject(err);
 
 		response.isAuthenticationPending = true;
@@ -28,6 +29,7 @@ const resolveRequestToken = (req, response) => new Promise((resolve, reject) => 
 const resolveAccessToken = (req, response, requestToken, requestTokenSecret, oauthVerifier) => new Promise((resolve, reject) => {
 	console.log('resolveAccessToken');
 	client.getAccessToken(requestToken, requestTokenSecret, oauthVerifier, (err, authToken, authTokenSecret) => {
+		console.log({ err });
 		if (err) reject(err);
 
 		response.isAuthenticated = true;
@@ -48,21 +50,24 @@ export default {
 			console.log('isEvernoteAuthenticated'.cyan);
 			const { req } = ctx;
 			const { authToken, requestToken } = req.session;
+			const isClientTokenSet = Boolean(client.token);
 			// eslint-disable-next-line object-curly-newline
-			console.log({ authToken, requestToken });
+			console.log({ authToken, requestToken, clientToken: client.token });
 
 			// TODO can we move these default responses into another file?
 			const response = {
 				__typename: 'AuthenticationResponse',
 				errors: [],
-				token: null,
 				isAuthenticationPending: false,
 				isAuthenticated: false,
 			};
 
-			response.isAuthenticated = Boolean(authToken);
-			response.isAuthenticationPending = Boolean(!authToken && requestToken);
+			// if we have a token in our evernote client then we can side-step this whole thing
+			// which sure is convenient since my cookie session isn't persisting on refresh
+			response.isAuthenticated = isClientTokenSet || Boolean(authToken);
+			response.isAuthenticationPending = Boolean((!isClientTokenSet && !authToken) && requestToken);
 
+			console.log({ ...response });
 			return response;
 		},
 	},
@@ -72,6 +77,7 @@ export default {
 			const { oauthVerifier } = args;
 			const { req } = ctx;
 			const { authToken, requestToken, requestTokenSecret } = req.session || {};
+			const isClientTokenSet = Boolean(client.token);
 
 			const response = {
 				__typename: 'AuthenticationResponse',
@@ -81,8 +87,8 @@ export default {
 				authURL: null,
 			};
 
-			response.isAuthenticated = Boolean(authToken);
-			response.isAuthenticationPending = Boolean(!authToken && requestToken);
+			response.isAuthenticated = isClientTokenSet || Boolean(authToken);
+			response.isAuthenticationPending = Boolean((!isClientTokenSet && !authToken) && requestToken);
 
 			// if we've passed an oauthVerifier, then we need to finish up the pending authentication
 			if (oauthVerifier) {
@@ -102,10 +108,13 @@ export default {
 				__typename: 'AuthenticationResponse',
 				errors: [],
 				isAuthenticated: false,
+				isAuthenticationPending: false,
 			};
 
 			const { req } = ctx;
 			req.session = null;
+
+			// TODO do i need to force update my evernote client here too?
 
 			return response;
 		},

@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const AUTHENTICATE_EVERNOTE_MUTATION = gql`
-	mutation AUTHENTICATE_EVERNOTE_MUTATION($oauthVerifier: String, $token: String) {
-		authenticate(oauthVerifier: $oauthVerifier, token: $token) {
+	mutation AUTHENTICATE_EVERNOTE_MUTATION($oauthVerifier: String) {
+		authenticate(oauthVerifier: $oauthVerifier) {
 			authURL
 			errors
 			isAuthenticationPending
