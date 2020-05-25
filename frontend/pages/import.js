@@ -1,8 +1,7 @@
 import { useMutation, useQuery } from '@apollo/react-hooks';
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { withRouter } from 'next/router';
-import { compose, withHandlers, lifecycle, withProps } from 'recompose';
 import PropTypes from 'prop-types';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import pretty from 'pretty';
@@ -15,11 +14,15 @@ import ParsedViewer from '../components/recipes/ParsedViewer';
 import { IS_EVERNOTE_AUTHENTICATED_QUERY } from '../lib/apollo/queries/evernote';
 import { AUTHENTICATE_EVERNOTE_MUTATION } from '../lib/apollo/mutations/evernote';
 
-const Import = ({ authenticate }) => {
+const Import = ({ router }) => {
+	// eslint-disable-next-line camelcase
+	const { query: { oauth_verifier } } = router;
+	const [ authenticate ] = useMutation(AUTHENTICATE_EVERNOTE_MUTATION);
+
 	const onAuthenticate = (e) => {
 		console.log('onAuthenticate');
 		e.preventDefault();
-		// call the authentication mutation to receive the request token
+
 		authenticate({
 			update: (cache, { data }) => {
 				const { authURL } = data.authenticate;
@@ -127,34 +130,32 @@ const Import = ({ authenticate }) => {
 
 	const {
 		data,
-		loading,
-		// error,
+		// loading,
+		// TODO error,
 	} = useQuery(IS_EVERNOTE_AUTHENTICATED_QUERY);
-	console.log({
-		data, loading,
-	});
-	/*
-	// TODO combine the note data and count into the same request
-	// fetch notes
-	const {
-		data: notesData,
-		// loading: notesLoading,
-		// error: notesError,
-	} = useQuery(GET_ALL_NOTES_QUERY);
 
-	// fetch note count
-	const {
-		data: countData,
-		// loading: countLoading,
-		// error: countError,
-	} = useQuery(GET_NOTES_COUNT_QUERY);
+	const isAuthenticated = data?.isEvernoteAuthenticated?.isAuthenticated || false;
+	const isAuthenticationPending = data?.isEvernoteAuthenticated?.isAuthenticationPending || false;
 
-	*/
-	// TEMP
+	useEffect(() => {
+		// eslint-disable-next-line camelcase
+		if (oauth_verifier) {
+			authenticate({
+				refetchQueries: [ { query: IS_EVERNOTE_AUTHENTICATED_QUERY } ],
+				update: () => {
+					console.log('update...');
+					// TODO consider updating the cache directly instead of refetching
+					// update url
+					router.replace('/import', '/import', { shallow: true });
+				},
+				variables: { oauthVerifier: oauth_verifier },
+			});
+		}
+	// eslint-disable-next-line camelcase
+	}, [ oauth_verifier ]);
+
 	const notesData = {};
 	const countData = 0;
-	const { isAuthenticated = false } =		data && data.isEvernoteAuthenticated ? data.isEvernoteAuthenticated : {};
-	const { isAuthenticationPending = false } =		data && data.isEvernoteAuthenticated ? data.isEvernoteAuthenticated : {};
 	const { count, importDefault } = countData ? countData.noteAggregate : 0;
 	const { notes = [] } = notesData || {};
 	// console.log({ data, isAuthenticated, isAuthenticationPending });
@@ -246,7 +247,6 @@ const Import = ({ authenticate }) => {
 };
 
 Import.propTypes = {
-	authenticate: PropTypes.func.isRequired,
 	router: PropTypes.shape({
 		query: PropTypes.shape({
 			oauth_token: PropTypes.string,
@@ -256,50 +256,9 @@ Import.propTypes = {
 	}).isRequired,
 };
 
-const enhance = compose(
-	withRouter,
-	withProps(() => {
-		const [ authenticate ] = useMutation(AUTHENTICATE_EVERNOTE_MUTATION);
-		return { authenticate };
-	}),
-	withHandlers({
-		// TODO memoize this
-		// eslint-disable-next-line camelcase
-		handleAuthentication: ({ authenticate, router }) => ({ oauth_verifier }) => {
-			console.log('handleAuthentication', oauth_verifier);
-
-			authenticate({
-				refetchQueries: [ { query: IS_EVERNOTE_AUTHENTICATED_QUERY } ],
-				update: () => {
-					console.log('update...');
-					// TODO consider updating the cache directly instead of refetching
-					// update url
-					router.replace('/import', '/import', { shallow: true });
-				},
-				variables: { oauthVerifier: oauth_verifier },
-			});
-		},
-	}),
-	lifecycle({
-		componentDidMount() {
-			console.log('componentDidMount');
-			const { handleAuthentication, router } = this.props;
-			const { query } = router;
-
-			if (query && query.oauth_token && query.oauth_verifier) {
-				// go back to our server with our verifier string to receive our actual access token
-				// eslint-disable-next-line camelcase
-				const { oauth_verifier } = query;
-				console.log('handleAuthentication?');
-				handleAuthentication({ oauth_verifier });
-			}
-		},
-	}),
-);
-
 Import.whyDidYouRender = true;
 
-export default withApollo({ ssr: true })(enhance(Import));
+export default withApollo({ ssr: true })(withRouter(Import));
 
 const ImportStyles = styled.article`
 	button {

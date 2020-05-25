@@ -44,16 +44,15 @@ cloudinary.config({
 });
 
 app.use(cors(corsOptions));
+app.set('trust proxy', 1);
 
 app.use(cookieSession({
 	name: 'session',
 	keys: [ process.env.SESSION_KEY ],
-	sameSite: 'lax',
-	secure: false,
+	// sameSite: 'lax',
+	// secure: false,
 	maxAge: 24 * 60 * 60 * 1000,
 }));
-
-app.set('trust proxy', 1);
 
 server.applyMiddleware({
 	app,

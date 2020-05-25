@@ -12,7 +12,8 @@ export default function createApolloClient(initialState, ctx) {
 		ssrMode: Boolean(ctx),
 		link: new HttpLink({
 			uri: GRAPHQL_ENDPOINT, // Server URL (must be absolute)
-			credentials: 'same-origin', // Additional fetch() options like `credentials` or `headers`
+			// idk moving this to include suddenly fixed my cookie session issues
+			credentials: 'include', // Additional fetch() options like `credentials` or `headers`
 			fetch,
 		}),
 		cache: new InMemoryCache().restore(initialState),
