@@ -1,16 +1,21 @@
+import { useQuery } from '@apollo/react-hooks';
+import pretty from 'pretty';
 import React from 'react';
+import pure from 'recompose/pure';
 import styled from 'styled-components';
 import SyntaxHighlighter from 'react-syntax-highlighter';
-import pretty from 'pretty';
-import pure from 'recompose/pure';
 
 import { dark } from '../../styles/dark';
 import { withApollo } from '../../lib/apollo';
-import useEvernote from './useEvernote';
 import ParsedViewer from '../recipes/ParsedViewer';
+import { GET_ALL_NOTES_QUERY } from '../../lib/apollo/queries/notes';
 
-const NotesViewer = ({ notes }) => {
-	console.log('viewer', { notes });
+const NotesViewer = () => {
+	console.log('viewer');
+	const { data } = useQuery(GET_ALL_NOTES_QUERY);
+	const { notes = [] } = data || {};
+
+	// TODO add a load more button to view the entire recipe instead of the cropped version
 
 	return (
 		<NotesViewerStyles>
@@ -18,8 +23,8 @@ const NotesViewer = ({ notes }) => {
 				(notes)
 					? notes.map((n, index) => (
 						// eslint-disable-next-line
-						<Note key={`${index}_${n.id}`}>
-							<h1>{n.title}</h1>
+						<Note key={`${ index }_${ n.id }`}>
+							<h1>{ n.title }</h1>
 							{
 								(n.content && !n.ingredients.length)
 									? (
