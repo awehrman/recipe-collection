@@ -179,7 +179,12 @@ export const parseIngredientLine = (line) => {
 		parsed = Parser.parse(ingredientLine.reference);
 		ingredientLine.isParsed = true;
 		ingredientLine.rule = parsed.rule;
-		ingredientLine.parsed = parsed.values.map((v) => ({ ...v }));
+		ingredientLine.parsed = parsed.values.map((v, i) => ({
+			...v,
+			index: i,
+			value: v.value.trim(),
+		}));
+		console.log({ parsed: JSON.stringify(ingredientLine.parsed, null, 2) });
 	} catch (err) {
 		console.log(`failed to parse lineIndex: ${ ingredientLine.reference }`.red);
 		console.log(line);

@@ -1469,10 +1469,11 @@ type ParsedSegment {
   id: ID!
   dateCreated: DateTime!
   dateUpdated: DateTime!
+  index: Int
+  ingredient: Ingredient
   rule: String!
   type: String!
   value: String!
-  ingredient: Ingredient
 }
 
 type ParsedSegmentConnection {
@@ -1483,10 +1484,11 @@ type ParsedSegmentConnection {
 
 input ParsedSegmentCreateInput {
   id: ID
+  index: Int
+  ingredient: IngredientCreateOneInput
   rule: String!
   type: String!
   value: String!
-  ingredient: IngredientCreateOneInput
 }
 
 input ParsedSegmentCreateManyInput {
@@ -1506,6 +1508,8 @@ enum ParsedSegmentOrderByInput {
   dateCreated_DESC
   dateUpdated_ASC
   dateUpdated_DESC
+  index_ASC
+  index_DESC
   rule_ASC
   rule_DESC
   type_ASC
@@ -1518,6 +1522,7 @@ type ParsedSegmentPreviousValues {
   id: ID!
   dateCreated: DateTime!
   dateUpdated: DateTime!
+  index: Int
   rule: String!
   type: String!
   value: String!
@@ -1554,6 +1559,14 @@ input ParsedSegmentScalarWhereInput {
   dateUpdated_lte: DateTime
   dateUpdated_gt: DateTime
   dateUpdated_gte: DateTime
+  index: Int
+  index_not: Int
+  index_in: [Int!]
+  index_not_in: [Int!]
+  index_lt: Int
+  index_lte: Int
+  index_gt: Int
+  index_gte: Int
   rule: String
   rule_not: String
   rule_in: [String!]
@@ -1620,20 +1633,23 @@ input ParsedSegmentSubscriptionWhereInput {
 }
 
 input ParsedSegmentUpdateDataInput {
+  index: Int
+  ingredient: IngredientUpdateOneInput
   rule: String
   type: String
   value: String
-  ingredient: IngredientUpdateOneInput
 }
 
 input ParsedSegmentUpdateInput {
+  index: Int
+  ingredient: IngredientUpdateOneInput
   rule: String
   type: String
   value: String
-  ingredient: IngredientUpdateOneInput
 }
 
 input ParsedSegmentUpdateManyDataInput {
+  index: Int
   rule: String
   type: String
   value: String
@@ -1652,6 +1668,7 @@ input ParsedSegmentUpdateManyInput {
 }
 
 input ParsedSegmentUpdateManyMutationInput {
+  index: Int
   rule: String
   type: String
   value: String
@@ -1704,6 +1721,15 @@ input ParsedSegmentWhereInput {
   dateUpdated_lte: DateTime
   dateUpdated_gt: DateTime
   dateUpdated_gte: DateTime
+  index: Int
+  index_not: Int
+  index_in: [Int!]
+  index_not_in: [Int!]
+  index_lt: Int
+  index_lte: Int
+  index_gt: Int
+  index_gte: Int
+  ingredient: IngredientWhereInput
   rule: String
   rule_not: String
   rule_in: [String!]
@@ -1746,7 +1772,6 @@ input ParsedSegmentWhereInput {
   value_not_starts_with: String
   value_ends_with: String
   value_not_ends_with: String
-  ingredient: IngredientWhereInput
   AND: [ParsedSegmentWhereInput!]
   OR: [ParsedSegmentWhereInput!]
   NOT: [ParsedSegmentWhereInput!]

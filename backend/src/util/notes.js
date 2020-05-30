@@ -109,9 +109,29 @@ export const updateNotes = async (ctx, notes) => {
 	return noteRes;
 };
 
+export const sortParsedSegments = (notes) => (
+	notes.map((note) => {
+		const sortedNote = { ...note };
+		if (sortedNote.ingredients) {
+			sortedNote.ingredients = note.ingredients.map((line) => {
+				if (line.isParsed && line.parsed) {
+					const sortedParsed = line.parsed.sort((a, b) => a.index - b.index);
+					return {
+						...line,
+						sortedParsed,
+					};
+				}
+				return line;
+			});
+		}
+		return sortedNote;
+	})
+);
+
 export default {
 	createNotes,
 	downloadNotes,
 	processNotes,
+	sortParsedSegments,
 	updateNotes,
 };

@@ -94,15 +94,16 @@
 		parsed: [ ParsedSegment! ] @relation(name: "ParsedSegments" onDelete: CASCADE)
 	}
 
+	# TODO 1.33: consider setting up ENUMS for the rules & types
 	type ParsedSegment {
 		id: ID! @id
 		dateCreated: DateTime! @createdAt
   	dateUpdated: DateTime! @updatedAt
-		# TODO 1.33: consider setting up ENUMS for the rules & types
+		index: Int
+		ingredient: Ingredient @relation(name: "ParsedSegmentIngredient")
 		rule: String!
 		type: String!
 		value: String!
-		ingredient: Ingredient @relation(name: "ParsedSegmentIngredient")
 	}
 
 ## Note Models

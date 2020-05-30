@@ -1,6 +1,6 @@
 import { GET_ALL_NOTE_FIELDS, GET_NOTE_CONTENT_FIELDS } from '../graphql/fragments';
 import { processIngredients } from '../util/ingredients';
-import { downloadNotes, processNotes, updateNotes } from '../util/notes';
+import { downloadNotes, processNotes, sortParsedSegments, updateNotes } from '../util/notes';
 import { createRecipes, updateIngredientReferences } from '../util/recipes';
 import { parseNotesContent } from '../util/parser';
 
@@ -16,11 +16,18 @@ export default {
 		note: async (parent, args, ctx) => {
 			const { where } = args || {};
 			const { id } = where || {};
-			const note = await ctx.prisma.note({ id }).$fragment(GET_ALL_NOTE_FIELDS);
-			return note;
+			const unsorted = await ctx.prisma.note({ id }).$fragment(GET_ALL_NOTE_FIELDS);
+			const note = sortParsedSegments([ unsorted ]);
+			return note[0];
 		},
 		notes: async (parent, args, ctx) => {
-			const notes = await ctx.prisma.notes().$fragment(GET_ALL_NOTE_FIELDS);
+			const unsorted = await ctx.prisma.notes().$fragment(GET_ALL_NOTE_FIELDS);
+			// TODO research this some more; since i'm using the demo server i don't have control on autoincrements
+			// we might need to enforce sorting in certain parts like here
+
+			// ensure that we keep the parsed sections sorted by
+			const notes = sortParsedSegments(unsorted);
+
 			return notes;
 		},
 	},

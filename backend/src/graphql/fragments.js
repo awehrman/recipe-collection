@@ -27,6 +27,7 @@ export const GET_ALL_NOTE_FIELDS = `
 			isParsed
 			parsed {
 				id
+				index
 				ingredient {
 					id
 					isValidated
