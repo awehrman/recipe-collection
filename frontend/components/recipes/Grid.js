@@ -12,35 +12,6 @@ import Card from './Card';
 import Loading from '../common/Loading';
 // import { GET_PAGINATED_RECIPES_QUERY } from '../../lib/apollo/queries/recipes';
 
-const GridStyles = styled.article`
-  margin: 0;
-  padding: 0;
-	height: 720px;
-`;
-
-const RowStyles = styled.div`
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-between;
-	padding: 0 4px;
-`;
-
-const Cell = styled.div`
-	flex-basis: 100%;
-
-	@media (min-width: ${ (props) => props.theme.tablet_small }) {
-		flex-basis: 50%;
-	}
-
-	@media (min-width: ${ (props) => props.theme.tablet }) {
-		flex-basis: 33%;
-	}
-
-	@media (min-width: ${ (props) => props.theme.desktop_small }) {
-		flex-basis: 25%;
-	}
-`;
-
 /* eslint-disable react/prop-types */
 const RecipeCell = ({ recipe }) => (
 	<Cell key={ `cell_${ recipe.id }` }>
@@ -174,3 +145,32 @@ Grid.propTypes = {
 };
 
 export default Grid;
+
+const GridStyles = styled.article`
+  margin: 0;
+  padding: 0;
+	height: 720px;
+`;
+
+const RowStyles = styled.div`
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	padding: 0 4px;
+`;
+
+const Cell = styled.div`
+	flex-basis: 100%;
+
+	@media (min-width: ${ (props) => props.theme.tablet_small }) {
+		flex-basis: 50%;
+	}
+
+	@media (min-width: ${ (props) => props.theme.tablet }) {
+		flex-basis: 33%;
+	}
+
+	@media (min-width: ${ (props) => props.theme.desktop_small }) {
+		flex-basis: 25%;
+	}
+`;

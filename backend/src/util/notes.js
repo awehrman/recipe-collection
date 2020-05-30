@@ -7,13 +7,14 @@ export const createNotes = async (ctx, notes) => {
 	console.log('createNotes'.magenta);
 	// save note data to db
 	const resolveNotes = notes.map(async (note) => {
+		if (!note || !note.content || !note.title) return null;
 		const data = {
 			// TODO come back to categories and tags
-			content: note.content,
-			evernoteGUID: note.evernoteGUID,
-			image: note.image,
-			source: note.source,
-			title: note.title,
+			content: note.content || null,
+			evernoteGUID: note.evernoteGUID || null,
+			image: note.image || null,
+			source: note.source || null,
+			title: note.title || null,
 		};
 
 		const saved = await ctx.prisma.createNote({ ...data }).$fragment(GET_NOTE_CONTENT_FIELDS)
@@ -23,7 +24,7 @@ export const createNotes = async (ctx, notes) => {
 			__typename: 'Note',
 			...saved,
 		};
-	});
+	}).filter((n) => n);
 
 	const noteRes = await Promise.all(resolveNotes)
 		.catch((err) => console.log(err));

@@ -23,14 +23,14 @@ export default gql`
 			referenceCount: Int!
 		}
 
-		type ContainerResult {
+		type ContainerResponse {
 			errors: [ String ]
-			result: Container
+			containers: Container
 		}
 
-		type ContainersResult {
+		type ContainersResponse {
 			errors: [ String ]
-			result: [ Container ]!
+			containers: [ Container ]!
 		}
 
 	# Ingredients
@@ -125,7 +125,7 @@ export default gql`
 		}
 
 		type Mutation {
-			createContainers: ContainersResult
-			toggleContainer: ContainerResult
+			createContainers: ContainersResponse
+			toggleContainer: ContainerResponse
 		}
 `;

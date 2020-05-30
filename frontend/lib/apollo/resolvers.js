@@ -1,4 +1,3 @@
-import { List as ImmutableList } from 'immutable';
 import buildContainers from '../buildContainers';
 import { setIsExpanded, toggleIngredientID, toggleNextIngredientID, getContainerIngredients } from './fragments/containers';
 import { GET_ALL_CONTAINERS_QUERY } from './queries/containers';
@@ -73,14 +72,15 @@ export default {
 			const { ingredients } = client.readQuery({ query: GET_ALL_INGREDIENTS_QUERY });
 
 			const response = {
-				__typename: 'ContainersResponse',
+				__typename: 'ContainerResponse',
 				errors: [],
-				result: { containers: new ImmutableList() },
+				containers: [],
 			};
 
 			// can we get the view and group here?, or should these be passed in as variables
 			// writeQuery containers with these variables
 			const data = {
+				__typename: 'Container',
 				containers: buildContainers(currentIngredientID, group, view, ingredients)
 					.map((c) => ({
 						...c,
@@ -102,8 +102,8 @@ export default {
 				},
 			});
 
-			response.result = data;
-
+			response.containers = [ ...data.containers ];
+			console.log({ response });
 			return response;
 		},
 		toggleIngredientID(_, { id, ingredientID }, { cache }) {

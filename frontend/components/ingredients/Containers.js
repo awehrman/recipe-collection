@@ -9,26 +9,6 @@ import { GET_ALL_CONTAINERS_QUERY } from '../../lib/apollo/queries/containers';
 import ViewContext from '../../lib/contexts/ingredients/viewContext';
 import { CREATE_CONTAINERS_MUTATION } from '../../lib/apollo/mutations/containers';
 
-const ContainerStyles = styled.div`
-	display: flex;
-	flex-wrap: wrap;
-	margin: 20px 0;
-
-	&.hidden {
-		border-bottom: 0;
-	}
-
-	ul.hidden {
-		display: none;
-	}
-
-	span.message {
-		font-size: 14px;
-		font-style: italic;
-		color: '#222';
-	}
-`;
-
 const Containers = () => {
 	const ctx = useContext(ViewContext);
 	const currentIngredientID = ctx.get('currentIngredientID');
@@ -110,3 +90,23 @@ const Containers = () => {
 // Containers.whyDidYouRender = true;
 
 export default Containers;
+
+const ContainerStyles = styled.div`
+	display: flex;
+	flex-wrap: wrap;
+	margin: 20px 0;
+
+	&.hidden {
+		border-bottom: 0;
+	}
+
+	ul.hidden {
+		display: none;
+	}
+
+	span.message {
+		font-size: 14px;
+		font-style: italic;
+		color: '#222';
+	}
+`;

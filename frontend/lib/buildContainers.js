@@ -102,7 +102,9 @@ const generateByName = (id, ingredients, view) => {
 	} else {
 		// create an array of unique letters used
 		pagerLabels = ingredients.map((i) => i.name.charAt(0))
-			.filter((char, index, self) => self.indexOf(char) === index && char.match(/[a-z]/i));
+			.filter((char, index, self) => self.indexOf(char) === index && char.match(/[a-z]/i))
+			.sort((a, b) => a.localeCompare(b))
+			.toJS();
 
 		const containsSymbols = ingredients
 			.map((i) => i.name.charAt(0))
@@ -128,6 +130,7 @@ const generateByName = (id, ingredients, view) => {
 			};
 		});
 	}
+
 	containers = containers.filter((c) => (c.ingredients && c.ingredients.size > 0));
 	return containers;
 };

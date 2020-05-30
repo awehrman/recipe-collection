@@ -40,9 +40,9 @@ const getNoteContent = async (store, guid) => {
 			const { content, resources } = data;
 			if (!resources) {
 				console.log(`no resource for ${ guid }!`.red);
-				throw new Error(`no image resource for ${ guid }!`);
+				// throw new Error(`no image resource for ${ guid }!`);
 			}
-			const image = resources[0].data.body;
+			const image = (resources && resources[0].data.body) || null;
 			return {
 				evernoteGUID: guid,
 				content,

@@ -33,9 +33,6 @@ export const UPDATE_CONTAINER_INGREDIENT_MUTATION = gql`
 			name: $name,
 		) @client {
 			errors
-			containers {
-				...ContainerFields
-			}
 		}
 	}
 `;
@@ -50,9 +47,6 @@ export const TOGGLE_CONTAINER_MUTATION = gql`
 			isExpanded: $isExpanded,
 		) @client {
 			errors
-			containers {
-				...ContainerFields
-			}
 		}
 	}
 `;
