@@ -123,6 +123,7 @@
 		content: String # String values are currently limited to 256KB
 		ingredients: [ RecipeIngredient! ] @relation(name: "NoteIngredients" onDelete: CASCADE)
 		instructions: [ RecipeInstruction! ] @relation(name: "NoteInstructions" onDelete: CASCADE)
+		isParsed: Boolean! @default(value: false)
 	}
 
 ## Attribute Models

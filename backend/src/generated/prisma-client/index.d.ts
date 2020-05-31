@@ -770,7 +770,9 @@ export type NoteOrderByInput =
   | "image_ASC"
   | "image_DESC"
   | "content_ASC"
-  | "content_DESC";
+  | "content_DESC"
+  | "isParsed_ASC"
+  | "isParsed_DESC";
 
 export type NoteAggregateOrderByInput =
   | "id_ASC"
@@ -1572,6 +1574,8 @@ export interface NoteWhereInput {
   instructions_every?: Maybe<RecipeInstructionWhereInput>;
   instructions_some?: Maybe<RecipeInstructionWhereInput>;
   instructions_none?: Maybe<RecipeInstructionWhereInput>;
+  isParsed?: Maybe<Boolean>;
+  isParsed_not?: Maybe<Boolean>;
   AND?: Maybe<NoteWhereInput[] | NoteWhereInput>;
   OR?: Maybe<NoteWhereInput[] | NoteWhereInput>;
   NOT?: Maybe<NoteWhereInput[] | NoteWhereInput>;
@@ -2996,6 +3000,7 @@ export interface NoteCreateInput {
   content?: Maybe<String>;
   ingredients?: Maybe<RecipeIngredientCreateManyInput>;
   instructions?: Maybe<RecipeInstructionCreateManyInput>;
+  isParsed?: Maybe<Boolean>;
 }
 
 export interface NoteCreatecategoriesInput {
@@ -3016,6 +3021,7 @@ export interface NoteUpdateInput {
   content?: Maybe<String>;
   ingredients?: Maybe<RecipeIngredientUpdateManyInput>;
   instructions?: Maybe<RecipeInstructionUpdateManyInput>;
+  isParsed?: Maybe<Boolean>;
 }
 
 export interface NoteUpdatecategoriesInput {
@@ -3034,6 +3040,7 @@ export interface NoteUpdateManyMutationInput {
   tags?: Maybe<NoteUpdatetagsInput>;
   image?: Maybe<String>;
   content?: Maybe<String>;
+  isParsed?: Maybe<Boolean>;
 }
 
 export interface NoteAggregateCreateInput {
@@ -4311,6 +4318,7 @@ export interface Note {
   tags: String[];
   image?: String;
   content?: String;
+  isParsed: Boolean;
 }
 
 export interface NotePromise extends Promise<Note>, Fragmentable {
@@ -4342,6 +4350,7 @@ export interface NotePromise extends Promise<Note>, Fragmentable {
     first?: Int;
     last?: Int;
   }) => T;
+  isParsed: () => Promise<Boolean>;
 }
 
 export interface NoteSubscription
@@ -4379,6 +4388,7 @@ export interface NoteSubscription
     first?: Int;
     last?: Int;
   }) => T;
+  isParsed: () => Promise<AsyncIterator<Boolean>>;
 }
 
 export interface NoteNullablePromise
@@ -4412,6 +4422,7 @@ export interface NoteNullablePromise
     first?: Int;
     last?: Int;
   }) => T;
+  isParsed: () => Promise<Boolean>;
 }
 
 export interface NoteConnection {
@@ -5273,6 +5284,7 @@ export interface NotePreviousValues {
   tags: String[];
   image?: String;
   content?: String;
+  isParsed: Boolean;
 }
 
 export interface NotePreviousValuesPromise
@@ -5288,6 +5300,7 @@ export interface NotePreviousValuesPromise
   tags: () => Promise<String[]>;
   image: () => Promise<String>;
   content: () => Promise<String>;
+  isParsed: () => Promise<Boolean>;
 }
 
 export interface NotePreviousValuesSubscription
@@ -5303,6 +5316,7 @@ export interface NotePreviousValuesSubscription
   tags: () => Promise<AsyncIterator<String[]>>;
   image: () => Promise<AsyncIterator<String>>;
   content: () => Promise<AsyncIterator<String>>;
+  isParsed: () => Promise<AsyncIterator<Boolean>>;
 }
 
 export interface NoteAggregateSubscriptionPayload {

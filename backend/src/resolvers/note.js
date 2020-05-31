@@ -22,7 +22,7 @@ export default {
 		},
 		notes: async (parent, args, ctx) => {
 			const unsorted = await ctx.prisma.notes().$fragment(GET_ALL_NOTE_FIELDS);
-			// TODO research this some more; since i'm using the demo server i don't have control on autoincrements
+			// TODO research this some more; since i'm using the demo server i don't have control on auto-increments
 			// we might need to enforce sorting in certain parts like here
 
 			// ensure that we keep the parsed sections sorted by

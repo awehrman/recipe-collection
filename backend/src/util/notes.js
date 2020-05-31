@@ -89,6 +89,7 @@ export const updateNotes = async (ctx, notes) => {
 				connect: note.instructions,
 				delete: note.priorInstructions,
 			},
+			isParsed: true,
 		};
 
 		delete data.id;

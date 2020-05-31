@@ -1121,6 +1121,7 @@ type Note {
   content: String
   ingredients(where: RecipeIngredientWhereInput, orderBy: RecipeIngredientOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [RecipeIngredient!]
   instructions(where: RecipeInstructionWhereInput, orderBy: RecipeInstructionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [RecipeInstruction!]
+  isParsed: Boolean!
 }
 
 type NoteAggregate {
@@ -1250,6 +1251,7 @@ input NoteCreateInput {
   content: String
   ingredients: RecipeIngredientCreateManyInput
   instructions: RecipeInstructionCreateManyInput
+  isParsed: Boolean
 }
 
 input NoteCreatetagsInput {
@@ -1278,6 +1280,8 @@ enum NoteOrderByInput {
   image_DESC
   content_ASC
   content_DESC
+  isParsed_ASC
+  isParsed_DESC
 }
 
 type NotePreviousValues {
@@ -1291,6 +1295,7 @@ type NotePreviousValues {
   tags: [String!]!
   image: String
   content: String
+  isParsed: Boolean!
 }
 
 type NoteSubscriptionPayload {
@@ -1325,6 +1330,7 @@ input NoteUpdateInput {
   content: String
   ingredients: RecipeIngredientUpdateManyInput
   instructions: RecipeInstructionUpdateManyInput
+  isParsed: Boolean
 }
 
 input NoteUpdateManyMutationInput {
@@ -1335,6 +1341,7 @@ input NoteUpdateManyMutationInput {
   tags: NoteUpdatetagsInput
   image: String
   content: String
+  isParsed: Boolean
 }
 
 input NoteUpdatetagsInput {
@@ -1448,6 +1455,8 @@ input NoteWhereInput {
   instructions_every: RecipeInstructionWhereInput
   instructions_some: RecipeInstructionWhereInput
   instructions_none: RecipeInstructionWhereInput
+  isParsed: Boolean
+  isParsed_not: Boolean
   AND: [NoteWhereInput!]
   OR: [NoteWhereInput!]
   NOT: [NoteWhereInput!]

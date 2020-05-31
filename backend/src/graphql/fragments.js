@@ -46,6 +46,7 @@ export const GET_ALL_NOTE_FIELDS = `
 			blockIndex
 			reference
 		}
+		isParsed
 		source
 		title
 	}
@@ -88,6 +89,7 @@ export const GET_NOTE_CONTENT_FIELDS = `
 			blockIndex
 			reference
 		}
+		isParsed
 	}
 `;
 
