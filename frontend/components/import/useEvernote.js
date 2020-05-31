@@ -2,7 +2,7 @@ import { GET_ALL_NOTES_QUERY } from '../../lib/apollo/queries/notes';
 
 function useEvernote() {
 	const remaining = 9999; // TEMP put this back at 0 and query this
-	const bundleSize = 20;
+	const bundleSize = 1;
 
 	function convertNotes({ parseNotesMutation }) {
 		console.log('convertNotes');
@@ -37,7 +37,8 @@ function useEvernote() {
 						ingredients: [],
 						instructions: [],
 						source: null,
-						title: 'Downloading Content...',
+						title: null,
+						isParsed: false,
 					})),
 				},
 			},

@@ -107,14 +107,33 @@ export default gql`
 
 		type ParsedSegment {
 			id: ID!
+			index: Int
+			ingredient: Ingredient
 			rule: String!
 			type: String!
 			value: String!
-			ingredient: Ingredient
 		}
 
 		type RecipeAggregate {
 			count: Int!
+		}
+
+		type Note {
+			id: ID!
+			dateCreated: DateTime!
+			dateUpdated: DateTime!
+			evernoteGUID: String
+			title: String!
+			source: String
+
+			categories: [ String ]
+			tags: [ String ]
+
+			image: String
+			content: String # String values are currently limited to 256KB
+			ingredients: [ RecipeIngredient! ]
+			instructions: [ RecipeInstruction! ]
+			isParsed: Boolean!
 		}
 
 	# Query & Mutations

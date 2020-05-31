@@ -11,6 +11,7 @@ export const ALL_NOTE_FIELDS = gql`
 			lineIndex
 			parsed {
 				id
+				index
 				ingredient {
 					id
 					isValidated
@@ -29,6 +30,7 @@ export const ALL_NOTE_FIELDS = gql`
 			reference
 		}
 		image
+		isParsed
 		source
 		title
 	}

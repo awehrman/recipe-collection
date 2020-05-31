@@ -1,21 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsisH } from '@fortawesome/pro-light-svg-icons';
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+// import { faEllipsisH } from '@fortawesome/pro-light-svg-icons';
 
 import Button from '../common/Button';
 
-const ParsedViewer = ({ className, id, ingredients, instructions }) => {
+const ParsedEditor = ({ id, ingredients, instructions }) => {
 	const blocks = [ ...new Set(ingredients.map((i) => i.blockIndex)) ];
+	const [ isTruncated, setIsTruncated ] = useState(instructions.length > 2);
+	const label = isTruncated ? 'View more' : 'View less';
+
+	function showFullInstructions(e) {
+		e.preventDefault();
+		setIsTruncated(!isTruncated);
+	}
+
 	return (
-		<ParsedViewerStyles className={ className }>
+		<ParsedEditorStyles>
 			<Ingredients>
-				{
-					((className !== 'recipe') && (ingredients && (ingredients.length > 0) && (className !== 'left')))
-						? <hr />
-						: null
-				}
 				<ul className="ingredients">
 					{
 						blocks.map((blockIndex) => (
@@ -64,15 +67,10 @@ const ParsedViewer = ({ className, id, ingredients, instructions }) => {
 				</ul>
 			</Ingredients>
 			<Instructions>
-				{
-					(instructions && (instructions.length > 0) && (className !== 'left'))
-						? <hr />
-						: null
-				}
 				<ul className="instructions">
 					{
 						instructions.map((i, index) => {
-							const lineClass = index > 2 ? 'hidden' : '';
+							const lineClass = (isTruncated && (index > 2)) ? 'hidden' : 'visible';
 							return (
 								<li key={ `parsed_instruction_${ i.blockIndex }` } className={ lineClass }>
 									{ i.reference }
@@ -81,30 +79,32 @@ const ParsedViewer = ({ className, id, ingredients, instructions }) => {
 						})
 					}
 				</ul>
-				{
-					(instructions.length > 2)
-						? (
-							<Button
-								className="showMore"
-								icon={ <FontAwesomeIcon icon={ faEllipsisH } /> }
-							/>
-						)
-						: null
-				}
+				<Center>
+					{
+						(instructions.length > 2)
+							? (
+								<ShowMore
+									className="showMore"
+									// icon={ <FontAwesomeIcon icon={ faEllipsisH } /> }
+									label={ label }
+									onClick={ (e) => showFullInstructions(e) }
+								/>
+							)
+							: null
+					}
+				</Center>
 			</Instructions>
-		</ParsedViewerStyles>
+		</ParsedEditorStyles>
 	);
 };
 
-ParsedViewer.defaultProps = {
-	className: '',
+ParsedEditor.defaultProps = {
 	id: '0',
 	ingredients: [],
 	instructions: [],
 };
 
-ParsedViewer.propTypes = {
-	className: PropTypes.string,
+ParsedEditor.propTypes = {
 	id: PropTypes.string,
 	ingredients: PropTypes.arrayOf(PropTypes.shape({
 		id: PropTypes.string,
@@ -132,25 +132,42 @@ ParsedViewer.propTypes = {
 	})),
 };
 
-export default ParsedViewer;
+export default ParsedEditor;
 
-const ParsedViewerStyles = styled.div`
-	button.showMore {
-		border: 0;
-		background: transparent;
-		cursor: pointer;
-		font-weight: 600;
-		font-size: 14px;
-		width: 24px;
+const Center = styled.div`
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	margin-top: 20px;
+	padding: 0 20px;
+	height: 30px;
+
+	&:hover {
+		background: rgba(0, 0, 0, .04);
 	}
+`;
+
+const ShowMore = styled(Button)`
+	border: 0;
+	background: transparent;
+	color: ${ (props) => props.theme.altGreen };
+	cursor: pointer;
+	font-weight: 600;
+	font-size: 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	font-size: 14px;
+	font-weight: 400;
+`;
+
+const ParsedEditorStyles = styled.div`
+	flex-basis: 100%;
 
 	font-size: 12px;
 	display: flex;
 	flex-direction: column;
-
-	@media (min-width: 750px) {
-		flex-direction: row;
-	}
+	justify-content: flex-start;
 
 	hr {
 		border: 0;
@@ -187,11 +204,11 @@ const ParsedViewerStyles = styled.div`
 `;
 
 const Ingredients = styled.div`
-	flex-basis: 30%;
+	margin-top: 20px;
 
 	.parsed {
 		span {
-			margin-left: 4px;
+			margin-left: 2px;
 
 			&:first-of-type {
 				margin-left: 0px;
@@ -236,14 +253,16 @@ const Ingredients = styled.div`
 `;
 
 const Instructions = styled.div`
-	flex-basis: 70%;
-	margin-bottom: 10px;
 
 	li {
 		margin-bottom: 8px;
 
 		&.hidden {
 			display: none;
+		}
+
+		&.visible {
+			display: block;
 		}
 	}
 `;

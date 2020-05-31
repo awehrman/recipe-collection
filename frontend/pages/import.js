@@ -3,7 +3,6 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { withApollo } from '../lib/apollo';
-import AuthenticateEvernote from '../components/import/AuthenticateEvernote';
 import Notes from '../components/import/Notes';
 import Header from '../components/Header';
 import { IS_EVERNOTE_AUTHENTICATED_QUERY } from '../lib/apollo/queries/evernote';
@@ -17,15 +16,11 @@ const Import = () => {
 		<ImportStyles>
 			<Header pageHeader="Import" />
 			<section>
-				{/* Authenticate Evernote */}
-				{!isAuthenticated && !isAuthenticationPending ? (
-					<AuthenticateEvernote />
-				) : null}
-
 				{/* Notes */}
-				{isAuthenticated ? (
-					<Notes />
-				) : null}
+				<Notes
+					isAuthenticated={ isAuthenticated }
+					isAuthenticationPending={ isAuthenticationPending }
+				/>
 			</section>
 		</ImportStyles>
 	);

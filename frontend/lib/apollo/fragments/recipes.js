@@ -22,6 +22,7 @@ export const ALL_RECIPE_FIELDS = gql`
 			lineIndex
 			parsed {
 				id
+				index
 				ingredient {
 					id
 					isValidated
