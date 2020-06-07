@@ -116,7 +116,7 @@ export const sortParsedSegments = (notes) => (
 		if (sortedNote.ingredients) {
 			sortedNote.ingredients = note.ingredients.map((line) => {
 				if (line.isParsed && line.parsed) {
-					const sortedParsed = line.parsed.sort((a, b) => a.index - b.index);
+					const sortedParsed = line.parsed.sort((a, b) => b.index - a.index);
 					return {
 						...line,
 						sortedParsed,

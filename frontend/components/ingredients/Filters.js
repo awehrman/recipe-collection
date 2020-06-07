@@ -8,47 +8,6 @@ import { GET_INGREDIENTS_COUNT_QUERY } from '../../lib/apollo/queries/ingredient
 import { getNextIngredientGroup } from '../../lib/util';
 import ViewContext from '../../lib/contexts/ingredients/viewContext';
 
-const FilterStyles = styled.div`
-	display: flex;
-	font-size: .875em;
-	color: #222;
-
-	.left {
-		flex: 1;
-
-		a {
-			text-decoration: none;
-			margin-right: 20px;
-			color: #222;
-
-			+.new {
-				color: ${ (props) => props.theme.highlight };
-			}
-		}
-
-		a.active {
-			font-weight: 600;
-		}
-	}
-
-	.right {
-			flex: 1;
-			text-align: right;
-			font-weight: 600;
-
-			a {
-				text-decoration: none;
-				margin-left: 16px;
-				text-transform: capitalize; /* TODO well this sure isn't working */
-				color: ${ (props) => props.theme.lighterGrey };
-				font-size: 1em;
-				padding: 0;
-				cursor: pointer;
-				background: white;
-			}
-		}
-`;
-
 const Filters = () => {
 	const ctx = useContext(ViewContext);
 	const group = ctx.get('group');
@@ -109,3 +68,44 @@ const Filters = () => {
 };
 
 export default pure(Filters);
+
+const FilterStyles = styled.div`
+	display: flex;
+	font-size: .875em;
+	color: #222;
+
+	.left {
+		flex: 1;
+
+		a {
+			text-decoration: none;
+			margin-right: 20px;
+			color: #222;
+
+			+.new {
+				color: ${ (props) => props.theme.highlight };
+			}
+		}
+
+		a.active {
+			font-weight: 600;
+		}
+	}
+
+	.right {
+			flex: 1;
+			text-align: right;
+			font-weight: 600;
+
+			a {
+				text-decoration: none;
+				margin-left: 16px;
+				text-transform: capitalize; /* TODO well this sure isn't working */
+				color: ${ (props) => props.theme.lighterGrey };
+				font-size: 1em;
+				padding: 0;
+				cursor: pointer;
+				background: white;
+			}
+		}
+`;

@@ -17,8 +17,6 @@ const Note = ({ note }) => {
 		setHTMLDisplay(!isHTMLDisplayed);
 	}
 
-	console.log({ note });
-
 	return (
 		<NoteStyles>
 			{/* Title */}

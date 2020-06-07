@@ -72,6 +72,7 @@ export const GET_NOTE_CONTENT_FIELDS = `
 			lineIndex
 			parsed {
 				id
+				index
 				ingredient {
 					id
 					isValidated
@@ -195,6 +196,7 @@ export const GET_ALL_RECIPE_FIELDS = `
 			lineIndex
 			parsed {
 				id
+				index
 				ingredient {
 					id
 					isValidated

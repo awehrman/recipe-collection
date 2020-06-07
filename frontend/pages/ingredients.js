@@ -1,5 +1,6 @@
 import { useQuery } from '@apollo/react-hooks';
 import { Map as ImmutableMap } from 'immutable';
+import { withRouter } from 'next/router';
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 import styled from 'styled-components';
@@ -29,7 +30,7 @@ const buildValidationList = (ingredients = []) => {
 	return list;
 };
 
-const Ingredients = ({ group, id, view }) => {
+const Ingredients = ({ router: { query: { group, id, view } } }) => {
 	// don't show the containers until we've downloaded all the ingredient info
 	const [ showContainers, setShowContainers ] = useState(false);
 	const context = ImmutableMap({
@@ -48,9 +49,6 @@ const Ingredients = ({ group, id, view }) => {
 		onCompleted: () => ((!showContainers) ? setShowContainers(true) : null),
 	});
 
-	console.log({
-		data, error, loading,
-	});
 	const { ingredients = [] } = data || {};
 
 	return (
@@ -78,24 +76,32 @@ const Ingredients = ({ group, id, view }) => {
 	);
 };
 
+Ingredients.defaultProps = {
+	router: {
+		query: {
+			group: 'name',
+			id: null,
+			view: 'all',
+		},
+	},
+};
+
+Ingredients.propTypes = {
+	router: PropTypes.shape({
+		query: PropTypes.shape({
+			group: PropTypes.string,
+			id: PropTypes.string,
+			view: PropTypes.string,
+		}),
+	}),
+};
+
 // NOTE: so basically anytime i utilize apollo, it's going to cause an unnecessary re-render
 // i'm hoping this will be resolved once i do some package upgrading bc slapping a useMemo
 // on the client given to the ApolloProvider in _app BREAKS ALL SORTS OF SHIT
 
 Ingredients.whyDidYouRender = true;
 
-Ingredients.defaultProps = {
-	group: 'name',
-	id: null,
-	view: 'all',
-};
-
-Ingredients.propTypes = {
-	group: PropTypes.string,
-	id: PropTypes.string,
-	view: PropTypes.string,
-};
-
-export default withApollo({ ssr: true })(Ingredients);
+export default withRouter(withApollo({ ssr: true })(Ingredients));
 
 const IngredientsPageStyles = styled.article``;

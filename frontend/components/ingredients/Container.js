@@ -92,25 +92,32 @@ const Container = ({ id }) => {
 				{/* ingredients list */}
 				<IngredientsList className={ `${ className } ${ (container.ingredients.length < 10) ? 'small' : '' }` }>
 					{
-						container.ingredients.map((i) => (
-							<li className={ i.className } key={ i.id }>
-								{
-									(i.type === 'header')
-										? <span className="header">{ i.name }</span>
-										: (
-											<a
-												id={ i.id }
-												onClick={ (e) => handleIngredientToggle(container.id, e.target.id) }
-												onKeyPress={ (e) => handleIngredientToggle(container.id, e.target.id) }
-												role="link"
-												tabIndex="0"
-											>
-												{ i.name }
-											</a>
-										)
-								}
-							</li>
-						))
+						container.ingredients.map((i) => {
+							const ingClassName = [];
+							if (!i.isValidated) ingClassName.push('invalid');
+							if (i.hasParent) ingClassName.push('child');
+							if (i.id === container.ingredientID) ingClassName.push('active');
+
+							return (
+								<li className={ ingClassName.join(', ') } key={ i.id }>
+									{
+										(i.type === 'header')
+											? <span className="header">{ i.name }</span>
+											: (
+												<a
+													id={ i.id }
+													onClick={ (e) => handleIngredientToggle(container.id, e.target.id) }
+													onKeyPress={ (e) => handleIngredientToggle(container.id, e.target.id) }
+													role="link"
+													tabIndex="0"
+												>
+													{ i.name }
+												</a>
+											)
+									}
+								</li>
+							);
+						})
 					}
 				</IngredientsList>
 			</ContainerStyles>

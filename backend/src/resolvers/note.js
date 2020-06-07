@@ -27,7 +27,6 @@ export default {
 
 			// ensure that we keep the parsed sections sorted by
 			const notes = sortParsedSegments(unsorted);
-
 			return notes;
 		},
 	},
