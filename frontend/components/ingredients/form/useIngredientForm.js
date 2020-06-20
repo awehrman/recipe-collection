@@ -18,6 +18,8 @@ function useIngredientForm({ id }) {
 			plural: null,
 			properties: defaultProperties,
 			references: ImmutableList(),
+			relatedIngredients: ImmutableList(),
+			substitutes: ImmutableList(),
 		});
 
 		return {

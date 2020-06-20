@@ -62,7 +62,7 @@ export default memo(Card);
 
 
 const CardStyles = styled.div`
-	height: ${ (props) => (props.theme.mobileCardHeight) };
+	min-height: ${ (props) => (props.theme.mobileCardHeight) };
 	padding: 20px;
 	border-bottom: 1px solid #ddd;
 	width: 100%;

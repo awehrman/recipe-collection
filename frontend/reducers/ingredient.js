@@ -68,9 +68,8 @@ export const reducer = (state, action) => {
 		// eslint-disable-next-line object-curly-newline
 		console.log('updateIngredient', { fieldName, listAction, value });
 
-		console.log({ state });
 		const updatedIngredient = state.ingredient.toJS();
-		const updatedInputFields = state.inputFields; // TODO make this immutable
+		const updatedInputFields = state.inputFields;
 		const updatedListActions = state.listActions;
 
 		if (fieldName === 'properties') {
@@ -82,9 +81,11 @@ export const reducer = (state, action) => {
 			const listActionPrefix = (fieldName === 'alternateNames')
 				? 'create'
 				: 'connect';
-			console.log(`${ listActionPrefix }_${ fieldName }`, { name: value });
-			updatedListActions[`${ listActionPrefix }_${ fieldName }`].push({ name: value });
-			console.log(updatedListActions[`${ listActionPrefix }_${ fieldName }`]);
+
+			const temp = updatedListActions[`${ listActionPrefix }_${ fieldName }`].toJS().flat();
+			temp.push({ name: value });
+			updatedListActions[`${ listActionPrefix }_${ fieldName }`] = fromJS(temp);
+
 			// add the value to the fieldName list
 			updatedIngredient[fieldName].push({ name: value });
 			// if this value matches a value in this field's inputFields, then clear out the input
@@ -92,11 +93,18 @@ export const reducer = (state, action) => {
 				updatedInputFields[fieldName] = '';
 			}
 		} else if (listAction === 'remove') {
-			// TODO need to add to a removeList
-
 			// remove the value from the fieldName
 			updatedIngredient[fieldName] = [ ...updatedIngredient[fieldName] ]
 				.filter((i) => i.name !== value);
+
+			const listRemoveActionPrefix = (fieldName === 'alternateNames')
+				? 'delete'
+				: 'remove';
+
+			// TODO we only have to really do this if its a known value
+			const temp = updatedListActions[`${ listRemoveActionPrefix }_${ fieldName }`].toJS().flat();
+			temp.push({ name: value });
+			updatedListActions[`${ listRemoveActionPrefix }_${ fieldName }`] = fromJS(temp);
 		} else if (fieldName.includes('input')) {
 			const field = fieldName.split('_')[0];
 			// update input field
@@ -104,6 +112,13 @@ export const reducer = (state, action) => {
 		} else {
 			updatedIngredient[fieldName] = value;
 		}
+
+		console.log({
+			...state,
+			listActions: updatedListActions,
+			inputFields: updatedInputFields,
+			ingredient: fromJS(updatedIngredient),
+		});
 
 		return {
 			...state,
@@ -132,10 +147,17 @@ export const reducer = (state, action) => {
 					isValidated: true,
 					properties: { update: { ...properties } },
 					alternateNames: {
-						// create: {},
-						// delete: {},
+						create: state.listActions.create_alternateNames.toJS().flat(),
+						delete: state.listActions.delete_alternateNames.toJS().flat(),
 					},
-					// TODO remaining ing values...
+					relatedIngredients: {
+						connect: state.listActions.connect_relatedIngredients.toJS().flat(),
+						disconnect: state.listActions.disconnect_relatedIngredients.toJS().flat(),
+					},
+					substitutes: {
+						connect: state.listActions.connect_substitutes.toJS().flat(),
+						disconnect: state.listActions.disconnect_substitutes.toJS().flat(),
+					},
 				},
 				where: { id: ing.id },
 			},

@@ -65,6 +65,7 @@ Note.whyDidYouRender = true;
 
 Note.defaultProps = {
 	note: {
+		id: -1,
 		title: null,
 		content: null,
 		ingredients: [],
@@ -75,6 +76,7 @@ Note.defaultProps = {
 
 Note.propTypes = {
 	note: PropTypes.shape({
+		id: PropTypes.string,
 		title: PropTypes.string,
 		content: PropTypes.string,
 		ingredients: PropTypes.array,

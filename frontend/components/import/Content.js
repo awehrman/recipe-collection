@@ -31,4 +31,8 @@ const ContentStyles = styled.div`
 	margin-top: 10px;
 	font-size: 10px;
 	width: 100%;
+
+	pre {
+		white-space: pre-wrap;
+	}
 `;

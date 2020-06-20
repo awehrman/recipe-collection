@@ -79,20 +79,20 @@ const ParsedEditor = ({ id, ingredients, instructions }) => {
 						})
 					}
 				</ul>
-				<Center>
-					{
-						(instructions.length > 2)
-							? (
+				{
+					(instructions.length > 2)
+						? (
+							<Center>
 								<ShowMore
 									className="showMore"
 									// icon={ <FontAwesomeIcon icon={ faEllipsisH } /> }
 									label={ label }
 									onClick={ (e) => showFullInstructions(e) }
 								/>
-							)
-							: null
-					}
-				</Center>
+							</Center>
+						)
+						: null
+				}
 			</Instructions>
 		</ParsedEditorStyles>
 	);

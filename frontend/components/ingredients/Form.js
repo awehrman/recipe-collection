@@ -8,9 +8,9 @@ import styled from 'styled-components';
 
 import Button from '../common/Button';
 import AlternateNames from './form/components/AlternateNames';
-import Substitutes from './form/components/Substitutes';
-import RelatedIngredients from './form/components/RelatedIngredients';
-import References from './form/components/References';
+// import Substitutes from './form/components/Substitutes';
+// import RelatedIngredients from './form/components/RelatedIngredients';
+// import References from './form/components/References';
 import Name from './form/components/Name';
 import Plural from './form/components/Plural';
 import Properties from './form/components/Properties';
@@ -61,9 +61,9 @@ const Form = ({ className, id }) => {
 	const isComposedIngredient = Boolean(ingredient.get('isComposedIngredient'));
 	const properties = ingredient.get('properties') || ImmutableMap({});
 	const alternateNames = ingredient.get('alternateNames') || ImmutableList.of([]);
-	const relatedIngredients = ingredient.get('relatedIngredients') || ImmutableList.of([]);
-	const substitutes = ingredient.get('substitutes') || ImmutableList.of([]);
-	const references = ingredient.get('references') || ImmutableList.of([]);
+	// const relatedIngredients = ingredient.get('relatedIngredients') || ImmutableList.of([]);
+	// const substitutes = ingredient.get('substitutes') || ImmutableList.of([]);
+	// const references = ingredient.get('references') || ImmutableList.of([]);
 
 	// setup save mutation
 	const [ createContainers ] = useMutation(CREATE_CONTAINERS_MUTATION);
@@ -199,7 +199,7 @@ const Form = ({ className, id }) => {
 								<AlternateNames
 									className={ classNames.alternateNames_list }
 									isPluralSuggestEnabled
-									isRemoveable
+									isRemovable
 									list={ alternateNames }
 									loading={ loading }
 									onChange={ handleIngredientChange }
@@ -213,7 +213,7 @@ const Form = ({ className, id }) => {
 						(isEditMode || (!isEditMode && relatedIngredients.size > 0))
 							? (
 								<RelatedIngredients
-									isRemoveable
+									isRemovable
 									list={ relatedIngredients }
 									loading={ loading }
 									onChange={ handleIngredientChange }
@@ -227,7 +227,7 @@ const Form = ({ className, id }) => {
 						(isEditMode || (!isEditMode && substitutes.size > 0))
 							? (
 								<Substitutes
-									isRemoveable
+									isRemovable
 									list={ substitutes }
 									loading={ loading }
 									onChange={ handleIngredientChange }
