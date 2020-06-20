@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { withRouter } from 'next/router';
 import whyDidYouRender from '@welldone-software/why-did-you-render';
 
 import Page from '../components/Page';
@@ -16,4 +15,4 @@ function RecipesApp({ Component, pageProps }) {
 	);
 }
 
-export default withRouter(RecipesApp);
+export default RecipesApp;

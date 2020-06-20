@@ -12,7 +12,7 @@ import { CREATE_CONTAINERS_MUTATION } from '../../lib/apollo/mutations/container
 const Containers = () => {
 	const ctx = useContext(ViewContext);
 	const currentIngredientID = ctx.get('currentIngredientID');
-	const group = ctx.get('group');
+	const group = ctx.get('group'); // or should this pull from the url?
 	const view = ctx.get('view');
 
 	// setup create/refresh containers mutation
@@ -28,7 +28,7 @@ const Containers = () => {
 		error,
 		loading,
 	} = useQuery(GET_ALL_CONTAINERS_QUERY, {
-		fetchPolicy: 'cache-and-network',
+		// fetchPolicy: 'cache-and-network',
 		onCompleted: async (d) => {
 			const { containers } = d;
 			// console.log('> [Containers] (GET_ALL_CONTAINERS_QUERY) onCompleted', containers);
