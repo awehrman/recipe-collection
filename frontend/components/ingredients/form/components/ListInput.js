@@ -13,6 +13,7 @@ const ListInput = ({
 	// list,
 	loading,
 	onAddItem,
+	// onBlur,
 	onChange,
 	value,
 }) => {
@@ -36,8 +37,9 @@ const ListInput = ({
 				fieldName={ `${ fieldName }_input` }
 				isSpellCheck
 				loading={ loading }
-				onKeyDown={ onKeyDown }
+				// onBlur={ onBlur }
 				onChange={ onChange }
+				onKeyDown={ onKeyDown }
 				value={ value }
 			/>
 		</ListInputStyles>
@@ -49,8 +51,9 @@ ListInput.defaultProps = {
 	hideInput: () => {},
 	// list: ImmutableList.of([]),
 	loading: false,
-	onChange: (e) => e.preventDefault(),
 	onAddItem: () => {},
+	// onBlur: (e) => e.preventDefault(),
+	onChange: (e) => e.preventDefault(),
 	value: null,
 };
 
@@ -61,6 +64,7 @@ ListInput.propTypes = {
 	// list: PropTypes.instanceOf(ImmutableList),
 	loading: PropTypes.bool,
 	onAddItem: PropTypes.func,
+	// onBlur: PropTypes.func,
 	onChange: PropTypes.func,
 	value: PropTypes.string,
 };

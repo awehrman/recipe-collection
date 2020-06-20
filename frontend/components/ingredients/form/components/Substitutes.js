@@ -1,39 +1,47 @@
+import { List as ImmutableList } from 'immutable';
 import PropTypes from 'prop-types';
-import React, { useContext } from 'react';
+import React from 'react';
 import pure from 'recompose/pure';
 import styled from 'styled-components';
 
-import CardContext from '../../../../lib/contexts/ingredients/cardContext';
 import withFieldSet from '../withFieldSet';
-import Input from '../../../common/Input';
+import List from './List';
 
-const Substitutes = ({ loading, onChange, value }) => {
-	const ctx = useContext(CardContext);
-	const isEditMode = ctx.get('isEditMode');
-	console.log({ value });
-
-	return (
-		<LabelStyles>
-			Substitutes
-		</LabelStyles>
-	);
-};
+const Substitutes = ({ className, ...props }) => (
+	<SubstitutesStyles>
+		<List
+			className={ className }
+			fieldName="substitutes"
+			isSuggestionEnabled
+			label="Substitutes"
+			// eslint-disable-next-line react/jsx-props-no-spreading
+			{ ...props }
+		/>
+	</SubstitutesStyles>
+);
 
 Substitutes.defaultProps = {
+	className: 'list',
+	isRemovable: true,
+	list: ImmutableList.of([]),
 	loading: false,
 	onChange: (e) => e.preventDefault(),
-	value: '',
+	value: null,
 };
 
 Substitutes.whyDidYouRender = true;
 
 Substitutes.propTypes = {
+	className: PropTypes.string,
+	isRemovable: PropTypes.bool,
+	list: PropTypes.instanceOf(ImmutableList),
 	loading: PropTypes.bool,
 	onChange: PropTypes.func,
-	value: PropTypes.shape({ toJS: PropTypes.func }),
+	onListChange: PropTypes.func.isRequired,
+	value: PropTypes.string,
 };
 
 export default withFieldSet(pure(Substitutes));
 
-const LabelStyles = styled.label`
+const SubstitutesStyles = styled.div`
 `;

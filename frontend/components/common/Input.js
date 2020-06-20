@@ -9,8 +9,10 @@ const Input = ({
 	isRequired,
 	isSpellCheck,
 	loading,
+	onBlur,
 	onChange,
 	onKeyDown,
+	onMouseDown,
 	placeholder,
 	value,
 }) => {
@@ -27,8 +29,10 @@ const Input = ({
 				disabled={ !isEditMode }
 				id={ fieldName }
 				name={ fieldName }
+				onBlur={ onBlur }
 				onChange={ onChange }
 				onKeyDown={ onKeyDown }
+				onMouseDown={ onMouseDown }
 				placeholder={ placeholder }
 				required={ isRequired }
 				spellCheck={ isSpellCheck }
@@ -49,7 +53,9 @@ Input.defaultProps = {
 	isRequired: false,
 	isSpellCheck: false,
 	loading: false,
+	onBlur: () => {},
 	onKeyDown: () => {},
+	onMouseDown: () => {},
 	placeholder: '',
 	value: '',
 };
@@ -60,8 +66,10 @@ Input.propTypes = {
 	isRequired: PropTypes.bool,
 	isSpellCheck: PropTypes.bool,
 	loading: PropTypes.bool,
+	onBlur: PropTypes.func,
 	onChange: PropTypes.func.isRequired,
 	onKeyDown: PropTypes.func,
+	onMouseDown: PropTypes.func,
 	placeholder: PropTypes.string,
 	value: PropTypes.string,
 };
@@ -90,7 +98,7 @@ const InputField = styled.input`
 	outline: 0;
 	font-family: ${ (props) => props.theme.fontFamily };
 	margin-bottom: 5px; /* you'll want at least the height of the span border */
-	
+
 	/* background-color: transparent; for whatever reason this breaks the initial edit mode inputs */
 	background-color: white; /* TODO will need to adjust this for the AddNew form */
 	border-bottom: 3px solid #ddd;

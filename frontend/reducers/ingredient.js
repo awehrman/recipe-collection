@@ -35,7 +35,7 @@ export const reducer = (state, action) => {
 		value,
 	} = payload || {};
 	// eslint-disable-next-line object-curly-newline
-	console.log('*** reducer', { state, action });
+	// console.log('*** reducer', { state, action });
 
 	// load ingredient data
 	if (type === actions.loadIngredient) {
@@ -51,7 +51,6 @@ export const reducer = (state, action) => {
 
 	// reset ingredient data
 	if (type === actions.resetIngredient) {
-		console.log('   *** Resetting ingredient data!');
 		const loaded = loadIngredient(reset.toJS());
 		console.log({ loaded });
 
@@ -66,7 +65,7 @@ export const reducer = (state, action) => {
 	// update ingredient data
 	if (type === actions.updateIngredient) {
 		// eslint-disable-next-line object-curly-newline
-		console.log('updateIngredient', { fieldName, listAction, value });
+		// console.log('updateIngredient', { fieldName, listAction, value });
 
 		const updatedIngredient = state.ingredient.toJS();
 		const updatedInputFields = state.inputFields;
@@ -78,32 +77,46 @@ export const reducer = (state, action) => {
 			updatedIngredient[fieldName][key] = val;
 		} else if (listAction === 'add') {
 			// add this to the appropriate create or connect list actions
-			const listActionPrefix = (fieldName === 'alternateNames')
+			const listActionPrefix = ((fieldName === 'alternateNames') || (value && !value.id))
 				? 'create'
 				: 'connect';
 
 			const temp = updatedListActions[`${ listActionPrefix }_${ fieldName }`].toJS().flat();
-			temp.push({ name: value });
+			const addEntry = { name: value.name || value };
+			if (value && value.id) {
+				addEntry.id = value.id;
+			}
+			const index = temp.findIndex((i) => i.name === addEntry.name);
+			if (index === -1) {
+				temp.push(addEntry);
+				// if (updatedInputFields[fieldName] === (value.name || value)) {
+				updatedInputFields[fieldName] = '';
+			}
 			updatedListActions[`${ listActionPrefix }_${ fieldName }`] = fromJS(temp);
 
 			// add the value to the fieldName list
-			updatedIngredient[fieldName].push({ name: value });
+			updatedIngredient[fieldName].push(addEntry);
 			// if this value matches a value in this field's inputFields, then clear out the input
-			if (updatedInputFields[fieldName] === value) {
-				updatedInputFields[fieldName] = '';
-			}
 		} else if (listAction === 'remove') {
 			// remove the value from the fieldName
 			updatedIngredient[fieldName] = [ ...updatedIngredient[fieldName] ]
 				.filter((i) => i.name !== value);
 
-			const listRemoveActionPrefix = (fieldName === 'alternateNames')
+			const listRemoveActionPrefix = ((fieldName === 'alternateNames') || (value && !value.id))
 				? 'delete'
 				: 'remove';
 
 			// TODO we only have to really do this if its a known value
 			const temp = updatedListActions[`${ listRemoveActionPrefix }_${ fieldName }`].toJS().flat();
-			temp.push({ name: value });
+			const removeEntry = { name: value.name || value };
+			if (value && value.id) {
+				removeEntry.id = value.id;
+			}
+			const index = temp.findIndex((i) => i.name === removeEntry.name);
+			if (index < 0) {
+				console.log({ removeEntry });
+				temp.push(removeEntry);
+			}
 			updatedListActions[`${ listRemoveActionPrefix }_${ fieldName }`] = fromJS(temp);
 		} else if (fieldName.includes('input')) {
 			const field = fieldName.split('_')[0];
@@ -113,13 +126,7 @@ export const reducer = (state, action) => {
 			updatedIngredient[fieldName] = value;
 		}
 
-		console.log({
-			...state,
-			listActions: updatedListActions,
-			inputFields: updatedInputFields,
-			ingredient: fromJS(updatedIngredient),
-		});
-
+		console.log({ updatedListActions });
 		return {
 			...state,
 			listActions: updatedListActions,
@@ -131,34 +138,45 @@ export const reducer = (state, action) => {
 	// save ingredient
 	if (type === actions.saveIngredient) {
 		// eslint-disable-next-line object-curly-newline
-		console.log('   *** TODO saveIngredient', { ingredient: ingredient.toJS() });
+		// console.log('   *** saveIngredient', { ingredient: ingredient.toJS() });
 		const ing = ingredient.toJS();
 
 		const properties = { ...ing.properties };
 		delete properties.id;
 		delete properties.__typename;
 
+		const mutationData = {
+			name: ing.name,
+			plural: ing.plural || null,
+			isComposedIngredient: Boolean(ing.isComposedIngredient),
+			isValidated: true,
+			properties: { update: { ...properties } },
+			alternateNames: {
+				create: state.listActions.create_alternateNames.toJS().flat(),
+				delete: state.listActions.delete_alternateNames.toJS().flat(),
+			},
+			relatedIngredients: {
+				// TODO create/delete
+				connect: state.listActions.connect_relatedIngredients.toJS().flat().map((i) => ({ id: i.id })),
+				disconnect: state.listActions.disconnect_relatedIngredients.toJS().flat().map((i) => ({ id: i.id })),
+			},
+			substitutes: {
+				// TODO create/delete
+				connect: state.listActions.connect_substitutes.toJS().flat().map((i) => ({ id: i.id })),
+				disconnect: state.listActions.disconnect_substitutes.toJS().flat().map((i) => ({ id: i.id })),
+			},
+		};
+
+		if (mutationData.alternateNames.create.length === 0) delete mutationData.alternateNames.create;
+		if (mutationData.alternateNames.delete.length === 0) delete mutationData.alternateNames.delete;
+		if (mutationData.relatedIngredients.connect.length === 0) delete mutationData.relatedIngredients.connect;
+		if (mutationData.relatedIngredients.disconnect.length === 0) delete mutationData.relatedIngredients.disconnect;
+		if (mutationData.substitutes.connect.length === 0) delete mutationData.substitutes.connect;
+		if (mutationData.substitutes.disconnect.length === 0) delete mutationData.substitutes.disconnect;
+
 		saveIngredientMutation({
 			variables: {
-				data: {
-					name: ing.name,
-					plural: ing.plural || null,
-					isComposedIngredient: Boolean(ing.isComposedIngredient),
-					isValidated: true,
-					properties: { update: { ...properties } },
-					alternateNames: {
-						create: state.listActions.create_alternateNames.toJS().flat(),
-						delete: state.listActions.delete_alternateNames.toJS().flat(),
-					},
-					relatedIngredients: {
-						connect: state.listActions.connect_relatedIngredients.toJS().flat(),
-						disconnect: state.listActions.disconnect_relatedIngredients.toJS().flat(),
-					},
-					substitutes: {
-						connect: state.listActions.connect_substitutes.toJS().flat(),
-						disconnect: state.listActions.disconnect_substitutes.toJS().flat(),
-					},
-				},
+				data: mutationData,
 				where: { id: ing.id },
 			},
 		});

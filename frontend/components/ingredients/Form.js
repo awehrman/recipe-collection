@@ -8,8 +8,8 @@ import styled from 'styled-components';
 
 import Button from '../common/Button';
 import AlternateNames from './form/components/AlternateNames';
-// import Substitutes from './form/components/Substitutes';
-// import RelatedIngredients from './form/components/RelatedIngredients';
+import RelatedIngredients from './form/components/RelatedIngredients';
+import Substitutes from './form/components/Substitutes';
 // import References from './form/components/References';
 import Name from './form/components/Name';
 import Plural from './form/components/Plural';
@@ -61,8 +61,8 @@ const Form = ({ className, id }) => {
 	const isComposedIngredient = Boolean(ingredient.get('isComposedIngredient'));
 	const properties = ingredient.get('properties') || ImmutableMap({});
 	const alternateNames = ingredient.get('alternateNames') || ImmutableList.of([]);
-	// const relatedIngredients = ingredient.get('relatedIngredients') || ImmutableList.of([]);
-	// const substitutes = ingredient.get('substitutes') || ImmutableList.of([]);
+	const relatedIngredients = ingredient.get('relatedIngredients') || ImmutableList.of([]);
+	const substitutes = ingredient.get('substitutes') || ImmutableList.of([]);
 	// const references = ingredient.get('references') || ImmutableList.of([]);
 
 	// setup save mutation
@@ -209,10 +209,11 @@ const Form = ({ className, id }) => {
 							) : null
 					}
 
-					{/* Related Ingredients
+					{/* Related Ingredients */
 						(isEditMode || (!isEditMode && relatedIngredients.size > 0))
 							? (
 								<RelatedIngredients
+									className={ classNames.relatedIngredients_list }
 									isRemovable
 									list={ relatedIngredients }
 									loading={ loading }
@@ -221,12 +222,13 @@ const Form = ({ className, id }) => {
 									value={ inputFields.relatedIngredients }
 								/>
 							) : null
-					 */}
+					}
 
-					{/* Substitutes
+					{/* Substitutes */
 						(isEditMode || (!isEditMode && substitutes.size > 0))
 							? (
 								<Substitutes
+									className={ classNames.substitutes_list }
 									isRemovable
 									list={ substitutes }
 									loading={ loading }
@@ -235,7 +237,7 @@ const Form = ({ className, id }) => {
 									value={ inputFields.substitutes }
 								/>
 							) : null
-					 */}
+					}
 				</Left>
 				<Right>
 					{/* References

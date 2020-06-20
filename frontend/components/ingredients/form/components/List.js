@@ -2,12 +2,14 @@ import { List as ImmutableList } from 'immutable';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagic } from '@fortawesome/pro-regular-svg-icons';
 import { faPlus, faTimes } from '@fortawesome/pro-solid-svg-icons';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import pluralize from 'pluralize';
 import styled from 'styled-components';
+import Suggestions from '../../../common/Suggestions';
 
 import CardContext from '../../../../lib/contexts/ingredients/cardContext';
+import { GET_SUGGESTED_INGREDIENTS_QUERY } from '../../../../lib/apollo/queries/suggestions';
 import Button from '../../../common/Button';
 import ListInput from './ListInput';
 
@@ -16,6 +18,7 @@ const List = ({
 	fieldName,
 	isPluralSuggestEnabled,
 	isRemovable,
+	isSuggestionEnabled,
 	label,
 	list,
 	loading,
@@ -23,9 +26,17 @@ const List = ({
 	onListChange,
 	value,
 }) => {
+	// console.log('LIST', { fieldName, list, value });
 	const ctx = useContext(CardContext);
 	const isEditMode = ctx.get('isEditMode');
 	const [ isInputDisplayed, toggleInputDisplay ] = useState(false);
+
+	useEffect(() => {
+		if (value === '') {
+			console.log('disabling');
+			toggleInputDisplay(false);
+		}
+	}, [ value ]);
 
 	function onAddButtonClick(e) {
 		e.preventDefault();
@@ -45,6 +56,15 @@ const List = ({
 		const names = list.toJS().map((v) => v.name);
 		const	showPlural = (plural) && !names.includes(plural);
 		return showPlural;
+	}
+
+	function onBlur(e) {
+		console.log('onBlur');
+		// console.log(e.target);
+		// TODO this is still pretty finicky; we need to clear out the value too
+		// maybe look into mousedown alternatives
+		e.preventDefault();
+		toggleInputDisplay(false);
 	}
 
 	function onSuggestPlural(e, listItem) {
@@ -108,18 +128,18 @@ const List = ({
 						return (
 							// eslint-disable-next-line react/no-array-index-key
 							<li key={ `${ __typename }_${ index }_${ id || name }` }>
-								{/* TODO linking
-									(type === 'link' || type === 'suggestion')
+								{/* list item name */
+									(id)
 										? (
 											<Button
 												className="list"
-												onClick={ onListItemClick }
-												label={ i.name }
+												id={ name }
+												label={ name }
+												onClick={ (e) => e.preventDefault } // TODO
 											/>
 										)
-										: <span>{ i.name }</span>
-										*/}
-								<span id={ name }>{ name }</span>
+										: <span id={ name }>{ name }</span>
+								}
 
 								{/* Suggest Plural Button */
 									(isEditMode && isPluralSuggestEnabled && showPluralSuggest(listItem))
@@ -154,16 +174,26 @@ const List = ({
 			{/* Input */
 				(isEditMode && isInputDisplayed)
 					? (
-						<ListInput
-							className={ className }
+						<Suggestions
+							isSuggestionEnabled={ isSuggestionEnabled }
 							fieldName={ fieldName }
-							hideInput={ hideInput }
-							list={ list }
-							loading={ loading }
-							onAddItem={ onListChange }
-							onChange={ onChange }
-							value={ value }
-						/>
+							onSelectSuggestion={ onListChange }
+							suggestionQuery={ GET_SUGGESTED_INGREDIENTS_QUERY }
+							type="ingredients"
+							value={ value.name || value }
+						>
+							<ListInput
+								className={ className }
+								fieldName={ fieldName }
+								hideInput={ hideInput }
+								list={ list }
+								loading={ loading }
+								onAddItem={ onListChange }
+								onChange={ onChange }
+								onBlur={ onBlur }
+								value={ value }
+							/>
+						</Suggestions>
 					)
 					: null
 			}
@@ -174,6 +204,7 @@ const List = ({
 List.defaultProps = {
 	className: 'list',
 	isPluralSuggestEnabled: false,
+	isSuggestionEnabled: false,
 	isRemovable: true,
 	list: ImmutableList.of([]),
 	loading: false,
@@ -187,6 +218,7 @@ List.propTypes = {
 	fieldName: PropTypes.string.isRequired,
 	isPluralSuggestEnabled: PropTypes.bool,
 	isRemovable: PropTypes.bool,
+	isSuggestionEnabled: PropTypes.bool,
 	label: PropTypes.string.isRequired,
 	list: PropTypes.instanceOf(ImmutableList),
 	loading: PropTypes.bool,
@@ -312,4 +344,5 @@ const ListStyles = styled.div`
 				}
 			}
 		}
+	}
 `;

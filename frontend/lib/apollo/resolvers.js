@@ -62,6 +62,43 @@ export default {
 			}
 			return containers;
 		},
+		suggestions(_, { type, value }, { client }) {
+			// console.log(`... [withData](${ type }, ${ value }) suggestions query resolver`);
+			let suggestions = [];
+
+			// determine the lookup query based on the type
+			const query = GET_ALL_INGREDIENTS_QUERY;
+			/* TODO i'll come back and support this later
+			if (type === 'tags') {
+				query = GET_ALL_TAGS_QUERY;
+			} else if (type === 'categories') {
+				query = GET_ALL_CATEGORIES_QUERY;
+			}
+			*/
+
+			if (value && value.length > 0) {
+				// get all ingredients from the cache
+				const data = client.readQuery({ query });
+				const { ingredients = [] } = data;
+				suggestions = [ ...ingredients ];
+				suggestions = data[type].filter((i) => (
+					// return partial matches
+					(i.name.indexOf(value) > -1)
+					// ... as long as they're not an exact match on our input
+					&& (i.name !== value)
+				));
+				suggestions.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+				suggestions = suggestions.slice(0, 5);
+
+				suggestions = suggestions.map((i) => ({
+					__typename: 'Suggestion',
+					id: i.id,
+					name: i.name,
+				}));
+			}
+
+			return suggestions;
+		},
 	},
 	// client-side mutation resolvers
 	Mutation: {
@@ -103,7 +140,6 @@ export default {
 			});
 
 			response.containers = [ ...data.containers ];
-			console.log({ response });
 			return response;
 		},
 		toggleIngredientID(_, { id, ingredientID }, { cache }) {
