@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import { fromJS, Map as ImmutableMap, List as ImmutableList } from 'immutable';
 import { defaultListActions, defaultProperties } from '../components/ingredients/form/constants';
 
@@ -25,7 +26,7 @@ function loadIngredient(ing) {
 }
 
 export const reducer = (state, action) => {
-	const { ingredient, reset } = state;
+	const { ingredient, listActions, reset } = state;
 	const { payload, type } = action || {};
 	const {
 		data,
@@ -151,28 +152,71 @@ export const reducer = (state, action) => {
 			isComposedIngredient: Boolean(ing.isComposedIngredient),
 			isValidated: true,
 			properties: { update: { ...properties } },
-			alternateNames: {
-				create: state.listActions.create_alternateNames.toJS().flat(),
-				delete: state.listActions.delete_alternateNames.toJS().flat(),
-			},
-			relatedIngredients: {
-				// TODO create/delete
-				connect: state.listActions.connect_relatedIngredients.toJS().flat().map((i) => ({ id: i.id })),
-				disconnect: state.listActions.disconnect_relatedIngredients.toJS().flat().map((i) => ({ id: i.id })),
-			},
-			substitutes: {
-				// TODO create/delete
-				connect: state.listActions.connect_substitutes.toJS().flat().map((i) => ({ id: i.id })),
-				disconnect: state.listActions.disconnect_substitutes.toJS().flat().map((i) => ({ id: i.id })),
-			},
+			alternateNames: {},
+			relatedIngredients: {},
+			substitutes: {},
 		};
 
-		if (mutationData.alternateNames.create.length === 0) delete mutationData.alternateNames.create;
-		if (mutationData.alternateNames.delete.length === 0) delete mutationData.alternateNames.delete;
-		if (mutationData.relatedIngredients.connect.length === 0) delete mutationData.relatedIngredients.connect;
-		if (mutationData.relatedIngredients.disconnect.length === 0) delete mutationData.relatedIngredients.disconnect;
-		if (mutationData.substitutes.connect.length === 0) delete mutationData.substitutes.connect;
-		if (mutationData.substitutes.disconnect.length === 0) delete mutationData.substitutes.disconnect;
+		const {
+			create_alternateNames,
+			delete_alternateNames,
+
+			connect_relatedIngredients,
+			create_relatedIngredients,
+			disconnect_relatedIngredients,
+			delete_relatedIngredients,
+
+			connect_substitutes,
+			create_substitutes,
+			disconnect_substitutes,
+			delete_substitutes,
+		} = listActions;
+
+		const createAlternativeNames = create_alternateNames.toJS().flat();
+		const deleteAlternativeNames = delete_alternateNames.toJS().flat();
+
+		const createRelatedIngredients = create_relatedIngredients.toJS().flat();
+		const connectRelatedIngredients = connect_relatedIngredients.toJS().flat();
+		const deleteRelatedIngredients = delete_relatedIngredients.toJS().flat();
+		const disconnectRelatedIngredients = disconnect_relatedIngredients.toJS().flat();
+
+		const createSubstitutes = create_substitutes.toJS().flat();
+		const connectSubstitutes = connect_substitutes.toJS().flat();
+		const deleteSubstitutes = delete_substitutes.toJS().flat();
+		const disconnectSubstitutes = disconnect_substitutes.toJS().flat();
+
+		if (createAlternativeNames.length > 0) {
+			mutationData.alternateNames = { create: createAlternativeNames };
+		}
+		if (deleteAlternativeNames.length > 0) {
+			mutationData.alternateNames = { delete: deleteAlternativeNames.length };
+		}
+
+		if (connectRelatedIngredients.length > 0) {
+			mutationData.relatedIngredients = { connect: connectRelatedIngredients.map((i) => ({ id: i.id })) };
+		}
+		if (disconnectRelatedIngredients.length > 0) {
+			mutationData.relatedIngredients = { disconnect: disconnectRelatedIngredients.map((i) => ({ id: i.id })) };
+		}
+		if (createRelatedIngredients.length > 0) {
+			mutationData.relatedIngredients = { create: createRelatedIngredients.map((i) => ({ id: i.id })) };
+		}
+		if (deleteRelatedIngredients.length > 0) {
+			mutationData.relatedIngredients = { delete: deleteRelatedIngredients.map((i) => ({ id: i.id })) };
+		}
+
+		if (connectSubstitutes.length > 0) {
+			mutationData.substitutes = { connect: connectSubstitutes.map((i) => ({ id: i.id })) };
+		}
+		if (disconnectSubstitutes.length > 0) {
+			mutationData.substitutes = { disconnect: disconnectSubstitutes.map((i) => ({ id: i.id })) };
+		}
+		if (createSubstitutes.length > 0) {
+			mutationData.substitutes = { create: createSubstitutes.map((i) => ({ id: i.id })) };
+		}
+		if (deleteSubstitutes.length > 0) {
+			mutationData.substitutes = { delete: deleteSubstitutes.map((i) => ({ id: i.id })) };
+		}
 
 		saveIngredientMutation({
 			variables: {
