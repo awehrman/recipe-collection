@@ -21,7 +21,7 @@ function loadIngredient(ing) {
 		properties: (ing.properties) ? ImmutableMap({ ...ing.properties }) : defaultProperties,
 		substitutes: fromJS(ing.substitutes) || ImmutableList(),
 		relatedIngredients: fromJS(ing.relatedIngredients) || ImmutableList(),
-		references: ImmutableList(),
+		references: fromJS(ing.references) || ImmutableList(),
 	});
 }
 

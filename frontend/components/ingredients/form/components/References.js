@@ -1,4 +1,4 @@
-import { List as ImmutableList } from 'immutable';
+import { fromJS, List as ImmutableList } from 'immutable';
 import PropTypes from 'prop-types';
 import React from 'react';
 import pure from 'recompose/pure';
@@ -7,17 +7,28 @@ import styled from 'styled-components';
 import withFieldSet from '../withFieldSet';
 import List from './List';
 
-const References = ({ className, ...props }) => (
-	<ReferencesStyles>
-		<List
-			className={ className }
-			fieldName="References"
-			label="References"
-			// eslint-disable-next-line react/jsx-props-no-spreading
-			{ ...props }
-		/>
-	</ReferencesStyles>
-);
+const References = ({ className, list, ...props }) => {
+	// TODO i'll need to adjust the List component to support linking to recipes
+	// but in the meantime i'm just going to force this shape to use the current component
+	const references = list.map((ref) => ({
+		id: ref.get('id'),
+		name: ref.get('line').get('reference'),
+	}));
+
+	return (
+		<ReferencesStyles>
+			<List
+				className={ className }
+				fieldName="References"
+				label="References"
+				list={ fromJS(references) }
+				type="reference"
+				// eslint-disable-next-line react/jsx-props-no-spreading
+				{ ...props }
+			/>
+		</ReferencesStyles>
+	);
+};
 
 References.defaultProps = {
 	className: 'list',
@@ -25,6 +36,7 @@ References.defaultProps = {
 	list: ImmutableList.of([]),
 	loading: false,
 	onChange: (e) => e.preventDefault(),
+	onListChange: () => {},
 	value: null,
 };
 
@@ -36,7 +48,7 @@ References.propTypes = {
 	list: PropTypes.instanceOf(ImmutableList),
 	loading: PropTypes.bool,
 	onChange: PropTypes.func,
-	onListChange: PropTypes.func.isRequired,
+	onListChange: PropTypes.func,
 	value: PropTypes.string,
 };
 

@@ -24,6 +24,7 @@ const List = ({
 	loading,
 	onChange,
 	onListChange,
+	type,
 	value,
 }) => {
 	// console.log('LIST', { fieldName, list, value });
@@ -129,7 +130,7 @@ const List = ({
 							// eslint-disable-next-line react/no-array-index-key
 							<li key={ `${ __typename }_${ index }_${ id || name }` }>
 								{/* list item name */
-									(id)
+									(id && type !== 'reference')
 										? (
 											<Button
 												className="list"
@@ -210,6 +211,7 @@ List.defaultProps = {
 	loading: false,
 	onChange: (e) => e.preventDefault(),
 	onListChange: () => {},
+	type: null,
 	value: null,
 };
 
@@ -224,6 +226,7 @@ List.propTypes = {
 	loading: PropTypes.bool,
 	onChange: PropTypes.func,
 	onListChange: PropTypes.func,
+	type: PropTypes.string,
 	value: PropTypes.string,
 };
 

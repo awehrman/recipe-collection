@@ -10,7 +10,7 @@ import Button from '../common/Button';
 import AlternateNames from './form/components/AlternateNames';
 import RelatedIngredients from './form/components/RelatedIngredients';
 import Substitutes from './form/components/Substitutes';
-// import References from './form/components/References';
+import References from './form/components/References';
 import Name from './form/components/Name';
 import Plural from './form/components/Plural';
 import Properties from './form/components/Properties';
@@ -56,6 +56,7 @@ const Form = ({ className, id }) => {
 	} = useIngredientForm({ id });
 
 	const { ingredient, inputFields } = values;
+	console.log({ ingredient });
 	const name = ingredient.get('name') || '';
 	const plural = ingredient.get('plural') || '';
 	const isComposedIngredient = Boolean(ingredient.get('isComposedIngredient'));
@@ -63,7 +64,7 @@ const Form = ({ className, id }) => {
 	const alternateNames = ingredient.get('alternateNames') || ImmutableList.of([]);
 	const relatedIngredients = ingredient.get('relatedIngredients') || ImmutableList.of([]);
 	const substitutes = ingredient.get('substitutes') || ImmutableList.of([]);
-	// const references = ingredient.get('references') || ImmutableList.of([]);
+	const references = ingredient.get('references') || ImmutableList.of([]);
 
 	// setup save mutation
 	const [ createContainers ] = useMutation(CREATE_CONTAINERS_MUTATION);
@@ -240,15 +241,15 @@ const Form = ({ className, id }) => {
 					}
 				</Left>
 				<Right>
-					{/* References
+					{/* References */
 						(isEditMode || (!isEditMode && references.size > 0))
 							? (
 								<References
-									loading={ loading }
 									list={ references }
+									loading={ loading }
 								/>
 							) : null
-					 */}
+					}
 				</Right>
 			</MiddleFormStyles>
 
