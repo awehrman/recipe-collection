@@ -50,7 +50,7 @@ const Filters = () => {
 			{/* Group By Selection */}
 			<div className="right">
 				<div className="groupBy">
-					<span>Group By</span>
+					<span>Group&nbsp;By</span>
 					{/* eslint-disable-next-line object-curly-newline */}
 					<Link href={ { pathname: '/ingredients', query: { view, group: getNextIngredientGroup(group) } } }>
 						<a
@@ -73,6 +73,7 @@ const FilterStyles = styled.div`
 	display: flex;
 	font-size: .875em;
 	color: #222;
+	max-width: 1200px;
 
 	.left {
 		flex: 1;

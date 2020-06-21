@@ -56,7 +56,6 @@ const Form = ({ className, id }) => {
 	} = useIngredientForm({ id });
 
 	const { ingredient, inputFields } = values;
-	console.log({ ingredient });
 	const name = ingredient.get('name') || '';
 	const plural = ingredient.get('plural') || '';
 	const isComposedIngredient = Boolean(ingredient.get('isComposedIngredient'));
