@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "apollo-link-http": "^1.5.16",
-    "apollo-server-express": "^2.4.8",
+    "apollo-server-express": "^2.14.2",
     "body-parser": "^1.19.0",
     "cheerio": "^1.0.0-rc.3",
     "cloudinary": "^1.16.0",
