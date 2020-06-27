@@ -53,7 +53,6 @@ export const reducer = (state, action) => {
 	// reset ingredient data
 	if (type === actions.resetIngredient) {
 		const loaded = loadIngredient(reset.toJS());
-		console.log({ loaded });
 
 		return {
 			...state,
@@ -115,7 +114,6 @@ export const reducer = (state, action) => {
 			}
 			const index = temp.findIndex((i) => i.name === removeEntry.name);
 			if (index < 0) {
-				console.log({ removeEntry });
 				temp.push(removeEntry);
 			}
 			updatedListActions[`${ listRemoveActionPrefix }_${ fieldName }`] = fromJS(temp);
@@ -127,7 +125,6 @@ export const reducer = (state, action) => {
 			updatedIngredient[fieldName] = value;
 		}
 
-		console.log({ updatedListActions });
 		return {
 			...state,
 			listActions: updatedListActions,
@@ -189,7 +186,7 @@ export const reducer = (state, action) => {
 			mutationData.alternateNames = { create: createAlternativeNames };
 		}
 		if (deleteAlternativeNames.length > 0) {
-			mutationData.alternateNames = { delete: deleteAlternativeNames.length };
+			mutationData.alternateNames = { delete: deleteAlternativeNames };
 		}
 
 		if (connectRelatedIngredients.length > 0) {

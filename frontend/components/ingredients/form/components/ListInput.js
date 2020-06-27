@@ -15,6 +15,7 @@ const ListInput = ({
 	onAddItem,
 	// onBlur,
 	onChange,
+	placeholder,
 	value,
 }) => {
 	function onKeyDown(e) {
@@ -40,6 +41,7 @@ const ListInput = ({
 				// onBlur={ onBlur }
 				onChange={ onChange }
 				onKeyDown={ onKeyDown }
+				placeholder={ placeholder }
 				value={ value }
 			/>
 		</ListInputStyles>
@@ -54,6 +56,7 @@ ListInput.defaultProps = {
 	onAddItem: () => {},
 	// onBlur: (e) => e.preventDefault(),
 	onChange: (e) => e.preventDefault(),
+	placeholder: '',
 	value: null,
 };
 
@@ -66,11 +69,19 @@ ListInput.propTypes = {
 	onAddItem: PropTypes.func,
 	// onBlur: PropTypes.func,
 	onChange: PropTypes.func,
+	placeholder: PropTypes.string,
 	value: PropTypes.string,
 };
 
-// TODO add withSuggestions
 export default withFieldSet(ListInput);
 
 const ListInputStyles = styled.div`
+	font-size: 14px;
+	max-width: 280px;
+
+	input {
+		&:focus {
+			background: #fbfbfb;
+		}
+	}
 `;

@@ -40,17 +40,16 @@ const Plural = ({
 		<LabelStyles>
 			{/* suggest plural icon */}
 			{
-				(isEditMode && isPluralSuggestEnabled)
+				(isPluralSuggestEnabled)
 					? (
 						<FontAwesomeIcon
-							className={ (!isEditMode) ? 'disabled' : '' }
 							icon={ faMagic }
 							onClick={ (e) => onSuggestPlural(e) }
 						/>
 					) : null
 			}
 			<Input
-				className={ (isEditMode && isPluralSuggestEnabled) ? `${ className } withSuggest` : className }
+				className={ className }
 				fieldName="plural"
 				isSpellCheck={ isEditMode }
 				loading={ loading }
@@ -84,58 +83,26 @@ Plural.propTypes = {
 
 export default withFieldSet(pure(Plural));
 
-
 const LabelStyles = styled.label`
-	display: flex;
-
-	&.withSuggestion div {
+	svg {
 		display: inline-block;
-		margin-left: 8px;
-	}
-
-	&.withSuggestion span {
-		display: inline-block;
-		margin-left: 21px; /* plus the addition of the pluralize icon */
-	}
-
-	.fa-magic {
-		color: #ccc;
-		cursor: pointer;
 		width: 13px;
-		position: relative;
-		left: 0;
-		top: 0;
-		display: inline-block;
-		z-index: 1;
-
-		&:hover {
-			color: ${ (props) => props.theme.altGreen };
-		}
-
-		~ input {
-			padding-left: 20px;
-			position: relative;
-			top: -24px;
-		}
-
-		/* make sure you restrict the length of the span highlight so it doesn't sneak off the edge */
-		~ span#highlight {
-			margin-left: 20px;
-			top: 24px;
-			max-width: auto !important;
-			width: calc(100% - 20px) !important;
-		}
-
-		~ span#highlight.enabled {
-			margin-left: 20px;
-			top: 24px;
-			max-width: calc(100% - 20px) !important;
-			width: auto !important;
-		}
+		color: #ccc;
+		margin-right: 13px;
+		position: absolute;
+		top: 8px;
 	}
 
-	.fa-magic.disabled, .fa-magic.disabled:hover {
-		cursor: default;
-		color: #ccc;
+	div > input {
+		flex: 2;
+		width: 100%;
+		position: absolute;
+		left: 26px;
+	}
+
+	span.highlight {
+		position: absolute;
+		left: 26px;
+		max-width: 280px;
 	}
 `;

@@ -32,7 +32,7 @@ const References = ({ className, list, ...props }) => {
 
 References.defaultProps = {
 	className: 'list',
-	isRemovable: true,
+	isRemovable: false,
 	list: ImmutableList.of([]),
 	loading: false,
 	onChange: (e) => e.preventDefault(),

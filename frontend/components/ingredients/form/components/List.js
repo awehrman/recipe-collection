@@ -24,6 +24,7 @@ const List = ({
 	loading,
 	onChange,
 	onListChange,
+	placeholder,
 	type,
 	value,
 }) => {
@@ -32,9 +33,11 @@ const List = ({
 	const isEditMode = ctx.get('isEditMode');
 	const [ isInputDisplayed, toggleInputDisplay ] = useState(false);
 
+	console.log({ list: list.toJS(), isRemovable });
+
 	useEffect(() => {
 		if (value === '') {
-			console.log('disabling');
+			// console.log('disabling');
 			toggleInputDisplay(false);
 		}
 	}, [ value ]);
@@ -60,7 +63,7 @@ const List = ({
 	}
 
 	function onBlur(e) {
-		console.log('onBlur');
+		// console.log('onBlur');
 		// console.log(e.target);
 		// TODO this is still pretty finicky; we need to clear out the value too
 		// maybe look into mousedown alternatives
@@ -130,7 +133,7 @@ const List = ({
 							// eslint-disable-next-line react/no-array-index-key
 							<li key={ `${ __typename }_${ index }_${ id || name }` }>
 								{/* list item name */
-									(id && type !== 'reference')
+									(type === 'ingredient')
 										? (
 											<Button
 												className="list"
@@ -181,7 +184,7 @@ const List = ({
 							onSelectSuggestion={ onListChange }
 							suggestionQuery={ GET_SUGGESTED_INGREDIENTS_QUERY }
 							type="ingredients"
-							value={ value.name || value }
+							value={ value?.name || value }
 						>
 							<ListInput
 								className={ className }
@@ -192,6 +195,7 @@ const List = ({
 								onAddItem={ onListChange }
 								onChange={ onChange }
 								onBlur={ onBlur }
+								placeholder={ placeholder }
 								value={ value }
 							/>
 						</Suggestions>
@@ -211,8 +215,10 @@ List.defaultProps = {
 	loading: false,
 	onChange: (e) => e.preventDefault(),
 	onListChange: () => {},
+	placeholder: '',
 	type: null,
-	value: null,
+	value: '',
+	values: {},
 };
 
 List.propTypes = {
@@ -226,124 +232,77 @@ List.propTypes = {
 	loading: PropTypes.bool,
 	onChange: PropTypes.func,
 	onListChange: PropTypes.func,
+	placeholder: PropTypes.string,
 	type: PropTypes.string,
 	value: PropTypes.string,
+	values: PropTypes.shape({}),
 };
 
 export default List;
 
 const ListStyles = styled.div`
+	label {
+		display: inline-block;
+		margin-bottom: 10px;
+	}
+
 	button.add {
 		display: inline-block;
 		border: 0;
-		color: ${ (props) => props.theme.altGreen };
-		text-decoration: underline;
-		padding: 0;
-		margin: 0 !important;
+		height: 14px;
+		margin-left: 6px;
+		width: 16px;
 		position: relative;
-		top: 2px;
-		left: 8px;
-		background: transparent;
-		cursor: pointer;
 
-		.fa-plus {
-			margin: 0;
-			font-size: 14px;
+		svg {
 			height: 14px;
-		}
-
-		&:focus {
-			outline: ${ (props) => props.theme.altGreen } auto 3px;
-		}
-
-		&:hover {
-			border-bottom: 0 !important;
+			color: ${ (props) => props.theme.altGreen };
+			top: 0px;
+			left: 2px;
 		}
 	}
 
-	ul.list {
-		list-style-type: none;
+	ul {
 		margin: 0;
-		padding: 4px 0 10px;
-		max-height: 200px;
-		overflow: scroll;
+		margin-bottom: 10px;
+		padding: 0;
+		list-style-type: none;
+		font-size: 13px;
 
 		li {
-			font-size: 12px;
-			color: #222;
-			padding-top: 2px;
+			font-weight: normal;
+			padding: 4px 0;
+			position: relative;
 
-			.warning {
-				color: tomato !important;
-			}
-
-			span {
-				color: #222;
-				font-weight: 400;
-
-				&:hover {
-					cursor: default;
-				}
-
-				&:hover + button.delete {
-					display: inline-block;
-				}
-			}
-
-			button {
-				&:hover + button.delete {
-					display: inline-block;
-				}
-			}
-
-			button.delete {
-				cursor: pointer;
-				display: inline-block;
-				color: tomato !important;
-				border: 0 !important;
-				background: transparent;
-				padding: 0 8px!important;
-				margin: 0 !important;
+			.delete {
 				display: none;
-				height: 16px;
+				padding: 0;
+				position: absolute;
 
-				svg {
-					height: 14px;
+				svg:hover {
+					color: tomato;
 				}
+			}
 
-				&:hover {
+			&:hover {
+				.delete {
 					display: inline-block;
 				}
 			}
 
-			button.list {
-				border: 0;
-				background: transparent;
-				color: ${ (props) => props.theme.altGreen };
-				text-decoration: underline;
-				padding: 0;
-				cursor: pointer;
-				font-size: 14px;
-			}
-
-			.fa-magic {
+			svg {
+				height: 13px;
 				color: #ccc;
-				cursor: pointer;
-				width: 13px;
 				position: relative;
-				left: 8px;
 				top: 2px;
-				margin-right: 8px;
-				display: inline-block;
-				z-index: 1;
-				height: 16px;
 
 				&:hover {
 					color: ${ (props) => props.theme.altGreen };
+					cursor: pointer;
 				}
 
-				&:hover + button.delete {
-					display: inline-block;
+				&:first-of-type {
+					margin-left: 6px;
 				}
 			}
 		}

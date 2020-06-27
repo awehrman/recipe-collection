@@ -19,6 +19,9 @@ const Suggestions = ({ children, fieldName, isSuggestionEnabled, onSelectSuggest
   */
 
 	const { data } = useQuery(suggestionQuery, {
+		context: {
+			value,
+		},
 		variables: {
 			type,
 			value,

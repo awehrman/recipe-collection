@@ -16,6 +16,7 @@ import ViewContext from '../../lib/contexts/ingredients/viewContext';
 import { GET_CONTAINER_QUERY } from '../../lib/apollo/queries/containers';
 import { TOGGLE_CONTAINER_MUTATION, UPDATE_CONTAINER_INGREDIENT_MUTATION } from '../../lib/apollo/mutations/containers';
 
+// TODO on refresh if we have a currentIngredientID, adjust scrollTo
 const Container = ({ id }) => {
 	const ctx = useContext(ViewContext);
 	const group = ctx.get('group');
@@ -47,7 +48,6 @@ const Container = ({ id }) => {
 			// if we error out here its on the initial open card when this
 			setTimeout(() => {
 				el = document.getElementById(`anchor_${ ingredientID }`);
-				console.log({ el });
 				if (el) {
 					el.scrollIntoView(true);
 				}
@@ -301,6 +301,17 @@ const Columns = styled.ul`
 	position: relative;
 	padding: 5px 0;
 	border-bottom: 1px solid #ddd;
+
+	a {
+		cursor: pointer;
+		text-decoration: none;
+		color: #222;
+		display: inline-block; /* need to give these links height for the scroll! */
+
+		&:hover {
+			color: ${ (props) => props.theme.highlight };
+		}
+	}
 
 	&.small {
 		display: flex;

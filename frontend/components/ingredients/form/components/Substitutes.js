@@ -14,6 +14,8 @@ const Substitutes = ({ className, ...props }) => (
 			fieldName="substitutes"
 			isSuggestionEnabled
 			label="Substitutes"
+			placeholder="ingredient"
+			type="ingredient"
 			// eslint-disable-next-line react/jsx-props-no-spreading
 			{ ...props }
 		/>
@@ -27,6 +29,7 @@ Substitutes.defaultProps = {
 	loading: false,
 	onChange: (e) => e.preventDefault(),
 	value: null,
+	values: {},
 };
 
 Substitutes.whyDidYouRender = true;
@@ -39,6 +42,7 @@ Substitutes.propTypes = {
 	onChange: PropTypes.func,
 	onListChange: PropTypes.func.isRequired,
 	value: PropTypes.string,
+	values: PropTypes.shape({}),
 };
 
 export default withFieldSet(pure(Substitutes));

@@ -62,8 +62,10 @@ export default {
 			}
 			return containers;
 		},
-		suggestions(_, { type, value }, { client }) {
-			// console.log(`... [withData](${ type }, ${ value }) suggestions query resolver`);
+		suggestions(_, { type, value }, ctx) {
+			console.log(`... [withData](${ type }, ${ value }) suggestions query resolver`);
+			console.log({ ctx });
+			const { client } = ctx;
 			let suggestions = [];
 
 			// determine the lookup query based on the type

@@ -41,7 +41,7 @@ const Input = ({
 			/>
 
 			{/* stylistic fluff */ }
-			<InputHighlight className={ className }>
+			<InputHighlight className={ `highlight ${ className }` }>
 				{ trimmedValue }
 			</InputHighlight>
 		</InputStyles>
@@ -77,13 +77,6 @@ Input.propTypes = {
 export default Input;
 
 const InputStyles = styled.div`
-	&.withSuggest {
-		margin-left: 8px;
-
-		span.withSuggest {
-			margin-left: 18px;
-		}
-	}
 `;
 
 const InputField = styled.input`
@@ -135,7 +128,4 @@ const InputHighlight = styled.span`
 		max-width: 100% !important;
 		width: auto !important;
 	}
-
-	max-width: 100%;
-	width: auto;
 `;

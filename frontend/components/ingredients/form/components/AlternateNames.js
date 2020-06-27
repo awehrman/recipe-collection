@@ -13,6 +13,7 @@ const AlternateNames = ({ className, ...props }) => (
 			className={ className }
 			fieldName="alternateNames"
 			label="Alternate Names"
+			placeholder="name"
 			// eslint-disable-next-line react/jsx-props-no-spreading
 			{ ...props }
 		/>

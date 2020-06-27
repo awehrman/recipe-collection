@@ -14,6 +14,8 @@ const RelatedIngredients = ({ className, ...props }) => (
 			fieldName="relatedIngredients"
 			isSuggestionEnabled
 			label="Related Ingredients"
+			placeholder="ingredient"
+			type="ingredient"
 			// eslint-disable-next-line react/jsx-props-no-spreading
 			{ ...props }
 		/>
@@ -27,6 +29,7 @@ RelatedIngredients.defaultProps = {
 	loading: false,
 	onChange: (e) => e.preventDefault(),
 	value: null,
+	values: {},
 };
 
 RelatedIngredients.whyDidYouRender = true;
@@ -39,6 +42,7 @@ RelatedIngredients.propTypes = {
 	onChange: PropTypes.func,
 	onListChange: PropTypes.func.isRequired,
 	value: PropTypes.string,
+	values: PropTypes.shape({}),
 };
 
 export default withFieldSet(pure(RelatedIngredients));

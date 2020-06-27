@@ -122,6 +122,18 @@ const Form = ({ className, id }) => {
 		}
 	}
 
+	function flagError(e) {
+		e.preventDefault();
+		console.log('flagError');
+		// TODO
+	}
+
+	function editRelationship(e) {
+		e.preventDefault();
+		console.log('editRelationship');
+		// TODO
+	}
+
 	const classNameFields = [
 		'name',
 		'plural',
@@ -167,14 +179,19 @@ const Form = ({ className, id }) => {
 						onChange={ handleIngredientChange }
 						value={ name }
 					/>
-					<Plural
-						className={ classNames.plural }
-						isPluralSuggestEnabled
-						loading={ loading }
-						onChange={ handleIngredientChange }
-						singular={ name }
-						value={ plural }
-					/>
+					{
+						(isEditMode || plural?.length)
+							? (
+								<Plural
+									className={ classNames.plural }
+									isPluralSuggestEnabled
+									loading={ loading }
+									onChange={ handleIngredientChange }
+									singular={ name }
+									value={ plural }
+								/>
+							) : null
+					}
 				</Left>
 				<Right>
 					<Properties
@@ -192,7 +209,7 @@ const Form = ({ className, id }) => {
 			</TopFormStyles>
 
 			<MiddleFormStyles>
-				<Left>
+				<Left className="withPadding">
 					{/* Alternate Names */
 						(isEditMode || (!isEditMode && alternateNames.size > 0))
 							? (
@@ -220,6 +237,7 @@ const Form = ({ className, id }) => {
 									onChange={ handleIngredientChange }
 									onListChange={ handleListChange }
 									value={ inputFields.relatedIngredients }
+									values={ values }
 								/>
 							) : null
 					}
@@ -235,11 +253,12 @@ const Form = ({ className, id }) => {
 									onChange={ handleIngredientChange }
 									onListChange={ handleListChange }
 									value={ inputFields.substitutes }
+									values={ values }
 								/>
 							) : null
 					}
 				</Left>
-				<Right>
+				<Right className="withPadding">
 					{/* References */
 						(isEditMode || (!isEditMode && references.size > 0))
 							? (
@@ -257,6 +276,20 @@ const Form = ({ className, id }) => {
 				(isEditMode)
 					? (
 						<BottomFormStyles>
+							{/* More Settings */}
+							<Settings>
+								<MarkAsError
+									label="Flag Error"
+									onClick={ flagError }
+									type="button"
+								/>
+								<EditRelationship
+									label="Edit Relationship"
+									onClick={ editRelationship }
+									type="button"
+								/>
+							</Settings>
+
 							{/* Warnings */}
 							<Warnings>
 								{
@@ -307,12 +340,44 @@ Form.propTypes = {
 
 export default pure(Form);
 
+const Settings = styled.div`
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	text-align: left;
+`;
+
+const MarkAsError = styled(Button)`
+	margin-bottom: 10px;
+	&:hover {
+		color: ${ (props) => props.theme.highlight };
+	}
+`;
+
+const EditRelationship = styled(Button)`
+	&:hover {
+		color: ${ (props) => props.theme.highlight };
+	}
+`;
+
 const Left = styled.div`
 	flex: 1;
+
+	@media (min-width: ${ (props) => props.theme.desktopCardWidth }) {
+		&.withPadding {
+			padding-right: 50px;
+		}
+	}
 `;
 
 const Right = styled.div`
 	flex: 1;
+
+	@media (min-width: ${ (props) => props.theme.desktopCardWidth }) {
+		&.withPadding {
+			padding-left: 50px;
+		}
+	}
 `;
 
 const FormStyles = styled.form`
@@ -386,30 +451,13 @@ const MiddleFormStyles = styled.div`
 	@media (min-width: ${ (props) => props.theme.desktopCardWidth }) {
 		display: flex;
 		justify-content: space-between;
-		margin-bottom: 20px;
-
-		button.add {
-			top: -1px;
-		}
-
-		.right {
-			flex: 1;
-
-			ul.list {
-				max-height: 108px;
-				overflow-y: scroll;
-			}
-		}
-
-		.left {
-			flex: 1;
-		}
 	}
 `;
 
 const BottomFormStyles = styled.div`
+	/* TODO revisit this when list input gets too long on desktop*/
 	margin-top: auto; /* stick to the bottom of the card */
-	padding-top: 10px;
+	margin-bottom: 20px;
 	flex-direction: column;
 
 	.right {
@@ -431,6 +479,7 @@ const BottomFormStyles = styled.div`
 		}
 	}
 `;
+
 const Warning = styled.li`
 	color: tomato;
 	margin-top: 4px;
