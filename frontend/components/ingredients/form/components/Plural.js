@@ -84,6 +84,9 @@ Plural.propTypes = {
 export default withFieldSet(pure(Plural));
 
 const LabelStyles = styled.label`
+	display: block;
+	margin-bottom: 20px;
+
 	svg {
 		display: inline-block;
 		width: 13px;

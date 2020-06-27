@@ -168,6 +168,8 @@ const Form = ({ className, id }) => {
 		};
 	}, {});
 
+	const emptyLeft = !isEditMode && !alternateNames.size && !relatedIngredients.size && !substitutes.size;
+
 	return (
 		<FormStyles className={ className } id="ingForm" onSubmit={ onSubmit }>
 			{/* Top Form Elements (Name, Plural, Properties, IsComposedIngredient) */}
@@ -209,56 +211,61 @@ const Form = ({ className, id }) => {
 			</TopFormStyles>
 
 			<MiddleFormStyles>
-				<Left className="withPadding">
-					{/* Alternate Names */
-						(isEditMode || (!isEditMode && alternateNames.size > 0))
-							? (
-								<AlternateNames
-									className={ classNames.alternateNames_list }
-									isPluralSuggestEnabled
-									isRemovable
-									list={ alternateNames }
-									loading={ loading }
-									onChange={ handleIngredientChange }
-									onListChange={ handleListChange }
-									value={ inputFields.alternateNames }
-								/>
-							) : null
-					}
+				{
+					(emptyLeft)
+						? null : (
+							<Left className="withPadding">
+								{/* Alternate Names */
+									(isEditMode || (!isEditMode && alternateNames.size > 0))
+										? (
+											<AlternateNames
+												className={ classNames.alternateNames_list }
+												isPluralSuggestEnabled
+												isRemovable
+												list={ alternateNames }
+												loading={ loading }
+												onChange={ handleIngredientChange }
+												onListChange={ handleListChange }
+												value={ inputFields.alternateNames }
+											/>
+										) : null
+								}
 
-					{/* Related Ingredients */
-						(isEditMode || (!isEditMode && relatedIngredients.size > 0))
-							? (
-								<RelatedIngredients
-									className={ classNames.relatedIngredients_list }
-									isRemovable
-									list={ relatedIngredients }
-									loading={ loading }
-									onChange={ handleIngredientChange }
-									onListChange={ handleListChange }
-									value={ inputFields.relatedIngredients }
-									values={ values }
-								/>
-							) : null
-					}
+								{/* Related Ingredients */
+									(isEditMode || (!isEditMode && relatedIngredients.size > 0))
+										? (
+											<RelatedIngredients
+												className={ classNames.relatedIngredients_list }
+												isRemovable
+												list={ relatedIngredients }
+												loading={ loading }
+												onChange={ handleIngredientChange }
+												onListChange={ handleListChange }
+												value={ inputFields.relatedIngredients }
+												values={ values }
+											/>
+										) : null
+								}
 
-					{/* Substitutes */
-						(isEditMode || (!isEditMode && substitutes.size > 0))
-							? (
-								<Substitutes
-									className={ classNames.substitutes_list }
-									isRemovable
-									list={ substitutes }
-									loading={ loading }
-									onChange={ handleIngredientChange }
-									onListChange={ handleListChange }
-									value={ inputFields.substitutes }
-									values={ values }
-								/>
-							) : null
-					}
-				</Left>
-				<Right className="withPadding">
+								{/* Substitutes */
+									(isEditMode || (!isEditMode && substitutes.size > 0))
+										? (
+											<Substitutes
+												className={ classNames.substitutes_list }
+												isRemovable
+												list={ substitutes }
+												loading={ loading }
+												onChange={ handleIngredientChange }
+												onListChange={ handleListChange }
+												value={ inputFields.substitutes }
+												values={ values }
+											/>
+										) : null
+								}
+							</Left>
+						)
+				}
+				<Right className={ (emptyLeft) ? '' : 'withPadding' }>
 					{/* References */
 						(isEditMode || (!isEditMode && references.size > 0))
 							? (

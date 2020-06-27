@@ -33,8 +33,6 @@ const List = ({
 	const isEditMode = ctx.get('isEditMode');
 	const [ isInputDisplayed, toggleInputDisplay ] = useState(false);
 
-	console.log({ list: list.toJS(), isRemovable });
-
 	useEffect(() => {
 		if (value === '') {
 			// console.log('disabling');
