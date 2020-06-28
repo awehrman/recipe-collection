@@ -5,7 +5,7 @@ import React, { useContext, useRef } from 'react';
 import { FixedSizeList } from 'react-window';
 import pure from 'recompose/pure';
 import styled from 'styled-components';
-// import scrollIntoView from 'scroll-into-view';
+import Link from 'next/link';
 
 import Card from './Card';
 import ErrorMessage from '../common/ErrorMessage';
@@ -41,18 +41,14 @@ const Container = ({ id }) => {
 	const [ toggleContainer ] = useMutation(TOGGLE_CONTAINER_MUTATION);
 	const [ toggleIngredientID ] = useMutation(UPDATE_CONTAINER_INGREDIENT_MUTATION);
 	const handleIngredientToggle = (e, containerID, ingredientID) => {
-		let el = document.getElementById(`anchor_${ ingredientID }`);
-		try {
-			el.scrollIntoView(true);
-		} catch (err) {
-			// if we error out here its on the initial open card when this
-			setTimeout(() => {
-				el = document.getElementById(`anchor_${ ingredientID }`);
-				if (el) {
-					el.scrollIntoView(true);
-				}
-			}, 100);
-		}
+		// lookup ingredient index
+		setTimeout(() => {
+			const index = container.ingredients.findIndex((i) => i.id === ingredientID);
+			if (index && listRef.current) {
+				listRef.current.scrollToItem(index - 1, 'start');
+			}
+		}, 0);
+
 		toggleIngredientID({
 			variables: {
 				id: containerID,
@@ -60,6 +56,18 @@ const Container = ({ id }) => {
 			},
 		});
 	};
+
+	function getQueryParams(_id) {
+		const currentIngredientID = container.ingredientID;
+		const params = {
+			group,
+			view,
+		};
+		if (currentIngredientID !== _id) {
+			params.id = _id;
+		}
+		return params;
+	}
 
 	/* eslint-disable react/prop-types */
 	const Row = ({ data, index, style }) => {
@@ -72,16 +80,20 @@ const Container = ({ id }) => {
 		// then return each item individually
 		return (
 			<IngredientRow key={ index } className={ ingClassName.join(', ') } style={ style }>
-				{/* eslint-disable-next-line jsx-a11y/anchor-has-content */}
-				<a className="anchor" id={ `anchor_${ ingredient.id }` } />
-				<a
-					onClick={ (e) => handleIngredientToggle(e, container.id, ingredient.id) }
-					onKeyPress={ (e) => handleIngredientToggle(e, container.id, ingredient.id) }
-					role="link"
-					tabIndex="0"
+				<Link href={ {
+					pathname: '/ingredients',
+					query: getQueryParams(ingredient.id),
+				} }
 				>
-					{ ingredient.name }
-				</a>
+					<a
+						onClick={ (e) => handleIngredientToggle(e, container.id, ingredient.id) }
+						onKeyPress={ (e) => handleIngredientToggle(e, container.id, ingredient.id) }
+						role="link"
+						tabIndex="0"
+					>
+						{ ingredient.name }
+					</a>
+				</Link>
 			</IngredientRow>
 		);
 	};
@@ -149,22 +161,26 @@ const Container = ({ id }) => {
 											if (!i.isValidated) ingClassName.push('invalid');
 											if (i.hasParent) ingClassName.push('child');
 											if (i.id === container.ingredientID) ingClassName.push('active');
-
 											return (
 												<li className={ ingClassName.join(', ') } key={ i.id }>
 													{
 														(i.type === 'header')
 															? <span className="header">{ i.name }</span>
 															: (
-																<a
-																	// id={ i.id }
-																	onClick={ (e) => handleIngredientToggle(e, container.id, i.id) }
-																	onKeyPress={ (e) => handleIngredientToggle(e, container.id, i.id) }
-																	role="link"
-																	tabIndex="0"
+																<Link href={ {
+																	pathname: '/ingredients',
+																	query: getQueryParams(i.id),
+																} }
 																>
-																	{ i.name }
-																</a>
+																	<a
+																		onClick={ (e) => handleIngredientToggle(e, container.id, i.id) }
+																		onKeyPress={ (e) => handleIngredientToggle(e, container.id, i.id) }
+																		role="link"
+																		tabIndex="0"
+																	>
+																		{ i.name }
+																	</a>
+																</Link>
 															)
 													}
 												</li>
@@ -310,6 +326,22 @@ const Columns = styled.ul`
 
 		&:hover {
 			color: ${ (props) => props.theme.highlight };
+		}
+	}
+
+	li {
+		+ .active {
+			display: inline-block;
+			background: rgba(128, 174, 245, .08);
+			width: 100%;
+		}
+
+		+ .child a {
+			font-style: italic;
+		}
+
+		&.invalid > a {
+			color: silver;
 		}
 	}
 

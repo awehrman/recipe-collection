@@ -108,7 +108,8 @@ export default {
 			// eslint-disable-next-line object-curly-newline
 			// console.log('BUILD CONTAINERS MUTATION', { currentIngredientID });
 			const { client } = ctx;
-			const { ingredients } = client.readQuery({ query: GET_ALL_INGREDIENTS_QUERY });
+			const { ingredients = [] } = client.readQuery({ query: GET_ALL_INGREDIENTS_QUERY });
+			const sortedIngredients = ingredients.sort((a, b) => a.name.localeCompare(b.name));
 
 			const response = {
 				__typename: 'ContainerResponse',
@@ -120,17 +121,17 @@ export default {
 			// writeQuery containers with these variables
 			const data = {
 				__typename: 'Container',
-				containers: buildContainers(currentIngredientID, group, view, ingredients)
+				containers: buildContainers(currentIngredientID, group, view, sortedIngredients)
 					.map((c) => ({
 						...c,
-						// TODO ugh what a mess, try to tidy this all up
-						ingredients: c.ingredients.toJS().sort((a, b) => a.name.localeCompare(b.name)),
+						ingredients: sortedIngredients,
 						nextIngredientID: getNextIngredientID({
 							ingredientID: currentIngredientID,
-							ingredients: c.ingredients.toJS().sort((a, b) => a.name.localeCompare(b.name)),
+							ingredients: sortedIngredients,
 						}),
 					})),
 			};
+
 
 			client.writeQuery({
 				data,
@@ -142,6 +143,7 @@ export default {
 			});
 
 			response.containers = [ ...data.containers ];
+
 			return response;
 		},
 		toggleIngredientID(_, { id, ingredientID }, { cache }) {
