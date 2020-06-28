@@ -1,5 +1,5 @@
-import validate from '../../components/ingredients/form/validator';
-import { noValidationWarnings } from '../../components/ingredients/form/constants';
+import validate from '../../form/validator';
+import { noValidationWarnings } from '../../form/constants';
 
 export const actions = {
 	clearValidation: 'CLEAR_VALIDATION',

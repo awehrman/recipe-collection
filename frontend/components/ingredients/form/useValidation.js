@@ -1,6 +1,6 @@
 import throttle from 'lodash/throttle';
 import { useContext, useEffect, useReducer, useRef } from 'react';
-import { reducer as validationReducer, actions } from '../../../reducers/validation/ingredient';
+import { reducer as validationReducer, actions } from '../reducers/validation/ingredient';
 import ValidationContext from '../../../lib/contexts/ingredients/validationContext';
 import { noValidationMessages, noValidationWarnings } from './constants';
 

@@ -5,7 +5,7 @@ import pure from 'recompose/pure';
 import styled from 'styled-components';
 
 import withFieldSet from '../withFieldSet';
-import List from './List';
+import List from '../../../common/List';
 
 const AlternateNames = ({ className, ...props }) => (
 	<AlternateNameStyles>

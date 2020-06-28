@@ -3,8 +3,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import Input from '../../../common/Input';
-import withFieldSet from '../withFieldSet';
+import Input from './Input';
+import withFieldSet from '../ingredients/form/withFieldSet';
 
 const ListInput = ({
 	className,

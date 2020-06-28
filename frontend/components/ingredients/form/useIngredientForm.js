@@ -3,7 +3,7 @@ import { useCallback, useReducer } from 'react';
 
 import useValidation from './useValidation';
 import { defaultListActions, defaultProperties } from './constants';
-import { reducer as ingredientReducer, actions } from '../../../reducers/ingredient';
+import { reducer as ingredientReducer, actions } from '../reducers/ingredient';
 
 function useIngredientForm({ id }) {
 	// console.log('>> >> >> useIngredientForm');

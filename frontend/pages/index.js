@@ -6,7 +6,7 @@ import { GET_DASHBOARD_RECIPES_QUERY } from '../lib/apollo/queries/recipes';
 import { withApollo } from '../lib/apollo';
 
 import Header from '../components/Header';
-import ViewMoreList from '../components/ingredients/ViewMoreList';
+import ViewMoreList from '../components/import/ViewMoreList';
 import Carousel from '../components/recipes/Carousel';
 
 const Index = () => {

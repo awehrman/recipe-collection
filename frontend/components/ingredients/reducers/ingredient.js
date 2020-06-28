@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import { fromJS, Map as ImmutableMap, List as ImmutableList } from 'immutable';
-import { defaultListActions, defaultProperties } from '../components/ingredients/form/constants';
+import { defaultListActions, defaultProperties } from '../form/constants';
 
 export const actions = {
 	loadIngredient: 'LOAD_INGREDIENT',

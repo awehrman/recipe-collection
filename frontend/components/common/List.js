@@ -6,11 +6,11 @@ import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import pluralize from 'pluralize';
 import styled from 'styled-components';
-import Suggestions from '../../../common/Suggestions';
+import Suggestions from './Suggestions';
 
-import CardContext from '../../../../lib/contexts/ingredients/cardContext';
-import { GET_SUGGESTED_INGREDIENTS_QUERY } from '../../../../lib/apollo/queries/suggestions';
-import Button from '../../../common/Button';
+import CardContext from '../../lib/contexts/ingredients/cardContext';
+import { GET_SUGGESTED_INGREDIENTS_QUERY } from '../../lib/apollo/queries/suggestions';
+import Button from './Button';
 import ListInput from './ListInput';
 
 const List = ({

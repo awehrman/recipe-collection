@@ -1,11 +1,12 @@
 // import { Map as ImmutableMap } from 'immutable';
 // import { useMutation, useQuery } from '@apollo/react-hooks';
-import PropTypes from 'prop-types';
-import React, { useContext } from 'react';
+// import PropTypes from 'prop-types';
+// import React, { useContext } from 'react';
 import pure from 'recompose/pure';
 import styled from 'styled-components';
-import Button from './../common/Button';
+import Button from '../common/Button';
 
+// TODO this needs to be updated again
 
 const AddNew = () => (
 	// className={ `slide${ isExpanded ? '_expanded' : '' }` }
