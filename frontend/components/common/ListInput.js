@@ -34,7 +34,7 @@ const ListInput = ({
 	return (
 		<ListInputStyles>
 			<Input
-				className={ className }
+				className={ `list ${ className }` }
 				fieldName={ `${ fieldName }_input` }
 				isSpellCheck
 				loading={ loading }

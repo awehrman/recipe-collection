@@ -102,7 +102,12 @@ const Container = ({ id }) => {
 	if (loading) return <Loading />;
 
 	const className = (`${ (!container.isExpanded) ? 'hidden' : '' } ${ (container.ingredientID) ? 'expanded' : '' }`).trim();
-	const containerContext = ImmutableMap({ nextIngredientID: container.nextIngredientID || null });
+	const containerContext = ImmutableMap({
+		currentContainerID: container.id,
+		currentIngredientID: container.ingredientID,
+		handleIngredientSelection: handleIngredientToggle,
+		nextIngredientID: container.nextIngredientID || null,
+	});
 
 	return (
 		<ContainerContext.Provider value={ containerContext }>

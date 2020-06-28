@@ -2,6 +2,7 @@ import { List as ImmutableList } from 'immutable';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagic } from '@fortawesome/pro-regular-svg-icons';
 import { faPlus, faTimes } from '@fortawesome/pro-solid-svg-icons';
+import Link from 'next/link';
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import pluralize from 'pluralize';
@@ -9,6 +10,8 @@ import styled from 'styled-components';
 import Suggestions from './Suggestions';
 
 import CardContext from '../../lib/contexts/ingredients/cardContext';
+import ContainerContext from '../../lib/contexts/ingredients/containerContext';
+import ViewContext from '../../lib/contexts/ingredients/viewContext';
 import { GET_SUGGESTED_INGREDIENTS_QUERY } from '../../lib/apollo/queries/suggestions';
 import Button from './Button';
 import ListInput from './ListInput';
@@ -30,8 +33,16 @@ const List = ({
 }) => {
 	// console.log('LIST', { fieldName, list, value });
 	const ctx = useContext(CardContext);
+	const containerContext = useContext(ContainerContext);
 	const isEditMode = ctx.get('isEditMode');
 	const [ isInputDisplayed, toggleInputDisplay ] = useState(false);
+	const handleIngredientSelection = containerContext.get('handleIngredientSelection');
+	const currentContainerID = containerContext.get('currentContainerID');
+	const currentIngredient = containerContext.get('currentIngredient');
+
+	const viewContext = useContext(ViewContext);
+	const group = viewContext.get('group');
+	const view = viewContext.get('view');
 
 	useEffect(() => {
 		if (value === '') {
@@ -91,6 +102,17 @@ const List = ({
 		toggleInputDisplay(false);
 	}
 
+	function getQueryParams(_id) {
+		const params = {
+			group,
+			view,
+		};
+		if (currentIngredient !== _id) {
+			params.id = _id;
+		}
+		return params;
+	}
+
 	return (
 		<ListStyles>
 			{/* List Label */}
@@ -133,12 +155,21 @@ const List = ({
 								{/* list item name */
 									(type === 'ingredient')
 										? (
-											<Button
-												className="list"
-												id={ name }
-												label={ name }
-												onClick={ (e) => e.preventDefault } // TODO
-											/>
+											// TODO consider making this its own component
+											<Link href={ {
+												pathname: '/ingredients',
+												query: getQueryParams(id),
+											} }
+											>
+												<a
+													onClick={ (e) => handleIngredientSelection(e, currentContainerID, id) }
+													onKeyPress={ (e) => handleIngredientSelection(e, currentContainerID, id) }
+													role="link"
+													tabIndex="0"
+												>
+													{ name }
+												</a>
+											</Link>
 										)
 										: <span id={ name }>{ name }</span>
 								}
@@ -272,10 +303,17 @@ const ListStyles = styled.div`
 			padding: 4px 0;
 			position: relative;
 
+			a {
+				text-decoration: none;
+				color: ${ (props) => props.theme.highlight };
+				font-weight: 600;
+			}
+
 			.delete {
 				display: none;
 				padding: 0;
 				position: absolute;
+				top: 2px;
 
 				svg:hover {
 					color: tomato;

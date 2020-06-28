@@ -117,7 +117,6 @@ const InputHighlight = styled.span`
 	position: absolute;
 	left: 0;
 	top: 27px; /* 19 (height of input) + 4x (padding) */
-	width: 100%;
 	height: 0;
 	color: transparent;
 	font-family: ${ (props) => props.theme.fontFamily };
