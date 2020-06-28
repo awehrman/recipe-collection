@@ -54,6 +54,10 @@ const Ingredients = ({ router }) => {
 
 	const { ingredients = [] } = data || {};
 
+	const message = (view === 'new')
+		? 'No new ingredients to review.'
+		: 'No ingredients have been added yet.';
+
 	return (
 		<ViewContext.Provider value={ context }>
 			<ValidationContext.Provider value={ buildValidationList(ingredients) }>
@@ -68,6 +72,12 @@ const Ingredients = ({ router }) => {
 
 						{/* show the containers once they're available in the cache */
 							!loading && showContainers ? <Containers /> : null
+						}
+
+						{/* no ingredients message */
+							(!loading && !ingredients.length)
+								? <span className="message">{ message }</span>
+								: null
 						}
 
 						{/* add new ingredient form */}

@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-const Suggestions = ({ children, fieldName, isSuggestionEnabled, onSelectSuggestion, suggestionQuery, type, value }) => {
+const Suggestions = ({ children, excludedSuggestions, fieldName, isSuggestionEnabled, onSelectSuggestion, suggestionQuery, type, value }) => {
 	function handleSuggestion(e, suggestion) {
 		e.preventDefault();
 		onSelectSuggestion('add', suggestion, fieldName);
@@ -19,9 +19,7 @@ const Suggestions = ({ children, fieldName, isSuggestionEnabled, onSelectSuggest
   */
 
 	const { data } = useQuery(suggestionQuery, {
-		context: {
-			value,
-		},
+		context: { excludedSuggestions },
 		variables: {
 			type,
 			value,
@@ -57,12 +55,14 @@ const Suggestions = ({ children, fieldName, isSuggestionEnabled, onSelectSuggest
 };
 
 Suggestions.defaultProps = {
+	excludedSuggestions: [],
 	isSuggestionEnabled: false,
 	value: '',
 };
 
 Suggestions.propTypes = {
 	children: PropTypes.element.isRequired,
+	excludedSuggestions: PropTypes.arrayOf(PropTypes.string),
 	fieldName: PropTypes.string.isRequired,
 	isSuggestionEnabled: PropTypes.bool,
 	onSelectSuggestion: PropTypes.func.isRequired,

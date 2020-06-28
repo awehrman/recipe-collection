@@ -169,6 +169,7 @@ const Form = ({ className, id }) => {
 	}, {});
 
 	const emptyLeft = !isEditMode && !alternateNames.size && !relatedIngredients.size && !substitutes.size;
+	const excludedSuggestions = [ name, ...relatedIngredients.toJS().map((s) => s.name), ...substitutes.toJS().map((s) => s.name) ];
 
 	return (
 		<FormStyles className={ className } id="ingForm" onSubmit={ onSubmit }>
@@ -236,6 +237,7 @@ const Form = ({ className, id }) => {
 										? (
 											<RelatedIngredients
 												className={ classNames.relatedIngredients_list }
+												excludedSuggestions={ excludedSuggestions }
 												isRemovable
 												list={ relatedIngredients }
 												loading={ loading }
@@ -252,6 +254,7 @@ const Form = ({ className, id }) => {
 										? (
 											<Substitutes
 												className={ classNames.substitutes_list }
+												excludedSuggestions={ [ name, ...relatedIngredients, ...substitutes ] }
 												isRemovable
 												list={ substitutes }
 												loading={ loading }

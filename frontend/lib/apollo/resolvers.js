@@ -64,8 +64,7 @@ export default {
 		},
 		suggestions(_, { type, value }, ctx) {
 			console.log(`... [withData](${ type }, ${ value }) suggestions query resolver`);
-			console.log({ ctx });
-			const { client } = ctx;
+			const { client, excludedSuggestions } = ctx;
 			let suggestions = [];
 
 			// determine the lookup query based on the type
@@ -88,6 +87,8 @@ export default {
 					(i.name.indexOf(value) > -1)
 					// ... as long as they're not an exact match on our input
 					&& (i.name !== value)
+					// ... and we're not in the excluded suggestions list
+					&& (!excludedSuggestions.find((s) => (s === i.name)))
 				));
 				suggestions.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 				suggestions = suggestions.slice(0, 5);

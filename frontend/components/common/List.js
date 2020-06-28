@@ -18,6 +18,7 @@ import ListInput from './ListInput';
 
 const List = ({
 	className,
+	excludedSuggestions,
 	fieldName,
 	isPluralSuggestEnabled,
 	isRemovable,
@@ -144,7 +145,6 @@ const List = ({
 							__typename,
 							id,
 							name,
-							// type
 						} = listItem;
 						if (!name) return null;
 
@@ -186,7 +186,6 @@ const List = ({
 										: null
 								}
 
-								{/* TODO there's some wiggling happening on hover here */}
 								{/* Delete List Item Button */
 									(isEditMode && isRemovable)
 										? (
@@ -209,6 +208,7 @@ const List = ({
 					? (
 						<Suggestions
 							isSuggestionEnabled={ isSuggestionEnabled }
+							excludedSuggestions={ excludedSuggestions }
 							fieldName={ fieldName }
 							onSelectSuggestion={ onListChange }
 							suggestionQuery={ GET_SUGGESTED_INGREDIENTS_QUERY }
@@ -237,6 +237,7 @@ const List = ({
 
 List.defaultProps = {
 	className: 'list',
+	excludedSuggestions: [],
 	isPluralSuggestEnabled: false,
 	isSuggestionEnabled: false,
 	isRemovable: true,
@@ -252,6 +253,7 @@ List.defaultProps = {
 
 List.propTypes = {
 	className: PropTypes.string,
+	excludedSuggestions: PropTypes.arrayOf(PropTypes.string),
 	fieldName: PropTypes.string.isRequired,
 	isPluralSuggestEnabled: PropTypes.bool,
 	isRemovable: PropTypes.bool,

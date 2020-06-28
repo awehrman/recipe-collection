@@ -18,10 +18,6 @@ const Containers = () => {
 	// setup create/refresh containers mutation
 	const [ createContainers ] = useMutation(CREATE_CONTAINERS_MUTATION);
 
-	const message = (view === 'new')
-		? 'No new ingredients to review.'
-		: 'No ingredients have been added yet.';
-
 	// query containers
 	const {
 		data = {},
@@ -62,12 +58,6 @@ const Containers = () => {
 			{/* loading message */
 				(loading && !containers.length)
 					? <Loading />
-					: null
-			}
-
-			{/* no containers message */
-				(!loading && !containers.length)
-					? <span className="message">{ message }</span>
 					: null
 			}
 
