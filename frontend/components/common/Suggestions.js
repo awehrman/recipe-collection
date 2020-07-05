@@ -62,7 +62,7 @@ Suggestions.defaultProps = {
 
 Suggestions.propTypes = {
 	children: PropTypes.element.isRequired,
-	excludedSuggestions: PropTypes.arrayOf(PropTypes.string),
+	excludedSuggestions: PropTypes.arrayOf(PropTypes.shape({})),
 	fieldName: PropTypes.string.isRequired,
 	isSuggestionEnabled: PropTypes.bool,
 	onSelectSuggestion: PropTypes.func.isRequired,

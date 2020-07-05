@@ -1,6 +1,6 @@
 import { List as ImmutableList } from 'immutable';
 import { v4 as uuidv4 } from 'uuid';
-import { hasProperty } from './util';
+import { getNextIngredientID } from './util';
 
 const generateByCount = (id, ingredients) => {
 	// console.log('generateByCount');
@@ -143,12 +143,12 @@ const generateByProperty = (id, ingredients) => {
 		let containerIngredients = [];
 
 		if (label !== 'other') {
-			containerIngredients = ingredients.filter((i) => hasProperty(i.properties, label) && i.properties[label]);
+			containerIngredients = ingredients.filter((i) => i.properties[label]);
 		} else {
 			containerIngredients = ingredients.filter((i) => Object
 				// ["Properties", false, false, false, false, false, false]
 				.values(i.properties)
-				.filter((value) => (value !== 'Properties') && value)
+				.filter((value) => (typeof value !== 'string') && value)
 				.length === 0);
 		}
 
@@ -156,11 +156,12 @@ const generateByProperty = (id, ingredients) => {
 			__typename: 'Container',
 			id: uuidv4(),
 			ingredientID: id,
-			ingredients: containerIngredients,
+			ingredients: ImmutableList(containerIngredients),
 			isExpanded: true,
 			label: label.charAt(0).toUpperCase() + label.slice(1),
-			referenceCount: containerIngredients && containerIngredients.size,
+			referenceCount: containerIngredients.size,
 		};
+
 		return container;
 	}).filter((c) => c.ingredients.size > 0);
 
@@ -221,7 +222,21 @@ const buildContainers = (id = null, group = 'name', view = 'all', ingredients = 
 		containers = generateByName(id, viewIngredients, view);
 	}
 
-	return containers;
+	// sort internal ingredients per containers
+	const response = containers.map((c) => {
+		const sortedIngredients = c.ingredients.sort((a, b) => a.name.localeCompare(b.name));
+		const nextIngredientID = getNextIngredientID({
+			ingredientID: id,
+			ingredients: sortedIngredients,
+		});
+		return {
+			...c,
+			ingredients: sortedIngredients.toJS(),
+			nextIngredientID,
+		};
+	});
+
+	return response;
 };
 
 export default buildContainers;

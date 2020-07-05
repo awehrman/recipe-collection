@@ -56,6 +56,9 @@ export const BASIC_INGREDIENT_FIELDS = gql`
 		isComposedIngredient
 		isValidated
 		name
+		parent {
+			id
+		}
 		plural
 		properties {
 			id
@@ -67,6 +70,9 @@ export const BASIC_INGREDIENT_FIELDS = gql`
 		  gluten
 		}
 		referenceCount @client
+		references {
+			id
+		}
 	}
 `;
 

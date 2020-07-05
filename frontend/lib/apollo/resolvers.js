@@ -2,25 +2,7 @@ import buildContainers from '../buildContainers';
 import { setIsExpanded, toggleIngredientID, toggleNextIngredientID, getContainerIngredients } from './fragments/containers';
 import { GET_ALL_CONTAINERS_QUERY } from './queries/containers';
 import { GET_ALL_INGREDIENTS_QUERY } from './queries/ingredients';
-
-// TODO move to a util file
-function getNextIngredientID(c) {
-	if (c.ingredientID) {
-		const currentIndex = c.ingredients.findIndex((i) => i.id === c.ingredientID);
-		const nextIngredientIndex = currentIndex + 1;
-
-		// if the next item in the list exists then return that id
-		if (c.ingredients.length && c.ingredients[nextIngredientIndex]) {
-			return c.ingredients[nextIngredientIndex].id;
-		}
-
-		// otherwise if we were at the end of the list, go-to the first item
-		if (c.ingredients.length && c.ingredients[0]) {
-			return c.ingredients[0].id;
-		}
-	}
-	return null;
-}
+import { getNextIngredientID } from '../util';
 
 export default {
 	// assign client side field values
@@ -122,15 +104,7 @@ export default {
 			// writeQuery containers with these variables
 			const data = {
 				__typename: 'Container',
-				containers: buildContainers(currentIngredientID, group, view, sortedIngredients)
-					.map((c) => ({
-						...c,
-						ingredients: sortedIngredients,
-						nextIngredientID: getNextIngredientID({
-							ingredientID: currentIngredientID,
-							ingredients: sortedIngredients,
-						}),
-					})),
+				containers: buildContainers(currentIngredientID, group, view, sortedIngredients),
 			};
 
 
