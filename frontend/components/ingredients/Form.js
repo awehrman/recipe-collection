@@ -7,6 +7,7 @@ import pure from 'recompose/pure';
 import styled from 'styled-components';
 
 import Button from '../common/Button';
+import ErrorModal from './modals/ErrorModal';
 import AlternateNames from './form/fields/AlternateNames';
 import RelatedIngredients from './form/fields/RelatedIngredients';
 import Substitutes from './form/fields/Substitutes';
@@ -26,6 +27,8 @@ import { CREATE_CONTAINERS_MUTATION } from '../../lib/apollo/mutations/container
 const Form = ({ className, id }) => {
 	// console.log('[Form]');
 	const [ isSubmitting, setIsSubmitting ] = useState(false); // TODO should this be in context, or does that still cause re-renders?
+	const [ displayModal, setDisplayModal ] = useState(false);
+	const [ modalType, setModalType ] = useState();
 
 	const ctx = useContext(CardContext);
 	const isEditMode = ctx.get('isEditMode');
@@ -125,13 +128,16 @@ const Form = ({ className, id }) => {
 	function flagError(e) {
 		e.preventDefault();
 		console.log('flagError');
-		// TODO
+		setDisplayModal(true);
+		setModalType('error');
 	}
 
 	function editRelationship(e) {
 		e.preventDefault();
 		console.log('editRelationship');
 		// TODO
+		setDisplayModal(true);
+		setModalType('relationship');
 	}
 
 	const classNameFields = [
@@ -287,6 +293,7 @@ const Form = ({ className, id }) => {
 					? (
 						<BottomFormStyles>
 							{/* More Settings */}
+							{/* TODO assign parents and write backend calls
 							<Settings>
 								<MarkAsError
 									label="Flag Error"
@@ -298,7 +305,7 @@ const Form = ({ className, id }) => {
 									onClick={ editRelationship }
 									type="button"
 								/>
-							</Settings>
+							</Settings> */}
 
 							{/* Warnings */}
 							<Warnings>
@@ -332,6 +339,10 @@ const Form = ({ className, id }) => {
 					)
 					: null
 			}
+
+			{/* Modals */}
+			{ displayModal && modalType === 'error' && <ErrorModal /> }
+			{/* displayModal && modalType === 'relationship' && <RelationshipModal /> */}
 		</FormStyles>
 	);
 };
