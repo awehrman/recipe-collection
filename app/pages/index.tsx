@@ -3,6 +3,7 @@ import React from 'react'
 
 // import prisma from '../lib/prisma'
 import Header from '../components/Header'
+import Page from '../components/Page';
 
 // export const getStaticProps: GetStaticProps = async () => {
 //   const feed = await prisma.post.findMany({
@@ -22,8 +23,9 @@ type Props = {
 const Dashboard: React.FC<Props> = (props) => {
   return (
     <div>
-      <Header />
-      Dashboard
+      <Page>
+        <Header title="Dashboard" />
+      </Page>
     </div>
   )
 }

@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import { signOut, useSession } from 'next-auth/client'
 import styled from 'styled-components'
 
-const Header: React.FC = () => {
+const Header: React.FC = ({ title = ''}) => {
   const router = useRouter()
   const isActive: (pathname: string) => boolean = (pathname) =>
     router.pathname === pathname
@@ -13,6 +13,7 @@ const Header: React.FC = () => {
 
   return (
     <Title>
+      <h1>{title}</h1>
       <p>{session?.user?.name}</p>
       {
         !session
