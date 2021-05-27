@@ -1,7 +1,8 @@
-import React from 'react'
+import React from 'react';
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { signOut, useSession } from 'next-auth/client'
+import styled from 'styled-components'
 
 const Header: React.FC = () => {
   const router = useRouter()
@@ -11,7 +12,7 @@ const Header: React.FC = () => {
   const [session] = useSession()
 
   return (
-    <nav>
+    <Title>
       <p>{session?.user?.name}</p>
       {
         !session
@@ -25,8 +26,12 @@ const Header: React.FC = () => {
             </button>
           )
       }
-    </nav>
+    </Title>
   )
 }
 
 export default Header
+
+const Title = styled.h1`
+  color: red;
+`;
