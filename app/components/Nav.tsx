@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import styled, { ThemeContext } from 'styled-components';
 import { lighten } from 'polished';
 
@@ -12,18 +12,67 @@ type NavProps = {
 
 const Navigation: React.FC<NavProps> = ({ isExpanded, setIsExpanded }) => {
 	const themeContext = useContext(ThemeContext);
-	const navRef = useRef<HTMLDivElement>(null); // ??? is here not an associated nav element?
-	// const navIconRef = useRef<HTMLButtonElement>(null);
+	const { sizes: { tablet } } = themeContext;
+	const tabletSize = parseInt(tablet, 10);
 
-	function onNavIconClick(e: React.MouseEvent<HTMLElement>) {
+	const navRef = useRef<HTMLDivElement>(null);
+	const navIconRef = useRef<HTMLButtonElement|null>(null);
+
+	useEffect(() => {
+		if (navRef?.current) {
+			navRef.current.addEventListener('mouseover', handleMouseOver);
+			navRef.current.addEventListener('mouseleave', handleMouseLeave);
+		}
+
+    return () => {
+			if (navRef?.current) {
+				navRef.current.removeEventListener('mouseover', handleMouseOver);
+				navRef.current.removeEventListener('mouseleave', handleMouseLeave);
+			}
+    };
+  }, [handleMouseOver, handleMouseLeave]);
+
+	function onNavIconClick(e: React.MouseEvent) {
 		e.preventDefault();
 		setIsExpanded(!isExpanded);
+	}
+
+	// note: need to use native mouse event for the event handlers
+	function handleMouseOver(e: MouseEvent) {
+		// enable event listeners if we're in at least tablet size
+		if (window.innerWidth > tabletSize) {
+			const yPosition = ((e.clientY - 20) < 0) ? 20 : e.clientY - 10;
+
+			// move the menu icon to where ever our cursor is
+			if (navIconRef?.current) {
+				console.log(`adjusting to ${yPosition}px`);
+				navIconRef.current.style.top = `${yPosition}px`;
+				console.log(navIconRef.current.style.top);
+			}
+
+			// keep updating this anytime we move our mouse around the nav
+			if (navRef?.current) {
+				navRef.current.addEventListener('mousemove', handleMouseOver);
+			}
+		}
+	}
+
+	function handleMouseLeave() {
+		// cleanup this event if we're not in the nav
+		if (navRef?.current) {
+			navRef.current.removeEventListener('mousemove', handleMouseOver);
+		}
+
+		// if we're in mobile, make sure we put our menu icon back at the top
+		if (navIconRef?.current && window.innerWidth > tabletSize) {
+			navIconRef.current.style.top = '20px';
+		}
 	}
 
 	return (
 		<NavStyles ref={navRef} isExpanded={isExpanded} theme={themeContext} >
 			<Button
-				// ref={navIconRef}
+				ref={navIconRef}
 				className='navigationIcon'
 				icon={<NavigationIconSVG />}
 				onClick={onNavIconClick}
