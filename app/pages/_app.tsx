@@ -1,3 +1,4 @@
+import { AppProps } from 'next/app';
 import React from 'react';
 import { createGlobalStyle, ThemeProvider } from "styled-components";
 
@@ -42,8 +43,6 @@ const theme = {
 };
 
 const GlobalStyle = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700');
-
   html {
     box-sizing: border-box;
     height: 100%;
@@ -74,7 +73,7 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-export default function App({ Component, pageProps }) {
+export default function App({ Component, pageProps }: AppProps): React.ReactElement {
   return (
     <React.Fragment>
       <GlobalStyle />

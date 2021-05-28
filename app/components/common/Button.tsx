@@ -2,16 +2,10 @@ import React, { forwardRef, MutableRefObject } from 'react';
 import styled from 'styled-components';
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 	ref?: MutableRefObject<HTMLButtonElement>|null;
+	href?: string;
 	icon?: React.ReactNode; // SVG
 	label?: string;
 }
-
-// const Button: React.FC<ButtonProps> = ({ icon, label, ref, ...props }) => (
-// 	<button ref={ref} {...props}>
-// 		{icon }
-// 		{label}
-// 	</button>
-// )
 
 type Ref = HTMLButtonElement|null;
 

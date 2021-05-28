@@ -3,7 +3,11 @@ import styled, { ThemeContext } from 'styled-components';
 import { lighten } from 'polished';
 
 import Button from './common/Button';
-import NavigationIconSVG from './../public/icons/ellipsis-v-regular.svg';
+import NavigationIcon from './../public/icons/ellipsis-v-regular.svg';
+import HomeIcon from './../public/icons/home-solid.svg';
+import CloudDownloadIcon from './../public/icons/cloud-download-alt-solid.svg';
+import LemonIcon from './../public/icons/lemon-solid.svg';
+import FolderIcon from './../public/icons/folder-open-solid.svg';
 
 type NavProps = {
 	isExpanded: boolean;
@@ -32,7 +36,7 @@ const Navigation: React.FC<NavProps> = ({ isExpanded, setIsExpanded }) => {
     };
   }, [handleMouseOver, handleMouseLeave]);
 
-	function onNavIconClick(e: React.MouseEvent) {
+	function handleNavigationToggle(e: React.MouseEvent) {
 		e.preventDefault();
 		setIsExpanded(!isExpanded);
 	}
@@ -45,9 +49,7 @@ const Navigation: React.FC<NavProps> = ({ isExpanded, setIsExpanded }) => {
 
 			// move the menu icon to where ever our cursor is
 			if (navIconRef?.current) {
-				console.log(`adjusting to ${yPosition}px`);
 				navIconRef.current.style.top = `${yPosition}px`;
-				console.log(navIconRef.current.style.top);
 			}
 
 			// keep updating this anytime we move our mouse around the nav
@@ -71,12 +73,59 @@ const Navigation: React.FC<NavProps> = ({ isExpanded, setIsExpanded }) => {
 
 	return (
 		<NavStyles ref={navRef} isExpanded={isExpanded} theme={themeContext} >
+			{/* Expand Navigation Icon */}
 			<Button
 				ref={navIconRef}
 				className='navigationIcon'
-				icon={<NavigationIconSVG />}
-				onClick={onNavIconClick}
+				icon={<NavigationIcon />}
+				onClick={handleNavigationToggle}
 			/>
+
+			<ul>
+					{/* Home */}
+					<li>
+						<Button
+							className='link'
+							href='/'
+							icon={<HomeIcon />}
+							label='Home'
+							onClick={handleNavigationToggle}
+						/>
+					</li>
+
+					{/* Import */}
+					<li>
+						<Button
+							className='link'
+							href='/import'
+							icon={<CloudDownloadIcon />}
+							label='Import'
+							onClick={handleNavigationToggle}
+						/>
+					</li>
+
+					{/* Ingredients */}
+					<li>
+						<Button
+							className='link'
+							href='/ingredients'
+							icon={<LemonIcon />}
+							label='Ingredients'
+							onClick={handleNavigationToggle}
+						/>
+					</li>
+
+					{/* Recipes */}
+					<li>
+						<Button
+							className='link'
+							href='/recipes'
+							icon={<FolderIcon />}
+							label='Recipes'
+							onClick={handleNavigationToggle}
+						/>
+					</li>
+				</ul>
 		</NavStyles>
 	);
 }
@@ -93,9 +142,10 @@ const NavStyles = styled.nav<NavStylesProps>`
 	position: fixed;
 	top: 0;
 	width: 100%;
-	z-index: 1000; /* we want this higher than the nprogress bar*/
+	z-index: 1000; /* we want this higher than the nprogress bar */
 
 	button.navigationIcon {
+		top: 20px;
 		color: ${ ({ theme }) => theme.colors.menuColor };
 		cursor: pointer;
 		display: block;
@@ -113,7 +163,7 @@ const NavStyles = styled.nav<NavStylesProps>`
 		}
 
 		&:hover {
-			/* color: ${ ({ theme }) => lighten(0.1, theme.colors.menuColor) }; */
+			color: ${ ({ theme }) => lighten(0.1, theme.colors.menuColor) };
 		}
 	}
 
@@ -131,20 +181,22 @@ const NavStyles = styled.nav<NavStylesProps>`
 			}
 
 			button {
+				font-family: 'Source Sans Pro', Verdana, sans-serif;
 				border: 0;
 				background: transparent;
 				cursor: pointer;
 				text-decoration: none;
 				color: ${ ({ theme }) => theme.colors.menuColor };
-				font-size: .875em;
+				font-size: 1em;
 				font-weight: 400;
+				padding: 6px 0;
 
 				&:hover {
 					color: ${ ({ theme }) => lighten(0.1, theme.colors.menuColor) };
 				}
 
 				svg {
-					margin-right: 10px;
+					margin-right: 20px;
 					height: 14px;
 				}
 			}

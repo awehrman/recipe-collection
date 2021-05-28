@@ -1,8 +1,9 @@
-import Document, { DocumentContext, Html, Head, Main, NextScript } from 'next/document'
+import React from 'react';
+import Document, { DocumentContext, DocumentInitialProps, Html, Head, Main, NextScript } from 'next/document'
 import { ServerStyleSheet } from "styled-components";
 
 export default class MyDocument extends Document {
-  static async getInitialProps(ctx: DocumentContext) {
+  static async getStaticProps(ctx: DocumentContext): Promise<DocumentInitialProps> {
     const sheet = new ServerStyleSheet();
     const originalRenderPage = ctx.renderPage;
 
@@ -17,10 +18,10 @@ export default class MyDocument extends Document {
       return {
         ...initialProps,
         styles: (
-          <>
+          <React.Fragment>
             {initialProps.styles}
             {sheet.getStyleElement()}
-          </>
+          </React.Fragment>
         ),
       };
     } finally {
@@ -28,10 +29,12 @@ export default class MyDocument extends Document {
     }
   }
 
-  render() {
+  render(): React.ReactElement {
     return (
       <Html>
-        <Head />
+        <Head>
+          <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700' rel='stylesheet' />
+        </Head>
         <body>
           <Main />
           <NextScript />
