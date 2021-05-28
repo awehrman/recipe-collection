@@ -15,7 +15,7 @@ export type PageProps = {
 
 const Page: React.FC<PageProps>  = ({ title, children }) => {
   const router = useRouter();
-  const [session] = useSession()
+  const [session, loading] = useSession()
   const themeContext = useContext(ThemeContext);
   const [isExpanded, setIsExpanded] = useState(false);
   const isActive: (_pathname: string) => boolean = (pathname) =>

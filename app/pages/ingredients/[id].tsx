@@ -5,7 +5,7 @@ import React from "react"
 import Page from '../../components/Page';
 
 // export const getServerSideProps: GetServerSideProps = async ({ params }) => {
-//   const recipe = await prisma.recipe.findUnique({
+//   const recipe = await prisma.ingredient.findUnique({
 //     where: {
 //       id: Number(params?.id) || -1,
 //     },
@@ -13,19 +13,19 @@ import Page from '../../components/Page';
 //     },
 //   })
 //   return {
-//     props: recipe,
+//     props: ingredient,
 //   }
 // }
 
-type RecipeProps = {
+type IngredientProps = {
 }
 
-const Recipe: React.FC<RecipeProps> = () => {
+const Ingredient: React.FC<IngredientProps> = () => {
   return (
-    <Page title='Recipe'>
+    <Page title='Ingredient'>
       There's nothing here yet!
     </Page>
   )
 }
 
-export default Recipe
+export default Ingredient

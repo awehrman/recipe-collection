@@ -1,6 +1,7 @@
 import { AppProps } from 'next/app';
 import React from 'react';
 import { createGlobalStyle, ThemeProvider } from "styled-components";
+import { Provider } from 'next-auth/client';
 
 // TODO consider importing these
 const theme = {
@@ -42,6 +43,7 @@ const theme = {
   }
 };
 
+// TODO i think this is out of date; getting a warning about this
 const GlobalStyle = createGlobalStyle`
   html {
     box-sizing: border-box;
@@ -75,11 +77,11 @@ const GlobalStyle = createGlobalStyle`
 
 export default function App({ Component, pageProps }: AppProps): React.ReactElement {
   return (
-    <React.Fragment>
+    <Provider session={pageProps.session}>
       <GlobalStyle />
       <ThemeProvider theme={theme}>
         <Component {...pageProps} />
       </ThemeProvider>
-    </React.Fragment>
+    </Provider>
   );
 }

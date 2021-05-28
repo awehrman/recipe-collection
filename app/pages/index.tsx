@@ -1,28 +1,13 @@
 import React from 'react'
-// import { GetStaticProps } from 'next'
-
-// import prisma from '../lib/prisma'
 import Page from '../components/Page';
 
-// export const getStaticProps: GetStaticProps = async () => {
-//   const feed = await prisma.post.findMany({
-//     where: { published: true },
-//     include: {
-//       author: {
-//         select: { name: true },
-//       },
-//     },
-//   })
-//   return { props: { feed } }
-// }
-
-type Props = {
+type DashboardProps = {
 }
 
-const Dashboard: React.FC<Props> = (props) => {
+const Dashboard: React.FC<DashboardProps> = () => {
   return (
     <Page title='Dashboard'>
-      Dashboard
+      There's nothing here yet!
     </Page>
   )
 }
