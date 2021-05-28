@@ -2,7 +2,6 @@ import React from 'react'
 // import { GetStaticProps } from 'next'
 
 // import prisma from '../lib/prisma'
-import Header from '../components/Header'
 import Page from '../components/Page';
 
 // export const getStaticProps: GetStaticProps = async () => {
@@ -22,11 +21,9 @@ type Props = {
 
 const Dashboard: React.FC<Props> = (props) => {
   return (
-    <div>
-      <Page>
-        <Header title="Dashboard" />
-      </Page>
-    </div>
+    <Page title='Dashboard'>
+      Dashboard
+    </Page>
   )
 }
 

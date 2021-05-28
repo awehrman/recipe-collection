@@ -1,3 +1,4 @@
+import React from 'react';
 import { createGlobalStyle, ThemeProvider } from "styled-components";
 
 // TODO consider importing these
@@ -53,7 +54,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   *:focus {
-    outline: 2px dotted rgba(128, 174, 245, 1);
+    outline: 2px dotted ${ theme.colors.highlight };
   }
 
   body {
@@ -75,11 +76,11 @@ const GlobalStyle = createGlobalStyle`
 
 export default function App({ Component, pageProps }) {
   return (
-    <>
+    <React.Fragment>
       <GlobalStyle />
       <ThemeProvider theme={theme}>
         <Component {...pageProps} />
       </ThemeProvider>
-    </>
+    </React.Fragment>
   );
 }
