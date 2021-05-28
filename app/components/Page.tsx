@@ -32,9 +32,9 @@ const Page: React.FC<PageProps>  = ({ title, children }) => {
           </SignUp>
         ) : (
           <Wrapper theme={themeContext} isExpanded={isExpanded}>
-            <Nav isExpanded={isExpanded} />
+            <Nav isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
             <Content>
-              <Header title={title} setIsExpanded={setIsExpanded} />
+              <Header title={title} />
               { children }
             </Content>
           </Wrapper>

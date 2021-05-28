@@ -1,17 +1,33 @@
 import React, { useContext, useRef } from 'react';
 import styled, { ThemeContext } from 'styled-components';
+import { lighten } from 'polished';
+
+import Button from './common/Button';
+import NavigationIconSVG from './../public/icons/ellipsis-v-regular.svg';
 
 type NavProps = {
 	isExpanded: boolean;
-	setIsExpanded: (val: boolean) => void;
+	setIsExpanded: (_value: boolean) => void;
 }
 
 const Navigation: React.FC<NavProps> = ({ isExpanded, setIsExpanded }) => {
 	const themeContext = useContext(ThemeContext);
-	const navRef = useRef(null);
+	const navRef = useRef<HTMLDivElement>(null); // ??? is here not an associated nav element?
+	// const navIconRef = useRef<HTMLButtonElement>(null);
+
+	function onNavIconClick(e: React.MouseEvent<HTMLElement>) {
+		e.preventDefault();
+		setIsExpanded(!isExpanded);
+	}
+
 	return (
 		<NavStyles ref={navRef} isExpanded={isExpanded} theme={themeContext} >
-			...
+			<Button
+				// ref={navIconRef}
+				className='navigationIcon'
+				icon={<NavigationIconSVG />}
+				onClick={onNavIconClick}
+			/>
 		</NavStyles>
 	);
 }
@@ -30,7 +46,7 @@ const NavStyles = styled.nav<NavStylesProps>`
 	width: 100%;
 	z-index: 1000; /* we want this higher than the nprogress bar*/
 
-	.navigationIcon {
+	button.navigationIcon {
 		color: ${ ({ theme }) => theme.colors.menuColor };
 		cursor: pointer;
 		display: block;
@@ -75,7 +91,7 @@ const NavStyles = styled.nav<NavStylesProps>`
 				font-weight: 400;
 
 				&:hover {
-					/* color: ${ ({ theme }) => lighten(0.1, theme.colors.menuColor) }; */
+					color: ${ ({ theme }) => lighten(0.1, theme.colors.menuColor) };
 				}
 
 				svg {
