@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import React, { useContext, useEffect, useRef } from 'react';
 import styled, { ThemeContext } from 'styled-components';
 import { lighten } from 'polished';
@@ -13,6 +14,13 @@ type NavProps = {
 	isExpanded: boolean;
 	setIsExpanded: (_value: boolean) => void;
 }
+
+const links = [
+	{ href: '/', label: 'Home', icon: <HomeIcon /> },
+	{ href: '/import', label: 'Import', icon: <CloudDownloadIcon /> },
+	{ href: '/ingredients', label: 'Ingredients', icon: <LemonIcon /> },
+	{ href: '/recipes', label: 'Recipes', icon: <FolderIcon /> },
+]
 
 const Navigation: React.FC<NavProps> = ({ isExpanded, setIsExpanded }) => {
 	const themeContext = useContext(ThemeContext);
@@ -71,6 +79,19 @@ const Navigation: React.FC<NavProps> = ({ isExpanded, setIsExpanded }) => {
 		}
 	}
 
+	function renderLinks() {
+		return links.map((link) => (
+			<li key={link.label}>
+				<Link href={link.href}>
+					<a>
+						{link.icon}
+						{link.label}
+					</a>
+				</Link>
+			</li>
+		))
+	}
+
 	return (
 		<NavStyles ref={navRef} isExpanded={isExpanded} theme={themeContext} >
 			{/* Expand Navigation Icon */}
@@ -82,50 +103,8 @@ const Navigation: React.FC<NavProps> = ({ isExpanded, setIsExpanded }) => {
 			/>
 
 			<ul>
-					{/* Home */}
-					<li>
-						<Button
-							className='link'
-							href='/'
-							icon={<HomeIcon />}
-							label='Home'
-							onClick={handleNavigationToggle}
-						/>
-					</li>
-
-					{/* Import */}
-					<li>
-						<Button
-							className='link'
-							href='/import'
-							icon={<CloudDownloadIcon />}
-							label='Import'
-							onClick={handleNavigationToggle}
-						/>
-					</li>
-
-					{/* Ingredients */}
-					<li>
-						<Button
-							className='link'
-							href='/ingredients'
-							icon={<LemonIcon />}
-							label='Ingredients'
-							onClick={handleNavigationToggle}
-						/>
-					</li>
-
-					{/* Recipes */}
-					<li>
-						<Button
-							className='link'
-							href='/recipes'
-							icon={<FolderIcon />}
-							label='Recipes'
-							onClick={handleNavigationToggle}
-						/>
-					</li>
-				</ul>
+				{renderLinks()}
+			</ul>
 		</NavStyles>
 	);
 }
@@ -180,7 +159,7 @@ const NavStyles = styled.nav<NavStylesProps>`
 				margin-top: 0;
 			}
 
-			button {
+			a {
 				font-family: 'Source Sans Pro', Verdana, sans-serif;
 				border: 0;
 				background: transparent;

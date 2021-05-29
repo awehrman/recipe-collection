@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@prisma/client": "^2.23.0",
+    "lodash": "^4.17.21",
     "next": "10.2.3",
     "next-auth": "^3.23.3",
     "nprogress": "^0.2.0",
@@ -19,6 +20,7 @@
   },
   "devDependencies": {
     "@svgr/webpack": "^5.5.0",
+    "@types/lodash": "^4.14.170",
     "@types/nprogress": "^0.2.0",
     "@types/react": "^17.0.8",
     "@types/styled-components": "^5.1.9",

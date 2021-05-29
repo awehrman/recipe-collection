@@ -11,6 +11,7 @@ export type HeaderProps = {
 const Header: React.FC<HeaderProps>= ({ title = '' }) => (
   <HeaderStyles>
     <h1>{title}</h1>
+    {/* TODO move this to the Nav */}
     <Button className='sign-out' label='Sign Out' onClick={() => signOut()} />
   </HeaderStyles>
 )
