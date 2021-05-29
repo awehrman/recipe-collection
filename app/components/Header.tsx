@@ -1,8 +1,5 @@
 import React from 'react';
-import { signOut } from 'next-auth/client'
 import styled from 'styled-components'
-
-import Button from './common/Button';
 
 export type HeaderProps = {
   title: string;
@@ -11,8 +8,6 @@ export type HeaderProps = {
 const Header: React.FC<HeaderProps>= ({ title = '' }) => (
   <HeaderStyles>
     <h1>{title}</h1>
-    {/* TODO move this to the Nav */}
-    <Button className='sign-out' label='Sign Out' onClick={() => signOut()} />
   </HeaderStyles>
 )
 
@@ -31,20 +26,5 @@ const HeaderStyles = styled.div`
     font-weight: 300;
     font-size: 2em;
     color: ${({ theme }) => theme.colors.headerColor};
-  }
-
-  button.sign-out {
-    display: flex;
-    justify-content: flex-end;
-    border: 0;
-    color: ${({ theme }) => theme.colors.headerColor};
-    font-weight: bold;
-    background: transparent;
-    flex-basis: 100%;
-    margin-right: 40px;
-
-    &:hover, &:focus {
-      color: ${({ theme }) => theme.colors.altGreen};
-    }
   }
 `;

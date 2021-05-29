@@ -33,8 +33,8 @@ const Page: React.FC<PageProps>  = ({ title, children }) => {
         ) : (
           <Wrapper theme={themeContext} isExpanded={isExpanded}>
             <Nav isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
+            <Header title={title} />
             <Content>
-              <Header title={title} />
               { children }
             </Content>
           </Wrapper>
@@ -73,8 +73,13 @@ const Canvas = styled.div`
   background: ${ ({ theme }) => theme.colors.headerBackground };
 `;
 
-const Content = styled.div`
-  border: 2px solid purple;
+const Content = styled.article`
+  padding: 20px 40px;
+  background: white;
+  height: 100%;
+  color: ${ ({ theme }) => theme.colors.bodyText };
+  font-size: 16px;
+  font-family: 'Source Sans Pro', Verdana, sans-serif;
 `;
 
 type WrapperProps = {
@@ -82,7 +87,7 @@ type WrapperProps = {
 }
 
 const Wrapper = styled.div<WrapperProps>`
-  border: 2px solid gold;
+  overflow-x: scroll;
 	position: relative;
 	top: ${ ({ theme }) => theme.sizes.minMenuWidth };
 	left: 0;
@@ -97,10 +102,7 @@ const Wrapper = styled.div<WrapperProps>`
 
 	@media (min-width: ${ ({ theme }) => theme.sizes.tablet }) {
 		top: 0;
-		left: ${ ({ theme, isExpanded }) => isExpanded ? theme.sizes.menuOffset : theme.sizes.minMenuWidth };
-
-		section {
-			margin-right: 40px;
-		}
-	}
+		left: ${ ({ theme, isExpanded }) => isExpanded ? theme.sizes.menuWidth : theme.sizes.minMenuWidth };
+    width: calc(100% - 40px);
+  }
 `;

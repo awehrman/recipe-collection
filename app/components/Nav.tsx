@@ -2,6 +2,7 @@ import Link from 'next/link';
 import React, { useContext, useEffect, useRef } from 'react';
 import styled, { ThemeContext } from 'styled-components';
 import { lighten } from 'polished';
+import { signOut } from 'next-auth/client'
 
 import Button from './common/Button';
 import NavigationIcon from './../public/icons/ellipsis-v-regular.svg';
@@ -105,6 +106,8 @@ const Navigation: React.FC<NavProps> = ({ isExpanded, setIsExpanded }) => {
 			<ul>
 				{renderLinks()}
 			</ul>
+
+			<Button className='sign-out' label='Sign Out' onClick={() => signOut()} />
 		</NavStyles>
 	);
 }
@@ -182,10 +185,26 @@ const NavStyles = styled.nav<NavStylesProps>`
 		}
 	}
 
+	button.sign-out {
+    display: flex;
+    justify-content: center;
+		text-align: center;
+		margin: auto;
+		position: absolute;
+		left: 0;
+		bottom: 20px;
+		right: 0;
+    border: 0;
+    color: ${({ theme }) => theme.colors.altGreen};
+    font-weight: bold;
+    background: transparent;
+    flex-basis: 100%;
+  }
+
 	/* tablet and larger moves the nav to the left */
 	@media (min-width: ${ ({ theme }) => theme.sizes.tablet }) {
 		width: ${ ({ theme }) => theme.sizes.menuWidth };
-		left: -${ ({ isExpanded, theme }) => (isExpanded ? 0 : theme.sizes.menuOffset) };
+		left: -${ ({ isExpanded, theme }) => (isExpanded ? '0px' : theme.sizes.menuOffset) };
 		bottom: 0;
 		transition: .2s ease-out;
 
