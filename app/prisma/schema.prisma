@@ -9,13 +9,14 @@ generator client {
 }
 
 model User {
-  id            Int       @default(autoincrement()) @id
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime? @map(name: "email_verified")
-  image         String?
-  createdAt     DateTime  @default(now()) @map(name: "created_at")
-  updatedAt     DateTime  @updatedAt @map(name: "updated_at")
+  id              Int       @default(autoincrement()) @id
+  name            String?
+  email           String?   @unique
+  emailVerified   DateTime? @map(name: "email_verified")
+  image           String?
+  createdAt       DateTime  @default(now()) @map(name: "created_at")
+  updatedAt       DateTime  @updatedAt @map(name: "updated_at")
+  importedRecipes Recipe[]
 
   @@map(name: "users")
 }
@@ -50,4 +51,192 @@ model Session {
   updatedAt    DateTime @default(now()) @map(name: "updated_at")
 
   @@map(name: "sessions")
+}
+
+model Ingredient {
+  id                    Int               @default(autoincrement()) @id
+  createdAt             DateTime          @default(now()) @map(name: "created_at")
+  updatedAt             DateTime          @default(now()) @map(name: "updated_at")
+  name                  String            @unique
+  plural                String            @unique
+  alternateNames        AlternateName[]
+  properties            Properties[]
+  isComposedIngredient  Boolean           @default(false) @map(name: "is_composed_ingredient")
+  isValidated           Boolean           @default(false) @map(name: "is_validated")
+
+  // i'm re-thinking related ingredients a bit
+  // if 'chicken thights' has a parent of 'chicken'
+  // then my related ingredients are everything else that shares that parent
+  // (i.e. 'chicken legs', 'chicken quarters')
+  // i might come back to this but i don't think we need an additional relation here
+  parent   Ingredient?  @relation("IngredientParent", fields: [parentId], references: [id])
+  parentId Int?
+  relatedIngredients   Ingredient[] @relation("IngredientParent")
+
+  // ingredients that can stand in for this one
+  substitutes    Ingredient[]   @relation("Substitutes", references: [id])
+  // ingredients that have used this as a substitutes
+  // i don't think we'll use this side of the relation
+  referencedSubstitutes   Ingredient[]   @relation("Substitutes", references: [id]) // the language here is stupid
+
+  // references  IngredientLine[]  @relation("References", references: [id])
+  // i may go back and put another relation in for ingredient lines, but maybe i can make this work
+  references  ParsedSegment[]
+
+  @@map(name: "ingredients")
+}
+
+enum Properties {
+  MEAT
+  POULTRY
+  FISH
+  DAIRY
+  SOY
+  GLUTEN
+}
+
+model AlternateName {
+  name  String  @unique
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id])
+  ingredientId  Int
+
+  @@map(name: "alternate_names")
+}
+
+model Recipe {
+  id              Int      @default(autoincrement()) @id
+  createdAt       DateTime @default(now()) @map(name: "created_at")
+  updatedAt       DateTime @default(now()) @map(name: "updated_at")
+  importedUserId  Int      @map(name: "imported_user_id")
+  importedUser    User     @relation(fields: [importedUserId], references: [id])
+
+  evernoteGUID    String    @map(name: "evernote_guid")
+  title           String
+  sources         String[]
+  image           String
+
+  bookId  Int      @map(name: "book_id")
+  book    Book     @relation(fields: [bookId], references: [id])
+  // author
+  // authorId
+
+  categories      Category[]
+  tags            Tag[]
+
+  ingredients     IngredientLine[]
+  instructions    InstructionLine[]
+
+  @@map(name: "recipes")
+}
+
+model Category {
+  id            Int     @default(autoincrement()) @id
+  name          String  @unique
+  evernoteGUID  String  @map(name: "evernote_guid")
+
+  recipes Recipe[]
+
+  @@map(name: "categories")
+}
+
+model Tag {
+  id            Int     @default(autoincrement()) @id
+  name          String  @unique
+  evernoteGUID  String  @map(name: "evernote_guid")
+
+  recipes Recipe[]
+
+  @@map(name: "tags")
+}
+
+model IngredientLine {
+  id            Int     @default(autoincrement()) @id
+  createdAt     DateTime @default(now()) @map(name: "created_at")
+  updatedAt     DateTime @default(now()) @map(name: "updated_at")
+
+  blockIndex Int @map(name: "block_index")
+  lineIndex Int @map(name: "line_index")
+  reference String
+  rule String
+  isParsed Boolean  @map(name: "is_parsed")
+  parsed  ParsedSegment[]
+
+  recipes   Recipe @relation(fields: [recipeId], references: [id])
+  recipeId  Int
+
+  notes   Note @relation(fields: [noteId], references: [id])
+  noteId  Int
+
+  @@map(name: "ingredient_line")
+}
+
+model InstructionLine {
+  id            Int     @default(autoincrement()) @id
+  createdAt       DateTime @default(now()) @map(name: "created_at")
+  updatedAt       DateTime @default(now()) @map(name: "updated_at")
+
+  recipes   Recipe @relation(fields: [recipeId], references: [id])
+  recipeId  Int
+
+  notes   Note @relation(fields: [noteId], references: [id])
+  noteId  Int
+
+  @@map(name: "instruction_line")
+}
+
+model ParsedSegment {
+  id            Int     @default(autoincrement()) @id
+  createdAt       DateTime @default(now()) @map(name: "created_at")
+  updatedAt       DateTime @default(now()) @map(name: "updated_at")
+
+  index Int
+  rule String
+  type String
+  value String
+
+  ingredent     Ingredient @relation(fields: [ingredientId], references: [id])
+  ingredientId  Int @map("ingredient_id")
+
+  ingredientLine   IngredientLine @relation(fields: [ingredientLineId], references: [id])
+  ingredientLineId  Int @map("ingredient_line_id")
+
+  @@map(name: "parsed_segment")
+}
+
+model Note {
+  id            Int     @default(autoincrement()) @id
+  createdAt       DateTime @default(now()) @map(name: "created_at")
+  updatedAt       DateTime @default(now()) @map(name: "updated_at")
+  evernoteGUID  String  @map(name: "evernote_guid")
+  title String
+  source String?
+
+  // i may revisit these types...
+  categories String[]
+  tags String[]
+
+  image String
+  content String // may need to check size limit here
+  isParsed Boolean @default(false) @map(name: "is_parsed")
+
+  ingredients     IngredientLine[]
+  instructions    InstructionLine[]
+}
+
+model Book {
+  id            Int     @default(autoincrement()) @id
+  title String
+
+  authorId  Int        @map(name: "author_id")
+  author    Author     @relation(fields: [authorId], references: [id])
+
+  recipes Recipe[]
+}
+
+model Author {
+  id            Int     @default(autoincrement()) @id
+  name String
+  books Book[]
+
+  // i'll come back and add recipes eventually
 }
