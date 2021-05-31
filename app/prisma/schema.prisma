@@ -114,16 +114,16 @@ model Recipe {
   id             Int      @id @default(autoincrement())
   createdAt      DateTime @default(now()) @map(name: "created_at")
   updatedAt      DateTime @default(now()) @map(name: "updated_at")
-  importedUserId Int      @map(name: "imported_user_id")
   importedUser   User     @relation(fields: [importedUserId], references: [id])
+  importedUserId Int      @map(name: "imported_user_id")
 
   evernoteGUID String   @map(name: "evernote_guid")
   title        String
   sources      String[]
   image        String
 
-  bookId Int  @map(name: "book_id")
   book   Book @relation(fields: [bookId], references: [id])
+  bookId Int  @map(name: "book_id")
   // author
   // authorId
 
@@ -168,24 +168,26 @@ model IngredientLine {
   isParsed   Boolean         @map(name: "is_parsed")
   parsed     ParsedSegment[]
 
-  recipes  Recipe @relation(fields: [recipeId], references: [id])
+  recipe   Recipe @relation(fields: [recipeId], references: [id])
   recipeId Int
 
-  notes  Note @relation(fields: [noteId], references: [id])
+  note   Note @relation(fields: [noteId], references: [id])
   noteId Int
 
   @@map(name: "ingredient_line")
 }
 
 model InstructionLine {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now()) @map(name: "created_at")
-  updatedAt DateTime @default(now()) @map(name: "updated_at")
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now()) @map(name: "created_at")
+  updatedAt  DateTime @default(now()) @map(name: "updated_at")
+  blockIndex DateTime @map(name: "block_index")
+  reference  String
 
-  recipes  Recipe @relation(fields: [recipeId], references: [id])
+  recipe   Recipe @relation(fields: [recipeId], references: [id])
   recipeId Int
 
-  notes  Note @relation(fields: [noteId], references: [id])
+  note   Note @relation(fields: [noteId], references: [id])
   noteId Int
 
   @@map(name: "instruction_line")
@@ -201,7 +203,7 @@ model ParsedSegment {
   type  String
   value String
 
-  ingredent    Ingredient @relation(fields: [ingredientId], references: [id])
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
   ingredientId Int        @map("ingredient_id")
 
   ingredientLine   IngredientLine @relation(fields: [ingredientLineId], references: [id])

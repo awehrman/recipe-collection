@@ -7,7 +7,6 @@
       "esnext"
     ],
     "allowJs": true,
-    "skipLibCheck": true,
     "strict": true, // <- Change to 'true'
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
@@ -16,7 +15,11 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "rootDir": ".",
+    "typeRoots": ["node_modules/@types", "types"],
+    "plugins": [{ "name": "nexus/typescript-language-service" }],
+    "skipLibCheck": true,
   },
   "include": [
     "next-env.d.ts",

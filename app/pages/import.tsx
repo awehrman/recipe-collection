@@ -1,23 +1,23 @@
 import React from 'react'
-import { getSession } from 'next-auth/client';
+import Button from '../components/common/Button';
 
 import Page from '../components/Page';
 
 type ImportProps = {
 }
 
-export async function getServerSideProps(context) {
-  const session = await getSession(context);
-  return {
-      props: { session }
+const Import: React.FC<ImportProps> = () => {
+  function handleAuthentication() {
+    // TODO
   }
-}
 
-const Import: React.FC<ImportProps> = ({ session }) => {
-  console.log({ session });
   return (
     <Page title='Import'>
-      There's nothing here yet!
+      <Button
+        label='Authenticate Evernote'
+        onClick={handleAuthentication}
+        type='button'
+      />
     </Page>
   )
 }
