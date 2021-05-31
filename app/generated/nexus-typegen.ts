@@ -3,7 +3,7 @@
  * Do not make changes to this file directly
  */
 
-import * as Context from "./../graphql/context"
+import * as ContextModule from "./graphql/context"
 
 
 
@@ -2284,7 +2284,7 @@ export type NexusGenFeaturesConfig = {
 }
 
 export interface NexusGenTypes {
-  context: Context.Context;
+  context: ContextModule.Context;
   inputTypes: NexusGenInputs;
   rootTypes: NexusGenRootTypes;
   argTypes: NexusGenArgTypes;

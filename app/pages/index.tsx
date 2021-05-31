@@ -1,6 +1,8 @@
 import { useQuery, gql } from '@apollo/client';
 import React from 'react'
 import Page from '../components/Page';
+import { initializeApollo } from '../graphql/apollo';
+import { contextResolver } from '../graphql/context';
 
 const MyQuery = gql`
   query MyQuery {
@@ -24,4 +26,20 @@ const Dashboard: React.FC<DashboardProps> = () => {
   )
 }
 
-export default Dashboard
+export default Dashboard;
+
+export async function getStaticProps(ctx: Context) {
+  await contextResolver(ctx)
+  console.log({ ctx });
+  const apolloClient = initializeApollo(null, ctx);
+
+  await apolloClient.query({
+    query: MyQuery
+  });
+
+  return {
+    props: {
+      initialApolloState: apolloClient.cache.extract(),
+    }
+  };
+}
