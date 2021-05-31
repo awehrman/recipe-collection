@@ -2,8 +2,24 @@
 ### Do not make changes to this file directly
 
 
-type AffectedRowsOutput {
-  count: Int!
+type Account {
+  accessToken: String
+  accessTokenExpires: DateTime
+  compoundId: String!
+  createdAt: DateTime!
+  id: Int!
+  providerAccountId: String!
+  providerId: String!
+  providerType: String!
+  refreshToken: String
+  updatedAt: DateTime!
+  userId: Int!
+}
+
+type AlternateName {
+  ingredient: Ingredient!
+  ingredientId: Int!
+  name: String!
 }
 
 input AlternateNameCreateManyIngredientInput {
@@ -29,12 +45,6 @@ input AlternateNameCreateOrConnectWithoutIngredientInput {
 
 input AlternateNameCreateWithoutIngredientInput {
   name: String!
-}
-
-input AlternateNameListRelationFilter {
-  every: AlternateNameWhereInput
-  none: AlternateNameWhereInput
-  some: AlternateNameWhereInput
 }
 
 input AlternateNameScalarWhereInput {
@@ -83,17 +93,14 @@ input AlternateNameUpsertWithWhereUniqueWithoutIngredientInput {
   where: AlternateNameWhereUniqueInput!
 }
 
-input AlternateNameWhereInput {
-  AND: [AlternateNameWhereInput!]
-  NOT: [AlternateNameWhereInput!]
-  OR: [AlternateNameWhereInput!]
-  ingredient: IngredientWhereInput
-  ingredientId: IntFilter
-  name: StringFilter
-}
-
 input AlternateNameWhereUniqueInput {
   name: String
+}
+
+type Author {
+  books(after: BookWhereUniqueInput, before: BookWhereUniqueInput, first: Int, last: Int): [Book!]!
+  id: Int!
+  name: String!
 }
 
 input AuthorCreateNestedOneWithoutBooksInput {
@@ -128,17 +135,16 @@ input AuthorUpsertWithoutBooksInput {
   update: AuthorUpdateWithoutBooksInput!
 }
 
-input AuthorWhereInput {
-  AND: [AuthorWhereInput!]
-  NOT: [AuthorWhereInput!]
-  OR: [AuthorWhereInput!]
-  books: BookListRelationFilter
-  id: IntFilter
-  name: StringFilter
-}
-
 input AuthorWhereUniqueInput {
   id: Int
+}
+
+type Book {
+  author: Author!
+  authorId: Int!
+  id: Int!
+  recipes(after: RecipeWhereUniqueInput, before: RecipeWhereUniqueInput, first: Int, last: Int): [Recipe!]!
+  title: String!
 }
 
 input BookCreateNestedOneWithoutRecipesInput {
@@ -155,12 +161,6 @@ input BookCreateOrConnectWithoutRecipesInput {
 input BookCreateWithoutRecipesInput {
   author: AuthorCreateNestedOneWithoutBooksInput!
   title: String!
-}
-
-input BookListRelationFilter {
-  every: BookWhereInput
-  none: BookWhereInput
-  some: BookWhereInput
 }
 
 input BookUpdateOneRequiredWithoutRecipesInput {
@@ -181,17 +181,6 @@ input BookUpsertWithoutRecipesInput {
   update: BookUpdateWithoutRecipesInput!
 }
 
-input BookWhereInput {
-  AND: [BookWhereInput!]
-  NOT: [BookWhereInput!]
-  OR: [BookWhereInput!]
-  author: AuthorWhereInput
-  authorId: IntFilter
-  id: IntFilter
-  recipes: RecipeListRelationFilter
-  title: StringFilter
-}
-
 input BookWhereUniqueInput {
   id: Int
 }
@@ -203,6 +192,13 @@ input BoolFieldUpdateOperationsInput {
 input BoolFilter {
   equals: Boolean
   not: NestedBoolFilter
+}
+
+type Category {
+  evernoteGUID: String!
+  id: Int!
+  name: String!
+  recipes(after: RecipeWhereUniqueInput, before: RecipeWhereUniqueInput, first: Int, last: Int): [Recipe!]!
 }
 
 input CategoryCreateNestedManyWithoutRecipesInput {
@@ -219,12 +215,6 @@ input CategoryCreateOrConnectWithoutRecipesInput {
 input CategoryCreateWithoutRecipesInput {
   evernoteGUID: String!
   name: String!
-}
-
-input CategoryListRelationFilter {
-  every: CategoryWhereInput
-  none: CategoryWhereInput
-  some: CategoryWhereInput
 }
 
 input CategoryScalarWhereInput {
@@ -275,16 +265,6 @@ input CategoryUpsertWithWhereUniqueWithoutRecipesInput {
   where: CategoryWhereUniqueInput!
 }
 
-input CategoryWhereInput {
-  AND: [CategoryWhereInput!]
-  NOT: [CategoryWhereInput!]
-  OR: [CategoryWhereInput!]
-  evernoteGUID: StringFilter
-  id: IntFilter
-  name: StringFilter
-  recipes: RecipeListRelationFilter
-}
-
 input CategoryWhereUniqueInput {
   id: Int
   name: String
@@ -307,17 +287,6 @@ input DateTimeFilter {
   notIn: [DateTime!]
 }
 
-input DateTimeNullableFilter {
-  equals: DateTime
-  gt: DateTime
-  gte: DateTime
-  in: [DateTime!]
-  lt: DateTime
-  lte: DateTime
-  not: NestedDateTimeNullableFilter
-  notIn: [DateTime!]
-}
-
 input EnumPropertiesNullableListFilter {
   equals: [Properties!]
   has: Properties
@@ -326,11 +295,22 @@ input EnumPropertiesNullableListFilter {
   isEmpty: Boolean
 }
 
-input EnumRoleNullableFilter {
-  equals: Role
-  in: [Role!]
-  not: NestedEnumRoleNullableFilter
-  notIn: [Role!]
+type Ingredient {
+  alternateNames(after: AlternateNameWhereUniqueInput, before: AlternateNameWhereUniqueInput, first: Int, last: Int): [AlternateName!]!
+  createdAt: DateTime!
+  id: Int!
+  isComposedIngredient: Boolean!
+  isValidated: Boolean!
+  name: String!
+  parent: Ingredient
+  parentId: Int
+  plural: String!
+  properties: [Properties!]!
+  referencedSubstitutes(after: IngredientWhereUniqueInput, before: IngredientWhereUniqueInput, first: Int, last: Int): [Ingredient!]!
+  references(after: ParsedSegmentWhereUniqueInput, before: ParsedSegmentWhereUniqueInput, first: Int, last: Int): [ParsedSegment!]!
+  relatedIngredients(after: IngredientWhereUniqueInput, before: IngredientWhereUniqueInput, first: Int, last: Int): [Ingredient!]!
+  substitutes(after: IngredientWhereUniqueInput, before: IngredientWhereUniqueInput, first: Int, last: Int): [Ingredient!]!
+  updatedAt: DateTime!
 }
 
 input IngredientCreateManyParentInput {
@@ -418,7 +398,7 @@ input IngredientCreateWithoutParentInput {
   plural: String!
   properties: IngredientCreatepropertiesInput
   referencedSubstitutes: IngredientCreateNestedManyWithoutSubstitutesInput
-  references: ParsedSegmentCreateNestedManyWithoutIngredentInput
+  references: ParsedSegmentCreateNestedManyWithoutIngredientInput
   relatedIngredients: IngredientCreateNestedManyWithoutParentInput
   substitutes: IngredientCreateNestedManyWithoutReferencedSubstitutesInput
   updatedAt: DateTime
@@ -433,7 +413,7 @@ input IngredientCreateWithoutReferencedSubstitutesInput {
   parent: IngredientCreateNestedOneWithoutRelatedIngredientsInput
   plural: String!
   properties: IngredientCreatepropertiesInput
-  references: ParsedSegmentCreateNestedManyWithoutIngredentInput
+  references: ParsedSegmentCreateNestedManyWithoutIngredientInput
   relatedIngredients: IngredientCreateNestedManyWithoutParentInput
   substitutes: IngredientCreateNestedManyWithoutReferencedSubstitutesInput
   updatedAt: DateTime
@@ -464,7 +444,7 @@ input IngredientCreateWithoutRelatedIngredientsInput {
   plural: String!
   properties: IngredientCreatepropertiesInput
   referencedSubstitutes: IngredientCreateNestedManyWithoutSubstitutesInput
-  references: ParsedSegmentCreateNestedManyWithoutIngredentInput
+  references: ParsedSegmentCreateNestedManyWithoutIngredientInput
   substitutes: IngredientCreateNestedManyWithoutReferencedSubstitutesInput
   updatedAt: DateTime
 }
@@ -479,7 +459,7 @@ input IngredientCreateWithoutSubstitutesInput {
   plural: String!
   properties: IngredientCreatepropertiesInput
   referencedSubstitutes: IngredientCreateNestedManyWithoutSubstitutesInput
-  references: ParsedSegmentCreateNestedManyWithoutIngredentInput
+  references: ParsedSegmentCreateNestedManyWithoutIngredientInput
   relatedIngredients: IngredientCreateNestedManyWithoutParentInput
   updatedAt: DateTime
 }
@@ -488,7 +468,23 @@ input IngredientCreatepropertiesInput {
   set: [Properties!]
 }
 
-input IngredientLineCreateManyNotesInput {
+type IngredientLine {
+  blockIndex: Int!
+  createdAt: DateTime!
+  id: Int!
+  isParsed: Boolean!
+  lineIndex: Int!
+  note: Note!
+  noteId: Int!
+  parsed(after: ParsedSegmentWhereUniqueInput, before: ParsedSegmentWhereUniqueInput, first: Int, last: Int): [ParsedSegment!]!
+  recipe: Recipe!
+  recipeId: Int!
+  reference: String!
+  rule: String!
+  updatedAt: DateTime!
+}
+
+input IngredientLineCreateManyNoteInput {
   blockIndex: Int!
   createdAt: DateTime
   id: Int
@@ -500,12 +496,12 @@ input IngredientLineCreateManyNotesInput {
   updatedAt: DateTime
 }
 
-input IngredientLineCreateManyNotesInputEnvelope {
-  data: [IngredientLineCreateManyNotesInput!]
+input IngredientLineCreateManyNoteInputEnvelope {
+  data: [IngredientLineCreateManyNoteInput!]
   skipDuplicates: Boolean
 }
 
-input IngredientLineCreateManyRecipesInput {
+input IngredientLineCreateManyRecipeInput {
   blockIndex: Int!
   createdAt: DateTime
   id: Int
@@ -517,23 +513,23 @@ input IngredientLineCreateManyRecipesInput {
   updatedAt: DateTime
 }
 
-input IngredientLineCreateManyRecipesInputEnvelope {
-  data: [IngredientLineCreateManyRecipesInput!]
+input IngredientLineCreateManyRecipeInputEnvelope {
+  data: [IngredientLineCreateManyRecipeInput!]
   skipDuplicates: Boolean
 }
 
-input IngredientLineCreateNestedManyWithoutNotesInput {
+input IngredientLineCreateNestedManyWithoutNoteInput {
   connect: [IngredientLineWhereUniqueInput!]
-  connectOrCreate: [IngredientLineCreateOrConnectWithoutNotesInput!]
-  create: [IngredientLineCreateWithoutNotesInput!]
-  createMany: IngredientLineCreateManyNotesInputEnvelope
+  connectOrCreate: [IngredientLineCreateOrConnectWithoutNoteInput!]
+  create: [IngredientLineCreateWithoutNoteInput!]
+  createMany: IngredientLineCreateManyNoteInputEnvelope
 }
 
-input IngredientLineCreateNestedManyWithoutRecipesInput {
+input IngredientLineCreateNestedManyWithoutRecipeInput {
   connect: [IngredientLineWhereUniqueInput!]
-  connectOrCreate: [IngredientLineCreateOrConnectWithoutRecipesInput!]
-  create: [IngredientLineCreateWithoutRecipesInput!]
-  createMany: IngredientLineCreateManyRecipesInputEnvelope
+  connectOrCreate: [IngredientLineCreateOrConnectWithoutRecipeInput!]
+  create: [IngredientLineCreateWithoutRecipeInput!]
+  createMany: IngredientLineCreateManyRecipeInputEnvelope
 }
 
 input IngredientLineCreateNestedOneWithoutParsedInput {
@@ -542,8 +538,8 @@ input IngredientLineCreateNestedOneWithoutParsedInput {
   create: IngredientLineCreateWithoutParsedInput
 }
 
-input IngredientLineCreateOrConnectWithoutNotesInput {
-  create: IngredientLineCreateWithoutNotesInput!
+input IngredientLineCreateOrConnectWithoutNoteInput {
+  create: IngredientLineCreateWithoutNoteInput!
   where: IngredientLineWhereUniqueInput!
 }
 
@@ -552,18 +548,18 @@ input IngredientLineCreateOrConnectWithoutParsedInput {
   where: IngredientLineWhereUniqueInput!
 }
 
-input IngredientLineCreateOrConnectWithoutRecipesInput {
-  create: IngredientLineCreateWithoutRecipesInput!
+input IngredientLineCreateOrConnectWithoutRecipeInput {
+  create: IngredientLineCreateWithoutRecipeInput!
   where: IngredientLineWhereUniqueInput!
 }
 
-input IngredientLineCreateWithoutNotesInput {
+input IngredientLineCreateWithoutNoteInput {
   blockIndex: Int!
   createdAt: DateTime
   isParsed: Boolean!
   lineIndex: Int!
   parsed: ParsedSegmentCreateNestedManyWithoutIngredientLineInput
-  recipes: RecipeCreateNestedOneWithoutIngredientsInput!
+  recipe: RecipeCreateNestedOneWithoutIngredientsInput!
   reference: String!
   rule: String!
   updatedAt: DateTime
@@ -574,29 +570,23 @@ input IngredientLineCreateWithoutParsedInput {
   createdAt: DateTime
   isParsed: Boolean!
   lineIndex: Int!
-  notes: NoteCreateNestedOneWithoutIngredientsInput!
-  recipes: RecipeCreateNestedOneWithoutIngredientsInput!
+  note: NoteCreateNestedOneWithoutIngredientsInput!
+  recipe: RecipeCreateNestedOneWithoutIngredientsInput!
   reference: String!
   rule: String!
   updatedAt: DateTime
 }
 
-input IngredientLineCreateWithoutRecipesInput {
+input IngredientLineCreateWithoutRecipeInput {
   blockIndex: Int!
   createdAt: DateTime
   isParsed: Boolean!
   lineIndex: Int!
-  notes: NoteCreateNestedOneWithoutIngredientsInput!
+  note: NoteCreateNestedOneWithoutIngredientsInput!
   parsed: ParsedSegmentCreateNestedManyWithoutIngredientLineInput
   reference: String!
   rule: String!
   updatedAt: DateTime
-}
-
-input IngredientLineListRelationFilter {
-  every: IngredientLineWhereInput
-  none: IngredientLineWhereInput
-  some: IngredientLineWhereInput
 }
 
 input IngredientLineScalarWhereInput {
@@ -625,42 +615,42 @@ input IngredientLineUpdateManyMutationInput {
   updatedAt: DateTimeFieldUpdateOperationsInput
 }
 
-input IngredientLineUpdateManyWithWhereWithoutNotesInput {
+input IngredientLineUpdateManyWithWhereWithoutNoteInput {
   data: IngredientLineUpdateManyMutationInput!
   where: IngredientLineScalarWhereInput!
 }
 
-input IngredientLineUpdateManyWithWhereWithoutRecipesInput {
+input IngredientLineUpdateManyWithWhereWithoutRecipeInput {
   data: IngredientLineUpdateManyMutationInput!
   where: IngredientLineScalarWhereInput!
 }
 
-input IngredientLineUpdateManyWithoutNotesInput {
+input IngredientLineUpdateManyWithoutNoteInput {
   connect: [IngredientLineWhereUniqueInput!]
-  connectOrCreate: [IngredientLineCreateOrConnectWithoutNotesInput!]
-  create: [IngredientLineCreateWithoutNotesInput!]
-  createMany: IngredientLineCreateManyNotesInputEnvelope
+  connectOrCreate: [IngredientLineCreateOrConnectWithoutNoteInput!]
+  create: [IngredientLineCreateWithoutNoteInput!]
+  createMany: IngredientLineCreateManyNoteInputEnvelope
   delete: [IngredientLineWhereUniqueInput!]
   deleteMany: [IngredientLineScalarWhereInput!]
   disconnect: [IngredientLineWhereUniqueInput!]
   set: [IngredientLineWhereUniqueInput!]
-  update: [IngredientLineUpdateWithWhereUniqueWithoutNotesInput!]
-  updateMany: [IngredientLineUpdateManyWithWhereWithoutNotesInput!]
-  upsert: [IngredientLineUpsertWithWhereUniqueWithoutNotesInput!]
+  update: [IngredientLineUpdateWithWhereUniqueWithoutNoteInput!]
+  updateMany: [IngredientLineUpdateManyWithWhereWithoutNoteInput!]
+  upsert: [IngredientLineUpsertWithWhereUniqueWithoutNoteInput!]
 }
 
-input IngredientLineUpdateManyWithoutRecipesInput {
+input IngredientLineUpdateManyWithoutRecipeInput {
   connect: [IngredientLineWhereUniqueInput!]
-  connectOrCreate: [IngredientLineCreateOrConnectWithoutRecipesInput!]
-  create: [IngredientLineCreateWithoutRecipesInput!]
-  createMany: IngredientLineCreateManyRecipesInputEnvelope
+  connectOrCreate: [IngredientLineCreateOrConnectWithoutRecipeInput!]
+  create: [IngredientLineCreateWithoutRecipeInput!]
+  createMany: IngredientLineCreateManyRecipeInputEnvelope
   delete: [IngredientLineWhereUniqueInput!]
   deleteMany: [IngredientLineScalarWhereInput!]
   disconnect: [IngredientLineWhereUniqueInput!]
   set: [IngredientLineWhereUniqueInput!]
-  update: [IngredientLineUpdateWithWhereUniqueWithoutRecipesInput!]
-  updateMany: [IngredientLineUpdateManyWithWhereWithoutRecipesInput!]
-  upsert: [IngredientLineUpsertWithWhereUniqueWithoutRecipesInput!]
+  update: [IngredientLineUpdateWithWhereUniqueWithoutRecipeInput!]
+  updateMany: [IngredientLineUpdateManyWithWhereWithoutRecipeInput!]
+  upsert: [IngredientLineUpsertWithWhereUniqueWithoutRecipeInput!]
 }
 
 input IngredientLineUpdateOneRequiredWithoutParsedInput {
@@ -671,23 +661,23 @@ input IngredientLineUpdateOneRequiredWithoutParsedInput {
   upsert: IngredientLineUpsertWithoutParsedInput
 }
 
-input IngredientLineUpdateWithWhereUniqueWithoutNotesInput {
-  data: IngredientLineUpdateWithoutNotesInput!
+input IngredientLineUpdateWithWhereUniqueWithoutNoteInput {
+  data: IngredientLineUpdateWithoutNoteInput!
   where: IngredientLineWhereUniqueInput!
 }
 
-input IngredientLineUpdateWithWhereUniqueWithoutRecipesInput {
-  data: IngredientLineUpdateWithoutRecipesInput!
+input IngredientLineUpdateWithWhereUniqueWithoutRecipeInput {
+  data: IngredientLineUpdateWithoutRecipeInput!
   where: IngredientLineWhereUniqueInput!
 }
 
-input IngredientLineUpdateWithoutNotesInput {
+input IngredientLineUpdateWithoutNoteInput {
   blockIndex: IntFieldUpdateOperationsInput
   createdAt: DateTimeFieldUpdateOperationsInput
   isParsed: BoolFieldUpdateOperationsInput
   lineIndex: IntFieldUpdateOperationsInput
   parsed: ParsedSegmentUpdateManyWithoutIngredientLineInput
-  recipes: RecipeUpdateOneRequiredWithoutIngredientsInput
+  recipe: RecipeUpdateOneRequiredWithoutIngredientsInput
   reference: StringFieldUpdateOperationsInput
   rule: StringFieldUpdateOperationsInput
   updatedAt: DateTimeFieldUpdateOperationsInput
@@ -698,34 +688,34 @@ input IngredientLineUpdateWithoutParsedInput {
   createdAt: DateTimeFieldUpdateOperationsInput
   isParsed: BoolFieldUpdateOperationsInput
   lineIndex: IntFieldUpdateOperationsInput
-  notes: NoteUpdateOneRequiredWithoutIngredientsInput
-  recipes: RecipeUpdateOneRequiredWithoutIngredientsInput
+  note: NoteUpdateOneRequiredWithoutIngredientsInput
+  recipe: RecipeUpdateOneRequiredWithoutIngredientsInput
   reference: StringFieldUpdateOperationsInput
   rule: StringFieldUpdateOperationsInput
   updatedAt: DateTimeFieldUpdateOperationsInput
 }
 
-input IngredientLineUpdateWithoutRecipesInput {
+input IngredientLineUpdateWithoutRecipeInput {
   blockIndex: IntFieldUpdateOperationsInput
   createdAt: DateTimeFieldUpdateOperationsInput
   isParsed: BoolFieldUpdateOperationsInput
   lineIndex: IntFieldUpdateOperationsInput
-  notes: NoteUpdateOneRequiredWithoutIngredientsInput
+  note: NoteUpdateOneRequiredWithoutIngredientsInput
   parsed: ParsedSegmentUpdateManyWithoutIngredientLineInput
   reference: StringFieldUpdateOperationsInput
   rule: StringFieldUpdateOperationsInput
   updatedAt: DateTimeFieldUpdateOperationsInput
 }
 
-input IngredientLineUpsertWithWhereUniqueWithoutNotesInput {
-  create: IngredientLineCreateWithoutNotesInput!
-  update: IngredientLineUpdateWithoutNotesInput!
+input IngredientLineUpsertWithWhereUniqueWithoutNoteInput {
+  create: IngredientLineCreateWithoutNoteInput!
+  update: IngredientLineUpdateWithoutNoteInput!
   where: IngredientLineWhereUniqueInput!
 }
 
-input IngredientLineUpsertWithWhereUniqueWithoutRecipesInput {
-  create: IngredientLineCreateWithoutRecipesInput!
-  update: IngredientLineUpdateWithoutRecipesInput!
+input IngredientLineUpsertWithWhereUniqueWithoutRecipeInput {
+  create: IngredientLineCreateWithoutRecipeInput!
+  update: IngredientLineUpdateWithoutRecipeInput!
   where: IngredientLineWhereUniqueInput!
 }
 
@@ -734,33 +724,8 @@ input IngredientLineUpsertWithoutParsedInput {
   update: IngredientLineUpdateWithoutParsedInput!
 }
 
-input IngredientLineWhereInput {
-  AND: [IngredientLineWhereInput!]
-  NOT: [IngredientLineWhereInput!]
-  OR: [IngredientLineWhereInput!]
-  blockIndex: IntFilter
-  createdAt: DateTimeFilter
-  id: IntFilter
-  isParsed: BoolFilter
-  lineIndex: IntFilter
-  noteId: IntFilter
-  notes: NoteWhereInput
-  parsed: ParsedSegmentListRelationFilter
-  recipeId: IntFilter
-  recipes: RecipeWhereInput
-  reference: StringFilter
-  rule: StringFilter
-  updatedAt: DateTimeFilter
-}
-
 input IngredientLineWhereUniqueInput {
   id: Int
-}
-
-input IngredientListRelationFilter {
-  every: IngredientWhereInput
-  none: IngredientWhereInput
-  some: IngredientWhereInput
 }
 
 input IngredientScalarWhereInput {
@@ -885,7 +850,7 @@ input IngredientUpdateWithoutParentInput {
   plural: StringFieldUpdateOperationsInput
   properties: IngredientUpdatepropertiesInput
   referencedSubstitutes: IngredientUpdateManyWithoutSubstitutesInput
-  references: ParsedSegmentUpdateManyWithoutIngredentInput
+  references: ParsedSegmentUpdateManyWithoutIngredientInput
   relatedIngredients: IngredientUpdateManyWithoutParentInput
   substitutes: IngredientUpdateManyWithoutReferencedSubstitutesInput
   updatedAt: DateTimeFieldUpdateOperationsInput
@@ -900,7 +865,7 @@ input IngredientUpdateWithoutReferencedSubstitutesInput {
   parent: IngredientUpdateOneWithoutRelatedIngredientsInput
   plural: StringFieldUpdateOperationsInput
   properties: IngredientUpdatepropertiesInput
-  references: ParsedSegmentUpdateManyWithoutIngredentInput
+  references: ParsedSegmentUpdateManyWithoutIngredientInput
   relatedIngredients: IngredientUpdateManyWithoutParentInput
   substitutes: IngredientUpdateManyWithoutReferencedSubstitutesInput
   updatedAt: DateTimeFieldUpdateOperationsInput
@@ -931,7 +896,7 @@ input IngredientUpdateWithoutRelatedIngredientsInput {
   plural: StringFieldUpdateOperationsInput
   properties: IngredientUpdatepropertiesInput
   referencedSubstitutes: IngredientUpdateManyWithoutSubstitutesInput
-  references: ParsedSegmentUpdateManyWithoutIngredentInput
+  references: ParsedSegmentUpdateManyWithoutIngredientInput
   substitutes: IngredientUpdateManyWithoutReferencedSubstitutesInput
   updatedAt: DateTimeFieldUpdateOperationsInput
 }
@@ -946,7 +911,7 @@ input IngredientUpdateWithoutSubstitutesInput {
   plural: StringFieldUpdateOperationsInput
   properties: IngredientUpdatepropertiesInput
   referencedSubstitutes: IngredientUpdateManyWithoutSubstitutesInput
-  references: ParsedSegmentUpdateManyWithoutIngredentInput
+  references: ParsedSegmentUpdateManyWithoutIngredientInput
   relatedIngredients: IngredientUpdateManyWithoutParentInput
   updatedAt: DateTimeFieldUpdateOperationsInput
 }
@@ -984,198 +949,186 @@ input IngredientUpsertWithoutRelatedIngredientsInput {
   update: IngredientUpdateWithoutRelatedIngredientsInput!
 }
 
-input IngredientWhereInput {
-  AND: [IngredientWhereInput!]
-  NOT: [IngredientWhereInput!]
-  OR: [IngredientWhereInput!]
-  alternateNames: AlternateNameListRelationFilter
-  createdAt: DateTimeFilter
-  id: IntFilter
-  isComposedIngredient: BoolFilter
-  isValidated: BoolFilter
-  name: StringFilter
-  parent: IngredientWhereInput
-  parentId: IntNullableFilter
-  plural: StringFilter
-  properties: EnumPropertiesNullableListFilter
-  referencedSubstitutes: IngredientListRelationFilter
-  references: ParsedSegmentListRelationFilter
-  relatedIngredients: IngredientListRelationFilter
-  substitutes: IngredientListRelationFilter
-  updatedAt: DateTimeFilter
-}
-
 input IngredientWhereUniqueInput {
   id: Int
   name: String
   plural: String
 }
 
-input InstructionLineCreateManyNotesInput {
+type InstructionLine {
+  blockIndex: DateTime!
+  createdAt: DateTime!
+  id: Int!
+  note: Note!
+  noteId: Int!
+  recipe: Recipe!
+  recipeId: Int!
+  reference: String!
+  updatedAt: DateTime!
+}
+
+input InstructionLineCreateManyNoteInput {
+  blockIndex: DateTime!
   createdAt: DateTime
   id: Int
   recipeId: Int!
+  reference: String!
   updatedAt: DateTime
 }
 
-input InstructionLineCreateManyNotesInputEnvelope {
-  data: [InstructionLineCreateManyNotesInput!]
+input InstructionLineCreateManyNoteInputEnvelope {
+  data: [InstructionLineCreateManyNoteInput!]
   skipDuplicates: Boolean
 }
 
-input InstructionLineCreateManyRecipesInput {
+input InstructionLineCreateManyRecipeInput {
+  blockIndex: DateTime!
   createdAt: DateTime
   id: Int
   noteId: Int!
+  reference: String!
   updatedAt: DateTime
 }
 
-input InstructionLineCreateManyRecipesInputEnvelope {
-  data: [InstructionLineCreateManyRecipesInput!]
+input InstructionLineCreateManyRecipeInputEnvelope {
+  data: [InstructionLineCreateManyRecipeInput!]
   skipDuplicates: Boolean
 }
 
-input InstructionLineCreateNestedManyWithoutNotesInput {
+input InstructionLineCreateNestedManyWithoutNoteInput {
   connect: [InstructionLineWhereUniqueInput!]
-  connectOrCreate: [InstructionLineCreateOrConnectWithoutNotesInput!]
-  create: [InstructionLineCreateWithoutNotesInput!]
-  createMany: InstructionLineCreateManyNotesInputEnvelope
+  connectOrCreate: [InstructionLineCreateOrConnectWithoutNoteInput!]
+  create: [InstructionLineCreateWithoutNoteInput!]
+  createMany: InstructionLineCreateManyNoteInputEnvelope
 }
 
-input InstructionLineCreateNestedManyWithoutRecipesInput {
+input InstructionLineCreateNestedManyWithoutRecipeInput {
   connect: [InstructionLineWhereUniqueInput!]
-  connectOrCreate: [InstructionLineCreateOrConnectWithoutRecipesInput!]
-  create: [InstructionLineCreateWithoutRecipesInput!]
-  createMany: InstructionLineCreateManyRecipesInputEnvelope
+  connectOrCreate: [InstructionLineCreateOrConnectWithoutRecipeInput!]
+  create: [InstructionLineCreateWithoutRecipeInput!]
+  createMany: InstructionLineCreateManyRecipeInputEnvelope
 }
 
-input InstructionLineCreateOrConnectWithoutNotesInput {
-  create: InstructionLineCreateWithoutNotesInput!
+input InstructionLineCreateOrConnectWithoutNoteInput {
+  create: InstructionLineCreateWithoutNoteInput!
   where: InstructionLineWhereUniqueInput!
 }
 
-input InstructionLineCreateOrConnectWithoutRecipesInput {
-  create: InstructionLineCreateWithoutRecipesInput!
+input InstructionLineCreateOrConnectWithoutRecipeInput {
+  create: InstructionLineCreateWithoutRecipeInput!
   where: InstructionLineWhereUniqueInput!
 }
 
-input InstructionLineCreateWithoutNotesInput {
+input InstructionLineCreateWithoutNoteInput {
+  blockIndex: DateTime!
   createdAt: DateTime
-  recipes: RecipeCreateNestedOneWithoutInstructionsInput!
+  recipe: RecipeCreateNestedOneWithoutInstructionsInput!
+  reference: String!
   updatedAt: DateTime
 }
 
-input InstructionLineCreateWithoutRecipesInput {
+input InstructionLineCreateWithoutRecipeInput {
+  blockIndex: DateTime!
   createdAt: DateTime
-  notes: NoteCreateNestedOneWithoutInstructionsInput!
+  note: NoteCreateNestedOneWithoutInstructionsInput!
+  reference: String!
   updatedAt: DateTime
-}
-
-input InstructionLineListRelationFilter {
-  every: InstructionLineWhereInput
-  none: InstructionLineWhereInput
-  some: InstructionLineWhereInput
 }
 
 input InstructionLineScalarWhereInput {
   AND: [InstructionLineScalarWhereInput!]
   NOT: [InstructionLineScalarWhereInput!]
   OR: [InstructionLineScalarWhereInput!]
+  blockIndex: DateTimeFilter
   createdAt: DateTimeFilter
   id: IntFilter
   noteId: IntFilter
   recipeId: IntFilter
+  reference: StringFilter
   updatedAt: DateTimeFilter
 }
 
 input InstructionLineUpdateManyMutationInput {
+  blockIndex: DateTimeFieldUpdateOperationsInput
   createdAt: DateTimeFieldUpdateOperationsInput
+  reference: StringFieldUpdateOperationsInput
   updatedAt: DateTimeFieldUpdateOperationsInput
 }
 
-input InstructionLineUpdateManyWithWhereWithoutNotesInput {
+input InstructionLineUpdateManyWithWhereWithoutNoteInput {
   data: InstructionLineUpdateManyMutationInput!
   where: InstructionLineScalarWhereInput!
 }
 
-input InstructionLineUpdateManyWithWhereWithoutRecipesInput {
+input InstructionLineUpdateManyWithWhereWithoutRecipeInput {
   data: InstructionLineUpdateManyMutationInput!
   where: InstructionLineScalarWhereInput!
 }
 
-input InstructionLineUpdateManyWithoutNotesInput {
+input InstructionLineUpdateManyWithoutNoteInput {
   connect: [InstructionLineWhereUniqueInput!]
-  connectOrCreate: [InstructionLineCreateOrConnectWithoutNotesInput!]
-  create: [InstructionLineCreateWithoutNotesInput!]
-  createMany: InstructionLineCreateManyNotesInputEnvelope
+  connectOrCreate: [InstructionLineCreateOrConnectWithoutNoteInput!]
+  create: [InstructionLineCreateWithoutNoteInput!]
+  createMany: InstructionLineCreateManyNoteInputEnvelope
   delete: [InstructionLineWhereUniqueInput!]
   deleteMany: [InstructionLineScalarWhereInput!]
   disconnect: [InstructionLineWhereUniqueInput!]
   set: [InstructionLineWhereUniqueInput!]
-  update: [InstructionLineUpdateWithWhereUniqueWithoutNotesInput!]
-  updateMany: [InstructionLineUpdateManyWithWhereWithoutNotesInput!]
-  upsert: [InstructionLineUpsertWithWhereUniqueWithoutNotesInput!]
+  update: [InstructionLineUpdateWithWhereUniqueWithoutNoteInput!]
+  updateMany: [InstructionLineUpdateManyWithWhereWithoutNoteInput!]
+  upsert: [InstructionLineUpsertWithWhereUniqueWithoutNoteInput!]
 }
 
-input InstructionLineUpdateManyWithoutRecipesInput {
+input InstructionLineUpdateManyWithoutRecipeInput {
   connect: [InstructionLineWhereUniqueInput!]
-  connectOrCreate: [InstructionLineCreateOrConnectWithoutRecipesInput!]
-  create: [InstructionLineCreateWithoutRecipesInput!]
-  createMany: InstructionLineCreateManyRecipesInputEnvelope
+  connectOrCreate: [InstructionLineCreateOrConnectWithoutRecipeInput!]
+  create: [InstructionLineCreateWithoutRecipeInput!]
+  createMany: InstructionLineCreateManyRecipeInputEnvelope
   delete: [InstructionLineWhereUniqueInput!]
   deleteMany: [InstructionLineScalarWhereInput!]
   disconnect: [InstructionLineWhereUniqueInput!]
   set: [InstructionLineWhereUniqueInput!]
-  update: [InstructionLineUpdateWithWhereUniqueWithoutRecipesInput!]
-  updateMany: [InstructionLineUpdateManyWithWhereWithoutRecipesInput!]
-  upsert: [InstructionLineUpsertWithWhereUniqueWithoutRecipesInput!]
+  update: [InstructionLineUpdateWithWhereUniqueWithoutRecipeInput!]
+  updateMany: [InstructionLineUpdateManyWithWhereWithoutRecipeInput!]
+  upsert: [InstructionLineUpsertWithWhereUniqueWithoutRecipeInput!]
 }
 
-input InstructionLineUpdateWithWhereUniqueWithoutNotesInput {
-  data: InstructionLineUpdateWithoutNotesInput!
+input InstructionLineUpdateWithWhereUniqueWithoutNoteInput {
+  data: InstructionLineUpdateWithoutNoteInput!
   where: InstructionLineWhereUniqueInput!
 }
 
-input InstructionLineUpdateWithWhereUniqueWithoutRecipesInput {
-  data: InstructionLineUpdateWithoutRecipesInput!
+input InstructionLineUpdateWithWhereUniqueWithoutRecipeInput {
+  data: InstructionLineUpdateWithoutRecipeInput!
   where: InstructionLineWhereUniqueInput!
 }
 
-input InstructionLineUpdateWithoutNotesInput {
+input InstructionLineUpdateWithoutNoteInput {
+  blockIndex: DateTimeFieldUpdateOperationsInput
   createdAt: DateTimeFieldUpdateOperationsInput
-  recipes: RecipeUpdateOneRequiredWithoutInstructionsInput
+  recipe: RecipeUpdateOneRequiredWithoutInstructionsInput
+  reference: StringFieldUpdateOperationsInput
   updatedAt: DateTimeFieldUpdateOperationsInput
 }
 
-input InstructionLineUpdateWithoutRecipesInput {
+input InstructionLineUpdateWithoutRecipeInput {
+  blockIndex: DateTimeFieldUpdateOperationsInput
   createdAt: DateTimeFieldUpdateOperationsInput
-  notes: NoteUpdateOneRequiredWithoutInstructionsInput
+  note: NoteUpdateOneRequiredWithoutInstructionsInput
+  reference: StringFieldUpdateOperationsInput
   updatedAt: DateTimeFieldUpdateOperationsInput
 }
 
-input InstructionLineUpsertWithWhereUniqueWithoutNotesInput {
-  create: InstructionLineCreateWithoutNotesInput!
-  update: InstructionLineUpdateWithoutNotesInput!
+input InstructionLineUpsertWithWhereUniqueWithoutNoteInput {
+  create: InstructionLineCreateWithoutNoteInput!
+  update: InstructionLineUpdateWithoutNoteInput!
   where: InstructionLineWhereUniqueInput!
 }
 
-input InstructionLineUpsertWithWhereUniqueWithoutRecipesInput {
-  create: InstructionLineCreateWithoutRecipesInput!
-  update: InstructionLineUpdateWithoutRecipesInput!
+input InstructionLineUpsertWithWhereUniqueWithoutRecipeInput {
+  create: InstructionLineCreateWithoutRecipeInput!
+  update: InstructionLineUpdateWithoutRecipeInput!
   where: InstructionLineWhereUniqueInput!
-}
-
-input InstructionLineWhereInput {
-  AND: [InstructionLineWhereInput!]
-  NOT: [InstructionLineWhereInput!]
-  OR: [InstructionLineWhereInput!]
-  createdAt: DateTimeFilter
-  id: IntFilter
-  noteId: IntFilter
-  notes: NoteWhereInput
-  recipeId: IntFilter
-  recipes: RecipeWhereInput
-  updatedAt: DateTimeFilter
 }
 
 input InstructionLineWhereUniqueInput {
@@ -1213,11 +1166,9 @@ input IntNullableFilter {
 }
 
 type Mutation {
-  bigRedButton: String
+  authenticateEvernote(oauthVerifier: String): String
   createOneUser(data: UserCreateInput!): User!
-  deleteManyUser(where: UserWhereInput): AffectedRowsOutput!
   deleteOneUser(where: UserWhereUniqueInput!): User
-  updateManyUser(data: UserUpdateManyMutationInput!, where: UserWhereInput): AffectedRowsOutput!
   updateOneUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
 }
 
@@ -1235,24 +1186,6 @@ input NestedDateTimeFilter {
   lte: DateTime
   not: NestedDateTimeFilter
   notIn: [DateTime!]
-}
-
-input NestedDateTimeNullableFilter {
-  equals: DateTime
-  gt: DateTime
-  gte: DateTime
-  in: [DateTime!]
-  lt: DateTime
-  lte: DateTime
-  not: NestedDateTimeNullableFilter
-  notIn: [DateTime!]
-}
-
-input NestedEnumRoleNullableFilter {
-  equals: Role
-  in: [Role!]
-  not: NestedEnumRoleNullableFilter
-  notIn: [Role!]
 }
 
 input NestedIntFilter {
@@ -1291,18 +1224,20 @@ input NestedStringFilter {
   startsWith: String
 }
 
-input NestedStringNullableFilter {
-  contains: String
-  endsWith: String
-  equals: String
-  gt: String
-  gte: String
-  in: [String!]
-  lt: String
-  lte: String
-  not: NestedStringNullableFilter
-  notIn: [String!]
-  startsWith: String
+type Note {
+  categories: [String!]!
+  content: String!
+  createdAt: DateTime!
+  evernoteGUID: String!
+  id: Int!
+  image: String!
+  ingredients(after: IngredientLineWhereUniqueInput, before: IngredientLineWhereUniqueInput, first: Int, last: Int): [IngredientLine!]!
+  instructions(after: InstructionLineWhereUniqueInput, before: InstructionLineWhereUniqueInput, first: Int, last: Int): [InstructionLine!]!
+  isParsed: Boolean!
+  source: String
+  tags: [String!]!
+  title: String!
+  updatedAt: DateTime!
 }
 
 input NoteCreateNestedOneWithoutIngredientsInput {
@@ -1333,7 +1268,7 @@ input NoteCreateWithoutIngredientsInput {
   createdAt: DateTime
   evernoteGUID: String!
   image: String!
-  instructions: InstructionLineCreateNestedManyWithoutNotesInput
+  instructions: InstructionLineCreateNestedManyWithoutNoteInput
   isParsed: Boolean
   source: String
   tags: NoteCreatetagsInput
@@ -1347,7 +1282,7 @@ input NoteCreateWithoutInstructionsInput {
   createdAt: DateTime
   evernoteGUID: String!
   image: String!
-  ingredients: IngredientLineCreateNestedManyWithoutNotesInput
+  ingredients: IngredientLineCreateNestedManyWithoutNoteInput
   isParsed: Boolean
   source: String
   tags: NoteCreatetagsInput
@@ -1385,7 +1320,7 @@ input NoteUpdateWithoutIngredientsInput {
   createdAt: DateTimeFieldUpdateOperationsInput
   evernoteGUID: StringFieldUpdateOperationsInput
   image: StringFieldUpdateOperationsInput
-  instructions: InstructionLineUpdateManyWithoutNotesInput
+  instructions: InstructionLineUpdateManyWithoutNoteInput
   isParsed: BoolFieldUpdateOperationsInput
   source: NullableStringFieldUpdateOperationsInput
   tags: NoteUpdatetagsInput
@@ -1399,7 +1334,7 @@ input NoteUpdateWithoutInstructionsInput {
   createdAt: DateTimeFieldUpdateOperationsInput
   evernoteGUID: StringFieldUpdateOperationsInput
   image: StringFieldUpdateOperationsInput
-  ingredients: IngredientLineUpdateManyWithoutNotesInput
+  ingredients: IngredientLineUpdateManyWithoutNoteInput
   isParsed: BoolFieldUpdateOperationsInput
   source: NullableStringFieldUpdateOperationsInput
   tags: NoteUpdatetagsInput
@@ -1427,25 +1362,6 @@ input NoteUpsertWithoutInstructionsInput {
   update: NoteUpdateWithoutInstructionsInput!
 }
 
-input NoteWhereInput {
-  AND: [NoteWhereInput!]
-  NOT: [NoteWhereInput!]
-  OR: [NoteWhereInput!]
-  categories: StringNullableListFilter
-  content: StringFilter
-  createdAt: DateTimeFilter
-  evernoteGUID: StringFilter
-  id: IntFilter
-  image: StringFilter
-  ingredients: IngredientLineListRelationFilter
-  instructions: InstructionLineListRelationFilter
-  isParsed: BoolFilter
-  source: StringNullableFilter
-  tags: StringNullableListFilter
-  title: StringFilter
-  updatedAt: DateTimeFilter
-}
-
 input NoteWhereUniqueInput {
   id: Int
 }
@@ -1462,7 +1378,21 @@ input NullableStringFieldUpdateOperationsInput {
   set: String
 }
 
-input ParsedSegmentCreateManyIngredentInput {
+type ParsedSegment {
+  createdAt: DateTime!
+  id: Int!
+  index: Int!
+  ingredient: Ingredient!
+  ingredientId: Int!
+  ingredientLine: IngredientLine!
+  ingredientLineId: Int!
+  rule: String!
+  type: String!
+  updatedAt: DateTime!
+  value: String!
+}
+
+input ParsedSegmentCreateManyIngredientInput {
   createdAt: DateTime
   id: Int
   index: Int!
@@ -1473,8 +1403,8 @@ input ParsedSegmentCreateManyIngredentInput {
   value: String!
 }
 
-input ParsedSegmentCreateManyIngredentInputEnvelope {
-  data: [ParsedSegmentCreateManyIngredentInput!]
+input ParsedSegmentCreateManyIngredientInputEnvelope {
+  data: [ParsedSegmentCreateManyIngredientInput!]
   skipDuplicates: Boolean
 }
 
@@ -1494,11 +1424,11 @@ input ParsedSegmentCreateManyIngredientLineInputEnvelope {
   skipDuplicates: Boolean
 }
 
-input ParsedSegmentCreateNestedManyWithoutIngredentInput {
+input ParsedSegmentCreateNestedManyWithoutIngredientInput {
   connect: [ParsedSegmentWhereUniqueInput!]
-  connectOrCreate: [ParsedSegmentCreateOrConnectWithoutIngredentInput!]
-  create: [ParsedSegmentCreateWithoutIngredentInput!]
-  createMany: ParsedSegmentCreateManyIngredentInputEnvelope
+  connectOrCreate: [ParsedSegmentCreateOrConnectWithoutIngredientInput!]
+  create: [ParsedSegmentCreateWithoutIngredientInput!]
+  createMany: ParsedSegmentCreateManyIngredientInputEnvelope
 }
 
 input ParsedSegmentCreateNestedManyWithoutIngredientLineInput {
@@ -1508,8 +1438,8 @@ input ParsedSegmentCreateNestedManyWithoutIngredientLineInput {
   createMany: ParsedSegmentCreateManyIngredientLineInputEnvelope
 }
 
-input ParsedSegmentCreateOrConnectWithoutIngredentInput {
-  create: ParsedSegmentCreateWithoutIngredentInput!
+input ParsedSegmentCreateOrConnectWithoutIngredientInput {
+  create: ParsedSegmentCreateWithoutIngredientInput!
   where: ParsedSegmentWhereUniqueInput!
 }
 
@@ -1518,7 +1448,7 @@ input ParsedSegmentCreateOrConnectWithoutIngredientLineInput {
   where: ParsedSegmentWhereUniqueInput!
 }
 
-input ParsedSegmentCreateWithoutIngredentInput {
+input ParsedSegmentCreateWithoutIngredientInput {
   createdAt: DateTime
   index: Int!
   ingredientLine: IngredientLineCreateNestedOneWithoutParsedInput!
@@ -1531,17 +1461,11 @@ input ParsedSegmentCreateWithoutIngredentInput {
 input ParsedSegmentCreateWithoutIngredientLineInput {
   createdAt: DateTime
   index: Int!
-  ingredent: IngredientCreateNestedOneWithoutReferencesInput!
+  ingredient: IngredientCreateNestedOneWithoutReferencesInput!
   rule: String!
   type: String!
   updatedAt: DateTime
   value: String!
-}
-
-input ParsedSegmentListRelationFilter {
-  every: ParsedSegmentWhereInput
-  none: ParsedSegmentWhereInput
-  some: ParsedSegmentWhereInput
 }
 
 input ParsedSegmentScalarWhereInput {
@@ -1568,7 +1492,7 @@ input ParsedSegmentUpdateManyMutationInput {
   value: StringFieldUpdateOperationsInput
 }
 
-input ParsedSegmentUpdateManyWithWhereWithoutIngredentInput {
+input ParsedSegmentUpdateManyWithWhereWithoutIngredientInput {
   data: ParsedSegmentUpdateManyMutationInput!
   where: ParsedSegmentScalarWhereInput!
 }
@@ -1578,18 +1502,18 @@ input ParsedSegmentUpdateManyWithWhereWithoutIngredientLineInput {
   where: ParsedSegmentScalarWhereInput!
 }
 
-input ParsedSegmentUpdateManyWithoutIngredentInput {
+input ParsedSegmentUpdateManyWithoutIngredientInput {
   connect: [ParsedSegmentWhereUniqueInput!]
-  connectOrCreate: [ParsedSegmentCreateOrConnectWithoutIngredentInput!]
-  create: [ParsedSegmentCreateWithoutIngredentInput!]
-  createMany: ParsedSegmentCreateManyIngredentInputEnvelope
+  connectOrCreate: [ParsedSegmentCreateOrConnectWithoutIngredientInput!]
+  create: [ParsedSegmentCreateWithoutIngredientInput!]
+  createMany: ParsedSegmentCreateManyIngredientInputEnvelope
   delete: [ParsedSegmentWhereUniqueInput!]
   deleteMany: [ParsedSegmentScalarWhereInput!]
   disconnect: [ParsedSegmentWhereUniqueInput!]
   set: [ParsedSegmentWhereUniqueInput!]
-  update: [ParsedSegmentUpdateWithWhereUniqueWithoutIngredentInput!]
-  updateMany: [ParsedSegmentUpdateManyWithWhereWithoutIngredentInput!]
-  upsert: [ParsedSegmentUpsertWithWhereUniqueWithoutIngredentInput!]
+  update: [ParsedSegmentUpdateWithWhereUniqueWithoutIngredientInput!]
+  updateMany: [ParsedSegmentUpdateManyWithWhereWithoutIngredientInput!]
+  upsert: [ParsedSegmentUpsertWithWhereUniqueWithoutIngredientInput!]
 }
 
 input ParsedSegmentUpdateManyWithoutIngredientLineInput {
@@ -1606,8 +1530,8 @@ input ParsedSegmentUpdateManyWithoutIngredientLineInput {
   upsert: [ParsedSegmentUpsertWithWhereUniqueWithoutIngredientLineInput!]
 }
 
-input ParsedSegmentUpdateWithWhereUniqueWithoutIngredentInput {
-  data: ParsedSegmentUpdateWithoutIngredentInput!
+input ParsedSegmentUpdateWithWhereUniqueWithoutIngredientInput {
+  data: ParsedSegmentUpdateWithoutIngredientInput!
   where: ParsedSegmentWhereUniqueInput!
 }
 
@@ -1616,7 +1540,7 @@ input ParsedSegmentUpdateWithWhereUniqueWithoutIngredientLineInput {
   where: ParsedSegmentWhereUniqueInput!
 }
 
-input ParsedSegmentUpdateWithoutIngredentInput {
+input ParsedSegmentUpdateWithoutIngredientInput {
   createdAt: DateTimeFieldUpdateOperationsInput
   index: IntFieldUpdateOperationsInput
   ingredientLine: IngredientLineUpdateOneRequiredWithoutParsedInput
@@ -1629,16 +1553,16 @@ input ParsedSegmentUpdateWithoutIngredentInput {
 input ParsedSegmentUpdateWithoutIngredientLineInput {
   createdAt: DateTimeFieldUpdateOperationsInput
   index: IntFieldUpdateOperationsInput
-  ingredent: IngredientUpdateOneRequiredWithoutReferencesInput
+  ingredient: IngredientUpdateOneRequiredWithoutReferencesInput
   rule: StringFieldUpdateOperationsInput
   type: StringFieldUpdateOperationsInput
   updatedAt: DateTimeFieldUpdateOperationsInput
   value: StringFieldUpdateOperationsInput
 }
 
-input ParsedSegmentUpsertWithWhereUniqueWithoutIngredentInput {
-  create: ParsedSegmentCreateWithoutIngredentInput!
-  update: ParsedSegmentUpdateWithoutIngredentInput!
+input ParsedSegmentUpsertWithWhereUniqueWithoutIngredientInput {
+  create: ParsedSegmentCreateWithoutIngredientInput!
+  update: ParsedSegmentUpdateWithoutIngredientInput!
   where: ParsedSegmentWhereUniqueInput!
 }
 
@@ -1646,23 +1570,6 @@ input ParsedSegmentUpsertWithWhereUniqueWithoutIngredientLineInput {
   create: ParsedSegmentCreateWithoutIngredientLineInput!
   update: ParsedSegmentUpdateWithoutIngredientLineInput!
   where: ParsedSegmentWhereUniqueInput!
-}
-
-input ParsedSegmentWhereInput {
-  AND: [ParsedSegmentWhereInput!]
-  NOT: [ParsedSegmentWhereInput!]
-  OR: [ParsedSegmentWhereInput!]
-  createdAt: DateTimeFilter
-  id: IntFilter
-  index: IntFilter
-  ingredent: IngredientWhereInput
-  ingredientId: IntFilter
-  ingredientLine: IngredientLineWhereInput
-  ingredientLineId: IntFilter
-  rule: StringFilter
-  type: StringFilter
-  updatedAt: DateTimeFilter
-  value: StringFilter
 }
 
 input ParsedSegmentWhereUniqueInput {
@@ -1679,7 +1586,6 @@ enum Properties {
 }
 
 type Query {
-  allUsers: [User]
   user(where: UserWhereUniqueInput!): User
   users(after: UserWhereUniqueInput, before: UserWhereUniqueInput, first: Int, last: Int): [User!]!
 }
@@ -1687,6 +1593,24 @@ type Query {
 enum QueryMode {
   default
   insensitive
+}
+
+type Recipe {
+  book: Book!
+  bookId: Int!
+  categories(after: CategoryWhereUniqueInput, before: CategoryWhereUniqueInput, first: Int, last: Int): [Category!]!
+  createdAt: DateTime!
+  evernoteGUID: String!
+  id: Int!
+  image: String!
+  importedUser: User!
+  importedUserId: Int!
+  ingredients(after: IngredientLineWhereUniqueInput, before: IngredientLineWhereUniqueInput, first: Int, last: Int): [IngredientLine!]!
+  instructions(after: InstructionLineWhereUniqueInput, before: InstructionLineWhereUniqueInput, first: Int, last: Int): [InstructionLine!]!
+  sources: [String!]!
+  tags(after: TagWhereUniqueInput, before: TagWhereUniqueInput, first: Int, last: Int): [Tag!]!
+  title: String!
+  updatedAt: DateTime!
 }
 
 input RecipeCreateManyImportedUserInput {
@@ -1749,8 +1673,8 @@ input RecipeCreateWithoutImportedUserInput {
   createdAt: DateTime
   evernoteGUID: String!
   image: String!
-  ingredients: IngredientLineCreateNestedManyWithoutRecipesInput
-  instructions: InstructionLineCreateNestedManyWithoutRecipesInput
+  ingredients: IngredientLineCreateNestedManyWithoutRecipeInput
+  instructions: InstructionLineCreateNestedManyWithoutRecipeInput
   sources: RecipeCreatesourcesInput
   tags: TagCreateNestedManyWithoutRecipesInput
   title: String!
@@ -1764,7 +1688,7 @@ input RecipeCreateWithoutIngredientsInput {
   evernoteGUID: String!
   image: String!
   importedUser: UserCreateNestedOneWithoutImportedRecipesInput!
-  instructions: InstructionLineCreateNestedManyWithoutRecipesInput
+  instructions: InstructionLineCreateNestedManyWithoutRecipeInput
   sources: RecipeCreatesourcesInput
   tags: TagCreateNestedManyWithoutRecipesInput
   title: String!
@@ -1778,7 +1702,7 @@ input RecipeCreateWithoutInstructionsInput {
   evernoteGUID: String!
   image: String!
   importedUser: UserCreateNestedOneWithoutImportedRecipesInput!
-  ingredients: IngredientLineCreateNestedManyWithoutRecipesInput
+  ingredients: IngredientLineCreateNestedManyWithoutRecipeInput
   sources: RecipeCreatesourcesInput
   tags: TagCreateNestedManyWithoutRecipesInput
   title: String!
@@ -1787,12 +1711,6 @@ input RecipeCreateWithoutInstructionsInput {
 
 input RecipeCreatesourcesInput {
   set: [String!]
-}
-
-input RecipeListRelationFilter {
-  every: RecipeWhereInput
-  none: RecipeWhereInput
-  some: RecipeWhereInput
 }
 
 input RecipeScalarWhereInput {
@@ -1865,8 +1783,8 @@ input RecipeUpdateWithoutImportedUserInput {
   createdAt: DateTimeFieldUpdateOperationsInput
   evernoteGUID: StringFieldUpdateOperationsInput
   image: StringFieldUpdateOperationsInput
-  ingredients: IngredientLineUpdateManyWithoutRecipesInput
-  instructions: InstructionLineUpdateManyWithoutRecipesInput
+  ingredients: IngredientLineUpdateManyWithoutRecipeInput
+  instructions: InstructionLineUpdateManyWithoutRecipeInput
   sources: RecipeUpdatesourcesInput
   tags: TagUpdateManyWithoutRecipesInput
   title: StringFieldUpdateOperationsInput
@@ -1880,7 +1798,7 @@ input RecipeUpdateWithoutIngredientsInput {
   evernoteGUID: StringFieldUpdateOperationsInput
   image: StringFieldUpdateOperationsInput
   importedUser: UserUpdateOneRequiredWithoutImportedRecipesInput
-  instructions: InstructionLineUpdateManyWithoutRecipesInput
+  instructions: InstructionLineUpdateManyWithoutRecipeInput
   sources: RecipeUpdatesourcesInput
   tags: TagUpdateManyWithoutRecipesInput
   title: StringFieldUpdateOperationsInput
@@ -1894,7 +1812,7 @@ input RecipeUpdateWithoutInstructionsInput {
   evernoteGUID: StringFieldUpdateOperationsInput
   image: StringFieldUpdateOperationsInput
   importedUser: UserUpdateOneRequiredWithoutImportedRecipesInput
-  ingredients: IngredientLineUpdateManyWithoutRecipesInput
+  ingredients: IngredientLineUpdateManyWithoutRecipeInput
   sources: RecipeUpdatesourcesInput
   tags: TagUpdateManyWithoutRecipesInput
   title: StringFieldUpdateOperationsInput
@@ -1922,27 +1840,6 @@ input RecipeUpsertWithoutInstructionsInput {
   update: RecipeUpdateWithoutInstructionsInput!
 }
 
-input RecipeWhereInput {
-  AND: [RecipeWhereInput!]
-  NOT: [RecipeWhereInput!]
-  OR: [RecipeWhereInput!]
-  book: BookWhereInput
-  bookId: IntFilter
-  categories: CategoryListRelationFilter
-  createdAt: DateTimeFilter
-  evernoteGUID: StringFilter
-  id: IntFilter
-  image: StringFilter
-  importedUser: UserWhereInput
-  importedUserId: IntFilter
-  ingredients: IngredientLineListRelationFilter
-  instructions: InstructionLineListRelationFilter
-  sources: StringNullableListFilter
-  tags: TagListRelationFilter
-  title: StringFilter
-  updatedAt: DateTimeFilter
-}
-
 input RecipeWhereUniqueInput {
   id: Int
 }
@@ -1950,6 +1847,16 @@ input RecipeWhereUniqueInput {
 enum Role {
   ADMIN
   USER
+}
+
+type Session {
+  accessToken: String!
+  createdAt: DateTime!
+  expires: DateTime!
+  id: Int!
+  sessionToken: String!
+  updatedAt: DateTime!
+  userId: Int!
 }
 
 input StringFieldUpdateOperationsInput {
@@ -1971,27 +1878,19 @@ input StringFilter {
   startsWith: String
 }
 
-input StringNullableFilter {
-  contains: String
-  endsWith: String
-  equals: String
-  gt: String
-  gte: String
-  in: [String!]
-  lt: String
-  lte: String
-  mode: QueryMode
-  not: NestedStringNullableFilter
-  notIn: [String!]
-  startsWith: String
-}
-
 input StringNullableListFilter {
   equals: [String!]
   has: String
   hasEvery: [String!]
   hasSome: [String!]
   isEmpty: Boolean
+}
+
+type Tag {
+  evernoteGUID: String!
+  id: Int!
+  name: String!
+  recipes(after: RecipeWhereUniqueInput, before: RecipeWhereUniqueInput, first: Int, last: Int): [Recipe!]!
 }
 
 input TagCreateNestedManyWithoutRecipesInput {
@@ -2008,12 +1907,6 @@ input TagCreateOrConnectWithoutRecipesInput {
 input TagCreateWithoutRecipesInput {
   evernoteGUID: String!
   name: String!
-}
-
-input TagListRelationFilter {
-  every: TagWhereInput
-  none: TagWhereInput
-  some: TagWhereInput
 }
 
 input TagScalarWhereInput {
@@ -2064,16 +1957,6 @@ input TagUpsertWithWhereUniqueWithoutRecipesInput {
   where: TagWhereUniqueInput!
 }
 
-input TagWhereInput {
-  AND: [TagWhereInput!]
-  NOT: [TagWhereInput!]
-  OR: [TagWhereInput!]
-  evernoteGUID: StringFilter
-  id: IntFilter
-  name: StringFilter
-  recipes: RecipeListRelationFilter
-}
-
 input TagWhereUniqueInput {
   id: Int
   name: String
@@ -2085,7 +1968,9 @@ type User {
   emailVerified: DateTime
   id: Int!
   image: String
+  importedRecipes(after: RecipeWhereUniqueInput, before: RecipeWhereUniqueInput, first: Int, last: Int): [Recipe!]!
   name: String
+  role: Role
   updatedAt: DateTime!
 }
 
@@ -2132,16 +2017,6 @@ input UserUpdateInput {
   updatedAt: DateTimeFieldUpdateOperationsInput
 }
 
-input UserUpdateManyMutationInput {
-  createdAt: DateTimeFieldUpdateOperationsInput
-  email: NullableStringFieldUpdateOperationsInput
-  emailVerified: NullableDateTimeFieldUpdateOperationsInput
-  image: NullableStringFieldUpdateOperationsInput
-  name: NullableStringFieldUpdateOperationsInput
-  role: NullableEnumRoleFieldUpdateOperationsInput
-  updatedAt: DateTimeFieldUpdateOperationsInput
-}
-
 input UserUpdateOneRequiredWithoutImportedRecipesInput {
   connect: UserWhereUniqueInput
   connectOrCreate: UserCreateOrConnectWithoutImportedRecipesInput
@@ -2163,21 +2038,6 @@ input UserUpdateWithoutImportedRecipesInput {
 input UserUpsertWithoutImportedRecipesInput {
   create: UserCreateWithoutImportedRecipesInput!
   update: UserUpdateWithoutImportedRecipesInput!
-}
-
-input UserWhereInput {
-  AND: [UserWhereInput!]
-  NOT: [UserWhereInput!]
-  OR: [UserWhereInput!]
-  createdAt: DateTimeFilter
-  email: StringNullableFilter
-  emailVerified: DateTimeNullableFilter
-  id: IntFilter
-  image: StringNullableFilter
-  importedRecipes: RecipeListRelationFilter
-  name: StringNullableFilter
-  role: EnumRoleNullableFilter
-  updatedAt: DateTimeFilter
 }
 
 input UserWhereUniqueInput {

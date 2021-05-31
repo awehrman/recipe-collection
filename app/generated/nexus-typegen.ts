@@ -39,11 +39,6 @@ export interface NexusGenInputs {
   AlternateNameCreateWithoutIngredientInput: { // input type
     name: string; // String!
   }
-  AlternateNameListRelationFilter: { // input type
-    every?: NexusGenInputs['AlternateNameWhereInput'] | null; // AlternateNameWhereInput
-    none?: NexusGenInputs['AlternateNameWhereInput'] | null; // AlternateNameWhereInput
-    some?: NexusGenInputs['AlternateNameWhereInput'] | null; // AlternateNameWhereInput
-  }
   AlternateNameScalarWhereInput: { // input type
     AND?: NexusGenInputs['AlternateNameScalarWhereInput'][] | null; // [AlternateNameScalarWhereInput!]
     NOT?: NexusGenInputs['AlternateNameScalarWhereInput'][] | null; // [AlternateNameScalarWhereInput!]
@@ -83,14 +78,6 @@ export interface NexusGenInputs {
     update: NexusGenInputs['AlternateNameUpdateWithoutIngredientInput']; // AlternateNameUpdateWithoutIngredientInput!
     where: NexusGenInputs['AlternateNameWhereUniqueInput']; // AlternateNameWhereUniqueInput!
   }
-  AlternateNameWhereInput: { // input type
-    AND?: NexusGenInputs['AlternateNameWhereInput'][] | null; // [AlternateNameWhereInput!]
-    NOT?: NexusGenInputs['AlternateNameWhereInput'][] | null; // [AlternateNameWhereInput!]
-    OR?: NexusGenInputs['AlternateNameWhereInput'][] | null; // [AlternateNameWhereInput!]
-    ingredient?: NexusGenInputs['IngredientWhereInput'] | null; // IngredientWhereInput
-    ingredientId?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    name?: NexusGenInputs['StringFilter'] | null; // StringFilter
-  }
   AlternateNameWhereUniqueInput: { // input type
     name?: string | null; // String
   }
@@ -120,14 +107,6 @@ export interface NexusGenInputs {
     create: NexusGenInputs['AuthorCreateWithoutBooksInput']; // AuthorCreateWithoutBooksInput!
     update: NexusGenInputs['AuthorUpdateWithoutBooksInput']; // AuthorUpdateWithoutBooksInput!
   }
-  AuthorWhereInput: { // input type
-    AND?: NexusGenInputs['AuthorWhereInput'][] | null; // [AuthorWhereInput!]
-    NOT?: NexusGenInputs['AuthorWhereInput'][] | null; // [AuthorWhereInput!]
-    OR?: NexusGenInputs['AuthorWhereInput'][] | null; // [AuthorWhereInput!]
-    books?: NexusGenInputs['BookListRelationFilter'] | null; // BookListRelationFilter
-    id?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    name?: NexusGenInputs['StringFilter'] | null; // StringFilter
-  }
   AuthorWhereUniqueInput: { // input type
     id?: number | null; // Int
   }
@@ -144,11 +123,6 @@ export interface NexusGenInputs {
     author: NexusGenInputs['AuthorCreateNestedOneWithoutBooksInput']; // AuthorCreateNestedOneWithoutBooksInput!
     title: string; // String!
   }
-  BookListRelationFilter: { // input type
-    every?: NexusGenInputs['BookWhereInput'] | null; // BookWhereInput
-    none?: NexusGenInputs['BookWhereInput'] | null; // BookWhereInput
-    some?: NexusGenInputs['BookWhereInput'] | null; // BookWhereInput
-  }
   BookUpdateOneRequiredWithoutRecipesInput: { // input type
     connect?: NexusGenInputs['BookWhereUniqueInput'] | null; // BookWhereUniqueInput
     connectOrCreate?: NexusGenInputs['BookCreateOrConnectWithoutRecipesInput'] | null; // BookCreateOrConnectWithoutRecipesInput
@@ -163,16 +137,6 @@ export interface NexusGenInputs {
   BookUpsertWithoutRecipesInput: { // input type
     create: NexusGenInputs['BookCreateWithoutRecipesInput']; // BookCreateWithoutRecipesInput!
     update: NexusGenInputs['BookUpdateWithoutRecipesInput']; // BookUpdateWithoutRecipesInput!
-  }
-  BookWhereInput: { // input type
-    AND?: NexusGenInputs['BookWhereInput'][] | null; // [BookWhereInput!]
-    NOT?: NexusGenInputs['BookWhereInput'][] | null; // [BookWhereInput!]
-    OR?: NexusGenInputs['BookWhereInput'][] | null; // [BookWhereInput!]
-    author?: NexusGenInputs['AuthorWhereInput'] | null; // AuthorWhereInput
-    authorId?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    id?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    recipes?: NexusGenInputs['RecipeListRelationFilter'] | null; // RecipeListRelationFilter
-    title?: NexusGenInputs['StringFilter'] | null; // StringFilter
   }
   BookWhereUniqueInput: { // input type
     id?: number | null; // Int
@@ -196,11 +160,6 @@ export interface NexusGenInputs {
   CategoryCreateWithoutRecipesInput: { // input type
     evernoteGUID: string; // String!
     name: string; // String!
-  }
-  CategoryListRelationFilter: { // input type
-    every?: NexusGenInputs['CategoryWhereInput'] | null; // CategoryWhereInput
-    none?: NexusGenInputs['CategoryWhereInput'] | null; // CategoryWhereInput
-    some?: NexusGenInputs['CategoryWhereInput'] | null; // CategoryWhereInput
   }
   CategoryScalarWhereInput: { // input type
     AND?: NexusGenInputs['CategoryScalarWhereInput'][] | null; // [CategoryScalarWhereInput!]
@@ -243,15 +202,6 @@ export interface NexusGenInputs {
     update: NexusGenInputs['CategoryUpdateWithoutRecipesInput']; // CategoryUpdateWithoutRecipesInput!
     where: NexusGenInputs['CategoryWhereUniqueInput']; // CategoryWhereUniqueInput!
   }
-  CategoryWhereInput: { // input type
-    AND?: NexusGenInputs['CategoryWhereInput'][] | null; // [CategoryWhereInput!]
-    NOT?: NexusGenInputs['CategoryWhereInput'][] | null; // [CategoryWhereInput!]
-    OR?: NexusGenInputs['CategoryWhereInput'][] | null; // [CategoryWhereInput!]
-    evernoteGUID?: NexusGenInputs['StringFilter'] | null; // StringFilter
-    id?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    name?: NexusGenInputs['StringFilter'] | null; // StringFilter
-    recipes?: NexusGenInputs['RecipeListRelationFilter'] | null; // RecipeListRelationFilter
-  }
   CategoryWhereUniqueInput: { // input type
     id?: number | null; // Int
     name?: string | null; // String
@@ -269,28 +219,12 @@ export interface NexusGenInputs {
     not?: NexusGenInputs['NestedDateTimeFilter'] | null; // NestedDateTimeFilter
     notIn?: NexusGenScalars['DateTime'][] | null; // [DateTime!]
   }
-  DateTimeNullableFilter: { // input type
-    equals?: NexusGenScalars['DateTime'] | null; // DateTime
-    gt?: NexusGenScalars['DateTime'] | null; // DateTime
-    gte?: NexusGenScalars['DateTime'] | null; // DateTime
-    in?: NexusGenScalars['DateTime'][] | null; // [DateTime!]
-    lt?: NexusGenScalars['DateTime'] | null; // DateTime
-    lte?: NexusGenScalars['DateTime'] | null; // DateTime
-    not?: NexusGenInputs['NestedDateTimeNullableFilter'] | null; // NestedDateTimeNullableFilter
-    notIn?: NexusGenScalars['DateTime'][] | null; // [DateTime!]
-  }
   EnumPropertiesNullableListFilter: { // input type
     equals?: NexusGenEnums['Properties'][] | null; // [Properties!]
     has?: NexusGenEnums['Properties'] | null; // Properties
     hasEvery?: NexusGenEnums['Properties'][] | null; // [Properties!]
     hasSome?: NexusGenEnums['Properties'][] | null; // [Properties!]
     isEmpty?: boolean | null; // Boolean
-  }
-  EnumRoleNullableFilter: { // input type
-    equals?: NexusGenEnums['Role'] | null; // Role
-    in?: NexusGenEnums['Role'][] | null; // [Role!]
-    not?: NexusGenInputs['NestedEnumRoleNullableFilter'] | null; // NestedEnumRoleNullableFilter
-    notIn?: NexusGenEnums['Role'][] | null; // [Role!]
   }
   IngredientCreateManyParentInput: { // input type
     createdAt?: NexusGenScalars['DateTime'] | null; // DateTime
@@ -364,7 +298,7 @@ export interface NexusGenInputs {
     plural: string; // String!
     properties?: NexusGenInputs['IngredientCreatepropertiesInput'] | null; // IngredientCreatepropertiesInput
     referencedSubstitutes?: NexusGenInputs['IngredientCreateNestedManyWithoutSubstitutesInput'] | null; // IngredientCreateNestedManyWithoutSubstitutesInput
-    references?: NexusGenInputs['ParsedSegmentCreateNestedManyWithoutIngredentInput'] | null; // ParsedSegmentCreateNestedManyWithoutIngredentInput
+    references?: NexusGenInputs['ParsedSegmentCreateNestedManyWithoutIngredientInput'] | null; // ParsedSegmentCreateNestedManyWithoutIngredientInput
     relatedIngredients?: NexusGenInputs['IngredientCreateNestedManyWithoutParentInput'] | null; // IngredientCreateNestedManyWithoutParentInput
     substitutes?: NexusGenInputs['IngredientCreateNestedManyWithoutReferencedSubstitutesInput'] | null; // IngredientCreateNestedManyWithoutReferencedSubstitutesInput
     updatedAt?: NexusGenScalars['DateTime'] | null; // DateTime
@@ -378,7 +312,7 @@ export interface NexusGenInputs {
     parent?: NexusGenInputs['IngredientCreateNestedOneWithoutRelatedIngredientsInput'] | null; // IngredientCreateNestedOneWithoutRelatedIngredientsInput
     plural: string; // String!
     properties?: NexusGenInputs['IngredientCreatepropertiesInput'] | null; // IngredientCreatepropertiesInput
-    references?: NexusGenInputs['ParsedSegmentCreateNestedManyWithoutIngredentInput'] | null; // ParsedSegmentCreateNestedManyWithoutIngredentInput
+    references?: NexusGenInputs['ParsedSegmentCreateNestedManyWithoutIngredientInput'] | null; // ParsedSegmentCreateNestedManyWithoutIngredientInput
     relatedIngredients?: NexusGenInputs['IngredientCreateNestedManyWithoutParentInput'] | null; // IngredientCreateNestedManyWithoutParentInput
     substitutes?: NexusGenInputs['IngredientCreateNestedManyWithoutReferencedSubstitutesInput'] | null; // IngredientCreateNestedManyWithoutReferencedSubstitutesInput
     updatedAt?: NexusGenScalars['DateTime'] | null; // DateTime
@@ -407,7 +341,7 @@ export interface NexusGenInputs {
     plural: string; // String!
     properties?: NexusGenInputs['IngredientCreatepropertiesInput'] | null; // IngredientCreatepropertiesInput
     referencedSubstitutes?: NexusGenInputs['IngredientCreateNestedManyWithoutSubstitutesInput'] | null; // IngredientCreateNestedManyWithoutSubstitutesInput
-    references?: NexusGenInputs['ParsedSegmentCreateNestedManyWithoutIngredentInput'] | null; // ParsedSegmentCreateNestedManyWithoutIngredentInput
+    references?: NexusGenInputs['ParsedSegmentCreateNestedManyWithoutIngredientInput'] | null; // ParsedSegmentCreateNestedManyWithoutIngredientInput
     substitutes?: NexusGenInputs['IngredientCreateNestedManyWithoutReferencedSubstitutesInput'] | null; // IngredientCreateNestedManyWithoutReferencedSubstitutesInput
     updatedAt?: NexusGenScalars['DateTime'] | null; // DateTime
   }
@@ -421,14 +355,14 @@ export interface NexusGenInputs {
     plural: string; // String!
     properties?: NexusGenInputs['IngredientCreatepropertiesInput'] | null; // IngredientCreatepropertiesInput
     referencedSubstitutes?: NexusGenInputs['IngredientCreateNestedManyWithoutSubstitutesInput'] | null; // IngredientCreateNestedManyWithoutSubstitutesInput
-    references?: NexusGenInputs['ParsedSegmentCreateNestedManyWithoutIngredentInput'] | null; // ParsedSegmentCreateNestedManyWithoutIngredentInput
+    references?: NexusGenInputs['ParsedSegmentCreateNestedManyWithoutIngredientInput'] | null; // ParsedSegmentCreateNestedManyWithoutIngredientInput
     relatedIngredients?: NexusGenInputs['IngredientCreateNestedManyWithoutParentInput'] | null; // IngredientCreateNestedManyWithoutParentInput
     updatedAt?: NexusGenScalars['DateTime'] | null; // DateTime
   }
   IngredientCreatepropertiesInput: { // input type
     set?: NexusGenEnums['Properties'][] | null; // [Properties!]
   }
-  IngredientLineCreateManyNotesInput: { // input type
+  IngredientLineCreateManyNoteInput: { // input type
     blockIndex: number; // Int!
     createdAt?: NexusGenScalars['DateTime'] | null; // DateTime
     id?: number | null; // Int
@@ -439,11 +373,11 @@ export interface NexusGenInputs {
     rule: string; // String!
     updatedAt?: NexusGenScalars['DateTime'] | null; // DateTime
   }
-  IngredientLineCreateManyNotesInputEnvelope: { // input type
-    data?: NexusGenInputs['IngredientLineCreateManyNotesInput'][] | null; // [IngredientLineCreateManyNotesInput!]
+  IngredientLineCreateManyNoteInputEnvelope: { // input type
+    data?: NexusGenInputs['IngredientLineCreateManyNoteInput'][] | null; // [IngredientLineCreateManyNoteInput!]
     skipDuplicates?: boolean | null; // Boolean
   }
-  IngredientLineCreateManyRecipesInput: { // input type
+  IngredientLineCreateManyRecipeInput: { // input type
     blockIndex: number; // Int!
     createdAt?: NexusGenScalars['DateTime'] | null; // DateTime
     id?: number | null; // Int
@@ -454,46 +388,46 @@ export interface NexusGenInputs {
     rule: string; // String!
     updatedAt?: NexusGenScalars['DateTime'] | null; // DateTime
   }
-  IngredientLineCreateManyRecipesInputEnvelope: { // input type
-    data?: NexusGenInputs['IngredientLineCreateManyRecipesInput'][] | null; // [IngredientLineCreateManyRecipesInput!]
+  IngredientLineCreateManyRecipeInputEnvelope: { // input type
+    data?: NexusGenInputs['IngredientLineCreateManyRecipeInput'][] | null; // [IngredientLineCreateManyRecipeInput!]
     skipDuplicates?: boolean | null; // Boolean
   }
-  IngredientLineCreateNestedManyWithoutNotesInput: { // input type
+  IngredientLineCreateNestedManyWithoutNoteInput: { // input type
     connect?: NexusGenInputs['IngredientLineWhereUniqueInput'][] | null; // [IngredientLineWhereUniqueInput!]
-    connectOrCreate?: NexusGenInputs['IngredientLineCreateOrConnectWithoutNotesInput'][] | null; // [IngredientLineCreateOrConnectWithoutNotesInput!]
-    create?: NexusGenInputs['IngredientLineCreateWithoutNotesInput'][] | null; // [IngredientLineCreateWithoutNotesInput!]
-    createMany?: NexusGenInputs['IngredientLineCreateManyNotesInputEnvelope'] | null; // IngredientLineCreateManyNotesInputEnvelope
+    connectOrCreate?: NexusGenInputs['IngredientLineCreateOrConnectWithoutNoteInput'][] | null; // [IngredientLineCreateOrConnectWithoutNoteInput!]
+    create?: NexusGenInputs['IngredientLineCreateWithoutNoteInput'][] | null; // [IngredientLineCreateWithoutNoteInput!]
+    createMany?: NexusGenInputs['IngredientLineCreateManyNoteInputEnvelope'] | null; // IngredientLineCreateManyNoteInputEnvelope
   }
-  IngredientLineCreateNestedManyWithoutRecipesInput: { // input type
+  IngredientLineCreateNestedManyWithoutRecipeInput: { // input type
     connect?: NexusGenInputs['IngredientLineWhereUniqueInput'][] | null; // [IngredientLineWhereUniqueInput!]
-    connectOrCreate?: NexusGenInputs['IngredientLineCreateOrConnectWithoutRecipesInput'][] | null; // [IngredientLineCreateOrConnectWithoutRecipesInput!]
-    create?: NexusGenInputs['IngredientLineCreateWithoutRecipesInput'][] | null; // [IngredientLineCreateWithoutRecipesInput!]
-    createMany?: NexusGenInputs['IngredientLineCreateManyRecipesInputEnvelope'] | null; // IngredientLineCreateManyRecipesInputEnvelope
+    connectOrCreate?: NexusGenInputs['IngredientLineCreateOrConnectWithoutRecipeInput'][] | null; // [IngredientLineCreateOrConnectWithoutRecipeInput!]
+    create?: NexusGenInputs['IngredientLineCreateWithoutRecipeInput'][] | null; // [IngredientLineCreateWithoutRecipeInput!]
+    createMany?: NexusGenInputs['IngredientLineCreateManyRecipeInputEnvelope'] | null; // IngredientLineCreateManyRecipeInputEnvelope
   }
   IngredientLineCreateNestedOneWithoutParsedInput: { // input type
     connect?: NexusGenInputs['IngredientLineWhereUniqueInput'] | null; // IngredientLineWhereUniqueInput
     connectOrCreate?: NexusGenInputs['IngredientLineCreateOrConnectWithoutParsedInput'] | null; // IngredientLineCreateOrConnectWithoutParsedInput
     create?: NexusGenInputs['IngredientLineCreateWithoutParsedInput'] | null; // IngredientLineCreateWithoutParsedInput
   }
-  IngredientLineCreateOrConnectWithoutNotesInput: { // input type
-    create: NexusGenInputs['IngredientLineCreateWithoutNotesInput']; // IngredientLineCreateWithoutNotesInput!
+  IngredientLineCreateOrConnectWithoutNoteInput: { // input type
+    create: NexusGenInputs['IngredientLineCreateWithoutNoteInput']; // IngredientLineCreateWithoutNoteInput!
     where: NexusGenInputs['IngredientLineWhereUniqueInput']; // IngredientLineWhereUniqueInput!
   }
   IngredientLineCreateOrConnectWithoutParsedInput: { // input type
     create: NexusGenInputs['IngredientLineCreateWithoutParsedInput']; // IngredientLineCreateWithoutParsedInput!
     where: NexusGenInputs['IngredientLineWhereUniqueInput']; // IngredientLineWhereUniqueInput!
   }
-  IngredientLineCreateOrConnectWithoutRecipesInput: { // input type
-    create: NexusGenInputs['IngredientLineCreateWithoutRecipesInput']; // IngredientLineCreateWithoutRecipesInput!
+  IngredientLineCreateOrConnectWithoutRecipeInput: { // input type
+    create: NexusGenInputs['IngredientLineCreateWithoutRecipeInput']; // IngredientLineCreateWithoutRecipeInput!
     where: NexusGenInputs['IngredientLineWhereUniqueInput']; // IngredientLineWhereUniqueInput!
   }
-  IngredientLineCreateWithoutNotesInput: { // input type
+  IngredientLineCreateWithoutNoteInput: { // input type
     blockIndex: number; // Int!
     createdAt?: NexusGenScalars['DateTime'] | null; // DateTime
     isParsed: boolean; // Boolean!
     lineIndex: number; // Int!
     parsed?: NexusGenInputs['ParsedSegmentCreateNestedManyWithoutIngredientLineInput'] | null; // ParsedSegmentCreateNestedManyWithoutIngredientLineInput
-    recipes: NexusGenInputs['RecipeCreateNestedOneWithoutIngredientsInput']; // RecipeCreateNestedOneWithoutIngredientsInput!
+    recipe: NexusGenInputs['RecipeCreateNestedOneWithoutIngredientsInput']; // RecipeCreateNestedOneWithoutIngredientsInput!
     reference: string; // String!
     rule: string; // String!
     updatedAt?: NexusGenScalars['DateTime'] | null; // DateTime
@@ -503,27 +437,22 @@ export interface NexusGenInputs {
     createdAt?: NexusGenScalars['DateTime'] | null; // DateTime
     isParsed: boolean; // Boolean!
     lineIndex: number; // Int!
-    notes: NexusGenInputs['NoteCreateNestedOneWithoutIngredientsInput']; // NoteCreateNestedOneWithoutIngredientsInput!
-    recipes: NexusGenInputs['RecipeCreateNestedOneWithoutIngredientsInput']; // RecipeCreateNestedOneWithoutIngredientsInput!
+    note: NexusGenInputs['NoteCreateNestedOneWithoutIngredientsInput']; // NoteCreateNestedOneWithoutIngredientsInput!
+    recipe: NexusGenInputs['RecipeCreateNestedOneWithoutIngredientsInput']; // RecipeCreateNestedOneWithoutIngredientsInput!
     reference: string; // String!
     rule: string; // String!
     updatedAt?: NexusGenScalars['DateTime'] | null; // DateTime
   }
-  IngredientLineCreateWithoutRecipesInput: { // input type
+  IngredientLineCreateWithoutRecipeInput: { // input type
     blockIndex: number; // Int!
     createdAt?: NexusGenScalars['DateTime'] | null; // DateTime
     isParsed: boolean; // Boolean!
     lineIndex: number; // Int!
-    notes: NexusGenInputs['NoteCreateNestedOneWithoutIngredientsInput']; // NoteCreateNestedOneWithoutIngredientsInput!
+    note: NexusGenInputs['NoteCreateNestedOneWithoutIngredientsInput']; // NoteCreateNestedOneWithoutIngredientsInput!
     parsed?: NexusGenInputs['ParsedSegmentCreateNestedManyWithoutIngredientLineInput'] | null; // ParsedSegmentCreateNestedManyWithoutIngredientLineInput
     reference: string; // String!
     rule: string; // String!
     updatedAt?: NexusGenScalars['DateTime'] | null; // DateTime
-  }
-  IngredientLineListRelationFilter: { // input type
-    every?: NexusGenInputs['IngredientLineWhereInput'] | null; // IngredientLineWhereInput
-    none?: NexusGenInputs['IngredientLineWhereInput'] | null; // IngredientLineWhereInput
-    some?: NexusGenInputs['IngredientLineWhereInput'] | null; // IngredientLineWhereInput
   }
   IngredientLineScalarWhereInput: { // input type
     AND?: NexusGenInputs['IngredientLineScalarWhereInput'][] | null; // [IngredientLineScalarWhereInput!]
@@ -549,39 +478,39 @@ export interface NexusGenInputs {
     rule?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     updatedAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
   }
-  IngredientLineUpdateManyWithWhereWithoutNotesInput: { // input type
+  IngredientLineUpdateManyWithWhereWithoutNoteInput: { // input type
     data: NexusGenInputs['IngredientLineUpdateManyMutationInput']; // IngredientLineUpdateManyMutationInput!
     where: NexusGenInputs['IngredientLineScalarWhereInput']; // IngredientLineScalarWhereInput!
   }
-  IngredientLineUpdateManyWithWhereWithoutRecipesInput: { // input type
+  IngredientLineUpdateManyWithWhereWithoutRecipeInput: { // input type
     data: NexusGenInputs['IngredientLineUpdateManyMutationInput']; // IngredientLineUpdateManyMutationInput!
     where: NexusGenInputs['IngredientLineScalarWhereInput']; // IngredientLineScalarWhereInput!
   }
-  IngredientLineUpdateManyWithoutNotesInput: { // input type
+  IngredientLineUpdateManyWithoutNoteInput: { // input type
     connect?: NexusGenInputs['IngredientLineWhereUniqueInput'][] | null; // [IngredientLineWhereUniqueInput!]
-    connectOrCreate?: NexusGenInputs['IngredientLineCreateOrConnectWithoutNotesInput'][] | null; // [IngredientLineCreateOrConnectWithoutNotesInput!]
-    create?: NexusGenInputs['IngredientLineCreateWithoutNotesInput'][] | null; // [IngredientLineCreateWithoutNotesInput!]
-    createMany?: NexusGenInputs['IngredientLineCreateManyNotesInputEnvelope'] | null; // IngredientLineCreateManyNotesInputEnvelope
+    connectOrCreate?: NexusGenInputs['IngredientLineCreateOrConnectWithoutNoteInput'][] | null; // [IngredientLineCreateOrConnectWithoutNoteInput!]
+    create?: NexusGenInputs['IngredientLineCreateWithoutNoteInput'][] | null; // [IngredientLineCreateWithoutNoteInput!]
+    createMany?: NexusGenInputs['IngredientLineCreateManyNoteInputEnvelope'] | null; // IngredientLineCreateManyNoteInputEnvelope
     delete?: NexusGenInputs['IngredientLineWhereUniqueInput'][] | null; // [IngredientLineWhereUniqueInput!]
     deleteMany?: NexusGenInputs['IngredientLineScalarWhereInput'][] | null; // [IngredientLineScalarWhereInput!]
     disconnect?: NexusGenInputs['IngredientLineWhereUniqueInput'][] | null; // [IngredientLineWhereUniqueInput!]
     set?: NexusGenInputs['IngredientLineWhereUniqueInput'][] | null; // [IngredientLineWhereUniqueInput!]
-    update?: NexusGenInputs['IngredientLineUpdateWithWhereUniqueWithoutNotesInput'][] | null; // [IngredientLineUpdateWithWhereUniqueWithoutNotesInput!]
-    updateMany?: NexusGenInputs['IngredientLineUpdateManyWithWhereWithoutNotesInput'][] | null; // [IngredientLineUpdateManyWithWhereWithoutNotesInput!]
-    upsert?: NexusGenInputs['IngredientLineUpsertWithWhereUniqueWithoutNotesInput'][] | null; // [IngredientLineUpsertWithWhereUniqueWithoutNotesInput!]
+    update?: NexusGenInputs['IngredientLineUpdateWithWhereUniqueWithoutNoteInput'][] | null; // [IngredientLineUpdateWithWhereUniqueWithoutNoteInput!]
+    updateMany?: NexusGenInputs['IngredientLineUpdateManyWithWhereWithoutNoteInput'][] | null; // [IngredientLineUpdateManyWithWhereWithoutNoteInput!]
+    upsert?: NexusGenInputs['IngredientLineUpsertWithWhereUniqueWithoutNoteInput'][] | null; // [IngredientLineUpsertWithWhereUniqueWithoutNoteInput!]
   }
-  IngredientLineUpdateManyWithoutRecipesInput: { // input type
+  IngredientLineUpdateManyWithoutRecipeInput: { // input type
     connect?: NexusGenInputs['IngredientLineWhereUniqueInput'][] | null; // [IngredientLineWhereUniqueInput!]
-    connectOrCreate?: NexusGenInputs['IngredientLineCreateOrConnectWithoutRecipesInput'][] | null; // [IngredientLineCreateOrConnectWithoutRecipesInput!]
-    create?: NexusGenInputs['IngredientLineCreateWithoutRecipesInput'][] | null; // [IngredientLineCreateWithoutRecipesInput!]
-    createMany?: NexusGenInputs['IngredientLineCreateManyRecipesInputEnvelope'] | null; // IngredientLineCreateManyRecipesInputEnvelope
+    connectOrCreate?: NexusGenInputs['IngredientLineCreateOrConnectWithoutRecipeInput'][] | null; // [IngredientLineCreateOrConnectWithoutRecipeInput!]
+    create?: NexusGenInputs['IngredientLineCreateWithoutRecipeInput'][] | null; // [IngredientLineCreateWithoutRecipeInput!]
+    createMany?: NexusGenInputs['IngredientLineCreateManyRecipeInputEnvelope'] | null; // IngredientLineCreateManyRecipeInputEnvelope
     delete?: NexusGenInputs['IngredientLineWhereUniqueInput'][] | null; // [IngredientLineWhereUniqueInput!]
     deleteMany?: NexusGenInputs['IngredientLineScalarWhereInput'][] | null; // [IngredientLineScalarWhereInput!]
     disconnect?: NexusGenInputs['IngredientLineWhereUniqueInput'][] | null; // [IngredientLineWhereUniqueInput!]
     set?: NexusGenInputs['IngredientLineWhereUniqueInput'][] | null; // [IngredientLineWhereUniqueInput!]
-    update?: NexusGenInputs['IngredientLineUpdateWithWhereUniqueWithoutRecipesInput'][] | null; // [IngredientLineUpdateWithWhereUniqueWithoutRecipesInput!]
-    updateMany?: NexusGenInputs['IngredientLineUpdateManyWithWhereWithoutRecipesInput'][] | null; // [IngredientLineUpdateManyWithWhereWithoutRecipesInput!]
-    upsert?: NexusGenInputs['IngredientLineUpsertWithWhereUniqueWithoutRecipesInput'][] | null; // [IngredientLineUpsertWithWhereUniqueWithoutRecipesInput!]
+    update?: NexusGenInputs['IngredientLineUpdateWithWhereUniqueWithoutRecipeInput'][] | null; // [IngredientLineUpdateWithWhereUniqueWithoutRecipeInput!]
+    updateMany?: NexusGenInputs['IngredientLineUpdateManyWithWhereWithoutRecipeInput'][] | null; // [IngredientLineUpdateManyWithWhereWithoutRecipeInput!]
+    upsert?: NexusGenInputs['IngredientLineUpsertWithWhereUniqueWithoutRecipeInput'][] | null; // [IngredientLineUpsertWithWhereUniqueWithoutRecipeInput!]
   }
   IngredientLineUpdateOneRequiredWithoutParsedInput: { // input type
     connect?: NexusGenInputs['IngredientLineWhereUniqueInput'] | null; // IngredientLineWhereUniqueInput
@@ -590,21 +519,21 @@ export interface NexusGenInputs {
     update?: NexusGenInputs['IngredientLineUpdateWithoutParsedInput'] | null; // IngredientLineUpdateWithoutParsedInput
     upsert?: NexusGenInputs['IngredientLineUpsertWithoutParsedInput'] | null; // IngredientLineUpsertWithoutParsedInput
   }
-  IngredientLineUpdateWithWhereUniqueWithoutNotesInput: { // input type
-    data: NexusGenInputs['IngredientLineUpdateWithoutNotesInput']; // IngredientLineUpdateWithoutNotesInput!
+  IngredientLineUpdateWithWhereUniqueWithoutNoteInput: { // input type
+    data: NexusGenInputs['IngredientLineUpdateWithoutNoteInput']; // IngredientLineUpdateWithoutNoteInput!
     where: NexusGenInputs['IngredientLineWhereUniqueInput']; // IngredientLineWhereUniqueInput!
   }
-  IngredientLineUpdateWithWhereUniqueWithoutRecipesInput: { // input type
-    data: NexusGenInputs['IngredientLineUpdateWithoutRecipesInput']; // IngredientLineUpdateWithoutRecipesInput!
+  IngredientLineUpdateWithWhereUniqueWithoutRecipeInput: { // input type
+    data: NexusGenInputs['IngredientLineUpdateWithoutRecipeInput']; // IngredientLineUpdateWithoutRecipeInput!
     where: NexusGenInputs['IngredientLineWhereUniqueInput']; // IngredientLineWhereUniqueInput!
   }
-  IngredientLineUpdateWithoutNotesInput: { // input type
+  IngredientLineUpdateWithoutNoteInput: { // input type
     blockIndex?: NexusGenInputs['IntFieldUpdateOperationsInput'] | null; // IntFieldUpdateOperationsInput
     createdAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
     isParsed?: NexusGenInputs['BoolFieldUpdateOperationsInput'] | null; // BoolFieldUpdateOperationsInput
     lineIndex?: NexusGenInputs['IntFieldUpdateOperationsInput'] | null; // IntFieldUpdateOperationsInput
     parsed?: NexusGenInputs['ParsedSegmentUpdateManyWithoutIngredientLineInput'] | null; // ParsedSegmentUpdateManyWithoutIngredientLineInput
-    recipes?: NexusGenInputs['RecipeUpdateOneRequiredWithoutIngredientsInput'] | null; // RecipeUpdateOneRequiredWithoutIngredientsInput
+    recipe?: NexusGenInputs['RecipeUpdateOneRequiredWithoutIngredientsInput'] | null; // RecipeUpdateOneRequiredWithoutIngredientsInput
     reference?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     rule?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     updatedAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
@@ -614,62 +543,39 @@ export interface NexusGenInputs {
     createdAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
     isParsed?: NexusGenInputs['BoolFieldUpdateOperationsInput'] | null; // BoolFieldUpdateOperationsInput
     lineIndex?: NexusGenInputs['IntFieldUpdateOperationsInput'] | null; // IntFieldUpdateOperationsInput
-    notes?: NexusGenInputs['NoteUpdateOneRequiredWithoutIngredientsInput'] | null; // NoteUpdateOneRequiredWithoutIngredientsInput
-    recipes?: NexusGenInputs['RecipeUpdateOneRequiredWithoutIngredientsInput'] | null; // RecipeUpdateOneRequiredWithoutIngredientsInput
+    note?: NexusGenInputs['NoteUpdateOneRequiredWithoutIngredientsInput'] | null; // NoteUpdateOneRequiredWithoutIngredientsInput
+    recipe?: NexusGenInputs['RecipeUpdateOneRequiredWithoutIngredientsInput'] | null; // RecipeUpdateOneRequiredWithoutIngredientsInput
     reference?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     rule?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     updatedAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
   }
-  IngredientLineUpdateWithoutRecipesInput: { // input type
+  IngredientLineUpdateWithoutRecipeInput: { // input type
     blockIndex?: NexusGenInputs['IntFieldUpdateOperationsInput'] | null; // IntFieldUpdateOperationsInput
     createdAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
     isParsed?: NexusGenInputs['BoolFieldUpdateOperationsInput'] | null; // BoolFieldUpdateOperationsInput
     lineIndex?: NexusGenInputs['IntFieldUpdateOperationsInput'] | null; // IntFieldUpdateOperationsInput
-    notes?: NexusGenInputs['NoteUpdateOneRequiredWithoutIngredientsInput'] | null; // NoteUpdateOneRequiredWithoutIngredientsInput
+    note?: NexusGenInputs['NoteUpdateOneRequiredWithoutIngredientsInput'] | null; // NoteUpdateOneRequiredWithoutIngredientsInput
     parsed?: NexusGenInputs['ParsedSegmentUpdateManyWithoutIngredientLineInput'] | null; // ParsedSegmentUpdateManyWithoutIngredientLineInput
     reference?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     rule?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     updatedAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
   }
-  IngredientLineUpsertWithWhereUniqueWithoutNotesInput: { // input type
-    create: NexusGenInputs['IngredientLineCreateWithoutNotesInput']; // IngredientLineCreateWithoutNotesInput!
-    update: NexusGenInputs['IngredientLineUpdateWithoutNotesInput']; // IngredientLineUpdateWithoutNotesInput!
+  IngredientLineUpsertWithWhereUniqueWithoutNoteInput: { // input type
+    create: NexusGenInputs['IngredientLineCreateWithoutNoteInput']; // IngredientLineCreateWithoutNoteInput!
+    update: NexusGenInputs['IngredientLineUpdateWithoutNoteInput']; // IngredientLineUpdateWithoutNoteInput!
     where: NexusGenInputs['IngredientLineWhereUniqueInput']; // IngredientLineWhereUniqueInput!
   }
-  IngredientLineUpsertWithWhereUniqueWithoutRecipesInput: { // input type
-    create: NexusGenInputs['IngredientLineCreateWithoutRecipesInput']; // IngredientLineCreateWithoutRecipesInput!
-    update: NexusGenInputs['IngredientLineUpdateWithoutRecipesInput']; // IngredientLineUpdateWithoutRecipesInput!
+  IngredientLineUpsertWithWhereUniqueWithoutRecipeInput: { // input type
+    create: NexusGenInputs['IngredientLineCreateWithoutRecipeInput']; // IngredientLineCreateWithoutRecipeInput!
+    update: NexusGenInputs['IngredientLineUpdateWithoutRecipeInput']; // IngredientLineUpdateWithoutRecipeInput!
     where: NexusGenInputs['IngredientLineWhereUniqueInput']; // IngredientLineWhereUniqueInput!
   }
   IngredientLineUpsertWithoutParsedInput: { // input type
     create: NexusGenInputs['IngredientLineCreateWithoutParsedInput']; // IngredientLineCreateWithoutParsedInput!
     update: NexusGenInputs['IngredientLineUpdateWithoutParsedInput']; // IngredientLineUpdateWithoutParsedInput!
   }
-  IngredientLineWhereInput: { // input type
-    AND?: NexusGenInputs['IngredientLineWhereInput'][] | null; // [IngredientLineWhereInput!]
-    NOT?: NexusGenInputs['IngredientLineWhereInput'][] | null; // [IngredientLineWhereInput!]
-    OR?: NexusGenInputs['IngredientLineWhereInput'][] | null; // [IngredientLineWhereInput!]
-    blockIndex?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    createdAt?: NexusGenInputs['DateTimeFilter'] | null; // DateTimeFilter
-    id?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    isParsed?: NexusGenInputs['BoolFilter'] | null; // BoolFilter
-    lineIndex?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    noteId?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    notes?: NexusGenInputs['NoteWhereInput'] | null; // NoteWhereInput
-    parsed?: NexusGenInputs['ParsedSegmentListRelationFilter'] | null; // ParsedSegmentListRelationFilter
-    recipeId?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    recipes?: NexusGenInputs['RecipeWhereInput'] | null; // RecipeWhereInput
-    reference?: NexusGenInputs['StringFilter'] | null; // StringFilter
-    rule?: NexusGenInputs['StringFilter'] | null; // StringFilter
-    updatedAt?: NexusGenInputs['DateTimeFilter'] | null; // DateTimeFilter
-  }
   IngredientLineWhereUniqueInput: { // input type
     id?: number | null; // Int
-  }
-  IngredientListRelationFilter: { // input type
-    every?: NexusGenInputs['IngredientWhereInput'] | null; // IngredientWhereInput
-    none?: NexusGenInputs['IngredientWhereInput'] | null; // IngredientWhereInput
-    some?: NexusGenInputs['IngredientWhereInput'] | null; // IngredientWhereInput
   }
   IngredientScalarWhereInput: { // input type
     AND?: NexusGenInputs['IngredientScalarWhereInput'][] | null; // [IngredientScalarWhereInput!]
@@ -780,7 +686,7 @@ export interface NexusGenInputs {
     plural?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     properties?: NexusGenInputs['IngredientUpdatepropertiesInput'] | null; // IngredientUpdatepropertiesInput
     referencedSubstitutes?: NexusGenInputs['IngredientUpdateManyWithoutSubstitutesInput'] | null; // IngredientUpdateManyWithoutSubstitutesInput
-    references?: NexusGenInputs['ParsedSegmentUpdateManyWithoutIngredentInput'] | null; // ParsedSegmentUpdateManyWithoutIngredentInput
+    references?: NexusGenInputs['ParsedSegmentUpdateManyWithoutIngredientInput'] | null; // ParsedSegmentUpdateManyWithoutIngredientInput
     relatedIngredients?: NexusGenInputs['IngredientUpdateManyWithoutParentInput'] | null; // IngredientUpdateManyWithoutParentInput
     substitutes?: NexusGenInputs['IngredientUpdateManyWithoutReferencedSubstitutesInput'] | null; // IngredientUpdateManyWithoutReferencedSubstitutesInput
     updatedAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
@@ -794,7 +700,7 @@ export interface NexusGenInputs {
     parent?: NexusGenInputs['IngredientUpdateOneWithoutRelatedIngredientsInput'] | null; // IngredientUpdateOneWithoutRelatedIngredientsInput
     plural?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     properties?: NexusGenInputs['IngredientUpdatepropertiesInput'] | null; // IngredientUpdatepropertiesInput
-    references?: NexusGenInputs['ParsedSegmentUpdateManyWithoutIngredentInput'] | null; // ParsedSegmentUpdateManyWithoutIngredentInput
+    references?: NexusGenInputs['ParsedSegmentUpdateManyWithoutIngredientInput'] | null; // ParsedSegmentUpdateManyWithoutIngredientInput
     relatedIngredients?: NexusGenInputs['IngredientUpdateManyWithoutParentInput'] | null; // IngredientUpdateManyWithoutParentInput
     substitutes?: NexusGenInputs['IngredientUpdateManyWithoutReferencedSubstitutesInput'] | null; // IngredientUpdateManyWithoutReferencedSubstitutesInput
     updatedAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
@@ -823,7 +729,7 @@ export interface NexusGenInputs {
     plural?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     properties?: NexusGenInputs['IngredientUpdatepropertiesInput'] | null; // IngredientUpdatepropertiesInput
     referencedSubstitutes?: NexusGenInputs['IngredientUpdateManyWithoutSubstitutesInput'] | null; // IngredientUpdateManyWithoutSubstitutesInput
-    references?: NexusGenInputs['ParsedSegmentUpdateManyWithoutIngredentInput'] | null; // ParsedSegmentUpdateManyWithoutIngredentInput
+    references?: NexusGenInputs['ParsedSegmentUpdateManyWithoutIngredientInput'] | null; // ParsedSegmentUpdateManyWithoutIngredientInput
     substitutes?: NexusGenInputs['IngredientUpdateManyWithoutReferencedSubstitutesInput'] | null; // IngredientUpdateManyWithoutReferencedSubstitutesInput
     updatedAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
   }
@@ -837,7 +743,7 @@ export interface NexusGenInputs {
     plural?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     properties?: NexusGenInputs['IngredientUpdatepropertiesInput'] | null; // IngredientUpdatepropertiesInput
     referencedSubstitutes?: NexusGenInputs['IngredientUpdateManyWithoutSubstitutesInput'] | null; // IngredientUpdateManyWithoutSubstitutesInput
-    references?: NexusGenInputs['ParsedSegmentUpdateManyWithoutIngredentInput'] | null; // ParsedSegmentUpdateManyWithoutIngredentInput
+    references?: NexusGenInputs['ParsedSegmentUpdateManyWithoutIngredientInput'] | null; // ParsedSegmentUpdateManyWithoutIngredientInput
     relatedIngredients?: NexusGenInputs['IngredientUpdateManyWithoutParentInput'] | null; // IngredientUpdateManyWithoutParentInput
     updatedAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
   }
@@ -868,173 +774,152 @@ export interface NexusGenInputs {
     create: NexusGenInputs['IngredientCreateWithoutRelatedIngredientsInput']; // IngredientCreateWithoutRelatedIngredientsInput!
     update: NexusGenInputs['IngredientUpdateWithoutRelatedIngredientsInput']; // IngredientUpdateWithoutRelatedIngredientsInput!
   }
-  IngredientWhereInput: { // input type
-    AND?: NexusGenInputs['IngredientWhereInput'][] | null; // [IngredientWhereInput!]
-    NOT?: NexusGenInputs['IngredientWhereInput'][] | null; // [IngredientWhereInput!]
-    OR?: NexusGenInputs['IngredientWhereInput'][] | null; // [IngredientWhereInput!]
-    alternateNames?: NexusGenInputs['AlternateNameListRelationFilter'] | null; // AlternateNameListRelationFilter
-    createdAt?: NexusGenInputs['DateTimeFilter'] | null; // DateTimeFilter
-    id?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    isComposedIngredient?: NexusGenInputs['BoolFilter'] | null; // BoolFilter
-    isValidated?: NexusGenInputs['BoolFilter'] | null; // BoolFilter
-    name?: NexusGenInputs['StringFilter'] | null; // StringFilter
-    parent?: NexusGenInputs['IngredientWhereInput'] | null; // IngredientWhereInput
-    parentId?: NexusGenInputs['IntNullableFilter'] | null; // IntNullableFilter
-    plural?: NexusGenInputs['StringFilter'] | null; // StringFilter
-    properties?: NexusGenInputs['EnumPropertiesNullableListFilter'] | null; // EnumPropertiesNullableListFilter
-    referencedSubstitutes?: NexusGenInputs['IngredientListRelationFilter'] | null; // IngredientListRelationFilter
-    references?: NexusGenInputs['ParsedSegmentListRelationFilter'] | null; // ParsedSegmentListRelationFilter
-    relatedIngredients?: NexusGenInputs['IngredientListRelationFilter'] | null; // IngredientListRelationFilter
-    substitutes?: NexusGenInputs['IngredientListRelationFilter'] | null; // IngredientListRelationFilter
-    updatedAt?: NexusGenInputs['DateTimeFilter'] | null; // DateTimeFilter
-  }
   IngredientWhereUniqueInput: { // input type
     id?: number | null; // Int
     name?: string | null; // String
     plural?: string | null; // String
   }
-  InstructionLineCreateManyNotesInput: { // input type
+  InstructionLineCreateManyNoteInput: { // input type
+    blockIndex: NexusGenScalars['DateTime']; // DateTime!
     createdAt?: NexusGenScalars['DateTime'] | null; // DateTime
     id?: number | null; // Int
     recipeId: number; // Int!
+    reference: string; // String!
     updatedAt?: NexusGenScalars['DateTime'] | null; // DateTime
   }
-  InstructionLineCreateManyNotesInputEnvelope: { // input type
-    data?: NexusGenInputs['InstructionLineCreateManyNotesInput'][] | null; // [InstructionLineCreateManyNotesInput!]
+  InstructionLineCreateManyNoteInputEnvelope: { // input type
+    data?: NexusGenInputs['InstructionLineCreateManyNoteInput'][] | null; // [InstructionLineCreateManyNoteInput!]
     skipDuplicates?: boolean | null; // Boolean
   }
-  InstructionLineCreateManyRecipesInput: { // input type
+  InstructionLineCreateManyRecipeInput: { // input type
+    blockIndex: NexusGenScalars['DateTime']; // DateTime!
     createdAt?: NexusGenScalars['DateTime'] | null; // DateTime
     id?: number | null; // Int
     noteId: number; // Int!
+    reference: string; // String!
     updatedAt?: NexusGenScalars['DateTime'] | null; // DateTime
   }
-  InstructionLineCreateManyRecipesInputEnvelope: { // input type
-    data?: NexusGenInputs['InstructionLineCreateManyRecipesInput'][] | null; // [InstructionLineCreateManyRecipesInput!]
+  InstructionLineCreateManyRecipeInputEnvelope: { // input type
+    data?: NexusGenInputs['InstructionLineCreateManyRecipeInput'][] | null; // [InstructionLineCreateManyRecipeInput!]
     skipDuplicates?: boolean | null; // Boolean
   }
-  InstructionLineCreateNestedManyWithoutNotesInput: { // input type
+  InstructionLineCreateNestedManyWithoutNoteInput: { // input type
     connect?: NexusGenInputs['InstructionLineWhereUniqueInput'][] | null; // [InstructionLineWhereUniqueInput!]
-    connectOrCreate?: NexusGenInputs['InstructionLineCreateOrConnectWithoutNotesInput'][] | null; // [InstructionLineCreateOrConnectWithoutNotesInput!]
-    create?: NexusGenInputs['InstructionLineCreateWithoutNotesInput'][] | null; // [InstructionLineCreateWithoutNotesInput!]
-    createMany?: NexusGenInputs['InstructionLineCreateManyNotesInputEnvelope'] | null; // InstructionLineCreateManyNotesInputEnvelope
+    connectOrCreate?: NexusGenInputs['InstructionLineCreateOrConnectWithoutNoteInput'][] | null; // [InstructionLineCreateOrConnectWithoutNoteInput!]
+    create?: NexusGenInputs['InstructionLineCreateWithoutNoteInput'][] | null; // [InstructionLineCreateWithoutNoteInput!]
+    createMany?: NexusGenInputs['InstructionLineCreateManyNoteInputEnvelope'] | null; // InstructionLineCreateManyNoteInputEnvelope
   }
-  InstructionLineCreateNestedManyWithoutRecipesInput: { // input type
+  InstructionLineCreateNestedManyWithoutRecipeInput: { // input type
     connect?: NexusGenInputs['InstructionLineWhereUniqueInput'][] | null; // [InstructionLineWhereUniqueInput!]
-    connectOrCreate?: NexusGenInputs['InstructionLineCreateOrConnectWithoutRecipesInput'][] | null; // [InstructionLineCreateOrConnectWithoutRecipesInput!]
-    create?: NexusGenInputs['InstructionLineCreateWithoutRecipesInput'][] | null; // [InstructionLineCreateWithoutRecipesInput!]
-    createMany?: NexusGenInputs['InstructionLineCreateManyRecipesInputEnvelope'] | null; // InstructionLineCreateManyRecipesInputEnvelope
+    connectOrCreate?: NexusGenInputs['InstructionLineCreateOrConnectWithoutRecipeInput'][] | null; // [InstructionLineCreateOrConnectWithoutRecipeInput!]
+    create?: NexusGenInputs['InstructionLineCreateWithoutRecipeInput'][] | null; // [InstructionLineCreateWithoutRecipeInput!]
+    createMany?: NexusGenInputs['InstructionLineCreateManyRecipeInputEnvelope'] | null; // InstructionLineCreateManyRecipeInputEnvelope
   }
-  InstructionLineCreateOrConnectWithoutNotesInput: { // input type
-    create: NexusGenInputs['InstructionLineCreateWithoutNotesInput']; // InstructionLineCreateWithoutNotesInput!
+  InstructionLineCreateOrConnectWithoutNoteInput: { // input type
+    create: NexusGenInputs['InstructionLineCreateWithoutNoteInput']; // InstructionLineCreateWithoutNoteInput!
     where: NexusGenInputs['InstructionLineWhereUniqueInput']; // InstructionLineWhereUniqueInput!
   }
-  InstructionLineCreateOrConnectWithoutRecipesInput: { // input type
-    create: NexusGenInputs['InstructionLineCreateWithoutRecipesInput']; // InstructionLineCreateWithoutRecipesInput!
+  InstructionLineCreateOrConnectWithoutRecipeInput: { // input type
+    create: NexusGenInputs['InstructionLineCreateWithoutRecipeInput']; // InstructionLineCreateWithoutRecipeInput!
     where: NexusGenInputs['InstructionLineWhereUniqueInput']; // InstructionLineWhereUniqueInput!
   }
-  InstructionLineCreateWithoutNotesInput: { // input type
+  InstructionLineCreateWithoutNoteInput: { // input type
+    blockIndex: NexusGenScalars['DateTime']; // DateTime!
     createdAt?: NexusGenScalars['DateTime'] | null; // DateTime
-    recipes: NexusGenInputs['RecipeCreateNestedOneWithoutInstructionsInput']; // RecipeCreateNestedOneWithoutInstructionsInput!
+    recipe: NexusGenInputs['RecipeCreateNestedOneWithoutInstructionsInput']; // RecipeCreateNestedOneWithoutInstructionsInput!
+    reference: string; // String!
     updatedAt?: NexusGenScalars['DateTime'] | null; // DateTime
   }
-  InstructionLineCreateWithoutRecipesInput: { // input type
+  InstructionLineCreateWithoutRecipeInput: { // input type
+    blockIndex: NexusGenScalars['DateTime']; // DateTime!
     createdAt?: NexusGenScalars['DateTime'] | null; // DateTime
-    notes: NexusGenInputs['NoteCreateNestedOneWithoutInstructionsInput']; // NoteCreateNestedOneWithoutInstructionsInput!
+    note: NexusGenInputs['NoteCreateNestedOneWithoutInstructionsInput']; // NoteCreateNestedOneWithoutInstructionsInput!
+    reference: string; // String!
     updatedAt?: NexusGenScalars['DateTime'] | null; // DateTime
-  }
-  InstructionLineListRelationFilter: { // input type
-    every?: NexusGenInputs['InstructionLineWhereInput'] | null; // InstructionLineWhereInput
-    none?: NexusGenInputs['InstructionLineWhereInput'] | null; // InstructionLineWhereInput
-    some?: NexusGenInputs['InstructionLineWhereInput'] | null; // InstructionLineWhereInput
   }
   InstructionLineScalarWhereInput: { // input type
     AND?: NexusGenInputs['InstructionLineScalarWhereInput'][] | null; // [InstructionLineScalarWhereInput!]
     NOT?: NexusGenInputs['InstructionLineScalarWhereInput'][] | null; // [InstructionLineScalarWhereInput!]
     OR?: NexusGenInputs['InstructionLineScalarWhereInput'][] | null; // [InstructionLineScalarWhereInput!]
+    blockIndex?: NexusGenInputs['DateTimeFilter'] | null; // DateTimeFilter
     createdAt?: NexusGenInputs['DateTimeFilter'] | null; // DateTimeFilter
     id?: NexusGenInputs['IntFilter'] | null; // IntFilter
     noteId?: NexusGenInputs['IntFilter'] | null; // IntFilter
     recipeId?: NexusGenInputs['IntFilter'] | null; // IntFilter
+    reference?: NexusGenInputs['StringFilter'] | null; // StringFilter
     updatedAt?: NexusGenInputs['DateTimeFilter'] | null; // DateTimeFilter
   }
   InstructionLineUpdateManyMutationInput: { // input type
+    blockIndex?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
     createdAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
+    reference?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     updatedAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
   }
-  InstructionLineUpdateManyWithWhereWithoutNotesInput: { // input type
+  InstructionLineUpdateManyWithWhereWithoutNoteInput: { // input type
     data: NexusGenInputs['InstructionLineUpdateManyMutationInput']; // InstructionLineUpdateManyMutationInput!
     where: NexusGenInputs['InstructionLineScalarWhereInput']; // InstructionLineScalarWhereInput!
   }
-  InstructionLineUpdateManyWithWhereWithoutRecipesInput: { // input type
+  InstructionLineUpdateManyWithWhereWithoutRecipeInput: { // input type
     data: NexusGenInputs['InstructionLineUpdateManyMutationInput']; // InstructionLineUpdateManyMutationInput!
     where: NexusGenInputs['InstructionLineScalarWhereInput']; // InstructionLineScalarWhereInput!
   }
-  InstructionLineUpdateManyWithoutNotesInput: { // input type
+  InstructionLineUpdateManyWithoutNoteInput: { // input type
     connect?: NexusGenInputs['InstructionLineWhereUniqueInput'][] | null; // [InstructionLineWhereUniqueInput!]
-    connectOrCreate?: NexusGenInputs['InstructionLineCreateOrConnectWithoutNotesInput'][] | null; // [InstructionLineCreateOrConnectWithoutNotesInput!]
-    create?: NexusGenInputs['InstructionLineCreateWithoutNotesInput'][] | null; // [InstructionLineCreateWithoutNotesInput!]
-    createMany?: NexusGenInputs['InstructionLineCreateManyNotesInputEnvelope'] | null; // InstructionLineCreateManyNotesInputEnvelope
+    connectOrCreate?: NexusGenInputs['InstructionLineCreateOrConnectWithoutNoteInput'][] | null; // [InstructionLineCreateOrConnectWithoutNoteInput!]
+    create?: NexusGenInputs['InstructionLineCreateWithoutNoteInput'][] | null; // [InstructionLineCreateWithoutNoteInput!]
+    createMany?: NexusGenInputs['InstructionLineCreateManyNoteInputEnvelope'] | null; // InstructionLineCreateManyNoteInputEnvelope
     delete?: NexusGenInputs['InstructionLineWhereUniqueInput'][] | null; // [InstructionLineWhereUniqueInput!]
     deleteMany?: NexusGenInputs['InstructionLineScalarWhereInput'][] | null; // [InstructionLineScalarWhereInput!]
     disconnect?: NexusGenInputs['InstructionLineWhereUniqueInput'][] | null; // [InstructionLineWhereUniqueInput!]
     set?: NexusGenInputs['InstructionLineWhereUniqueInput'][] | null; // [InstructionLineWhereUniqueInput!]
-    update?: NexusGenInputs['InstructionLineUpdateWithWhereUniqueWithoutNotesInput'][] | null; // [InstructionLineUpdateWithWhereUniqueWithoutNotesInput!]
-    updateMany?: NexusGenInputs['InstructionLineUpdateManyWithWhereWithoutNotesInput'][] | null; // [InstructionLineUpdateManyWithWhereWithoutNotesInput!]
-    upsert?: NexusGenInputs['InstructionLineUpsertWithWhereUniqueWithoutNotesInput'][] | null; // [InstructionLineUpsertWithWhereUniqueWithoutNotesInput!]
+    update?: NexusGenInputs['InstructionLineUpdateWithWhereUniqueWithoutNoteInput'][] | null; // [InstructionLineUpdateWithWhereUniqueWithoutNoteInput!]
+    updateMany?: NexusGenInputs['InstructionLineUpdateManyWithWhereWithoutNoteInput'][] | null; // [InstructionLineUpdateManyWithWhereWithoutNoteInput!]
+    upsert?: NexusGenInputs['InstructionLineUpsertWithWhereUniqueWithoutNoteInput'][] | null; // [InstructionLineUpsertWithWhereUniqueWithoutNoteInput!]
   }
-  InstructionLineUpdateManyWithoutRecipesInput: { // input type
+  InstructionLineUpdateManyWithoutRecipeInput: { // input type
     connect?: NexusGenInputs['InstructionLineWhereUniqueInput'][] | null; // [InstructionLineWhereUniqueInput!]
-    connectOrCreate?: NexusGenInputs['InstructionLineCreateOrConnectWithoutRecipesInput'][] | null; // [InstructionLineCreateOrConnectWithoutRecipesInput!]
-    create?: NexusGenInputs['InstructionLineCreateWithoutRecipesInput'][] | null; // [InstructionLineCreateWithoutRecipesInput!]
-    createMany?: NexusGenInputs['InstructionLineCreateManyRecipesInputEnvelope'] | null; // InstructionLineCreateManyRecipesInputEnvelope
+    connectOrCreate?: NexusGenInputs['InstructionLineCreateOrConnectWithoutRecipeInput'][] | null; // [InstructionLineCreateOrConnectWithoutRecipeInput!]
+    create?: NexusGenInputs['InstructionLineCreateWithoutRecipeInput'][] | null; // [InstructionLineCreateWithoutRecipeInput!]
+    createMany?: NexusGenInputs['InstructionLineCreateManyRecipeInputEnvelope'] | null; // InstructionLineCreateManyRecipeInputEnvelope
     delete?: NexusGenInputs['InstructionLineWhereUniqueInput'][] | null; // [InstructionLineWhereUniqueInput!]
     deleteMany?: NexusGenInputs['InstructionLineScalarWhereInput'][] | null; // [InstructionLineScalarWhereInput!]
     disconnect?: NexusGenInputs['InstructionLineWhereUniqueInput'][] | null; // [InstructionLineWhereUniqueInput!]
     set?: NexusGenInputs['InstructionLineWhereUniqueInput'][] | null; // [InstructionLineWhereUniqueInput!]
-    update?: NexusGenInputs['InstructionLineUpdateWithWhereUniqueWithoutRecipesInput'][] | null; // [InstructionLineUpdateWithWhereUniqueWithoutRecipesInput!]
-    updateMany?: NexusGenInputs['InstructionLineUpdateManyWithWhereWithoutRecipesInput'][] | null; // [InstructionLineUpdateManyWithWhereWithoutRecipesInput!]
-    upsert?: NexusGenInputs['InstructionLineUpsertWithWhereUniqueWithoutRecipesInput'][] | null; // [InstructionLineUpsertWithWhereUniqueWithoutRecipesInput!]
+    update?: NexusGenInputs['InstructionLineUpdateWithWhereUniqueWithoutRecipeInput'][] | null; // [InstructionLineUpdateWithWhereUniqueWithoutRecipeInput!]
+    updateMany?: NexusGenInputs['InstructionLineUpdateManyWithWhereWithoutRecipeInput'][] | null; // [InstructionLineUpdateManyWithWhereWithoutRecipeInput!]
+    upsert?: NexusGenInputs['InstructionLineUpsertWithWhereUniqueWithoutRecipeInput'][] | null; // [InstructionLineUpsertWithWhereUniqueWithoutRecipeInput!]
   }
-  InstructionLineUpdateWithWhereUniqueWithoutNotesInput: { // input type
-    data: NexusGenInputs['InstructionLineUpdateWithoutNotesInput']; // InstructionLineUpdateWithoutNotesInput!
+  InstructionLineUpdateWithWhereUniqueWithoutNoteInput: { // input type
+    data: NexusGenInputs['InstructionLineUpdateWithoutNoteInput']; // InstructionLineUpdateWithoutNoteInput!
     where: NexusGenInputs['InstructionLineWhereUniqueInput']; // InstructionLineWhereUniqueInput!
   }
-  InstructionLineUpdateWithWhereUniqueWithoutRecipesInput: { // input type
-    data: NexusGenInputs['InstructionLineUpdateWithoutRecipesInput']; // InstructionLineUpdateWithoutRecipesInput!
+  InstructionLineUpdateWithWhereUniqueWithoutRecipeInput: { // input type
+    data: NexusGenInputs['InstructionLineUpdateWithoutRecipeInput']; // InstructionLineUpdateWithoutRecipeInput!
     where: NexusGenInputs['InstructionLineWhereUniqueInput']; // InstructionLineWhereUniqueInput!
   }
-  InstructionLineUpdateWithoutNotesInput: { // input type
+  InstructionLineUpdateWithoutNoteInput: { // input type
+    blockIndex?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
     createdAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
-    recipes?: NexusGenInputs['RecipeUpdateOneRequiredWithoutInstructionsInput'] | null; // RecipeUpdateOneRequiredWithoutInstructionsInput
+    recipe?: NexusGenInputs['RecipeUpdateOneRequiredWithoutInstructionsInput'] | null; // RecipeUpdateOneRequiredWithoutInstructionsInput
+    reference?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     updatedAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
   }
-  InstructionLineUpdateWithoutRecipesInput: { // input type
+  InstructionLineUpdateWithoutRecipeInput: { // input type
+    blockIndex?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
     createdAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
-    notes?: NexusGenInputs['NoteUpdateOneRequiredWithoutInstructionsInput'] | null; // NoteUpdateOneRequiredWithoutInstructionsInput
+    note?: NexusGenInputs['NoteUpdateOneRequiredWithoutInstructionsInput'] | null; // NoteUpdateOneRequiredWithoutInstructionsInput
+    reference?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     updatedAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
   }
-  InstructionLineUpsertWithWhereUniqueWithoutNotesInput: { // input type
-    create: NexusGenInputs['InstructionLineCreateWithoutNotesInput']; // InstructionLineCreateWithoutNotesInput!
-    update: NexusGenInputs['InstructionLineUpdateWithoutNotesInput']; // InstructionLineUpdateWithoutNotesInput!
+  InstructionLineUpsertWithWhereUniqueWithoutNoteInput: { // input type
+    create: NexusGenInputs['InstructionLineCreateWithoutNoteInput']; // InstructionLineCreateWithoutNoteInput!
+    update: NexusGenInputs['InstructionLineUpdateWithoutNoteInput']; // InstructionLineUpdateWithoutNoteInput!
     where: NexusGenInputs['InstructionLineWhereUniqueInput']; // InstructionLineWhereUniqueInput!
   }
-  InstructionLineUpsertWithWhereUniqueWithoutRecipesInput: { // input type
-    create: NexusGenInputs['InstructionLineCreateWithoutRecipesInput']; // InstructionLineCreateWithoutRecipesInput!
-    update: NexusGenInputs['InstructionLineUpdateWithoutRecipesInput']; // InstructionLineUpdateWithoutRecipesInput!
+  InstructionLineUpsertWithWhereUniqueWithoutRecipeInput: { // input type
+    create: NexusGenInputs['InstructionLineCreateWithoutRecipeInput']; // InstructionLineCreateWithoutRecipeInput!
+    update: NexusGenInputs['InstructionLineUpdateWithoutRecipeInput']; // InstructionLineUpdateWithoutRecipeInput!
     where: NexusGenInputs['InstructionLineWhereUniqueInput']; // InstructionLineWhereUniqueInput!
-  }
-  InstructionLineWhereInput: { // input type
-    AND?: NexusGenInputs['InstructionLineWhereInput'][] | null; // [InstructionLineWhereInput!]
-    NOT?: NexusGenInputs['InstructionLineWhereInput'][] | null; // [InstructionLineWhereInput!]
-    OR?: NexusGenInputs['InstructionLineWhereInput'][] | null; // [InstructionLineWhereInput!]
-    createdAt?: NexusGenInputs['DateTimeFilter'] | null; // DateTimeFilter
-    id?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    noteId?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    notes?: NexusGenInputs['NoteWhereInput'] | null; // NoteWhereInput
-    recipeId?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    recipes?: NexusGenInputs['RecipeWhereInput'] | null; // RecipeWhereInput
-    updatedAt?: NexusGenInputs['DateTimeFilter'] | null; // DateTimeFilter
   }
   InstructionLineWhereUniqueInput: { // input type
     id?: number | null; // Int
@@ -1080,22 +965,6 @@ export interface NexusGenInputs {
     not?: NexusGenInputs['NestedDateTimeFilter'] | null; // NestedDateTimeFilter
     notIn?: NexusGenScalars['DateTime'][] | null; // [DateTime!]
   }
-  NestedDateTimeNullableFilter: { // input type
-    equals?: NexusGenScalars['DateTime'] | null; // DateTime
-    gt?: NexusGenScalars['DateTime'] | null; // DateTime
-    gte?: NexusGenScalars['DateTime'] | null; // DateTime
-    in?: NexusGenScalars['DateTime'][] | null; // [DateTime!]
-    lt?: NexusGenScalars['DateTime'] | null; // DateTime
-    lte?: NexusGenScalars['DateTime'] | null; // DateTime
-    not?: NexusGenInputs['NestedDateTimeNullableFilter'] | null; // NestedDateTimeNullableFilter
-    notIn?: NexusGenScalars['DateTime'][] | null; // [DateTime!]
-  }
-  NestedEnumRoleNullableFilter: { // input type
-    equals?: NexusGenEnums['Role'] | null; // Role
-    in?: NexusGenEnums['Role'][] | null; // [Role!]
-    not?: NexusGenInputs['NestedEnumRoleNullableFilter'] | null; // NestedEnumRoleNullableFilter
-    notIn?: NexusGenEnums['Role'][] | null; // [Role!]
-  }
   NestedIntFilter: { // input type
     equals?: number | null; // Int
     gt?: number | null; // Int
@@ -1129,19 +998,6 @@ export interface NexusGenInputs {
     notIn?: string[] | null; // [String!]
     startsWith?: string | null; // String
   }
-  NestedStringNullableFilter: { // input type
-    contains?: string | null; // String
-    endsWith?: string | null; // String
-    equals?: string | null; // String
-    gt?: string | null; // String
-    gte?: string | null; // String
-    in?: string[] | null; // [String!]
-    lt?: string | null; // String
-    lte?: string | null; // String
-    not?: NexusGenInputs['NestedStringNullableFilter'] | null; // NestedStringNullableFilter
-    notIn?: string[] | null; // [String!]
-    startsWith?: string | null; // String
-  }
   NoteCreateNestedOneWithoutIngredientsInput: { // input type
     connect?: NexusGenInputs['NoteWhereUniqueInput'] | null; // NoteWhereUniqueInput
     connectOrCreate?: NexusGenInputs['NoteCreateOrConnectWithoutIngredientsInput'] | null; // NoteCreateOrConnectWithoutIngredientsInput
@@ -1166,7 +1022,7 @@ export interface NexusGenInputs {
     createdAt?: NexusGenScalars['DateTime'] | null; // DateTime
     evernoteGUID: string; // String!
     image: string; // String!
-    instructions?: NexusGenInputs['InstructionLineCreateNestedManyWithoutNotesInput'] | null; // InstructionLineCreateNestedManyWithoutNotesInput
+    instructions?: NexusGenInputs['InstructionLineCreateNestedManyWithoutNoteInput'] | null; // InstructionLineCreateNestedManyWithoutNoteInput
     isParsed?: boolean | null; // Boolean
     source?: string | null; // String
     tags?: NexusGenInputs['NoteCreatetagsInput'] | null; // NoteCreatetagsInput
@@ -1179,7 +1035,7 @@ export interface NexusGenInputs {
     createdAt?: NexusGenScalars['DateTime'] | null; // DateTime
     evernoteGUID: string; // String!
     image: string; // String!
-    ingredients?: NexusGenInputs['IngredientLineCreateNestedManyWithoutNotesInput'] | null; // IngredientLineCreateNestedManyWithoutNotesInput
+    ingredients?: NexusGenInputs['IngredientLineCreateNestedManyWithoutNoteInput'] | null; // IngredientLineCreateNestedManyWithoutNoteInput
     isParsed?: boolean | null; // Boolean
     source?: string | null; // String
     tags?: NexusGenInputs['NoteCreatetagsInput'] | null; // NoteCreatetagsInput
@@ -1212,7 +1068,7 @@ export interface NexusGenInputs {
     createdAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
     evernoteGUID?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     image?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
-    instructions?: NexusGenInputs['InstructionLineUpdateManyWithoutNotesInput'] | null; // InstructionLineUpdateManyWithoutNotesInput
+    instructions?: NexusGenInputs['InstructionLineUpdateManyWithoutNoteInput'] | null; // InstructionLineUpdateManyWithoutNoteInput
     isParsed?: NexusGenInputs['BoolFieldUpdateOperationsInput'] | null; // BoolFieldUpdateOperationsInput
     source?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
     tags?: NexusGenInputs['NoteUpdatetagsInput'] | null; // NoteUpdatetagsInput
@@ -1225,7 +1081,7 @@ export interface NexusGenInputs {
     createdAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
     evernoteGUID?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     image?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
-    ingredients?: NexusGenInputs['IngredientLineUpdateManyWithoutNotesInput'] | null; // IngredientLineUpdateManyWithoutNotesInput
+    ingredients?: NexusGenInputs['IngredientLineUpdateManyWithoutNoteInput'] | null; // IngredientLineUpdateManyWithoutNoteInput
     isParsed?: NexusGenInputs['BoolFieldUpdateOperationsInput'] | null; // BoolFieldUpdateOperationsInput
     source?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
     tags?: NexusGenInputs['NoteUpdatetagsInput'] | null; // NoteUpdatetagsInput
@@ -1248,24 +1104,6 @@ export interface NexusGenInputs {
     create: NexusGenInputs['NoteCreateWithoutInstructionsInput']; // NoteCreateWithoutInstructionsInput!
     update: NexusGenInputs['NoteUpdateWithoutInstructionsInput']; // NoteUpdateWithoutInstructionsInput!
   }
-  NoteWhereInput: { // input type
-    AND?: NexusGenInputs['NoteWhereInput'][] | null; // [NoteWhereInput!]
-    NOT?: NexusGenInputs['NoteWhereInput'][] | null; // [NoteWhereInput!]
-    OR?: NexusGenInputs['NoteWhereInput'][] | null; // [NoteWhereInput!]
-    categories?: NexusGenInputs['StringNullableListFilter'] | null; // StringNullableListFilter
-    content?: NexusGenInputs['StringFilter'] | null; // StringFilter
-    createdAt?: NexusGenInputs['DateTimeFilter'] | null; // DateTimeFilter
-    evernoteGUID?: NexusGenInputs['StringFilter'] | null; // StringFilter
-    id?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    image?: NexusGenInputs['StringFilter'] | null; // StringFilter
-    ingredients?: NexusGenInputs['IngredientLineListRelationFilter'] | null; // IngredientLineListRelationFilter
-    instructions?: NexusGenInputs['InstructionLineListRelationFilter'] | null; // InstructionLineListRelationFilter
-    isParsed?: NexusGenInputs['BoolFilter'] | null; // BoolFilter
-    source?: NexusGenInputs['StringNullableFilter'] | null; // StringNullableFilter
-    tags?: NexusGenInputs['StringNullableListFilter'] | null; // StringNullableListFilter
-    title?: NexusGenInputs['StringFilter'] | null; // StringFilter
-    updatedAt?: NexusGenInputs['DateTimeFilter'] | null; // DateTimeFilter
-  }
   NoteWhereUniqueInput: { // input type
     id?: number | null; // Int
   }
@@ -1278,7 +1116,7 @@ export interface NexusGenInputs {
   NullableStringFieldUpdateOperationsInput: { // input type
     set?: string | null; // String
   }
-  ParsedSegmentCreateManyIngredentInput: { // input type
+  ParsedSegmentCreateManyIngredientInput: { // input type
     createdAt?: NexusGenScalars['DateTime'] | null; // DateTime
     id?: number | null; // Int
     index: number; // Int!
@@ -1288,8 +1126,8 @@ export interface NexusGenInputs {
     updatedAt?: NexusGenScalars['DateTime'] | null; // DateTime
     value: string; // String!
   }
-  ParsedSegmentCreateManyIngredentInputEnvelope: { // input type
-    data?: NexusGenInputs['ParsedSegmentCreateManyIngredentInput'][] | null; // [ParsedSegmentCreateManyIngredentInput!]
+  ParsedSegmentCreateManyIngredientInputEnvelope: { // input type
+    data?: NexusGenInputs['ParsedSegmentCreateManyIngredientInput'][] | null; // [ParsedSegmentCreateManyIngredientInput!]
     skipDuplicates?: boolean | null; // Boolean
   }
   ParsedSegmentCreateManyIngredientLineInput: { // input type
@@ -1306,11 +1144,11 @@ export interface NexusGenInputs {
     data?: NexusGenInputs['ParsedSegmentCreateManyIngredientLineInput'][] | null; // [ParsedSegmentCreateManyIngredientLineInput!]
     skipDuplicates?: boolean | null; // Boolean
   }
-  ParsedSegmentCreateNestedManyWithoutIngredentInput: { // input type
+  ParsedSegmentCreateNestedManyWithoutIngredientInput: { // input type
     connect?: NexusGenInputs['ParsedSegmentWhereUniqueInput'][] | null; // [ParsedSegmentWhereUniqueInput!]
-    connectOrCreate?: NexusGenInputs['ParsedSegmentCreateOrConnectWithoutIngredentInput'][] | null; // [ParsedSegmentCreateOrConnectWithoutIngredentInput!]
-    create?: NexusGenInputs['ParsedSegmentCreateWithoutIngredentInput'][] | null; // [ParsedSegmentCreateWithoutIngredentInput!]
-    createMany?: NexusGenInputs['ParsedSegmentCreateManyIngredentInputEnvelope'] | null; // ParsedSegmentCreateManyIngredentInputEnvelope
+    connectOrCreate?: NexusGenInputs['ParsedSegmentCreateOrConnectWithoutIngredientInput'][] | null; // [ParsedSegmentCreateOrConnectWithoutIngredientInput!]
+    create?: NexusGenInputs['ParsedSegmentCreateWithoutIngredientInput'][] | null; // [ParsedSegmentCreateWithoutIngredientInput!]
+    createMany?: NexusGenInputs['ParsedSegmentCreateManyIngredientInputEnvelope'] | null; // ParsedSegmentCreateManyIngredientInputEnvelope
   }
   ParsedSegmentCreateNestedManyWithoutIngredientLineInput: { // input type
     connect?: NexusGenInputs['ParsedSegmentWhereUniqueInput'][] | null; // [ParsedSegmentWhereUniqueInput!]
@@ -1318,15 +1156,15 @@ export interface NexusGenInputs {
     create?: NexusGenInputs['ParsedSegmentCreateWithoutIngredientLineInput'][] | null; // [ParsedSegmentCreateWithoutIngredientLineInput!]
     createMany?: NexusGenInputs['ParsedSegmentCreateManyIngredientLineInputEnvelope'] | null; // ParsedSegmentCreateManyIngredientLineInputEnvelope
   }
-  ParsedSegmentCreateOrConnectWithoutIngredentInput: { // input type
-    create: NexusGenInputs['ParsedSegmentCreateWithoutIngredentInput']; // ParsedSegmentCreateWithoutIngredentInput!
+  ParsedSegmentCreateOrConnectWithoutIngredientInput: { // input type
+    create: NexusGenInputs['ParsedSegmentCreateWithoutIngredientInput']; // ParsedSegmentCreateWithoutIngredientInput!
     where: NexusGenInputs['ParsedSegmentWhereUniqueInput']; // ParsedSegmentWhereUniqueInput!
   }
   ParsedSegmentCreateOrConnectWithoutIngredientLineInput: { // input type
     create: NexusGenInputs['ParsedSegmentCreateWithoutIngredientLineInput']; // ParsedSegmentCreateWithoutIngredientLineInput!
     where: NexusGenInputs['ParsedSegmentWhereUniqueInput']; // ParsedSegmentWhereUniqueInput!
   }
-  ParsedSegmentCreateWithoutIngredentInput: { // input type
+  ParsedSegmentCreateWithoutIngredientInput: { // input type
     createdAt?: NexusGenScalars['DateTime'] | null; // DateTime
     index: number; // Int!
     ingredientLine: NexusGenInputs['IngredientLineCreateNestedOneWithoutParsedInput']; // IngredientLineCreateNestedOneWithoutParsedInput!
@@ -1338,16 +1176,11 @@ export interface NexusGenInputs {
   ParsedSegmentCreateWithoutIngredientLineInput: { // input type
     createdAt?: NexusGenScalars['DateTime'] | null; // DateTime
     index: number; // Int!
-    ingredent: NexusGenInputs['IngredientCreateNestedOneWithoutReferencesInput']; // IngredientCreateNestedOneWithoutReferencesInput!
+    ingredient: NexusGenInputs['IngredientCreateNestedOneWithoutReferencesInput']; // IngredientCreateNestedOneWithoutReferencesInput!
     rule: string; // String!
     type: string; // String!
     updatedAt?: NexusGenScalars['DateTime'] | null; // DateTime
     value: string; // String!
-  }
-  ParsedSegmentListRelationFilter: { // input type
-    every?: NexusGenInputs['ParsedSegmentWhereInput'] | null; // ParsedSegmentWhereInput
-    none?: NexusGenInputs['ParsedSegmentWhereInput'] | null; // ParsedSegmentWhereInput
-    some?: NexusGenInputs['ParsedSegmentWhereInput'] | null; // ParsedSegmentWhereInput
   }
   ParsedSegmentScalarWhereInput: { // input type
     AND?: NexusGenInputs['ParsedSegmentScalarWhereInput'][] | null; // [ParsedSegmentScalarWhereInput!]
@@ -1371,7 +1204,7 @@ export interface NexusGenInputs {
     updatedAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
     value?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
   }
-  ParsedSegmentUpdateManyWithWhereWithoutIngredentInput: { // input type
+  ParsedSegmentUpdateManyWithWhereWithoutIngredientInput: { // input type
     data: NexusGenInputs['ParsedSegmentUpdateManyMutationInput']; // ParsedSegmentUpdateManyMutationInput!
     where: NexusGenInputs['ParsedSegmentScalarWhereInput']; // ParsedSegmentScalarWhereInput!
   }
@@ -1379,18 +1212,18 @@ export interface NexusGenInputs {
     data: NexusGenInputs['ParsedSegmentUpdateManyMutationInput']; // ParsedSegmentUpdateManyMutationInput!
     where: NexusGenInputs['ParsedSegmentScalarWhereInput']; // ParsedSegmentScalarWhereInput!
   }
-  ParsedSegmentUpdateManyWithoutIngredentInput: { // input type
+  ParsedSegmentUpdateManyWithoutIngredientInput: { // input type
     connect?: NexusGenInputs['ParsedSegmentWhereUniqueInput'][] | null; // [ParsedSegmentWhereUniqueInput!]
-    connectOrCreate?: NexusGenInputs['ParsedSegmentCreateOrConnectWithoutIngredentInput'][] | null; // [ParsedSegmentCreateOrConnectWithoutIngredentInput!]
-    create?: NexusGenInputs['ParsedSegmentCreateWithoutIngredentInput'][] | null; // [ParsedSegmentCreateWithoutIngredentInput!]
-    createMany?: NexusGenInputs['ParsedSegmentCreateManyIngredentInputEnvelope'] | null; // ParsedSegmentCreateManyIngredentInputEnvelope
+    connectOrCreate?: NexusGenInputs['ParsedSegmentCreateOrConnectWithoutIngredientInput'][] | null; // [ParsedSegmentCreateOrConnectWithoutIngredientInput!]
+    create?: NexusGenInputs['ParsedSegmentCreateWithoutIngredientInput'][] | null; // [ParsedSegmentCreateWithoutIngredientInput!]
+    createMany?: NexusGenInputs['ParsedSegmentCreateManyIngredientInputEnvelope'] | null; // ParsedSegmentCreateManyIngredientInputEnvelope
     delete?: NexusGenInputs['ParsedSegmentWhereUniqueInput'][] | null; // [ParsedSegmentWhereUniqueInput!]
     deleteMany?: NexusGenInputs['ParsedSegmentScalarWhereInput'][] | null; // [ParsedSegmentScalarWhereInput!]
     disconnect?: NexusGenInputs['ParsedSegmentWhereUniqueInput'][] | null; // [ParsedSegmentWhereUniqueInput!]
     set?: NexusGenInputs['ParsedSegmentWhereUniqueInput'][] | null; // [ParsedSegmentWhereUniqueInput!]
-    update?: NexusGenInputs['ParsedSegmentUpdateWithWhereUniqueWithoutIngredentInput'][] | null; // [ParsedSegmentUpdateWithWhereUniqueWithoutIngredentInput!]
-    updateMany?: NexusGenInputs['ParsedSegmentUpdateManyWithWhereWithoutIngredentInput'][] | null; // [ParsedSegmentUpdateManyWithWhereWithoutIngredentInput!]
-    upsert?: NexusGenInputs['ParsedSegmentUpsertWithWhereUniqueWithoutIngredentInput'][] | null; // [ParsedSegmentUpsertWithWhereUniqueWithoutIngredentInput!]
+    update?: NexusGenInputs['ParsedSegmentUpdateWithWhereUniqueWithoutIngredientInput'][] | null; // [ParsedSegmentUpdateWithWhereUniqueWithoutIngredientInput!]
+    updateMany?: NexusGenInputs['ParsedSegmentUpdateManyWithWhereWithoutIngredientInput'][] | null; // [ParsedSegmentUpdateManyWithWhereWithoutIngredientInput!]
+    upsert?: NexusGenInputs['ParsedSegmentUpsertWithWhereUniqueWithoutIngredientInput'][] | null; // [ParsedSegmentUpsertWithWhereUniqueWithoutIngredientInput!]
   }
   ParsedSegmentUpdateManyWithoutIngredientLineInput: { // input type
     connect?: NexusGenInputs['ParsedSegmentWhereUniqueInput'][] | null; // [ParsedSegmentWhereUniqueInput!]
@@ -1405,15 +1238,15 @@ export interface NexusGenInputs {
     updateMany?: NexusGenInputs['ParsedSegmentUpdateManyWithWhereWithoutIngredientLineInput'][] | null; // [ParsedSegmentUpdateManyWithWhereWithoutIngredientLineInput!]
     upsert?: NexusGenInputs['ParsedSegmentUpsertWithWhereUniqueWithoutIngredientLineInput'][] | null; // [ParsedSegmentUpsertWithWhereUniqueWithoutIngredientLineInput!]
   }
-  ParsedSegmentUpdateWithWhereUniqueWithoutIngredentInput: { // input type
-    data: NexusGenInputs['ParsedSegmentUpdateWithoutIngredentInput']; // ParsedSegmentUpdateWithoutIngredentInput!
+  ParsedSegmentUpdateWithWhereUniqueWithoutIngredientInput: { // input type
+    data: NexusGenInputs['ParsedSegmentUpdateWithoutIngredientInput']; // ParsedSegmentUpdateWithoutIngredientInput!
     where: NexusGenInputs['ParsedSegmentWhereUniqueInput']; // ParsedSegmentWhereUniqueInput!
   }
   ParsedSegmentUpdateWithWhereUniqueWithoutIngredientLineInput: { // input type
     data: NexusGenInputs['ParsedSegmentUpdateWithoutIngredientLineInput']; // ParsedSegmentUpdateWithoutIngredientLineInput!
     where: NexusGenInputs['ParsedSegmentWhereUniqueInput']; // ParsedSegmentWhereUniqueInput!
   }
-  ParsedSegmentUpdateWithoutIngredentInput: { // input type
+  ParsedSegmentUpdateWithoutIngredientInput: { // input type
     createdAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
     index?: NexusGenInputs['IntFieldUpdateOperationsInput'] | null; // IntFieldUpdateOperationsInput
     ingredientLine?: NexusGenInputs['IngredientLineUpdateOneRequiredWithoutParsedInput'] | null; // IngredientLineUpdateOneRequiredWithoutParsedInput
@@ -1425,37 +1258,21 @@ export interface NexusGenInputs {
   ParsedSegmentUpdateWithoutIngredientLineInput: { // input type
     createdAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
     index?: NexusGenInputs['IntFieldUpdateOperationsInput'] | null; // IntFieldUpdateOperationsInput
-    ingredent?: NexusGenInputs['IngredientUpdateOneRequiredWithoutReferencesInput'] | null; // IngredientUpdateOneRequiredWithoutReferencesInput
+    ingredient?: NexusGenInputs['IngredientUpdateOneRequiredWithoutReferencesInput'] | null; // IngredientUpdateOneRequiredWithoutReferencesInput
     rule?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     type?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     updatedAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
     value?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
   }
-  ParsedSegmentUpsertWithWhereUniqueWithoutIngredentInput: { // input type
-    create: NexusGenInputs['ParsedSegmentCreateWithoutIngredentInput']; // ParsedSegmentCreateWithoutIngredentInput!
-    update: NexusGenInputs['ParsedSegmentUpdateWithoutIngredentInput']; // ParsedSegmentUpdateWithoutIngredentInput!
+  ParsedSegmentUpsertWithWhereUniqueWithoutIngredientInput: { // input type
+    create: NexusGenInputs['ParsedSegmentCreateWithoutIngredientInput']; // ParsedSegmentCreateWithoutIngredientInput!
+    update: NexusGenInputs['ParsedSegmentUpdateWithoutIngredientInput']; // ParsedSegmentUpdateWithoutIngredientInput!
     where: NexusGenInputs['ParsedSegmentWhereUniqueInput']; // ParsedSegmentWhereUniqueInput!
   }
   ParsedSegmentUpsertWithWhereUniqueWithoutIngredientLineInput: { // input type
     create: NexusGenInputs['ParsedSegmentCreateWithoutIngredientLineInput']; // ParsedSegmentCreateWithoutIngredientLineInput!
     update: NexusGenInputs['ParsedSegmentUpdateWithoutIngredientLineInput']; // ParsedSegmentUpdateWithoutIngredientLineInput!
     where: NexusGenInputs['ParsedSegmentWhereUniqueInput']; // ParsedSegmentWhereUniqueInput!
-  }
-  ParsedSegmentWhereInput: { // input type
-    AND?: NexusGenInputs['ParsedSegmentWhereInput'][] | null; // [ParsedSegmentWhereInput!]
-    NOT?: NexusGenInputs['ParsedSegmentWhereInput'][] | null; // [ParsedSegmentWhereInput!]
-    OR?: NexusGenInputs['ParsedSegmentWhereInput'][] | null; // [ParsedSegmentWhereInput!]
-    createdAt?: NexusGenInputs['DateTimeFilter'] | null; // DateTimeFilter
-    id?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    index?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    ingredent?: NexusGenInputs['IngredientWhereInput'] | null; // IngredientWhereInput
-    ingredientId?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    ingredientLine?: NexusGenInputs['IngredientLineWhereInput'] | null; // IngredientLineWhereInput
-    ingredientLineId?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    rule?: NexusGenInputs['StringFilter'] | null; // StringFilter
-    type?: NexusGenInputs['StringFilter'] | null; // StringFilter
-    updatedAt?: NexusGenInputs['DateTimeFilter'] | null; // DateTimeFilter
-    value?: NexusGenInputs['StringFilter'] | null; // StringFilter
   }
   ParsedSegmentWhereUniqueInput: { // input type
     id?: number | null; // Int
@@ -1511,8 +1328,8 @@ export interface NexusGenInputs {
     createdAt?: NexusGenScalars['DateTime'] | null; // DateTime
     evernoteGUID: string; // String!
     image: string; // String!
-    ingredients?: NexusGenInputs['IngredientLineCreateNestedManyWithoutRecipesInput'] | null; // IngredientLineCreateNestedManyWithoutRecipesInput
-    instructions?: NexusGenInputs['InstructionLineCreateNestedManyWithoutRecipesInput'] | null; // InstructionLineCreateNestedManyWithoutRecipesInput
+    ingredients?: NexusGenInputs['IngredientLineCreateNestedManyWithoutRecipeInput'] | null; // IngredientLineCreateNestedManyWithoutRecipeInput
+    instructions?: NexusGenInputs['InstructionLineCreateNestedManyWithoutRecipeInput'] | null; // InstructionLineCreateNestedManyWithoutRecipeInput
     sources?: NexusGenInputs['RecipeCreatesourcesInput'] | null; // RecipeCreatesourcesInput
     tags?: NexusGenInputs['TagCreateNestedManyWithoutRecipesInput'] | null; // TagCreateNestedManyWithoutRecipesInput
     title: string; // String!
@@ -1525,7 +1342,7 @@ export interface NexusGenInputs {
     evernoteGUID: string; // String!
     image: string; // String!
     importedUser: NexusGenInputs['UserCreateNestedOneWithoutImportedRecipesInput']; // UserCreateNestedOneWithoutImportedRecipesInput!
-    instructions?: NexusGenInputs['InstructionLineCreateNestedManyWithoutRecipesInput'] | null; // InstructionLineCreateNestedManyWithoutRecipesInput
+    instructions?: NexusGenInputs['InstructionLineCreateNestedManyWithoutRecipeInput'] | null; // InstructionLineCreateNestedManyWithoutRecipeInput
     sources?: NexusGenInputs['RecipeCreatesourcesInput'] | null; // RecipeCreatesourcesInput
     tags?: NexusGenInputs['TagCreateNestedManyWithoutRecipesInput'] | null; // TagCreateNestedManyWithoutRecipesInput
     title: string; // String!
@@ -1538,7 +1355,7 @@ export interface NexusGenInputs {
     evernoteGUID: string; // String!
     image: string; // String!
     importedUser: NexusGenInputs['UserCreateNestedOneWithoutImportedRecipesInput']; // UserCreateNestedOneWithoutImportedRecipesInput!
-    ingredients?: NexusGenInputs['IngredientLineCreateNestedManyWithoutRecipesInput'] | null; // IngredientLineCreateNestedManyWithoutRecipesInput
+    ingredients?: NexusGenInputs['IngredientLineCreateNestedManyWithoutRecipeInput'] | null; // IngredientLineCreateNestedManyWithoutRecipeInput
     sources?: NexusGenInputs['RecipeCreatesourcesInput'] | null; // RecipeCreatesourcesInput
     tags?: NexusGenInputs['TagCreateNestedManyWithoutRecipesInput'] | null; // TagCreateNestedManyWithoutRecipesInput
     title: string; // String!
@@ -1546,11 +1363,6 @@ export interface NexusGenInputs {
   }
   RecipeCreatesourcesInput: { // input type
     set?: string[] | null; // [String!]
-  }
-  RecipeListRelationFilter: { // input type
-    every?: NexusGenInputs['RecipeWhereInput'] | null; // RecipeWhereInput
-    none?: NexusGenInputs['RecipeWhereInput'] | null; // RecipeWhereInput
-    some?: NexusGenInputs['RecipeWhereInput'] | null; // RecipeWhereInput
   }
   RecipeScalarWhereInput: { // input type
     AND?: NexusGenInputs['RecipeScalarWhereInput'][] | null; // [RecipeScalarWhereInput!]
@@ -1615,8 +1427,8 @@ export interface NexusGenInputs {
     createdAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
     evernoteGUID?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     image?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
-    ingredients?: NexusGenInputs['IngredientLineUpdateManyWithoutRecipesInput'] | null; // IngredientLineUpdateManyWithoutRecipesInput
-    instructions?: NexusGenInputs['InstructionLineUpdateManyWithoutRecipesInput'] | null; // InstructionLineUpdateManyWithoutRecipesInput
+    ingredients?: NexusGenInputs['IngredientLineUpdateManyWithoutRecipeInput'] | null; // IngredientLineUpdateManyWithoutRecipeInput
+    instructions?: NexusGenInputs['InstructionLineUpdateManyWithoutRecipeInput'] | null; // InstructionLineUpdateManyWithoutRecipeInput
     sources?: NexusGenInputs['RecipeUpdatesourcesInput'] | null; // RecipeUpdatesourcesInput
     tags?: NexusGenInputs['TagUpdateManyWithoutRecipesInput'] | null; // TagUpdateManyWithoutRecipesInput
     title?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
@@ -1629,7 +1441,7 @@ export interface NexusGenInputs {
     evernoteGUID?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     image?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     importedUser?: NexusGenInputs['UserUpdateOneRequiredWithoutImportedRecipesInput'] | null; // UserUpdateOneRequiredWithoutImportedRecipesInput
-    instructions?: NexusGenInputs['InstructionLineUpdateManyWithoutRecipesInput'] | null; // InstructionLineUpdateManyWithoutRecipesInput
+    instructions?: NexusGenInputs['InstructionLineUpdateManyWithoutRecipeInput'] | null; // InstructionLineUpdateManyWithoutRecipeInput
     sources?: NexusGenInputs['RecipeUpdatesourcesInput'] | null; // RecipeUpdatesourcesInput
     tags?: NexusGenInputs['TagUpdateManyWithoutRecipesInput'] | null; // TagUpdateManyWithoutRecipesInput
     title?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
@@ -1642,7 +1454,7 @@ export interface NexusGenInputs {
     evernoteGUID?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     image?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
     importedUser?: NexusGenInputs['UserUpdateOneRequiredWithoutImportedRecipesInput'] | null; // UserUpdateOneRequiredWithoutImportedRecipesInput
-    ingredients?: NexusGenInputs['IngredientLineUpdateManyWithoutRecipesInput'] | null; // IngredientLineUpdateManyWithoutRecipesInput
+    ingredients?: NexusGenInputs['IngredientLineUpdateManyWithoutRecipeInput'] | null; // IngredientLineUpdateManyWithoutRecipeInput
     sources?: NexusGenInputs['RecipeUpdatesourcesInput'] | null; // RecipeUpdatesourcesInput
     tags?: NexusGenInputs['TagUpdateManyWithoutRecipesInput'] | null; // TagUpdateManyWithoutRecipesInput
     title?: NexusGenInputs['StringFieldUpdateOperationsInput'] | null; // StringFieldUpdateOperationsInput
@@ -1665,26 +1477,6 @@ export interface NexusGenInputs {
     create: NexusGenInputs['RecipeCreateWithoutInstructionsInput']; // RecipeCreateWithoutInstructionsInput!
     update: NexusGenInputs['RecipeUpdateWithoutInstructionsInput']; // RecipeUpdateWithoutInstructionsInput!
   }
-  RecipeWhereInput: { // input type
-    AND?: NexusGenInputs['RecipeWhereInput'][] | null; // [RecipeWhereInput!]
-    NOT?: NexusGenInputs['RecipeWhereInput'][] | null; // [RecipeWhereInput!]
-    OR?: NexusGenInputs['RecipeWhereInput'][] | null; // [RecipeWhereInput!]
-    book?: NexusGenInputs['BookWhereInput'] | null; // BookWhereInput
-    bookId?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    categories?: NexusGenInputs['CategoryListRelationFilter'] | null; // CategoryListRelationFilter
-    createdAt?: NexusGenInputs['DateTimeFilter'] | null; // DateTimeFilter
-    evernoteGUID?: NexusGenInputs['StringFilter'] | null; // StringFilter
-    id?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    image?: NexusGenInputs['StringFilter'] | null; // StringFilter
-    importedUser?: NexusGenInputs['UserWhereInput'] | null; // UserWhereInput
-    importedUserId?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    ingredients?: NexusGenInputs['IngredientLineListRelationFilter'] | null; // IngredientLineListRelationFilter
-    instructions?: NexusGenInputs['InstructionLineListRelationFilter'] | null; // InstructionLineListRelationFilter
-    sources?: NexusGenInputs['StringNullableListFilter'] | null; // StringNullableListFilter
-    tags?: NexusGenInputs['TagListRelationFilter'] | null; // TagListRelationFilter
-    title?: NexusGenInputs['StringFilter'] | null; // StringFilter
-    updatedAt?: NexusGenInputs['DateTimeFilter'] | null; // DateTimeFilter
-  }
   RecipeWhereUniqueInput: { // input type
     id?: number | null; // Int
   }
@@ -1702,20 +1494,6 @@ export interface NexusGenInputs {
     lte?: string | null; // String
     mode?: NexusGenEnums['QueryMode'] | null; // QueryMode
     not?: NexusGenInputs['NestedStringFilter'] | null; // NestedStringFilter
-    notIn?: string[] | null; // [String!]
-    startsWith?: string | null; // String
-  }
-  StringNullableFilter: { // input type
-    contains?: string | null; // String
-    endsWith?: string | null; // String
-    equals?: string | null; // String
-    gt?: string | null; // String
-    gte?: string | null; // String
-    in?: string[] | null; // [String!]
-    lt?: string | null; // String
-    lte?: string | null; // String
-    mode?: NexusGenEnums['QueryMode'] | null; // QueryMode
-    not?: NexusGenInputs['NestedStringNullableFilter'] | null; // NestedStringNullableFilter
     notIn?: string[] | null; // [String!]
     startsWith?: string | null; // String
   }
@@ -1738,11 +1516,6 @@ export interface NexusGenInputs {
   TagCreateWithoutRecipesInput: { // input type
     evernoteGUID: string; // String!
     name: string; // String!
-  }
-  TagListRelationFilter: { // input type
-    every?: NexusGenInputs['TagWhereInput'] | null; // TagWhereInput
-    none?: NexusGenInputs['TagWhereInput'] | null; // TagWhereInput
-    some?: NexusGenInputs['TagWhereInput'] | null; // TagWhereInput
   }
   TagScalarWhereInput: { // input type
     AND?: NexusGenInputs['TagScalarWhereInput'][] | null; // [TagScalarWhereInput!]
@@ -1784,15 +1557,6 @@ export interface NexusGenInputs {
     create: NexusGenInputs['TagCreateWithoutRecipesInput']; // TagCreateWithoutRecipesInput!
     update: NexusGenInputs['TagUpdateWithoutRecipesInput']; // TagUpdateWithoutRecipesInput!
     where: NexusGenInputs['TagWhereUniqueInput']; // TagWhereUniqueInput!
-  }
-  TagWhereInput: { // input type
-    AND?: NexusGenInputs['TagWhereInput'][] | null; // [TagWhereInput!]
-    NOT?: NexusGenInputs['TagWhereInput'][] | null; // [TagWhereInput!]
-    OR?: NexusGenInputs['TagWhereInput'][] | null; // [TagWhereInput!]
-    evernoteGUID?: NexusGenInputs['StringFilter'] | null; // StringFilter
-    id?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    name?: NexusGenInputs['StringFilter'] | null; // StringFilter
-    recipes?: NexusGenInputs['RecipeListRelationFilter'] | null; // RecipeListRelationFilter
   }
   TagWhereUniqueInput: { // input type
     id?: number | null; // Int
@@ -1836,15 +1600,6 @@ export interface NexusGenInputs {
     role?: NexusGenInputs['NullableEnumRoleFieldUpdateOperationsInput'] | null; // NullableEnumRoleFieldUpdateOperationsInput
     updatedAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
   }
-  UserUpdateManyMutationInput: { // input type
-    createdAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
-    email?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
-    emailVerified?: NexusGenInputs['NullableDateTimeFieldUpdateOperationsInput'] | null; // NullableDateTimeFieldUpdateOperationsInput
-    image?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
-    name?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
-    role?: NexusGenInputs['NullableEnumRoleFieldUpdateOperationsInput'] | null; // NullableEnumRoleFieldUpdateOperationsInput
-    updatedAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
-  }
   UserUpdateOneRequiredWithoutImportedRecipesInput: { // input type
     connect?: NexusGenInputs['UserWhereUniqueInput'] | null; // UserWhereUniqueInput
     connectOrCreate?: NexusGenInputs['UserCreateOrConnectWithoutImportedRecipesInput'] | null; // UserCreateOrConnectWithoutImportedRecipesInput
@@ -1864,20 +1619,6 @@ export interface NexusGenInputs {
   UserUpsertWithoutImportedRecipesInput: { // input type
     create: NexusGenInputs['UserCreateWithoutImportedRecipesInput']; // UserCreateWithoutImportedRecipesInput!
     update: NexusGenInputs['UserUpdateWithoutImportedRecipesInput']; // UserUpdateWithoutImportedRecipesInput!
-  }
-  UserWhereInput: { // input type
-    AND?: NexusGenInputs['UserWhereInput'][] | null; // [UserWhereInput!]
-    NOT?: NexusGenInputs['UserWhereInput'][] | null; // [UserWhereInput!]
-    OR?: NexusGenInputs['UserWhereInput'][] | null; // [UserWhereInput!]
-    createdAt?: NexusGenInputs['DateTimeFilter'] | null; // DateTimeFilter
-    email?: NexusGenInputs['StringNullableFilter'] | null; // StringNullableFilter
-    emailVerified?: NexusGenInputs['DateTimeNullableFilter'] | null; // DateTimeNullableFilter
-    id?: NexusGenInputs['IntFilter'] | null; // IntFilter
-    image?: NexusGenInputs['StringNullableFilter'] | null; // StringNullableFilter
-    importedRecipes?: NexusGenInputs['RecipeListRelationFilter'] | null; // RecipeListRelationFilter
-    name?: NexusGenInputs['StringNullableFilter'] | null; // StringNullableFilter
-    role?: NexusGenInputs['EnumRoleNullableFilter'] | null; // EnumRoleNullableFilter
-    updatedAt?: NexusGenInputs['DateTimeFilter'] | null; // DateTimeFilter
   }
   UserWhereUniqueInput: { // input type
     email?: string | null; // String
@@ -1901,11 +1642,120 @@ export interface NexusGenScalars {
 }
 
 export interface NexusGenObjects {
-  AffectedRowsOutput: { // root type
-    count: number; // Int!
+  Account: { // root type
+    accessToken?: string | null; // String
+    accessTokenExpires?: NexusGenScalars['DateTime'] | null; // DateTime
+    compoundId: string; // String!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    providerAccountId: string; // String!
+    providerId: string; // String!
+    providerType: string; // String!
+    refreshToken?: string | null; // String
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+    userId: number; // Int!
+  }
+  AlternateName: { // root type
+    ingredientId: number; // Int!
+    name: string; // String!
+  }
+  Author: { // root type
+    id: number; // Int!
+    name: string; // String!
+  }
+  Book: { // root type
+    authorId: number; // Int!
+    id: number; // Int!
+    title: string; // String!
+  }
+  Category: { // root type
+    evernoteGUID: string; // String!
+    id: number; // Int!
+    name: string; // String!
+  }
+  Ingredient: { // root type
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    isComposedIngredient: boolean; // Boolean!
+    isValidated: boolean; // Boolean!
+    name: string; // String!
+    parentId?: number | null; // Int
+    plural: string; // String!
+    properties: NexusGenEnums['Properties'][]; // [Properties!]!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  IngredientLine: { // root type
+    blockIndex: number; // Int!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    isParsed: boolean; // Boolean!
+    lineIndex: number; // Int!
+    noteId: number; // Int!
+    recipeId: number; // Int!
+    reference: string; // String!
+    rule: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  InstructionLine: { // root type
+    blockIndex: NexusGenScalars['DateTime']; // DateTime!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    noteId: number; // Int!
+    recipeId: number; // Int!
+    reference: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Mutation: {};
+  Note: { // root type
+    categories: string[]; // [String!]!
+    content: string; // String!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    evernoteGUID: string; // String!
+    id: number; // Int!
+    image: string; // String!
+    isParsed: boolean; // Boolean!
+    source?: string | null; // String
+    tags: string[]; // [String!]!
+    title: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  ParsedSegment: { // root type
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    index: number; // Int!
+    ingredientId: number; // Int!
+    ingredientLineId: number; // Int!
+    rule: string; // String!
+    type: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+    value: string; // String!
+  }
   Query: {};
+  Recipe: { // root type
+    bookId: number; // Int!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    evernoteGUID: string; // String!
+    id: number; // Int!
+    image: string; // String!
+    importedUserId: number; // Int!
+    sources: string[]; // [String!]!
+    title: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  Session: { // root type
+    accessToken: string; // String!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    expires: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    sessionToken: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+    userId: number; // Int!
+  }
+  Tag: { // root type
+    evernoteGUID: string; // String!
+    id: number; // Int!
+    name: string; // String!
+  }
   User: { // root type
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     email?: string | null; // String
@@ -1913,6 +1763,7 @@ export interface NexusGenObjects {
     id: number; // Int!
     image?: string | null; // String
     name?: string | null; // String
+    role?: NexusGenEnums['Role'] | null; // Role
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
 }
@@ -1928,21 +1779,154 @@ export type NexusGenRootTypes = NexusGenObjects
 export type NexusGenAllTypes = NexusGenRootTypes & NexusGenScalars & NexusGenEnums
 
 export interface NexusGenFieldTypes {
-  AffectedRowsOutput: { // field return type
-    count: number; // Int!
+  Account: { // field return type
+    accessToken: string | null; // String
+    accessTokenExpires: NexusGenScalars['DateTime'] | null; // DateTime
+    compoundId: string; // String!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    providerAccountId: string; // String!
+    providerId: string; // String!
+    providerType: string; // String!
+    refreshToken: string | null; // String
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+    userId: number; // Int!
+  }
+  AlternateName: { // field return type
+    ingredient: NexusGenRootTypes['Ingredient']; // Ingredient!
+    ingredientId: number; // Int!
+    name: string; // String!
+  }
+  Author: { // field return type
+    books: NexusGenRootTypes['Book'][]; // [Book!]!
+    id: number; // Int!
+    name: string; // String!
+  }
+  Book: { // field return type
+    author: NexusGenRootTypes['Author']; // Author!
+    authorId: number; // Int!
+    id: number; // Int!
+    recipes: NexusGenRootTypes['Recipe'][]; // [Recipe!]!
+    title: string; // String!
+  }
+  Category: { // field return type
+    evernoteGUID: string; // String!
+    id: number; // Int!
+    name: string; // String!
+    recipes: NexusGenRootTypes['Recipe'][]; // [Recipe!]!
+  }
+  Ingredient: { // field return type
+    alternateNames: NexusGenRootTypes['AlternateName'][]; // [AlternateName!]!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    isComposedIngredient: boolean; // Boolean!
+    isValidated: boolean; // Boolean!
+    name: string; // String!
+    parent: NexusGenRootTypes['Ingredient'] | null; // Ingredient
+    parentId: number | null; // Int
+    plural: string; // String!
+    properties: NexusGenEnums['Properties'][]; // [Properties!]!
+    referencedSubstitutes: NexusGenRootTypes['Ingredient'][]; // [Ingredient!]!
+    references: NexusGenRootTypes['ParsedSegment'][]; // [ParsedSegment!]!
+    relatedIngredients: NexusGenRootTypes['Ingredient'][]; // [Ingredient!]!
+    substitutes: NexusGenRootTypes['Ingredient'][]; // [Ingredient!]!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  IngredientLine: { // field return type
+    blockIndex: number; // Int!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    isParsed: boolean; // Boolean!
+    lineIndex: number; // Int!
+    note: NexusGenRootTypes['Note']; // Note!
+    noteId: number; // Int!
+    parsed: NexusGenRootTypes['ParsedSegment'][]; // [ParsedSegment!]!
+    recipe: NexusGenRootTypes['Recipe']; // Recipe!
+    recipeId: number; // Int!
+    reference: string; // String!
+    rule: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  InstructionLine: { // field return type
+    blockIndex: NexusGenScalars['DateTime']; // DateTime!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    note: NexusGenRootTypes['Note']; // Note!
+    noteId: number; // Int!
+    recipe: NexusGenRootTypes['Recipe']; // Recipe!
+    recipeId: number; // Int!
+    reference: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Mutation: { // field return type
-    bigRedButton: string | null; // String
+    authenticateEvernote: string | null; // String
     createOneUser: NexusGenRootTypes['User']; // User!
-    deleteManyUser: NexusGenRootTypes['AffectedRowsOutput']; // AffectedRowsOutput!
     deleteOneUser: NexusGenRootTypes['User'] | null; // User
-    updateManyUser: NexusGenRootTypes['AffectedRowsOutput']; // AffectedRowsOutput!
     updateOneUser: NexusGenRootTypes['User'] | null; // User
   }
+  Note: { // field return type
+    categories: string[]; // [String!]!
+    content: string; // String!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    evernoteGUID: string; // String!
+    id: number; // Int!
+    image: string; // String!
+    ingredients: NexusGenRootTypes['IngredientLine'][]; // [IngredientLine!]!
+    instructions: NexusGenRootTypes['InstructionLine'][]; // [InstructionLine!]!
+    isParsed: boolean; // Boolean!
+    source: string | null; // String
+    tags: string[]; // [String!]!
+    title: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  ParsedSegment: { // field return type
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    index: number; // Int!
+    ingredient: NexusGenRootTypes['Ingredient']; // Ingredient!
+    ingredientId: number; // Int!
+    ingredientLine: NexusGenRootTypes['IngredientLine']; // IngredientLine!
+    ingredientLineId: number; // Int!
+    rule: string; // String!
+    type: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+    value: string; // String!
+  }
   Query: { // field return type
-    allUsers: Array<NexusGenRootTypes['User'] | null> | null; // [User]
     user: NexusGenRootTypes['User'] | null; // User
     users: NexusGenRootTypes['User'][]; // [User!]!
+  }
+  Recipe: { // field return type
+    book: NexusGenRootTypes['Book']; // Book!
+    bookId: number; // Int!
+    categories: NexusGenRootTypes['Category'][]; // [Category!]!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    evernoteGUID: string; // String!
+    id: number; // Int!
+    image: string; // String!
+    importedUser: NexusGenRootTypes['User']; // User!
+    importedUserId: number; // Int!
+    ingredients: NexusGenRootTypes['IngredientLine'][]; // [IngredientLine!]!
+    instructions: NexusGenRootTypes['InstructionLine'][]; // [InstructionLine!]!
+    sources: string[]; // [String!]!
+    tags: NexusGenRootTypes['Tag'][]; // [Tag!]!
+    title: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+  }
+  Session: { // field return type
+    accessToken: string; // String!
+    createdAt: NexusGenScalars['DateTime']; // DateTime!
+    expires: NexusGenScalars['DateTime']; // DateTime!
+    id: number; // Int!
+    sessionToken: string; // String!
+    updatedAt: NexusGenScalars['DateTime']; // DateTime!
+    userId: number; // Int!
+  }
+  Tag: { // field return type
+    evernoteGUID: string; // String!
+    id: number; // Int!
+    name: string; // String!
+    recipes: NexusGenRootTypes['Recipe'][]; // [Recipe!]!
   }
   User: { // field return type
     createdAt: NexusGenScalars['DateTime']; // DateTime!
@@ -1950,27 +1934,162 @@ export interface NexusGenFieldTypes {
     emailVerified: NexusGenScalars['DateTime'] | null; // DateTime
     id: number; // Int!
     image: string | null; // String
+    importedRecipes: NexusGenRootTypes['Recipe'][]; // [Recipe!]!
     name: string | null; // String
+    role: NexusGenEnums['Role'] | null; // Role
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
 }
 
 export interface NexusGenFieldTypeNames {
-  AffectedRowsOutput: { // field return type name
-    count: 'Int'
+  Account: { // field return type name
+    accessToken: 'String'
+    accessTokenExpires: 'DateTime'
+    compoundId: 'String'
+    createdAt: 'DateTime'
+    id: 'Int'
+    providerAccountId: 'String'
+    providerId: 'String'
+    providerType: 'String'
+    refreshToken: 'String'
+    updatedAt: 'DateTime'
+    userId: 'Int'
+  }
+  AlternateName: { // field return type name
+    ingredient: 'Ingredient'
+    ingredientId: 'Int'
+    name: 'String'
+  }
+  Author: { // field return type name
+    books: 'Book'
+    id: 'Int'
+    name: 'String'
+  }
+  Book: { // field return type name
+    author: 'Author'
+    authorId: 'Int'
+    id: 'Int'
+    recipes: 'Recipe'
+    title: 'String'
+  }
+  Category: { // field return type name
+    evernoteGUID: 'String'
+    id: 'Int'
+    name: 'String'
+    recipes: 'Recipe'
+  }
+  Ingredient: { // field return type name
+    alternateNames: 'AlternateName'
+    createdAt: 'DateTime'
+    id: 'Int'
+    isComposedIngredient: 'Boolean'
+    isValidated: 'Boolean'
+    name: 'String'
+    parent: 'Ingredient'
+    parentId: 'Int'
+    plural: 'String'
+    properties: 'Properties'
+    referencedSubstitutes: 'Ingredient'
+    references: 'ParsedSegment'
+    relatedIngredients: 'Ingredient'
+    substitutes: 'Ingredient'
+    updatedAt: 'DateTime'
+  }
+  IngredientLine: { // field return type name
+    blockIndex: 'Int'
+    createdAt: 'DateTime'
+    id: 'Int'
+    isParsed: 'Boolean'
+    lineIndex: 'Int'
+    note: 'Note'
+    noteId: 'Int'
+    parsed: 'ParsedSegment'
+    recipe: 'Recipe'
+    recipeId: 'Int'
+    reference: 'String'
+    rule: 'String'
+    updatedAt: 'DateTime'
+  }
+  InstructionLine: { // field return type name
+    blockIndex: 'DateTime'
+    createdAt: 'DateTime'
+    id: 'Int'
+    note: 'Note'
+    noteId: 'Int'
+    recipe: 'Recipe'
+    recipeId: 'Int'
+    reference: 'String'
+    updatedAt: 'DateTime'
   }
   Mutation: { // field return type name
-    bigRedButton: 'String'
+    authenticateEvernote: 'String'
     createOneUser: 'User'
-    deleteManyUser: 'AffectedRowsOutput'
     deleteOneUser: 'User'
-    updateManyUser: 'AffectedRowsOutput'
     updateOneUser: 'User'
   }
+  Note: { // field return type name
+    categories: 'String'
+    content: 'String'
+    createdAt: 'DateTime'
+    evernoteGUID: 'String'
+    id: 'Int'
+    image: 'String'
+    ingredients: 'IngredientLine'
+    instructions: 'InstructionLine'
+    isParsed: 'Boolean'
+    source: 'String'
+    tags: 'String'
+    title: 'String'
+    updatedAt: 'DateTime'
+  }
+  ParsedSegment: { // field return type name
+    createdAt: 'DateTime'
+    id: 'Int'
+    index: 'Int'
+    ingredient: 'Ingredient'
+    ingredientId: 'Int'
+    ingredientLine: 'IngredientLine'
+    ingredientLineId: 'Int'
+    rule: 'String'
+    type: 'String'
+    updatedAt: 'DateTime'
+    value: 'String'
+  }
   Query: { // field return type name
-    allUsers: 'User'
     user: 'User'
     users: 'User'
+  }
+  Recipe: { // field return type name
+    book: 'Book'
+    bookId: 'Int'
+    categories: 'Category'
+    createdAt: 'DateTime'
+    evernoteGUID: 'String'
+    id: 'Int'
+    image: 'String'
+    importedUser: 'User'
+    importedUserId: 'Int'
+    ingredients: 'IngredientLine'
+    instructions: 'InstructionLine'
+    sources: 'String'
+    tags: 'Tag'
+    title: 'String'
+    updatedAt: 'DateTime'
+  }
+  Session: { // field return type name
+    accessToken: 'String'
+    createdAt: 'DateTime'
+    expires: 'DateTime'
+    id: 'Int'
+    sessionToken: 'String'
+    updatedAt: 'DateTime'
+    userId: 'Int'
+  }
+  Tag: { // field return type name
+    evernoteGUID: 'String'
+    id: 'Int'
+    name: 'String'
+    recipes: 'Recipe'
   }
   User: { // field return type name
     createdAt: 'DateTime'
@@ -1978,29 +2097,105 @@ export interface NexusGenFieldTypeNames {
     emailVerified: 'DateTime'
     id: 'Int'
     image: 'String'
+    importedRecipes: 'Recipe'
     name: 'String'
+    role: 'Role'
     updatedAt: 'DateTime'
   }
 }
 
 export interface NexusGenArgTypes {
+  Author: {
+    books: { // args
+      after?: NexusGenInputs['BookWhereUniqueInput'] | null; // BookWhereUniqueInput
+      before?: NexusGenInputs['BookWhereUniqueInput'] | null; // BookWhereUniqueInput
+      first?: number | null; // Int
+      last?: number | null; // Int
+    }
+  }
+  Book: {
+    recipes: { // args
+      after?: NexusGenInputs['RecipeWhereUniqueInput'] | null; // RecipeWhereUniqueInput
+      before?: NexusGenInputs['RecipeWhereUniqueInput'] | null; // RecipeWhereUniqueInput
+      first?: number | null; // Int
+      last?: number | null; // Int
+    }
+  }
+  Category: {
+    recipes: { // args
+      after?: NexusGenInputs['RecipeWhereUniqueInput'] | null; // RecipeWhereUniqueInput
+      before?: NexusGenInputs['RecipeWhereUniqueInput'] | null; // RecipeWhereUniqueInput
+      first?: number | null; // Int
+      last?: number | null; // Int
+    }
+  }
+  Ingredient: {
+    alternateNames: { // args
+      after?: NexusGenInputs['AlternateNameWhereUniqueInput'] | null; // AlternateNameWhereUniqueInput
+      before?: NexusGenInputs['AlternateNameWhereUniqueInput'] | null; // AlternateNameWhereUniqueInput
+      first?: number | null; // Int
+      last?: number | null; // Int
+    }
+    referencedSubstitutes: { // args
+      after?: NexusGenInputs['IngredientWhereUniqueInput'] | null; // IngredientWhereUniqueInput
+      before?: NexusGenInputs['IngredientWhereUniqueInput'] | null; // IngredientWhereUniqueInput
+      first?: number | null; // Int
+      last?: number | null; // Int
+    }
+    references: { // args
+      after?: NexusGenInputs['ParsedSegmentWhereUniqueInput'] | null; // ParsedSegmentWhereUniqueInput
+      before?: NexusGenInputs['ParsedSegmentWhereUniqueInput'] | null; // ParsedSegmentWhereUniqueInput
+      first?: number | null; // Int
+      last?: number | null; // Int
+    }
+    relatedIngredients: { // args
+      after?: NexusGenInputs['IngredientWhereUniqueInput'] | null; // IngredientWhereUniqueInput
+      before?: NexusGenInputs['IngredientWhereUniqueInput'] | null; // IngredientWhereUniqueInput
+      first?: number | null; // Int
+      last?: number | null; // Int
+    }
+    substitutes: { // args
+      after?: NexusGenInputs['IngredientWhereUniqueInput'] | null; // IngredientWhereUniqueInput
+      before?: NexusGenInputs['IngredientWhereUniqueInput'] | null; // IngredientWhereUniqueInput
+      first?: number | null; // Int
+      last?: number | null; // Int
+    }
+  }
+  IngredientLine: {
+    parsed: { // args
+      after?: NexusGenInputs['ParsedSegmentWhereUniqueInput'] | null; // ParsedSegmentWhereUniqueInput
+      before?: NexusGenInputs['ParsedSegmentWhereUniqueInput'] | null; // ParsedSegmentWhereUniqueInput
+      first?: number | null; // Int
+      last?: number | null; // Int
+    }
+  }
   Mutation: {
+    authenticateEvernote: { // args
+      oauthVerifier?: string | null; // String
+    }
     createOneUser: { // args
       data: NexusGenInputs['UserCreateInput']; // UserCreateInput!
-    }
-    deleteManyUser: { // args
-      where?: NexusGenInputs['UserWhereInput'] | null; // UserWhereInput
     }
     deleteOneUser: { // args
       where: NexusGenInputs['UserWhereUniqueInput']; // UserWhereUniqueInput!
     }
-    updateManyUser: { // args
-      data: NexusGenInputs['UserUpdateManyMutationInput']; // UserUpdateManyMutationInput!
-      where?: NexusGenInputs['UserWhereInput'] | null; // UserWhereInput
-    }
     updateOneUser: { // args
       data: NexusGenInputs['UserUpdateInput']; // UserUpdateInput!
       where: NexusGenInputs['UserWhereUniqueInput']; // UserWhereUniqueInput!
+    }
+  }
+  Note: {
+    ingredients: { // args
+      after?: NexusGenInputs['IngredientLineWhereUniqueInput'] | null; // IngredientLineWhereUniqueInput
+      before?: NexusGenInputs['IngredientLineWhereUniqueInput'] | null; // IngredientLineWhereUniqueInput
+      first?: number | null; // Int
+      last?: number | null; // Int
+    }
+    instructions: { // args
+      after?: NexusGenInputs['InstructionLineWhereUniqueInput'] | null; // InstructionLineWhereUniqueInput
+      before?: NexusGenInputs['InstructionLineWhereUniqueInput'] | null; // InstructionLineWhereUniqueInput
+      first?: number | null; // Int
+      last?: number | null; // Int
     }
   }
   Query: {
@@ -2010,6 +2205,48 @@ export interface NexusGenArgTypes {
     users: { // args
       after?: NexusGenInputs['UserWhereUniqueInput'] | null; // UserWhereUniqueInput
       before?: NexusGenInputs['UserWhereUniqueInput'] | null; // UserWhereUniqueInput
+      first?: number | null; // Int
+      last?: number | null; // Int
+    }
+  }
+  Recipe: {
+    categories: { // args
+      after?: NexusGenInputs['CategoryWhereUniqueInput'] | null; // CategoryWhereUniqueInput
+      before?: NexusGenInputs['CategoryWhereUniqueInput'] | null; // CategoryWhereUniqueInput
+      first?: number | null; // Int
+      last?: number | null; // Int
+    }
+    ingredients: { // args
+      after?: NexusGenInputs['IngredientLineWhereUniqueInput'] | null; // IngredientLineWhereUniqueInput
+      before?: NexusGenInputs['IngredientLineWhereUniqueInput'] | null; // IngredientLineWhereUniqueInput
+      first?: number | null; // Int
+      last?: number | null; // Int
+    }
+    instructions: { // args
+      after?: NexusGenInputs['InstructionLineWhereUniqueInput'] | null; // InstructionLineWhereUniqueInput
+      before?: NexusGenInputs['InstructionLineWhereUniqueInput'] | null; // InstructionLineWhereUniqueInput
+      first?: number | null; // Int
+      last?: number | null; // Int
+    }
+    tags: { // args
+      after?: NexusGenInputs['TagWhereUniqueInput'] | null; // TagWhereUniqueInput
+      before?: NexusGenInputs['TagWhereUniqueInput'] | null; // TagWhereUniqueInput
+      first?: number | null; // Int
+      last?: number | null; // Int
+    }
+  }
+  Tag: {
+    recipes: { // args
+      after?: NexusGenInputs['RecipeWhereUniqueInput'] | null; // RecipeWhereUniqueInput
+      before?: NexusGenInputs['RecipeWhereUniqueInput'] | null; // RecipeWhereUniqueInput
+      first?: number | null; // Int
+      last?: number | null; // Int
+    }
+  }
+  User: {
+    importedRecipes: { // args
+      after?: NexusGenInputs['RecipeWhereUniqueInput'] | null; // RecipeWhereUniqueInput
+      before?: NexusGenInputs['RecipeWhereUniqueInput'] | null; // RecipeWhereUniqueInput
       first?: number | null; // Int
       last?: number | null; // Int
     }

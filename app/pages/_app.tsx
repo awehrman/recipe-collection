@@ -1,7 +1,10 @@
+import { ApolloProvider } from '@apollo/client';
 import { AppProps } from 'next/app';
 import React from 'react';
 import { createGlobalStyle, ThemeProvider } from "styled-components";
 import { Provider } from 'next-auth/client';
+
+import useApollo from './../graphql/apollo';
 
 // TODO consider importing these
 const theme = {
@@ -76,12 +79,15 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 export default function App({ Component, pageProps }: AppProps): React.ReactElement {
+  const client = useApollo(pageProps.initialApolloState);
   return (
-    <Provider session={pageProps.session}>
-      <GlobalStyle />
-      <ThemeProvider theme={theme}>
-        <Component {...pageProps} />
-      </ThemeProvider>
-    </Provider>
+    <ApolloProvider client={client}>
+      <Provider session={pageProps.session}>
+        <GlobalStyle />
+        <ThemeProvider theme={theme}>
+          <Component {...pageProps} />
+        </ThemeProvider>
+      </Provider>
+    </ApolloProvider>
   );
 }

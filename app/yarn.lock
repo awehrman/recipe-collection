@@ -1410,6 +1410,13 @@
     "@types/keygrip" "*"
     "@types/node" "*"
 
+"@types/evernote@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@types/evernote/-/evernote-2.0.1.tgz#4a27767e0d78e9d077a60bfc51ac140c64bd2417"
+  integrity sha512-Ow+fDEV3G3FnBNf33OdvTniZ7DNh8HKsfd+RNquj0wabZCza4lorl8g8elutD3IrLYyv13Ibbwx3fb5fCy1ZHQ==
+  dependencies:
+    "@types/oauth" "*"
+
 "@types/express-serve-static-core@^4.17.18":
   version "4.17.20"
   resolved "https://registry.yarnpkg.com/@types/express-serve-static-core/-/express-serve-static-core-4.17.20.tgz#44caee029f2c26c46711da5e845cdc12167ad72d"
@@ -1519,6 +1526,13 @@
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/@types/nprogress/-/nprogress-0.2.0.tgz#86c593682d4199212a0509cc3c4d562bbbd6e45f"
   integrity sha512-1cYJrqq9GezNFPsWTZpFut/d4CjpZqA0vhqDUPFWYKF1oIyBz5qnoYMzR+0C/T96t3ebLAC1SSnwrVOm5/j74A==
+
+"@types/oauth@*":
+  version "0.9.1"
+  resolved "https://registry.yarnpkg.com/@types/oauth/-/oauth-0.9.1.tgz#e17221e7f7936b0459ae7d006255dff61adca305"
+  integrity sha512-a1iY62/a3yhZ7qH7cNUsxoI3U/0Fe9+RnuFrpTKr+0WVOzbKlSLojShCKe20aOD1Sppv+i8Zlq0pLDuTJnwS4A==
+  dependencies:
+    "@types/node" "*"
 
 "@types/parse-json@^4.0.0":
   version "4.0.0"
@@ -3199,6 +3213,13 @@ events@^3.0.0:
   resolved "https://registry.yarnpkg.com/events/-/events-3.3.0.tgz#31a95ad0a924e2d2c419a813aeb2c4e878ea7400"
   integrity sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==
 
+evernote@^2.0.5:
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/evernote/-/evernote-2.0.5.tgz#187f979b450d93d54190d852c69494e48e677e23"
+  integrity sha512-DuOk3t9HKwkxZBaZU1Mz8vmZSEM2LVI3eLdML90Is3+8WlPwpYcLeo4z+eklT8NUGD3GA6oOnlP+6e0z0rDX1Q==
+  dependencies:
+    oauth "^0.9.14"
+
 evp_bytestokey@^1.0.0, evp_bytestokey@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/evp_bytestokey/-/evp_bytestokey-1.0.3.tgz#7fcbdb198dc71959432efe13842684e0525acb02"
@@ -4414,7 +4435,7 @@ nth-check@^1.0.2:
   dependencies:
     boolbase "~1.0.0"
 
-oauth@^0.9.15:
+oauth@^0.9.14, oauth@^0.9.15:
   version "0.9.15"
   resolved "https://registry.yarnpkg.com/oauth/-/oauth-0.9.15.tgz#bd1fefaf686c96b75475aed5196412ff60cfb9c1"
   integrity sha1-vR/vr2hslrdUda7VGWQS/2DPucE=

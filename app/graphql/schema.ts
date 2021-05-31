@@ -4,12 +4,40 @@ import path from 'path';
 
 import Mutation from './mutation-types';
 import Query from './query-types';
-import { User } from './object-types';
+import {
+  User,
+  Account,
+  Session,
+  Ingredient,
+  AlternateName,
+  Recipe,
+  Category,
+  Tag,
+  IngredientLine,
+  InstructionLine,
+  ParsedSegment,
+  Note,
+  Book,
+  Author
+} from './object-types';
 
 const types = [
   Query,
   Mutation,
   User,
+  Account,
+  Session,
+  Ingredient,
+  AlternateName,
+  Recipe,
+  Category,
+  Tag,
+  IngredientLine,
+  InstructionLine,
+  ParsedSegment,
+  Note,
+  Book,
+  Author
 ]
 
 export const schema = makeSchema({

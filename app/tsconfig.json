@@ -17,6 +17,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "rootDir": ".",
+    "baseUrl": ".",
     "typeRoots": ["node_modules/@types", "types"],
     "plugins": [{ "name": "nexus/typescript-language-service" }],
     "skipLibCheck": true,
