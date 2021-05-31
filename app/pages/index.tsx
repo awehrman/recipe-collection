@@ -1,8 +1,10 @@
 import { useQuery, gql } from '@apollo/client';
+import { GetStaticPropsResult } from 'next';
 import React from 'react'
+
 import Page from '../components/Page';
 import { initializeApollo } from '../graphql/apollo';
-import { contextResolver } from '../graphql/context';
+import { contextResolver, PrismaContext } from '../graphql/context';
 
 const MyQuery = gql`
   query MyQuery {
@@ -13,6 +15,7 @@ const MyQuery = gql`
 `;
 
 type DashboardProps = {
+  initialApolloState: any;
 }
 
 const Dashboard: React.FC<DashboardProps> = () => {
@@ -28,9 +31,8 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
 export default Dashboard;
 
-export async function getStaticProps(ctx: Context) {
+export async function getStaticProps(ctx: PrismaContext): Promise<GetStaticPropsResult<DashboardProps>> {
   await contextResolver(ctx)
-  console.log({ ctx });
   const apolloClient = initializeApollo(null, ctx);
 
   await apolloClient.query({

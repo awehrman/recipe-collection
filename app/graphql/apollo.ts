@@ -1,15 +1,12 @@
-import { useMemo } from 'react'
-import { ApolloClient, InMemoryCache, NormalizedCacheObject } from '@apollo/client'
-import { IncomingMessage, ServerResponse } from 'http'
+/* eslint-disable @typescript-eslint/no-var-requires */
+import { useMemo } from 'react';
+import { ApolloClient, InMemoryCache, NormalizedCacheObject } from '@apollo/client';
 
-type ResolverContext = {
-  req?: IncomingMessage
-  res?: ServerResponse
-}
+import { PrismaContext } from './context';
 
-let apolloClient: ApolloClient<NormalizedCacheObject>
+let apolloClient: ApolloClient<NormalizedCacheObject>;
 
-function createIsomorphLink(context: ResolverContext = {}): any {
+function createIsomorphLink(context: PrismaContext = {}): any {
   if (typeof window === 'undefined') {
     const { SchemaLink } = require('@apollo/client/link/schema')
     const { schema } = require('./schema')
@@ -23,7 +20,7 @@ function createIsomorphLink(context: ResolverContext = {}): any {
   }
 }
 
-function createApolloClient(context?: ResolverContext): ApolloClient<NormalizedCacheObject> {
+function createApolloClient(context?: PrismaContext): ApolloClient<NormalizedCacheObject> {
   return new ApolloClient({
     ssrMode: typeof window === 'undefined',
     link: createIsomorphLink(context),
@@ -35,7 +32,7 @@ export function initializeApollo(
   initialState: any = null,
   // Pages with Next.js data fetching methods, like `getStaticProps`, can send
   // a custom context which will be used by `SchemaLink` to server render pages
-  context?: ResolverContext
+  context?: PrismaContext
 ): ApolloClient<NormalizedCacheObject> {
   const _apolloClient = apolloClient ?? createApolloClient(context)
 
