@@ -17,8 +17,14 @@ model User {
   createdAt       DateTime  @default(now()) @map(name: "created_at")
   updatedAt       DateTime  @updatedAt @map(name: "updated_at")
   importedRecipes Recipe[]
+  role            Role?
 
   @@map(name: "users")
+}
+
+enum Role {
+  USER
+  ADMIN
 }
 
 model Account {
@@ -33,7 +39,6 @@ model Account {
   accessTokenExpires DateTime? @map(name: "access_token_expires")
   createdAt          DateTime  @default(now()) @map(name: "created_at")
   updatedAt          DateTime  @default(now()) @map(name: "updated_at")
-
 
   @@index([providerAccountId], name: "providerAccountId")
   @@index([providerId], name: "providerId")

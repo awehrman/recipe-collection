@@ -154,6 +154,7 @@ const NavStyles = styled.nav<NavStylesProps>`
 		list-style-type: none;
 		padding: 0;
 		margin: 20px;
+		margin-bottom: 60px;
 
 		li {
 			margin: 20px 0;
@@ -199,6 +200,11 @@ const NavStyles = styled.nav<NavStylesProps>`
     font-weight: bold;
     background: transparent;
     flex-basis: 100%;
+		top: ${ ({ isExpanded }) => (isExpanded ? 'unset' : '10px') };
+
+		@media (min-width: ${ ({ theme }) => theme.sizes.tablet }) {
+			top: unset;
+		}
   }
 
 	/* tablet and larger moves the nav to the left */
