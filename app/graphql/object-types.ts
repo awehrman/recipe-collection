@@ -1,6 +1,17 @@
 
 import { objectType } from '@nexus/schema';
 
+export const AuthenticationResponse = objectType({
+  name: 'AuthenticationResponse',
+  definition(t) {
+    t.model.id();
+    t.model.authURL();
+    t.model.errors();
+    t.model.isAuthPending();
+    t.model.isAuthenticated();
+  }
+});
+
 export const User = objectType({
   name: 'User',
   definition(t) {

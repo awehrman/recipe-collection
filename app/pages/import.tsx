@@ -1,14 +1,19 @@
+import { useMutation } from '@apollo/client';
 import React from 'react'
-import Button from '../components/common/Button';
 
+import Button from '../components/common/Button';
 import Page from '../components/Page';
+import { AUTHENTICATE_EVERNOTE_MUTATION } from './../graphql/mutations/evernote';
+
 
 type ImportProps = {
 }
 
 const Import: React.FC<ImportProps> = () => {
+  const [authenticateEvernote] = useMutation(AUTHENTICATE_EVERNOTE_MUTATION);
+
   function handleAuthentication() {
-    // TODO
+    authenticateEvernote();
   }
 
   return (

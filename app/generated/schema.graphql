@@ -97,6 +97,14 @@ input AlternateNameWhereUniqueInput {
   name: String
 }
 
+type AuthenticationResponse {
+  authURL: String
+  errors: String
+  id: Int!
+  isAuthPending: Boolean!
+  isAuthenticated: Boolean!
+}
+
 type Author {
   books(after: BookWhereUniqueInput, before: BookWhereUniqueInput, first: Int, last: Int): [Book!]!
   id: Int!
@@ -1166,7 +1174,7 @@ input IntNullableFilter {
 }
 
 type Mutation {
-  authenticateEvernote(oauthVerifier: String): String
+  authenticateEvernote(oauthVerifier: String): AuthenticationResponse
   createOneUser(data: UserCreateInput!): User!
   deleteOneUser(where: UserWhereUniqueInput!): User
   updateOneUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User

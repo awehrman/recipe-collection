@@ -12,16 +12,26 @@ const client = new Evernote.Client({
 const Mutation = mutationType({
   definition(t) {
     t.field('authenticateEvernote', {
-      type: 'String',
+      type: 'AuthenticationResponse',
       args: {
         oauthVerifier: nullable(stringArg())
       },
       async resolve(_parent, args, ctx) {
-        const isClientTokenSet = Boolean(client.token);
+        // const isClientTokenSet = Boolean(client.token);
         console.log('do i have anything in my session? or even a request?');
         console.log({ ctx, args });
         // const { count } = await ctx.prisma.user.deleteMany({});
         // return `${count} user(s) destroyed.`;
+        const response = {
+          id: 1,
+          typename: '__AuthenticationResponse',
+          authURL: '',
+          errors: '',
+          isAuthPending: false,
+          isAuthenticated: false,
+        };
+
+        return response;
       }
     });
 

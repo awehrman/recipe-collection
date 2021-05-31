@@ -1659,6 +1659,13 @@ export interface NexusGenObjects {
     ingredientId: number; // Int!
     name: string; // String!
   }
+  AuthenticationResponse: { // root type
+    authURL?: string | null; // String
+    errors?: string | null; // String
+    id: number; // Int!
+    isAuthPending: boolean; // Boolean!
+    isAuthenticated: boolean; // Boolean!
+  }
   Author: { // root type
     id: number; // Int!
     name: string; // String!
@@ -1797,6 +1804,13 @@ export interface NexusGenFieldTypes {
     ingredientId: number; // Int!
     name: string; // String!
   }
+  AuthenticationResponse: { // field return type
+    authURL: string | null; // String
+    errors: string | null; // String
+    id: number; // Int!
+    isAuthPending: boolean; // Boolean!
+    isAuthenticated: boolean; // Boolean!
+  }
   Author: { // field return type
     books: NexusGenRootTypes['Book'][]; // [Book!]!
     id: number; // Int!
@@ -1859,7 +1873,7 @@ export interface NexusGenFieldTypes {
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Mutation: { // field return type
-    authenticateEvernote: string | null; // String
+    authenticateEvernote: NexusGenRootTypes['AuthenticationResponse'] | null; // AuthenticationResponse
     createOneUser: NexusGenRootTypes['User']; // User!
     deleteOneUser: NexusGenRootTypes['User'] | null; // User
     updateOneUser: NexusGenRootTypes['User'] | null; // User
@@ -1960,6 +1974,13 @@ export interface NexusGenFieldTypeNames {
     ingredientId: 'Int'
     name: 'String'
   }
+  AuthenticationResponse: { // field return type name
+    authURL: 'String'
+    errors: 'String'
+    id: 'Int'
+    isAuthPending: 'Boolean'
+    isAuthenticated: 'Boolean'
+  }
   Author: { // field return type name
     books: 'Book'
     id: 'Int'
@@ -2022,7 +2043,7 @@ export interface NexusGenFieldTypeNames {
     updatedAt: 'DateTime'
   }
   Mutation: { // field return type name
-    authenticateEvernote: 'String'
+    authenticateEvernote: 'AuthenticationResponse'
     createOneUser: 'User'
     deleteOneUser: 'User'
     updateOneUser: 'User'

@@ -22,6 +22,16 @@ model User {
   @@map(name: "users")
 }
 
+model AuthenticationResponse {
+  id              Int     @id @default(autoincrement())
+  authURL         String?
+  errors          String?
+  isAuthPending   Boolean @default(false)
+  isAuthenticated Boolean @default(false)
+
+  @@map(name: "auth_response")
+}
+
 enum Role {
   USER
   ADMIN

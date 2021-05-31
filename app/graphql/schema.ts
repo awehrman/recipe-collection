@@ -8,6 +8,7 @@ import Query from './query-types';
 import {
   User,
   Account,
+  AuthenticationResponse,
   Session,
   Ingredient,
   AlternateName,
@@ -25,6 +26,7 @@ import {
 const types = [
   Query,
   Mutation,
+  AuthenticationResponse,
   User,
   Account,
   Session,
