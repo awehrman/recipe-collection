@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const AUTHENTICATE_EVERNOTE_MUTATION = gql`
-	mutation AUTHENTICATE_EVERNOTE_MUTATION($oauthVerifier: String) {
-		authenticateEvernote(oauthVerifier: $oauthVerifier) {
+	mutation AUTHENTICATE_EVERNOTE_MUTATION($oauthVerifier: String, $userId: Int!) {
+		authenticateEvernote(oauthVerifier: $oauthVerifier, userId: $userId) {
 			id
 			authURL
 			errors

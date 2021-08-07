@@ -1,12 +1,11 @@
-import React, { useContext, useState } from 'react';
-import styled, { ThemeContext } from 'styled-components';
+import { useSession } from 'next-auth/client'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import React, { useContext, useState } from 'react';
+import styled, { ThemeContext } from 'styled-components';
 
-import { useSession } from 'next-auth/client'
-
-import Nav from './Nav';
 import Header from './Header';
+import Nav from './Nav';
 
 export type PageProps = {
   title: string;
@@ -15,12 +14,10 @@ export type PageProps = {
 
 const Page: React.FC<PageProps>  = ({ title, children }) => {
   const router = useRouter();
-  const [session, loading] = useSession()
+  const [session /*, loading*/ ] = useSession();
   const themeContext = useContext(ThemeContext);
   const [isExpanded, setIsExpanded] = useState(false);
-  const isActive: (_pathname: string) => boolean = (pathname) =>
-    router?.pathname === pathname;
-    console.log({ session, loading });
+  const isActive: (_pathname: string) => boolean = (pathname) => router?.pathname === pathname;
 
   return (
     <Canvas theme={themeContext}>

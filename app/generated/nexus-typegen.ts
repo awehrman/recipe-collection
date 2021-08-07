@@ -2214,6 +2214,7 @@ export interface NexusGenArgTypes {
   Mutation: {
     authenticateEvernote: { // args
       oauthVerifier?: string | null; // String
+      userId?: number | null; // Int
     }
     createOneUser: { // args
       data: NexusGenInputs['UserCreateInput']; // UserCreateInput!

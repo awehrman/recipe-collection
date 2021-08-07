@@ -1,5 +1,5 @@
 
-import { mutationType, nullable, stringArg } from '@nexus/schema';
+import { intArg, mutationType, nullable, stringArg } from '@nexus/schema';
 import Evernote from 'evernote';
 
 const client = new Evernote.Client({
@@ -53,14 +53,18 @@ const Mutation = mutationType({
     t.field('authenticateEvernote', {
       type: 'AuthenticationResponse',
       args: {
-        oauthVerifier: nullable(stringArg())
+        oauthVerifier: nullable(stringArg()),
+        userId: intArg(),
       },
       resolve(_parent, args, ctx) {
-        const { oauthVerifier } = args;
+        const { oauthVerifier, userId } = args;
         // const isClientTokenSet = Boolean(client?.token);
         // console.log('do i have anything in my session? or even a request?');
-        console.log({ oauthVerifier, ctx });
-        // const { res, req, prisma } = ctx;
+        const { _res, _req, prisma } = ctx;
+        console.log({ args });
+
+        // check if our user already has an evernote auth token
+
 
         const response = {
           // id: uuid.v4(), get this from the db

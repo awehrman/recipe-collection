@@ -17,10 +17,18 @@ const options = {
   adapter: Adapters.Prisma.Adapter({ prisma }),
   secret: process.env.SECRET,
   callbacks: {
+    async session(session, token) {
+      // add in evernote access tokens
+      session.userId = token.id;
+      session.evernoteAuthToken = token.evernoteAuthToken;
+      session.evernoteReqToken = token.evernoteReqToken;
+      session.evernoteExpiration = token.evernoteExpiration;
+      return session
+    },
     async signIn(user) {
       const { role } = user;
       const isAllowedToSignIn = role === 'ADMIN' || role === 'USER';
-
+      console.log('**', { user });
       if (isAllowedToSignIn) {
         return true;
       } else {
