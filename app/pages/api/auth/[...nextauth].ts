@@ -20,6 +20,7 @@ const options = {
     async signIn(user) {
       const { role } = user;
       const isAllowedToSignIn = role === 'ADMIN' || role === 'USER';
+
       if (isAllowedToSignIn) {
         return true;
       } else {

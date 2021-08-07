@@ -19,6 +19,9 @@ export const User = objectType({
     t.model.name();
     t.model.email();
     t.model.emailVerified();
+    t.model.evernoteAuthToken();
+    t.model.evernoteReqToken();
+    t.model.evernoteExpiration();
     t.model.image();
     t.model.createdAt();
     t.model.updatedAt();

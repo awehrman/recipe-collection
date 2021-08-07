@@ -1566,6 +1566,9 @@ export interface NexusGenInputs {
     createdAt?: NexusGenScalars['DateTime'] | null; // DateTime
     email?: string | null; // String
     emailVerified?: NexusGenScalars['DateTime'] | null; // DateTime
+    evernoteAuthToken?: string | null; // String
+    evernoteExpiration?: NexusGenScalars['DateTime'] | null; // DateTime
+    evernoteReqToken?: string | null; // String
     image?: string | null; // String
     importedRecipes?: NexusGenInputs['RecipeCreateNestedManyWithoutImportedUserInput'] | null; // RecipeCreateNestedManyWithoutImportedUserInput
     name?: string | null; // String
@@ -1585,6 +1588,9 @@ export interface NexusGenInputs {
     createdAt?: NexusGenScalars['DateTime'] | null; // DateTime
     email?: string | null; // String
     emailVerified?: NexusGenScalars['DateTime'] | null; // DateTime
+    evernoteAuthToken?: string | null; // String
+    evernoteExpiration?: NexusGenScalars['DateTime'] | null; // DateTime
+    evernoteReqToken?: string | null; // String
     image?: string | null; // String
     name?: string | null; // String
     role?: NexusGenEnums['Role'] | null; // Role
@@ -1594,6 +1600,9 @@ export interface NexusGenInputs {
     createdAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
     email?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
     emailVerified?: NexusGenInputs['NullableDateTimeFieldUpdateOperationsInput'] | null; // NullableDateTimeFieldUpdateOperationsInput
+    evernoteAuthToken?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
+    evernoteExpiration?: NexusGenInputs['NullableDateTimeFieldUpdateOperationsInput'] | null; // NullableDateTimeFieldUpdateOperationsInput
+    evernoteReqToken?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
     image?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
     importedRecipes?: NexusGenInputs['RecipeUpdateManyWithoutImportedUserInput'] | null; // RecipeUpdateManyWithoutImportedUserInput
     name?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
@@ -1611,6 +1620,9 @@ export interface NexusGenInputs {
     createdAt?: NexusGenInputs['DateTimeFieldUpdateOperationsInput'] | null; // DateTimeFieldUpdateOperationsInput
     email?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
     emailVerified?: NexusGenInputs['NullableDateTimeFieldUpdateOperationsInput'] | null; // NullableDateTimeFieldUpdateOperationsInput
+    evernoteAuthToken?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
+    evernoteExpiration?: NexusGenInputs['NullableDateTimeFieldUpdateOperationsInput'] | null; // NullableDateTimeFieldUpdateOperationsInput
+    evernoteReqToken?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
     image?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
     name?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
     role?: NexusGenInputs['NullableEnumRoleFieldUpdateOperationsInput'] | null; // NullableEnumRoleFieldUpdateOperationsInput
@@ -1661,7 +1673,7 @@ export interface NexusGenObjects {
   }
   AuthenticationResponse: { // root type
     authURL?: string | null; // String
-    errors?: string | null; // String
+    errors: string[]; // [String!]!
     id: number; // Int!
     isAuthPending: boolean; // Boolean!
     isAuthenticated: boolean; // Boolean!
@@ -1750,11 +1762,11 @@ export interface NexusGenObjects {
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Session: { // root type
-    accessToken: string; // String!
+    accessToken?: string | null; // String
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     expires: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
-    sessionToken: string; // String!
+    sessionToken?: string | null; // String
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
     userId: number; // Int!
   }
@@ -1767,6 +1779,9 @@ export interface NexusGenObjects {
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     email?: string | null; // String
     emailVerified?: NexusGenScalars['DateTime'] | null; // DateTime
+    evernoteAuthToken?: string | null; // String
+    evernoteExpiration?: NexusGenScalars['DateTime'] | null; // DateTime
+    evernoteReqToken?: string | null; // String
     id: number; // Int!
     image?: string | null; // String
     name?: string | null; // String
@@ -1806,7 +1821,7 @@ export interface NexusGenFieldTypes {
   }
   AuthenticationResponse: { // field return type
     authURL: string | null; // String
-    errors: string | null; // String
+    errors: string[]; // [String!]!
     id: number; // Int!
     isAuthPending: boolean; // Boolean!
     isAuthenticated: boolean; // Boolean!
@@ -1928,11 +1943,11 @@ export interface NexusGenFieldTypes {
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
   }
   Session: { // field return type
-    accessToken: string; // String!
+    accessToken: string | null; // String
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     expires: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
-    sessionToken: string; // String!
+    sessionToken: string | null; // String
     updatedAt: NexusGenScalars['DateTime']; // DateTime!
     userId: number; // Int!
   }
@@ -1946,6 +1961,9 @@ export interface NexusGenFieldTypes {
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     email: string | null; // String
     emailVerified: NexusGenScalars['DateTime'] | null; // DateTime
+    evernoteAuthToken: string | null; // String
+    evernoteExpiration: NexusGenScalars['DateTime'] | null; // DateTime
+    evernoteReqToken: string | null; // String
     id: number; // Int!
     image: string | null; // String
     importedRecipes: NexusGenRootTypes['Recipe'][]; // [Recipe!]!
@@ -2116,6 +2134,9 @@ export interface NexusGenFieldTypeNames {
     createdAt: 'DateTime'
     email: 'String'
     emailVerified: 'DateTime'
+    evernoteAuthToken: 'String'
+    evernoteExpiration: 'DateTime'
+    evernoteReqToken: 'String'
     id: 'Int'
     image: 'String'
     importedRecipes: 'Recipe'

@@ -20,6 +20,7 @@ const Page: React.FC<PageProps>  = ({ title, children }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const isActive: (_pathname: string) => boolean = (pathname) =>
     router?.pathname === pathname;
+    console.log({ session, loading });
 
   return (
     <Canvas theme={themeContext}>

@@ -99,7 +99,7 @@ input AlternateNameWhereUniqueInput {
 
 type AuthenticationResponse {
   authURL: String
-  errors: String
+  errors: [String!]!
   id: Int!
   isAuthPending: Boolean!
   isAuthenticated: Boolean!
@@ -1858,11 +1858,11 @@ enum Role {
 }
 
 type Session {
-  accessToken: String!
+  accessToken: String
   createdAt: DateTime!
   expires: DateTime!
   id: Int!
-  sessionToken: String!
+  sessionToken: String
   updatedAt: DateTime!
   userId: Int!
 }
@@ -1974,6 +1974,9 @@ type User {
   createdAt: DateTime!
   email: String
   emailVerified: DateTime
+  evernoteAuthToken: String
+  evernoteExpiration: DateTime
+  evernoteReqToken: String
   id: Int!
   image: String
   importedRecipes(after: RecipeWhereUniqueInput, before: RecipeWhereUniqueInput, first: Int, last: Int): [Recipe!]!
@@ -1986,6 +1989,9 @@ input UserCreateInput {
   createdAt: DateTime
   email: String
   emailVerified: DateTime
+  evernoteAuthToken: String
+  evernoteExpiration: DateTime
+  evernoteReqToken: String
   image: String
   importedRecipes: RecipeCreateNestedManyWithoutImportedUserInput
   name: String
@@ -2008,6 +2014,9 @@ input UserCreateWithoutImportedRecipesInput {
   createdAt: DateTime
   email: String
   emailVerified: DateTime
+  evernoteAuthToken: String
+  evernoteExpiration: DateTime
+  evernoteReqToken: String
   image: String
   name: String
   role: Role
@@ -2018,6 +2027,9 @@ input UserUpdateInput {
   createdAt: DateTimeFieldUpdateOperationsInput
   email: NullableStringFieldUpdateOperationsInput
   emailVerified: NullableDateTimeFieldUpdateOperationsInput
+  evernoteAuthToken: NullableStringFieldUpdateOperationsInput
+  evernoteExpiration: NullableDateTimeFieldUpdateOperationsInput
+  evernoteReqToken: NullableStringFieldUpdateOperationsInput
   image: NullableStringFieldUpdateOperationsInput
   importedRecipes: RecipeUpdateManyWithoutImportedUserInput
   name: NullableStringFieldUpdateOperationsInput
@@ -2037,6 +2049,9 @@ input UserUpdateWithoutImportedRecipesInput {
   createdAt: DateTimeFieldUpdateOperationsInput
   email: NullableStringFieldUpdateOperationsInput
   emailVerified: NullableDateTimeFieldUpdateOperationsInput
+  evernoteAuthToken: NullableStringFieldUpdateOperationsInput
+  evernoteExpiration: NullableDateTimeFieldUpdateOperationsInput
+  evernoteReqToken: NullableStringFieldUpdateOperationsInput
   image: NullableStringFieldUpdateOperationsInput
   name: NullableStringFieldUpdateOperationsInput
   role: NullableEnumRoleFieldUpdateOperationsInput
