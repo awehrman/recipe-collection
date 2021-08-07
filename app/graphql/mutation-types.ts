@@ -1,6 +1,7 @@
 import { getSession } from 'next-auth/client';
-import { intArg, mutationType, nullable, stringArg } from '@nexus/schema';
+import { mutationType, nullable, stringArg } from '@nexus/schema';
 import Evernote from 'evernote';
+import { NexusGenRootTypes } from '../generated/nexus-typegen';
 
 const client = new Evernote.Client({
 	consumerKey: process.env.API_CONSUMER_KEY,
@@ -9,50 +10,26 @@ const client = new Evernote.Client({
 	china: !!process.env.CHINA,
 });
 
-// TODO import these from elsewhere
-const resolveRequestToken = async ({ ctx, response, session }) => {
-	console.log('resolveRequestToken', process.env.OAuthCallback);
-  client.getRequestToken(process.env.OAuthCallback, async (err, evernoteReqToken, evernoteReqSecret) => {
-		console.log(`getRequestToken`, { err, evernoteReqToken, evernoteReqSecret });
-		if (err) {
-      response.errors.push(err);
-      return response;
-    }
-
-		response.isAuthPending = true;
-		response.isAuthenticated = false;
-		response.authURL = client.getAuthorizeUrl(evernoteReqToken);
-
-    const data = {
-      evernoteReqToken,
-      evernoteReqSecret,
-    };
-    const where = { id: session.userId };
-		const res = await ctx.prisma.user.update({ data, where });
-    console.log({ res });
-
-		return response;
-	});
+type EvernoteRequestErrorProps = {
+  statusCode: number
+  data?: unknown
 };
 
-// const resolveAccessToken = (req, response, requestToken, requestTokenSecret, oauthVerifier) =>
-//   new Promise((resolve, reject) => {
-// 	console.log('resolveAccessToken');
-// 	client.getAccessToken(requestToken, requestTokenSecret, oauthVerifier, (err, authToken, authTokenSecret) => {
-// 		console.log({ err });
-// 		if (err) {reject(err);}
+type EvernoteResponseProps = {
+  evernoteReqToken?: string
+  evernoteReqSecret?: string
+};
 
-// 		response.isAuthenticated = true;
-// 		response.isAuthenticationPending = false;
+const requestEvernoteRequestToken = (): Promise<EvernoteResponseProps> => new Promise((resolve, reject) => {
+  const cb = (err: EvernoteRequestErrorProps, evernoteReqToken: string, evernoteReqSecret: string) => {
+    if (err) {
+      reject(err);
+    }
+    resolve({ evernoteReqToken, evernoteReqSecret });
+  };
 
-// 		// req.session.authToken = authToken;
-// 		// req.session.authTokenSecret = authTokenSecret;
-// 		// req.session.requestToken = null;
-// 		// req.session.requestTokenSecret = null;
-
-// 		resolve(response);
-// 	});
-// });
+  client.getRequestToken(`${process.env.OAuthCallback}`, cb);
+});
 
 const Mutation = mutationType({
   definition(t) {
@@ -61,39 +38,36 @@ const Mutation = mutationType({
       args: {
         oauthVerifier: nullable(stringArg()),
       },
-      async resolve(_parent, args, ctx) {
+      resolve: async (_parent, args, ctx): Promise<NexusGenRootTypes['AuthenticationResponse']> => {
         // const { oauthVerifier } = args;
         // const isClientTokenSet = Boolean(client?.token);
-        // console.log('do i have anything in my session? or even a request?');
-        const { req, prisma } = ctx;
+
+        const { req } = ctx;
         const session = await getSession({ req });
-        console.log({ session });
         // check if our user already has an evernote auth token
+        const id = Number(session?.userId || 0);
 
         const response = {
-          // id: uuid.v4(), get this from the db
-          id: session?.userId,
-          errors: [],
+          id,
+          errors: session?.userId ? ['No userId in session'] : [],
           isAuthPending: !!session?.evernoteReqToken,
           isAuthenticated: !!session?.evernoteAuthToken,
-          authURL: null,
+          authURL: '',
         };
 
-        // response.isAuthenticated = isClientTokenSet || Boolean(authToken);
-        // response.isAuthPending = Boolean((!isClientTokenSet && !authToken) && requestToken);
-
-        // // // if we've passed an oauthVerifier, then we need to finish up the pending authentication
-        // if (oauthVerifier) {
-        //   return resolveAccessToken(req, response, requestToken, requestTokenSecret, oauthVerifier);
-        // }
-
         // // otherwise, we need to start the authentication
-        if (!session?.evernoteReqToken) {
-          return resolveRequestToken({ ctx, response, session });
+        if (!session?.evernoteReqToken || !response.authURL.length) {
+          try {
+            const evernote = await requestEvernoteRequestToken();
+            response.authURL = evernote?.evernoteReqToken ? client.getAuthorizeUrl(evernote.evernoteReqToken) : '';
+            response.isAuthPending = !!response.authURL.length;
+            response.isAuthenticated = false;
+          } catch (err: unknown) {
+            response.errors.push(`${err}`);
+          }
         }
 
         console.log({ response });
-
         return response;
       }
     });

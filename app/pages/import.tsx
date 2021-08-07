@@ -10,7 +10,16 @@ type ImportProps = {
 }
 
 const Import: React.FC<ImportProps> = () => {
-  const [authenticateEvernote] = useMutation(AUTHENTICATE_EVERNOTE_MUTATION);
+  const [authenticateEvernote] = useMutation(AUTHENTICATE_EVERNOTE_MUTATION, {
+    update: (cache, { data: { authenticateEvernote } }) => {
+      const { authURL = null } = authenticateEvernote || {};
+      console.log('update', { authenticateEvernote, authURL });
+
+      if (authURL) {
+        window.open(authURL, '_self');
+      }
+    },
+  });
 
   function handleAuthentication() {
     authenticateEvernote();
