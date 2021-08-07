@@ -1,5 +1,6 @@
 import { useMutation } from '@apollo/client';
-import React from 'react'
+import { useRouter } from 'next/router'
+import React, { useEffect } from 'react'
 
 import Button from '../components/common/Button';
 import Page from '../components/Page';
@@ -10,6 +11,8 @@ type ImportProps = {
 }
 
 const Import: React.FC<ImportProps> = () => {
+  const router = useRouter();
+	const { query: { oauth_verifier } } = router;
   const [authenticateEvernote] = useMutation(AUTHENTICATE_EVERNOTE_MUTATION, {
     update: (cache, { data: { authenticateEvernote } }) => {
       const { authURL = null } = authenticateEvernote || {};
@@ -20,6 +23,20 @@ const Import: React.FC<ImportProps> = () => {
       }
     },
   });
+
+  function handleEvernoteAuthVerifier() {
+    if (oauth_verifier) {
+			authenticateEvernote({
+				update: () => {
+					// update url
+					router.replace('/import', '/import', { shallow: true });
+				},
+				variables: { oauthVerifier: oauth_verifier },
+			});
+		}
+  }
+
+  useEffect(handleEvernoteAuthVerifier, [oauth_verifier]);
 
   function handleAuthentication() {
     authenticateEvernote();

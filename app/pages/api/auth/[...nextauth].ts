@@ -18,11 +18,7 @@ const options = {
   secret: process.env.SECRET,
   callbacks: {
     async session(session, token) {
-      // add in evernote access tokens
       session.userId = token.id;
-      session.evernoteAuthToken = token.evernoteAuthToken;
-      session.evernoteReqToken = token.evernoteReqToken;
-      session.evernoteExpiration = token.evernoteExpiration;
       return session
     },
     async signIn(user) {
