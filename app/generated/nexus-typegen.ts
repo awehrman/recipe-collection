@@ -1568,6 +1568,7 @@ export interface NexusGenInputs {
     emailVerified?: NexusGenScalars['DateTime'] | null; // DateTime
     evernoteAuthToken?: string | null; // String
     evernoteExpiration?: NexusGenScalars['DateTime'] | null; // DateTime
+    evernoteReqSecret?: string | null; // String
     evernoteReqToken?: string | null; // String
     image?: string | null; // String
     importedRecipes?: NexusGenInputs['RecipeCreateNestedManyWithoutImportedUserInput'] | null; // RecipeCreateNestedManyWithoutImportedUserInput
@@ -1590,6 +1591,7 @@ export interface NexusGenInputs {
     emailVerified?: NexusGenScalars['DateTime'] | null; // DateTime
     evernoteAuthToken?: string | null; // String
     evernoteExpiration?: NexusGenScalars['DateTime'] | null; // DateTime
+    evernoteReqSecret?: string | null; // String
     evernoteReqToken?: string | null; // String
     image?: string | null; // String
     name?: string | null; // String
@@ -1602,6 +1604,7 @@ export interface NexusGenInputs {
     emailVerified?: NexusGenInputs['NullableDateTimeFieldUpdateOperationsInput'] | null; // NullableDateTimeFieldUpdateOperationsInput
     evernoteAuthToken?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
     evernoteExpiration?: NexusGenInputs['NullableDateTimeFieldUpdateOperationsInput'] | null; // NullableDateTimeFieldUpdateOperationsInput
+    evernoteReqSecret?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
     evernoteReqToken?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
     image?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
     importedRecipes?: NexusGenInputs['RecipeUpdateManyWithoutImportedUserInput'] | null; // RecipeUpdateManyWithoutImportedUserInput
@@ -1622,6 +1625,7 @@ export interface NexusGenInputs {
     emailVerified?: NexusGenInputs['NullableDateTimeFieldUpdateOperationsInput'] | null; // NullableDateTimeFieldUpdateOperationsInput
     evernoteAuthToken?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
     evernoteExpiration?: NexusGenInputs['NullableDateTimeFieldUpdateOperationsInput'] | null; // NullableDateTimeFieldUpdateOperationsInput
+    evernoteReqSecret?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
     evernoteReqToken?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
     image?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
     name?: NexusGenInputs['NullableStringFieldUpdateOperationsInput'] | null; // NullableStringFieldUpdateOperationsInput
@@ -1781,6 +1785,7 @@ export interface NexusGenObjects {
     emailVerified?: NexusGenScalars['DateTime'] | null; // DateTime
     evernoteAuthToken?: string | null; // String
     evernoteExpiration?: NexusGenScalars['DateTime'] | null; // DateTime
+    evernoteReqSecret?: string | null; // String
     evernoteReqToken?: string | null; // String
     id: number; // Int!
     image?: string | null; // String
@@ -1963,6 +1968,7 @@ export interface NexusGenFieldTypes {
     emailVerified: NexusGenScalars['DateTime'] | null; // DateTime
     evernoteAuthToken: string | null; // String
     evernoteExpiration: NexusGenScalars['DateTime'] | null; // DateTime
+    evernoteReqSecret: string | null; // String
     evernoteReqToken: string | null; // String
     id: number; // Int!
     image: string | null; // String
@@ -2136,6 +2142,7 @@ export interface NexusGenFieldTypeNames {
     emailVerified: 'DateTime'
     evernoteAuthToken: 'String'
     evernoteExpiration: 'DateTime'
+    evernoteReqSecret: 'String'
     evernoteReqToken: 'String'
     id: 'Int'
     image: 'String'
@@ -2214,7 +2221,6 @@ export interface NexusGenArgTypes {
   Mutation: {
     authenticateEvernote: { // args
       oauthVerifier?: string | null; // String
-      userId?: number | null; // Int
     }
     createOneUser: { // args
       data: NexusGenInputs['UserCreateInput']; // UserCreateInput!

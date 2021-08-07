@@ -1,5 +1,4 @@
 import { useMutation } from '@apollo/client';
-import { useSession } from 'next-auth/client'
 import React from 'react'
 
 import Button from '../components/common/Button';
@@ -11,14 +10,10 @@ type ImportProps = {
 }
 
 const Import: React.FC<ImportProps> = () => {
-  const [session, loading] = useSession();
-  const variables = { userId: session?.userId };
-  const [authenticateEvernote] = useMutation(AUTHENTICATE_EVERNOTE_MUTATION, { variables });
+  const [authenticateEvernote] = useMutation(AUTHENTICATE_EVERNOTE_MUTATION);
 
   function handleAuthentication() {
-    if (!loading && session?.userId) {
-      authenticateEvernote();
-    }
+    authenticateEvernote();
   }
 
   return (

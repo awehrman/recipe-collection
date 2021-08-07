@@ -15,6 +15,7 @@ model User {
   emailVerified       DateTime? @map(name: "email_verified")
   evernoteAuthToken   String?   @map(name: "evernote_auth_token")
   evernoteReqToken    String?   @map(name: "evernote_req_token")
+  evernoteReqSecret   String?   @map(name: "evernote_req_secret")
   evernoteExpiration  DateTime? @map(name: "evernote_expiration")
   image               String?
   createdAt           DateTime  @default(now()) @map(name: "created_at")

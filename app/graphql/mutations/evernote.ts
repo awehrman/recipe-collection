@@ -1,8 +1,9 @@
 import { gql } from '@apollo/client';
 
+// TODO we might not even need to transfer the oauthVerifier here if we store that on our user too
 export const AUTHENTICATE_EVERNOTE_MUTATION = gql`
-	mutation AUTHENTICATE_EVERNOTE_MUTATION($oauthVerifier: String, $userId: Int!) {
-		authenticateEvernote(oauthVerifier: $oauthVerifier, userId: $userId) {
+	mutation AUTHENTICATE_EVERNOTE_MUTATION($oauthVerifier: String) {
+		authenticateEvernote(oauthVerifier: $oauthVerifier) {
 			id
 			authURL
 			errors
