@@ -99,7 +99,7 @@ input AlternateNameWhereUniqueInput {
 
 type AuthenticationResponse {
   authURL: String
-  errors: [String!]!
+  errorMessage: String
   id: Int!
   isAuthPending: Boolean!
   isAuthenticated: Boolean!

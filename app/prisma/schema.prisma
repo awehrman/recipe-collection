@@ -9,19 +9,19 @@ generator client {
 }
 
 model User {
-  id                  Int       @id @default(autoincrement())
-  name                String?
-  email               String?   @unique
-  emailVerified       DateTime? @map(name: "email_verified")
-  evernoteAuthToken   String?   @map(name: "evernote_auth_token")
-  evernoteReqToken    String?   @map(name: "evernote_req_token")
-  evernoteReqSecret   String?   @map(name: "evernote_req_secret")
-  evernoteExpiration  DateTime? @map(name: "evernote_expiration")
-  image               String?
-  createdAt           DateTime  @default(now()) @map(name: "created_at")
-  updatedAt           DateTime  @updatedAt @map(name: "updated_at")
-  importedRecipes     Recipe[]
-  role                Role?
+  id                 Int       @id @default(autoincrement())
+  name               String?
+  email              String?   @unique
+  emailVerified      DateTime? @map(name: "email_verified")
+  evernoteAuthToken  String?   @map(name: "evernote_auth_token")
+  evernoteReqToken   String?   @map(name: "evernote_req_token")
+  evernoteReqSecret  String?   @map(name: "evernote_req_secret")
+  evernoteExpiration DateTime? @map(name: "evernote_expiration")
+  image              String?
+  createdAt          DateTime  @default(now()) @map(name: "created_at")
+  updatedAt          DateTime  @updatedAt @map(name: "updated_at")
+  importedRecipes    Recipe[]
+  role               Role?
 
   @@map(name: "users")
 }
@@ -29,7 +29,7 @@ model User {
 model AuthenticationResponse {
   id              Int     @id @default(autoincrement())
   authURL         String?
-  errors          String[]
+  errorMessage    String?
   isAuthPending   Boolean @default(false)
   isAuthenticated Boolean @default(false)
 
@@ -61,13 +61,13 @@ model Account {
 }
 
 model Session {
-  id                Int      @id @default(autoincrement())
-  userId            Int      @map(name: "user_id")
-  expires           DateTime
-  sessionToken      String?   @unique @map(name: "session_token")
-  accessToken       String?   @unique @map(name: "access_token")
-  createdAt         DateTime @default(now()) @map(name: "created_at")
-  updatedAt         DateTime @default(now()) @map(name: "updated_at")
+  id           Int      @id @default(autoincrement())
+  userId       Int      @map(name: "user_id")
+  expires      DateTime
+  sessionToken String?  @unique @map(name: "session_token")
+  accessToken  String?  @unique @map(name: "access_token")
+  createdAt    DateTime @default(now()) @map(name: "created_at")
+  updatedAt    DateTime @default(now()) @map(name: "updated_at")
 
   @@map(name: "sessions")
 }

@@ -6,7 +6,7 @@ export const AUTHENTICATE_EVERNOTE_MUTATION = gql`
 		authenticateEvernote(oauthVerifier: $oauthVerifier) {
 			id
 			authURL
-			errors
+			errorMessage
 			isAuthPending
 			isAuthenticated
 		}
@@ -16,7 +16,7 @@ export const AUTHENTICATE_EVERNOTE_MUTATION = gql`
 export const CLEAR_EVERNOTE_AUTH_MUTATION = gql`
 	mutation CLEAR_EVERNOTE_AUTH_MUTATION {
 		clearAuthentication {
-			errors
+			errorMessage
 			isAuthPending
 			isAuthenticated
 		}

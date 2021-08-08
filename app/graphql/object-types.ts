@@ -6,7 +6,7 @@ export const AuthenticationResponse = objectType({
   definition(t) {
     t.model.id();
     t.model.authURL();
-    t.model.errors();
+    t.model.errorMessage();
     t.model.isAuthPending();
     t.model.isAuthenticated();
   }

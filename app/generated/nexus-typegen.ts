@@ -1677,7 +1677,7 @@ export interface NexusGenObjects {
   }
   AuthenticationResponse: { // root type
     authURL?: string | null; // String
-    errors: string[]; // [String!]!
+    errorMessage?: string | null; // String
     id: number; // Int!
     isAuthPending: boolean; // Boolean!
     isAuthenticated: boolean; // Boolean!
@@ -1826,7 +1826,7 @@ export interface NexusGenFieldTypes {
   }
   AuthenticationResponse: { // field return type
     authURL: string | null; // String
-    errors: string[]; // [String!]!
+    errorMessage: string | null; // String
     id: number; // Int!
     isAuthPending: boolean; // Boolean!
     isAuthenticated: boolean; // Boolean!
@@ -2000,7 +2000,7 @@ export interface NexusGenFieldTypeNames {
   }
   AuthenticationResponse: { // field return type name
     authURL: 'String'
-    errors: 'String'
+    errorMessage: 'String'
     id: 'Int'
     isAuthPending: 'Boolean'
     isAuthenticated: 'Boolean'
