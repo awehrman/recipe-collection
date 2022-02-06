@@ -1,6 +1,5 @@
 import Evernote from 'evernote';
 import { getSession } from 'next-auth/client';
-// import jwt from 'next-auth/jwt';
 import { mutationType, nullable, stringArg } from '@nexus/schema';
 import { NexusGenRootTypes } from '../generated/nexus-typegen';
 
@@ -24,9 +23,9 @@ type EvernoteResponseProps = {
 };
 
 const requestEvernoteAuthToken = (
-  evernoteReqToken: string,
-  evernoteReqSecret: string,
-  oauthVerifier: string
+  evernoteReqToken?: string,
+  evernoteReqSecret?: string,
+  oauthVerifier?: string
 ) : Promise<EvernoteResponseProps> =>
   new Promise((resolve, reject) => {
     const cb = (err: EvernoteRequestErrorProps, evernoteAuthToken: string) => {
@@ -36,7 +35,7 @@ const requestEvernoteAuthToken = (
       resolve({ evernoteAuthToken });
     };
 
-    client.getAccessToken(evernoteReqToken, evernoteReqSecret, oauthVerifier, cb);
+    client.getAccessToken(`${evernoteReqToken}`, `${evernoteReqSecret}`, `${oauthVerifier}`, cb);
   });
 
 const requestEvernoteRequestToken = (): Promise<EvernoteResponseProps> =>
@@ -59,14 +58,13 @@ const Mutation = mutationType({
       resolve: async (_parent, args, ctx): Promise<NexusGenRootTypes['AuthenticationResponse']> => {
         const { oauthVerifier } = args;
         const { req } = ctx;
-        // const secret = process.env.JWT_SECRET;
-        // const token = await jwt.getToken({ req, secret });
-        // const id = Number(token?.userId || 0);
-        const session = await getSession({ req });
-        const id = Number(session?.userId || 0);
-
-        const user = await ctx.prisma.user.findUnique({ where: { id }});
-        const isClientTokenSet = !!user.evernoteAuthToken;
+        const {
+          evernoteAuthToken = null,
+          evernoteReqToken = null,
+          evernoteReqSecret = null,
+          userId = 0,
+        } = await getSession({ req }) || {};
+        const id = Number(userId);
 
         const response = {
           id,
@@ -76,42 +74,35 @@ const Mutation = mutationType({
           authURL: '',
         };
 
-        if (!id || !session) {
-          response.errorMessage = !id ? 'No userId in session' : 'No session available';
+        if (!id) {
+          response.errorMessage = 'No userId in session';
           return response;
         }
 
-        // otherwise, we need to start the authentication
-        if (!isClientTokenSet && !oauthVerifier && (!user?.evernoteReqToken || !response.authURL.length)) {
+        if (!evernoteAuthToken && !evernoteReqToken) {
           try {
             const { evernoteReqToken, evernoteReqSecret } = await requestEvernoteRequestToken();
             response.authURL = evernoteReqToken ? client.getAuthorizeUrl(evernoteReqToken) : '';
             response.isAuthPending = !!response.authURL.length;
 
-            // TODO i should probably move this into its own jwt token
-            // but for the meantime, just update this user information
-            const updateUserReqToken = {
-              data: {
-                evernoteReqToken,
-                evernoteReqSecret,
-              },
+            // TODO can we just update the session directly instead of tying this to the user?
+            await ctx.prisma.user.update({
+              data: { evernoteReqToken, evernoteReqSecret },
               where: { id },
-            };
-            await ctx.prisma.user.update(updateUserReqToken);
+            });
           } catch (err: unknown) {
             response.errorMessage = `${err}`;
           }
         }
 
-        if (oauthVerifier && user?.evernoteReqToken && user?.evernoteReqSecret) {
+        if (oauthVerifier && evernoteReqToken && evernoteReqSecret) {
           try {
             const { evernoteAuthToken } = await requestEvernoteAuthToken(
-              `${user.evernoteReqToken}`,
-              `${user.evernoteReqSecret}`,
-              `${oauthVerifier}`
+              `${evernoteReqToken}`,
+              `${evernoteReqSecret}`,
+              `${oauthVerifier}`,
             );
             response.isAuthenticated = !!evernoteAuthToken;
-            session.evernoteAuthToken = evernoteAuthToken;
 
             await ctx.prisma.user.update({
               data: { evernoteAuthToken },
@@ -122,7 +113,6 @@ const Mutation = mutationType({
           }
         }
 
-        console.log({ isClientTokenSet });
         return response;
       }
     });

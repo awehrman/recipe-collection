@@ -9,14 +9,20 @@ export default authHandler;
 
 type UserProps = {
   id?: number;
+  authURL?: string;
   evernoteAuthToken?: string;
+  evernoteReqToken?: string;
+  evernoteReqSecret?: string;
   role?: string;
 }
 
 type TokenProps = {
   id?: number;
-  userId?: number;
+  authURL?: string;
   evernoteAuthToken?: string;
+  evernoteReqToken?: string;
+  evernoteReqSecret?: string;
+  userId?: number;
 }
 
 const options = {
@@ -28,19 +34,12 @@ const options = {
   ],
   adapter: Adapters.Prisma.Adapter({ prisma }),
   secret: process.env.SECRET,
-  // session: { jwt: true },
-  // jwt: { secret: process.env.JWT_SECRET },
   callbacks: {
-    // async jwt(token: TokenProps, user: UserProps) {
-    //   console.log('jwt', { user });
-    //   if (!token?.userId && user?.id) {
-    //     token.userId = user.id;
-    //   }
-
-    //   return token;
-    // },
     async session(session: Session, token: TokenProps) {
       session.userId = token.id;
+      session.evernoteAuthToken = token.evernoteAuthToken;
+      session.evernoteReqToken = token.evernoteReqToken;
+      session.evernoteReqSecret = token.evernoteReqSecret;
       return session
     },
     async signIn(user: UserProps) {
