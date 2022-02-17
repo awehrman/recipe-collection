@@ -1175,6 +1175,7 @@ input IntNullableFilter {
 
 type Mutation {
   authenticateEvernote(oauthVerifier: String): AuthenticationResponse
+  clearAuthentication(oauthVerifier: String): AuthenticationResponse
   createOneUser(data: UserCreateInput!): User!
   deleteOneUser(where: UserWhereUniqueInput!): User
   updateOneUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User

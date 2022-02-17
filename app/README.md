@@ -28,3 +28,14 @@ You can check out [the Next.js GitHub repository](https://github.com/zeit/next.j
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/import?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+## Notes on Building for Chrome Extension
+
+This is a mess. Before running `yarn run build`, ensure that `ignoreBuildErrors: true` in `next.config.js`. Nexus is shitting the bed with typescript errors because this plugin is being replaced.
+
+Because chrome extensions don't vibe with underscores, run the following scripts to correct for this:
+
+```
+mv ./out/_next ./out/next
+cd ./out && grep -rli '_next' * | xargs -I@ sed -i '' 's/_next/next/g' @;
+```

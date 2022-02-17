@@ -6,5 +6,12 @@ module.exports = {
     });
 
     return config;
+  },
+  typescript: {
+    // NOTE: nexus prisma blows in its current state
+    // its causing a massive type error in build
+    // this needs to be enabled to build for the chrome extension
+    // i can come back to this when prisma updates their nexus plugin
+    // ignoreBuildErrors: true,
   }
 };

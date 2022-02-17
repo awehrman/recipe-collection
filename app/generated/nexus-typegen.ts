@@ -1894,6 +1894,7 @@ export interface NexusGenFieldTypes {
   }
   Mutation: { // field return type
     authenticateEvernote: NexusGenRootTypes['AuthenticationResponse'] | null; // AuthenticationResponse
+    clearAuthentication: NexusGenRootTypes['AuthenticationResponse'] | null; // AuthenticationResponse
     createOneUser: NexusGenRootTypes['User']; // User!
     deleteOneUser: NexusGenRootTypes['User'] | null; // User
     updateOneUser: NexusGenRootTypes['User'] | null; // User
@@ -2068,6 +2069,7 @@ export interface NexusGenFieldTypeNames {
   }
   Mutation: { // field return type name
     authenticateEvernote: 'AuthenticationResponse'
+    clearAuthentication: 'AuthenticationResponse'
     createOneUser: 'User'
     deleteOneUser: 'User'
     updateOneUser: 'User'
@@ -2220,6 +2222,9 @@ export interface NexusGenArgTypes {
   }
   Mutation: {
     authenticateEvernote: { // args
+      oauthVerifier?: string | null; // String
+    }
+    clearAuthentication: { // args
       oauthVerifier?: string | null; // String
     }
     createOneUser: { // args

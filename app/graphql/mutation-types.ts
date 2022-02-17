@@ -40,6 +40,7 @@ const requestEvernoteAuthToken = (
 
 const requestEvernoteRequestToken = (): Promise<EvernoteResponseProps> =>
   new Promise((resolve, reject) => {
+    console.log('requestEvernoteRequestToken')
     const cb = (err: EvernoteRequestErrorProps, evernoteReqToken: string, evernoteReqSecret: string) => {
       if (err) {
         reject(err);
@@ -56,6 +57,7 @@ const Mutation = mutationType({
       type: 'AuthenticationResponse',
       args: { oauthVerifier: nullable(stringArg()) },
       resolve: async (_parent, args, ctx): Promise<NexusGenRootTypes['AuthenticationResponse']> => {
+        console.log('resolve');
         const { oauthVerifier } = args;
         const { req } = ctx;
         const {
@@ -74,14 +76,20 @@ const Mutation = mutationType({
           authURL: '',
         };
 
-        if (!id) {
+        console.log({ evernoteAuthToken, evernoteReqToken });
+
+        if (id < 1 || id === null || id === undefined || isNaN(id)) {
           response.errorMessage = 'No userId in session';
+          console.error('returning');
           return response;
         }
 
-        if (!evernoteAuthToken && !evernoteReqToken) {
+        console.log({ evernoteAuthToken, evernoteReqSecret, oauthVerifier });
+
+        if (!evernoteReqToken) {
           try {
             const { evernoteReqToken, evernoteReqSecret } = await requestEvernoteRequestToken();
+            console.log({ evernoteReqToken, evernoteReqSecret, client });
             response.authURL = evernoteReqToken ? client.getAuthorizeUrl(evernoteReqToken) : '';
             response.isAuthPending = !!response.authURL.length;
 
@@ -91,6 +99,7 @@ const Mutation = mutationType({
               where: { id },
             });
           } catch (err: unknown) {
+            console.error({ err });
             response.errorMessage = `${err}`;
           }
         }
@@ -113,6 +122,38 @@ const Mutation = mutationType({
           }
         }
 
+        return response;
+      }
+    });
+
+    t.field('clearAuthentication', {
+      type: 'AuthenticationResponse',
+      args: { oauthVerifier: nullable(stringArg()) },
+      resolve: async (_parent, args, ctx): Promise<NexusGenRootTypes['AuthenticationResponse']> => {
+        console.log('resolve');
+        const { req } = ctx;
+        const session = await getSession({ req }) || {};
+        const id = Number(session.userId ?? 0);
+
+        const response = {
+          id,
+          errorMessage: '',
+          isAuthPending: false,
+          isAuthenticated: false,
+          authURL: '',
+        };
+        session.evernoteAuthToken = null;
+        session.evernoteReqToken = null;
+        session.evernoteReqSecret = null;
+
+        try {
+          await ctx.prisma.user.update({
+            data: { evernoteAuthToken: null, evernoteReqToken: null, evernoteReqSecret: null },
+            where: { id },
+          });
+        } catch (err: unknown) {
+          response.errorMessage = `${err}`;
+        }
         return response;
       }
     });

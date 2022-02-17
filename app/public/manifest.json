@@ -10,6 +10,6 @@
   "permissions": [],
   "browser_action": {
       "default_title": "Recipe Clipper Next",
-      "default_popup": "index.html"
+      "default_popup": "popup.html"
   }
 }

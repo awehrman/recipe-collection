@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { makeSchema } from '@nexus/schema';
-import { nexusPrisma } from 'nexus-plugin-prisma';
+import { nexusPrisma } from '@kenchi/nexus-plugin-prisma';
 import path from 'path';
 
 import Mutation from './mutation-types';
