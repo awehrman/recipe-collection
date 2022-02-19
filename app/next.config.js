@@ -12,6 +12,6 @@ module.exports = {
     // its causing a massive type error in build
     // this needs to be enabled to build for the chrome extension
     // i can come back to this when prisma updates their nexus plugin
-    // ignoreBuildErrors: true,
+    ignoreBuildErrors: true,
   }
 };
