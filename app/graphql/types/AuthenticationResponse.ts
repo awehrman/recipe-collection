@@ -1,7 +1,6 @@
 import Evernote from 'evernote';
 import { getSession } from 'next-auth/client';
-import { mutationType, nullable, stringArg } from '@nexus/schema';
-import { NexusGenRootTypes } from '../generated/nexus-typegen';
+import { extendType, nullable, objectType, stringArg } from 'nexus';
 
 const client = new Evernote.Client({
   consumerKey: process.env.API_CONSUMER_KEY,
@@ -9,6 +8,7 @@ const client = new Evernote.Client({
   sandbox: !!process.env.SANDBOX,
   china: !!process.env.CHINA,
 });
+
 
 type EvernoteRequestErrorProps = {
   statusCode: number
@@ -51,12 +51,37 @@ const requestEvernoteRequestToken = (): Promise<EvernoteResponseProps> =>
     client.getRequestToken(`${process.env.OAuthCallback}`, cb);
   });
 
-const Mutation = mutationType({
+
+  // Type definitions
+export const AuthenticationResponse = objectType({
+  name: 'AuthenticationResponse',
+  definition(t) {
+    t.string('id');
+    t.string('authURL');
+    t.string('errorMessage');
+    t.boolean('isAuthPending');
+    t.boolean('isAuthenticated');
+  }
+});
+
+export const ImportLocalResponse = objectType({
+  name: 'ImportLocalResponse',
+  definition(t) {
+    t.string('id');
+    t.string('errorMessage');
+  }
+});
+
+// Mutations
+export const AuthenticateEvernote = extendType({
+  type: 'Mutation',
   definition(t) {
     t.field('authenticateEvernote', {
       type: 'AuthenticationResponse',
-      args: { oauthVerifier: nullable(stringArg()) },
-      resolve: async (_parent, args, ctx): Promise<NexusGenRootTypes['AuthenticationResponse']> => {
+      args: {
+        oauthVerifier: nullable(stringArg()),
+      },
+      async resolve(_, args, ctx) {
         console.log('resolve');
         const { oauthVerifier } = args;
         const { req } = ctx;
@@ -123,13 +148,18 @@ const Mutation = mutationType({
         }
 
         return response;
-      }
+      },
     });
+  },
+});
 
+export const ClearAuthentication = extendType({
+  type: 'Mutation',
+  definition(t) {
     t.field('clearAuthentication', {
       type: 'AuthenticationResponse',
-      args: { oauthVerifier: nullable(stringArg()) },
-      resolve: async (_parent, args, ctx): Promise<NexusGenRootTypes['AuthenticationResponse']> => {
+      args: {},
+      async resolve(_, args, ctx) {
         console.log('resolve');
         const { req } = ctx;
         const session = await getSession({ req }) || {};
@@ -155,27 +185,26 @@ const Mutation = mutationType({
           response.errorMessage = `${err}`;
         }
         return response;
-      }
+      },
     });
+  },
+});
 
+export const ImportLocal = extendType({
+  type: 'Mutation',
+  definition(t) {
     t.field('importLocal', {
       type: 'ImportLocalResponse',
-      resolve: async (): Promise<NexusGenRootTypes['ImportLocalResponse']> => {
+      args: {},
+      async resolve() {
         console.log('resolve');
-
         const response = {
           id: 1,
           errorMessage: '',
         };
 
         return response;
-      }
+      },
     });
-
-    t.crud.createOneUser();
-    t.crud.deleteOneUser();
-    t.crud.updateOneUser();
-  }
+  },
 });
-
-export default Mutation;
