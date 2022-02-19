@@ -1696,6 +1696,10 @@ export interface NexusGenObjects {
     id: number; // Int!
     name: string; // String!
   }
+  ImportLocalResponse: { // root type
+    errorMessage?: string | null; // String
+    id: number; // Int!
+  }
   Ingredient: { // root type
     createdAt: NexusGenScalars['DateTime']; // DateTime!
     id: number; // Int!
@@ -1849,6 +1853,10 @@ export interface NexusGenFieldTypes {
     name: string; // String!
     recipes: NexusGenRootTypes['Recipe'][]; // [Recipe!]!
   }
+  ImportLocalResponse: { // field return type
+    errorMessage: string | null; // String
+    id: number; // Int!
+  }
   Ingredient: { // field return type
     alternateNames: NexusGenRootTypes['AlternateName'][]; // [AlternateName!]!
     createdAt: NexusGenScalars['DateTime']; // DateTime!
@@ -1897,6 +1905,7 @@ export interface NexusGenFieldTypes {
     clearAuthentication: NexusGenRootTypes['AuthenticationResponse'] | null; // AuthenticationResponse
     createOneUser: NexusGenRootTypes['User']; // User!
     deleteOneUser: NexusGenRootTypes['User'] | null; // User
+    importLocal: NexusGenRootTypes['ImportLocalResponse'] | null; // ImportLocalResponse
     updateOneUser: NexusGenRootTypes['User'] | null; // User
   }
   Note: { // field return type
@@ -2024,6 +2033,10 @@ export interface NexusGenFieldTypeNames {
     name: 'String'
     recipes: 'Recipe'
   }
+  ImportLocalResponse: { // field return type name
+    errorMessage: 'String'
+    id: 'Int'
+  }
   Ingredient: { // field return type name
     alternateNames: 'AlternateName'
     createdAt: 'DateTime'
@@ -2072,6 +2085,7 @@ export interface NexusGenFieldTypeNames {
     clearAuthentication: 'AuthenticationResponse'
     createOneUser: 'User'
     deleteOneUser: 'User'
+    importLocal: 'ImportLocalResponse'
     updateOneUser: 'User'
   }
   Note: { // field return type name

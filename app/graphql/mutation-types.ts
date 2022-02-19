@@ -158,6 +158,20 @@ const Mutation = mutationType({
       }
     });
 
+    t.field('importLocal', {
+      type: 'ImportLocalResponse',
+      resolve: async (): Promise<NexusGenRootTypes['ImportLocalResponse']> => {
+        console.log('resolve');
+
+        const response = {
+          id: 1,
+          errorMessage: '',
+        };
+
+        return response;
+      }
+    });
+
     t.crud.createOneUser();
     t.crud.deleteOneUser();
     t.crud.updateOneUser();

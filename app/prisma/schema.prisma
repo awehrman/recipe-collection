@@ -36,6 +36,13 @@ model AuthenticationResponse {
   @@map(name: "auth_response")
 }
 
+model ImportLocalResponse {
+  id           Int     @id @default(autoincrement())
+  errorMessage String?
+
+  @@map(name: "import_local_response")
+}
+
 enum Role {
   USER
   ADMIN

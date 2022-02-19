@@ -12,6 +12,14 @@ export const AuthenticationResponse = objectType({
   }
 });
 
+export const ImportLocalResponse = objectType({
+  name: 'ImportLocalResponse',
+  definition(t) {
+    t.model.id();
+    t.model.errorMessage();
+  }
+});
+
 export const User = objectType({
   name: 'User',
   definition(t) {

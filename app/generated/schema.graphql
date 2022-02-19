@@ -303,6 +303,11 @@ input EnumPropertiesNullableListFilter {
   isEmpty: Boolean
 }
 
+type ImportLocalResponse {
+  errorMessage: String
+  id: Int!
+}
+
 type Ingredient {
   alternateNames(after: AlternateNameWhereUniqueInput, before: AlternateNameWhereUniqueInput, first: Int, last: Int): [AlternateName!]!
   createdAt: DateTime!
@@ -1178,6 +1183,7 @@ type Mutation {
   clearAuthentication(oauthVerifier: String): AuthenticationResponse
   createOneUser(data: UserCreateInput!): User!
   deleteOneUser(where: UserWhereUniqueInput!): User
+  importLocal: ImportLocalResponse
   updateOneUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
 }
 

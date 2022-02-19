@@ -5,7 +5,7 @@ import React, { useEffect } from 'react'
 import Button from '../components/common/Button';
 import Page from '../components/Page';
 import { AUTHENTICATE_EVERNOTE_MUTATION } from './../graphql/mutations/evernote';
-
+import { IMPORT_LOCAL_MUTATION } from './../graphql/mutations/import';
 
 type ImportProps = {
 }
@@ -21,6 +21,11 @@ const Import: React.FC<ImportProps> = () => {
       if (authURL) {
         window.open(authURL, '_self');
       }
+    },
+  });
+  const [importData] = useMutation(IMPORT_LOCAL_MUTATION, {
+    update: (cache, { data }) => {
+      console.log({ data });
     },
   });
 
@@ -42,11 +47,20 @@ const Import: React.FC<ImportProps> = () => {
     authenticateEvernote();
   }
 
+  function handleLocalImport() {
+    importData();
+  }
+
   return (
     <Page title='Import'>
       <Button
         label='Authenticate Evernote'
         onClick={handleAuthentication}
+        type='button'
+      />
+      <Button
+        label='Import Local'
+        onClick={handleLocalImport}
         type='button'
       />
     </Page>
