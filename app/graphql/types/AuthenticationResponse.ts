@@ -84,6 +84,7 @@ export const AuthenticateEvernote = extendType({
       async resolve(_, args, ctx) {
         console.log('resolve');
         const { oauthVerifier } = args;
+        console.log({ ctx });
         const { req } = ctx;
         const {
           evernoteAuthToken = null,
