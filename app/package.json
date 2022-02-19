@@ -9,8 +9,6 @@
   },
   "dependencies": {
     "@apollo/client": "^3.3.19",
-    "@kenchi/nexus-plugin-prisma": "^0.40.0",
-    "@nexus/schema": "^0.20.1",
     "@prisma/client": "^2.23.0",
     "@types/uuid": "^8.3.1",
     "apollo-server-micro": "^2.25.0",
@@ -20,7 +18,6 @@
     "next": "10.2.3",
     "next-auth": "^3.23.3",
     "nexus": "^1.2.0",
-    "nexus-plugin-prisma": "^0.35.0",
     "nprogress": "^0.2.0",
     "polished": "^4.1.2",
     "react": "17.0.2",
