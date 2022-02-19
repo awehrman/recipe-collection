@@ -19,7 +19,7 @@
     "lodash": "^4.17.21",
     "next": "10.2.3",
     "next-auth": "^3.23.3",
-    "nexus": "^1.0.0",
+    "nexus": "^1.2.0",
     "nexus-plugin-prisma": "^0.35.0",
     "nprogress": "^0.2.0",
     "polished": "^4.1.2",
