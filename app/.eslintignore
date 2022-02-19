@@ -1,0 +1,4 @@
+/node_modules/
+/.next/
+./../backup
+/generated/nexus-typegen.ts

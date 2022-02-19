@@ -91,7 +91,7 @@ const getNotesMetadata = async (store, offset) => {
 		includeLargestResourceSize: false,
 	});
 
-	const noteRes = await store.findNotesMetadata(filter, offset, maxResults, spec)
+	const noteRes = await store.findNotesMetadata(authToken, filter, offset, maxResults, spec)
 		// return only what we need
 		.then(({ notes }) => notes.map((n) => ({
 			categories: [ n.notebookGuid ],
