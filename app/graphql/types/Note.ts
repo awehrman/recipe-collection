@@ -1,5 +1,4 @@
-import { getSession } from 'next-auth/client';
-import { extendType, objectType } from 'nexus';
+import { extendType, idArg, objectType } from 'nexus';
 
 import { importNotes } from '../resolvers/note';
 
@@ -21,6 +20,38 @@ export const EvernoteResponse = objectType({
     t.list.string('errors');
     t.list.field('notes', { type: 'Note' });
   }
+});
+
+// NOTE: https://www.prisma.io/blog/using-graphql-nexus-with-a-database-pmyl3660ncst#3-expose-full-crud-graphql-api-via-nexus-prisma
+// Queries
+export const NotesQuery = extendType({
+  type: 'Query',
+  definition(t) {
+    t.field('notes', {
+      type: 'Note',
+      resolve(root, args, ctx) {
+        return ctx.prisma.note.findMany();
+      },
+    });
+  },
+});
+
+export const NoteQuery = extendType({
+  type: 'Query',
+  definition(t) {
+    t.field('note', {
+      type: 'Note',
+      args: {
+        id: idArg(),
+      },
+      resolve(root, args, ctx) {
+        const { id } = args;
+        return ctx.prisma.note.findUnique({
+          where: { id }
+        });
+      },
+    });
+  },
 });
 
 // Mutations
