@@ -1,14 +1,17 @@
 import Evernote from 'evernote';
 import { getSession } from 'next-auth/client';
 
+import { saveImages } from './image';
+import { createNotes } from './note';
+
 export const downloadNotes = async (ctx) => {
 	const { req } = ctx;
 	// fetch new note content from evernote
 	const notes = await getEvernoteNotes(ctx)
 		// minify and upload image data
-		// .then(async (data) => saveImages(data))
+		.then(async (data) => saveImages(data))
 		// save note data to db
-		// .then(async (data) => createNotes(ctx, data))
+		.then(async (data) => createNotes(ctx, data))
 		.catch((err) => console.log(err));
 
 	// increment the notes offset in our session
@@ -70,9 +73,9 @@ const getNoteContent = async (store, guid) => {
 		.then((data) => {
 			const { content, resources } = data;
 			if (!resources) {
-				throw new Error(`No image for ${ guid }!`);
+				throw new Error(`No image for ${guid}!`);
 			}
-			const image = (resources && resources[0].data.body) || null;
+			const image = resources?.[0]?.data?.body || null;
 			return {
 				evernoteGUID: guid,
 				content,

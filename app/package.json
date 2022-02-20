@@ -10,8 +10,8 @@
   "dependencies": {
     "@apollo/client": "^3.3.19",
     "@prisma/client": "^2.23.0",
-    "@types/uuid": "^8.3.1",
     "apollo-server-micro": "^2.25.0",
+    "cloudinary": "^1.28.1",
     "evernote": "^2.0.5",
     "graphql": "^15.5.0",
     "lodash": "^4.17.21",
@@ -33,6 +33,7 @@
     "@types/nprogress": "^0.2.0",
     "@types/react": "^17.0.8",
     "@types/styled-components": "^5.1.9",
+    "@types/uuid": "^8.3.1",
     "@typescript-eslint/eslint-plugin": "^4.25.0",
     "@typescript-eslint/parser": "^4.25.0",
     "babel-plugin-styled-components": "^1.12.0",
