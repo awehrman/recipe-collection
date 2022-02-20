@@ -4,5 +4,6 @@ declare module "next-auth" {
     evernoteReqToken?: string;
     evernoteReqSecret?: string;
     userId?: number;
+    offset?: number;
   }
 }

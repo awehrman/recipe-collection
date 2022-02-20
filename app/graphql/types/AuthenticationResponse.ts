@@ -9,7 +9,6 @@ const client = new Evernote.Client({
   china: !!process.env.CHINA,
 });
 
-
 type EvernoteRequestErrorProps = {
   statusCode: number
   data?: unknown
@@ -56,7 +55,6 @@ const requestEvernoteRequestToken = (): Promise<EvernoteResponseProps> =>
 export const AuthenticationResponse = objectType({
   name: 'AuthenticationResponse',
   definition(t) {
-    t.string('id');
     t.string('authURL');
     t.string('errorMessage');
     t.boolean('isAuthPending');
@@ -67,7 +65,6 @@ export const AuthenticationResponse = objectType({
 export const ImportLocalResponse = objectType({
   name: 'ImportLocalResponse',
   definition(t) {
-    t.string('id');
     t.string('errorMessage');
   }
 });
@@ -81,11 +78,10 @@ export const AuthenticateEvernote = extendType({
       args: {
         oauthVerifier: nullable(stringArg()),
       },
-      async resolve(_, args, ctx) {
-        console.log('resolve');
+      resolve: async (_parent, args, ctx) => {
+        console.log('authenticateEvernote', { ctx });
         const { oauthVerifier } = args;
-        console.log({ ctx });
-        const { req } = ctx;
+        const { prisma, req } = ctx;
         const {
           evernoteAuthToken = null,
           evernoteReqToken = null,
@@ -95,7 +91,6 @@ export const AuthenticateEvernote = extendType({
         const id = Number(userId);
 
         const response = {
-          id,
           errorMessage: '',
           isAuthPending: false,
           isAuthenticated: false,
@@ -120,7 +115,7 @@ export const AuthenticateEvernote = extendType({
             response.isAuthPending = !!response.authURL.length;
 
             // TODO can we just update the session directly instead of tying this to the user?
-            await ctx.prisma.user.update({
+            await prisma.user.update({
               data: { evernoteReqToken, evernoteReqSecret },
               where: { id },
             });
@@ -139,7 +134,7 @@ export const AuthenticateEvernote = extendType({
             );
             response.isAuthenticated = !!evernoteAuthToken;
 
-            await ctx.prisma.user.update({
+            await prisma.user.update({
               data: { evernoteAuthToken },
               where: { id },
             });
@@ -160,14 +155,13 @@ export const ClearAuthentication = extendType({
     t.field('clearAuthentication', {
       type: 'AuthenticationResponse',
       args: {},
-      async resolve(_, args, ctx) {
-        console.log('resolve');
+      resolve: async(_parent, args, ctx) => {
+        console.log('clearAuthentication', { ctx });
         const { req } = ctx;
         const session = await getSession({ req }) || {};
         const id = Number(session.userId ?? 0);
 
         const response = {
-          id,
           errorMessage: '',
           isAuthPending: false,
           isAuthenticated: false,
@@ -197,10 +191,9 @@ export const ImportLocal = extendType({
     t.field('importLocal', {
       type: 'ImportLocalResponse',
       args: {},
-      async resolve() {
+      resolve: async () => {
         console.log('resolve');
         const response = {
-          id: 1,
           errorMessage: '',
         };
 

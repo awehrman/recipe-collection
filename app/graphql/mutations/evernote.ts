@@ -4,7 +4,6 @@ import { gql } from '@apollo/client';
 export const AUTHENTICATE_EVERNOTE_MUTATION = gql`
 	mutation AUTHENTICATE_EVERNOTE_MUTATION($oauthVerifier: String) {
 		authenticateEvernote(oauthVerifier: $oauthVerifier) {
-			id
 			authURL
 			errorMessage
 			isAuthPending
@@ -17,8 +16,6 @@ export const CLEAR_EVERNOTE_AUTH_MUTATION = gql`
 	mutation CLEAR_EVERNOTE_AUTH_MUTATION {
 		clearAuthentication {
 			errorMessage
-			isAuthPending
-			isAuthenticated
 		}
 	}
 `;

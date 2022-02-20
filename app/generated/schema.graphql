@@ -5,20 +5,33 @@
 type AuthenticationResponse {
   authURL: String
   errorMessage: String
-  id: String
   isAuthPending: Boolean
   isAuthenticated: Boolean
 }
 
+type EvernoteResponse {
+  errors: [String]
+  notes: [Note]
+}
+
 type ImportLocalResponse {
   errorMessage: String
-  id: String
 }
 
 type Mutation {
   authenticateEvernote(oauthVerifier: String): AuthenticationResponse
   clearAuthentication: AuthenticationResponse
   importLocal: ImportLocalResponse
+  importNotes: EvernoteResponse
+}
+
+type Note {
+  content: String
+  id: ID
+  image: String
+  isParsed: Boolean
+  source: String
+  title: String
 }
 
 type Query {
