@@ -79,7 +79,7 @@ export const AuthenticateEvernote = extendType({
         oauthVerifier: nullable(stringArg()),
       },
       resolve: async (_parent, args, ctx) => {
-        console.log('authenticateEvernote', { ctx });
+        console.error('authenticateEvernote');
         const { oauthVerifier } = args;
         const { prisma, req } = ctx;
         const {
@@ -97,7 +97,7 @@ export const AuthenticateEvernote = extendType({
           authURL: '',
         };
 
-        console.log({ evernoteAuthToken, evernoteReqToken });
+        console.error({ evernoteAuthToken, evernoteReqToken });
 
         if (id < 1 || id === null || id === undefined || isNaN(id)) {
           response.errorMessage = 'No userId in session';
@@ -105,12 +105,12 @@ export const AuthenticateEvernote = extendType({
           return response;
         }
 
-        console.log({ evernoteAuthToken, evernoteReqSecret, oauthVerifier });
+        console.error({ evernoteAuthToken, evernoteReqSecret, oauthVerifier });
 
         if (!evernoteReqToken) {
           try {
             const { evernoteReqToken, evernoteReqSecret } = await requestEvernoteRequestToken();
-            console.log({ evernoteReqToken, evernoteReqSecret, client });
+            console.error({ evernoteReqToken, evernoteReqSecret, client });
             response.authURL = evernoteReqToken ? client.getAuthorizeUrl(evernoteReqToken) : '';
             response.isAuthPending = !!response.authURL.length;
 
@@ -121,7 +121,7 @@ export const AuthenticateEvernote = extendType({
             });
           } catch (err: unknown) {
             console.error({ err });
-            response.errorMessage = `${err}`;
+            response.errorMessage = JSON.stringify(err, null, 2);
           }
         }
 
