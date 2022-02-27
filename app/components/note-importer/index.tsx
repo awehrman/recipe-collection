@@ -3,45 +3,33 @@ import { useSession } from 'next-auth/client';
 import React from 'react';
 import styled from 'styled-components';
 
-// import useEvernote from '../../hooks/use-evernote';
+import { IMPORT_NOTES_MUTATION } from '../../graphql/mutations/note';
+import useEvernote from '../../hooks/use-evernote';
 import Button from '../common/Button';
 import AuthenticateEvernote from './authenticate-evernote';
-import { IMPORT_NOTES_MUTATION } from '../../graphql/mutations/note';
 
-type NoteImporterProps = {
-
-};
+import { NoteImporterProps, Session } from './types';
 
 const NoteImporter: React.FC<NoteImporterProps> = () => {
   const [session] = useSession();
-  const { evernoteAuthToken, expires } = session || {};
-  const isAuthenticated = evernoteAuthToken && new Date(expires) > new Date();
-  console.log({ isAuthenticated });
-  // const {
-	// 	// convertNotes,
-	// 	importNotes,
-	// 	remaining,
-	// 	// saveRecipes,
-	// } = useEvernote();
-  const remaining = 9999;
- const [importNotes] = useMutation(IMPORT_NOTES_MUTATION, {
-    update: (cache, { data }) => {
-      console.log('importNotes', { data });
-    },
-  });
+  const { evernoteAuthToken, expires }: Session = session || {};
+  const isAuthenticated = evernoteAuthToken && new Date(`${expires}`) > new Date();
+  const { importNotes } = useEvernote();
+  const [mutation] = useMutation(IMPORT_NOTES_MUTATION);
+
 
   function handleImportNotes() {
-    importNotes();
+    importNotes(mutation);
   }
+
   return (
     <Wrapper>
-      {/* Authenticate / Import / Parse / Save */}
       <NoteActions>
           {/* Authenticate Evernote or Clear Authentication  */}
           <AuthenticateEvernote />
 
           {/* Import Notes */}
-          {isAuthenticated && remaining > 0 ? (
+          {isAuthenticated ? (
             <Button
               label='Import Notes'
               onClick={handleImportNotes}

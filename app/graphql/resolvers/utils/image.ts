@@ -1,3 +1,4 @@
+// @ts-nocheck
 import cloudinary from 'cloudinary';
 // import imagemin from 'imagemin';
 // import imageminJpegtran from 'imagemin-jpegtran';

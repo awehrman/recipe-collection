@@ -1,8 +1,25 @@
+// @ts-nocheck
 import Evernote from 'evernote';
 import { getSession } from 'next-auth/client';
 
 import { saveImages } from './image';
 import { createNotes } from './note';
+
+const filter = new Evernote.NoteStore.NoteFilter();
+const maxResults = process.env.DOWNLOAD_LIMIT;
+const spec = new Evernote.NoteStore.NotesMetadataResultSpec({
+	includeTitle: true,
+	includeContentLength: false,
+	includeCreated: false,
+	includeUpdated: false,
+	includeDeleted: false,
+	includeUpdateSequenceNum: false,
+	includeNotebookGuid: true,
+	includeTagGuids: true,
+	includeAttributes: true,
+	includeLargestResourceMime: false,
+	includeLargestResourceSize: false,
+});
 
 export const downloadNotes = async (ctx) => {
 	const { req } = ctx;
@@ -12,7 +29,6 @@ export const downloadNotes = async (ctx) => {
 		.then(async (data) => saveImages(data))
 		// save note data to db
 		.then(async (data) => createNotes(ctx, data))
-		.catch((err) => console.log(err));
 
 	// increment the notes offset in our session
 	if (notes.length > 0) {
@@ -33,20 +49,22 @@ const getClient = (token) => {
 	throw new Error('Could not create Evernote client!');
 };
 
-export const getEvernoteNotes = async (ctx) => {
+const getEvernoteNotes = async (ctx) => {
 	const { req } = ctx;
   const { evernoteAuthToken, offset = 0 } = await getSession({ req });
+	console.log({ offset });
+	const store = await getEvernoteNoteStore(req, evernoteAuthToken)
+		.catch((err) => {
+			throw new Error(`Could not connect to Evernote. ${err}`)
+		});
 
-	const store = await getEvernoteNoteStore(req, evernoteAuthToken);
-
-	const notesRes = await getNotesMetadata(store, offset)
+	const response = await getNotesMetadata(store, offset)
 		// ensure that these are new notes; refetch meta until newness is achieved
 		.then(async (meta) => validateNotes(ctx, store, meta))
 		// fetch the remaining note content and images for the new notes
-		.then(async (newNotes) => getNotesData(store, newNotes))
-		.catch((err) => { throw err; });
+		.then(async (newNotes) => getNotesData(store, newNotes));
 
-	return notesRes;
+	return response;
 };
 
 const getEvernoteNoteStore = async (req, token) => {
@@ -82,7 +100,6 @@ const getNoteContent = async (store, guid) => {
 				image,
 			};
 		})
-		.catch((err) => { throw err });
 
 	return noteContent;
 };
@@ -98,41 +115,24 @@ const getNotesData = async (store, notes) => {
 	});
 
 	const notesRes = await Promise.all(resolveContent)
-  .catch((err) => { throw err });
 
 	return notesRes;
 };
 
 const getNotesMetadata = async (store, offset) => {
-	// sadly evernote doesn't let us filter by anything not in a tag group
-	const filter = new Evernote.NoteStore.NoteFilter();
-	const maxResults = 1; // process.env.DOWNLOAD_LIMIT;
-	const spec = new Evernote.NoteStore.NotesMetadataResultSpec({
-		includeTitle: true,
-		includeContentLength: false,
-		includeCreated: false,
-		includeUpdated: false,
-		includeDeleted: false,
-		includeUpdateSequenceNum: false,
-		includeNotebookGuid: true,
-		includeTagGuids: true,
-		includeAttributes: true,
-		includeLargestResourceMime: false,
-		includeLargestResourceSize: false,
-	});
-
-	const noteRes = await store.findNotesMetadata(filter, offset, maxResults, spec)
-		// return only what we need
-		.then(({ notes }) => notes.map((n) => ({
-			categories: [ n.notebookGuid ],
-			evernoteGUID: n.guid,
-			source: n.attributes.sourceURL,
-			tags: (n.tagGuids) ? [ ...n.tagGuids ] : null,
-			title: n.title,
+	const response = await store.findNotesMetadata(filter, offset, maxResults, spec)
+		.then(({ notes }) => notes.map((note) => ({
+			categories: [ note.notebookGuid ],
+			evernoteGUID: note.guid,
+			source: note.attributes.sourceURL,
+			tags: (note.tagGuids) ? [ ...note.tagGuids ] : null,
+			title: note.title,
 		})))
-    .catch((err) => { throw err });
+		.catch((err) => {
+			throw new Error(`Could not fetch notes metadata. ${err}`);
+		})
 
-	return noteRes;
+	return response;
 };
 
 const incrementOffset = async (req, increment = 1) => {
@@ -151,7 +151,6 @@ const validateNotes = async (ctx, store, notes) => {
       // .then(async (existingNotes) => {
       //   const existingRecipes = await ctx.prisma.recipes({ where: { evernoteGUID_in } })
       //     .$fragment(GET_EVERNOTE_GUID)
-      //     .catch((err) => { throw err; });
 
       //   const combined = existingNotes.concat(existingRecipes)
       //     .map((e) => ({
@@ -160,7 +159,8 @@ const validateNotes = async (ctx, store, notes) => {
       //     }));
       //   return combined;
       // })
-      .catch((err) => { throw err });
+
+		console.log({ existing });
 
     // return these notes if they don't exist
     if (existing.length === 0) {
@@ -177,5 +177,4 @@ const validateNotes = async (ctx, store, notes) => {
 
 	return getNotesMetadata(store, offset)
 		.then(async (m) => validateNotes(ctx, store, m))
-		.catch((err) => { throw err });
 };

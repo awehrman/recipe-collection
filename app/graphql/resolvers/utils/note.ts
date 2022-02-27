@@ -1,3 +1,4 @@
+// @ts-nocheck
 export const createNotes = async (ctx, notes) => {
 	// save note data to db
 	const resolveNotes = notes.map(async (note) => {

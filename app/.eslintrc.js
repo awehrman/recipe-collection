@@ -33,6 +33,9 @@ module.exports = {
     'react/jsx-filename-extension': ['error', { extensions: ['.jsx', '.tsx'] }],
     'react/jsx-fragments': ['error', 'element'],
     curly: ['error', 'all'],
+    // TEMP
+    '@typescript-eslint/ban-ts-comment': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
 
     // Disabled rules
     'class-methods-use-this': 'off',

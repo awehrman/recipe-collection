@@ -1,11 +1,15 @@
+// @ts-nocheck
 import { getSession } from 'next-auth/client';
 
 import { downloadNotes } from './utils/evernote';
 
+import { Session } from '../../components/note-importer/types';
+
 export const importNotes = async (_parent, _args, ctx) => {
+  console.log('importNotes');
   const { req } = ctx;
-  const { evernoteAuthToken, expires } = await getSession({ req }) || {};
-  const isAuthenticated = evernoteAuthToken && new Date(expires) > new Date();
+  const { evernoteAuthToken, expires }: Session = await getSession({ req }) || {};
+  const isAuthenticated = evernoteAuthToken && new Date(`${expires}`) > new Date();
   const response = {
     errors: [],
     notes: [],
@@ -17,11 +21,12 @@ export const importNotes = async (_parent, _args, ctx) => {
   }
 
   const notes = await downloadNotes(ctx)
-    .catch((err) => {
-      console.log({ err });
-      response.errors.push({ err });
+    .catch((errors) => {
+      response.errors = [...errors];
     });
-  console.log({ notes });
 
+  response.notes = notes;
+
+  console.log({ response });
   return response;
 };
