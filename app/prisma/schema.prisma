@@ -68,13 +68,14 @@ model Account {
 }
 
 model Session {
-  id           Int      @id @default(autoincrement())
-  userId       Int      @map(name: "user_id")
-  expires      DateTime
-  sessionToken String?  @unique @map(name: "session_token")
-  accessToken  String?  @unique @map(name: "access_token")
-  createdAt    DateTime @default(now()) @map(name: "created_at")
-  updatedAt    DateTime @default(now()) @map(name: "updated_at")
+  id               Int      @id @default(autoincrement())
+  userId           Int      @map(name: "user_id")
+  expires          DateTime
+  sessionToken     String?  @unique @map(name: "session_token")
+  accessToken      String?  @unique @map(name: "access_token")
+  createdAt        DateTime @default(now()) @map(name: "created_at")
+  updatedAt        DateTime @default(now()) @map(name: "updated_at")
+  noteImportOffset Int?     @map(name: "note_import_offset")
 
   @@map(name: "sessions")
 }

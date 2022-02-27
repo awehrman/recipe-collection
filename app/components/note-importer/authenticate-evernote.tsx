@@ -26,7 +26,6 @@ const AuthenticateEvernote: React.FC<AuthenticateEvernoteProps> = () => {
   const [authenticateEvernote] = useMutation(AUTHENTICATE_EVERNOTE_MUTATION, {
     update: (cache, { data: { authenticateEvernote } }) => {
       const { authURL = null } = authenticateEvernote || {};
-      console.log('authenticateEvernote', { authenticateEvernote, authURL });
 
       if (authURL) {
         window.open(authURL, '_self');

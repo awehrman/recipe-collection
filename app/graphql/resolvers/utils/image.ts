@@ -1,54 +1,48 @@
 // @ts-nocheck
 import cloudinary from 'cloudinary';
-// import imagemin from 'imagemin';
-// import imageminJpegtran from 'imagemin-jpegtran';
-// import imageminPngquant from 'imagemin-pngquant';
 
-// export const minifyImage = async (image) => {
-// 	const optimizedImage = await imagemin.buffer(image, {
-// 		plugins: [
-// 			imageminJpegtran(),
-// 			imageminPngquant({ quality: [ 0.7, 0.8 ] }),
-// 		],
-// 	}).catch((err) => { throw err });
-// 	return optimizedImage;
-// };
+cloudinary.config({
+	cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+	api_key: process.env.CLOUDINARY_API_KEY,
+	api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export const saveImages = async (notes) => {
 	const resolveImage = notes
 		.map(async (note) => {
 			const { image } = note;
-			// TODO better error handling for missing images in notes
-			if (!image) {return null;}
-			// // minify image
-			// const minified = await minifyImage(image)
-			// 	// then upload to cloudinary
-			// 	.then(async (img) => uploadImage(img, { folder: 'recipes' }));
+			if (!image) {
+				throw new Error('No image exists in this note.');
+			}
+			console.log('...uploading');
+			const uploaded = uploadImage(image, { folder: 'recipes' })
+				.catch((err) => { throw err; });
+
+			console.log({ image });
 			return {
 				...note,
-				// image: minified.secure_url,
+				image: uploaded.secure_url,
 			};
 		});
 
 	const notesRes = await Promise.all(resolveImage)
-		.catch((err) => { throw err });
+		.catch((err) => { throw new Error(`Could not upload to Cloudinary. ${err}`) });
 
 	return notesRes;
 };
 
-export const uploadImage = (fileBuffer, options) => (
+export const uploadImage = (buffer, options) => (
 	new Promise((resolve, reject) => {
 		cloudinary.v2.uploader.upload_stream(options, (error, result) => {
 			if (error) {
 				reject(error);
 			}
 			resolve(result);
-		}).end(fileBuffer);
+		}).end(buffer);
 	})
 );
 
 export default {
-	// minifyImage,
 	saveImages,
 	uploadImage,
 };

@@ -21,8 +21,8 @@ export const importNotes = async (_parent, _args, ctx) => {
   }
 
   const notes = await downloadNotes(ctx)
-    .catch((errors) => {
-      response.errors = [...errors];
+    .catch((err) => {
+      response.errors.push(err)
     });
 
   response.notes = notes;
