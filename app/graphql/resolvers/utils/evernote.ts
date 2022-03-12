@@ -140,16 +140,13 @@ const getNotesData = async (store, notes) => {
 
 const getNotesMetadata = async (store, offset) => {
 	const response = await store.findNotesMetadata(filter, offset, maxResults, metadataSpec)
-		.then(({ notes }) => notes.map((note) => ({
-			categories: [ note.notebookGuid ],
-			evernoteGUID: note.guid,
-			source: note.attributes.sourceURL,
-			tags: (note.tagGuids) ? [ ...note.tagGuids ] : null,
-			title: note.title,
+		.then(({ notes }) => notes.map((note = {}) => ({
+			categories: [ note?.notebookGuid ],
+			evernoteGUID: note?.guid,
+			source: note?.attributes?.sourceURL,
+			tags: (note?.tagGuids) ? [ ...note?.tagGuids ] : null,
+			title: note?.title,
 		})))
-		.catch((err) => {
-			throw new Error(`Could not fetch notes metadata. ${err}`);
-		})
 	return response;
 };
 
