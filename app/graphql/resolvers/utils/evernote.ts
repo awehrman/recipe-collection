@@ -142,9 +142,9 @@ const getNotesMetadata = async (store, offset) => {
 	console.log('getNotesMetadata', !!store, offset);
 	const response = await store.findNotesMetadata(filter, offset, maxResults, metadataSpec)
 		.then((res) => {
-			console.log('**', res);
-
-			const mapped = res.notes.map((note = {}) => ({
+			const parsed = JSON.parse(res);
+			console.log(parsed);
+			const mapped = parsed.notes.map((note = {}) => ({
 				categories: [ note?.notebookGuid ],
 				evernoteGUID: note?.guid,
 				source: note?.attributes?.sourceURL,
