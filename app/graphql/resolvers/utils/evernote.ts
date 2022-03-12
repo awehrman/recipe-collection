@@ -33,15 +33,19 @@ const noteSpec = new Evernote.NoteStore.NoteResultSpec({
 });
 
 export const downloadNotes = async (ctx) => {
+	console.error('downloadNotes');
 	const { req } = ctx;
 
 	// fetch new note content from evernote
 	const notes = await getEvernoteNotes(ctx)
 		// minify and upload image data
-		.then(async (data) => saveImages(data))
+		// .then(async (data) => saveImages(data))
 		// save note data to db
-		.then(async (data) => createNotes(ctx, data))
-		.catch((err) => { throw err });
+		// .then(async (data) => createNotes(ctx, data))
+		.catch((err) => {
+			console.error(err);
+			throw err;
+		});
 
 	// increment the notes offset in our session
 	if (notes.length > 0) {
@@ -67,9 +71,10 @@ const getClient = (token) => {
 const getEvernoteNotes = async (ctx) => {
 	const { req } = ctx;
   const { evernoteAuthToken, noteImportOffset = 0 } = await getSession({ req });
-	console.log({ noteImportOffset });
+	console.error('getEvernoteNotes', { noteImportOffset });
 	const store = await getEvernoteNoteStore(req, evernoteAuthToken)
 		.catch((err) => {
+			console.error(err);
 			throw new Error(`Could not connect to Evernote. ${err}`)
 		});
 
