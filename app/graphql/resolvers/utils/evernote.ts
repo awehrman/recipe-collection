@@ -33,21 +33,33 @@ const noteSpec = new Evernote.NoteStore.NoteResultSpec({
 });
 
 export const downloadNotes = async (ctx) => {
-	console.error('downloadNotes');
 	const { req } = ctx;
 
 	// fetch new note content from evernote
-	const notes = await getEvernoteNotes(ctx)
+	// const notes = await getEvernoteNotes(ctx)
 		// minify and upload image data
-		.then(async (data) => saveImages(data))
-		// save note data to db
-		.then(async (data) => createNotes(ctx, data))
+		// .then(async (data) => saveImages(data))
+		// // save note data to db
+		// .then(async (data) => createNotes(ctx, data));
 
-	// increment the notes offset in our session
-	if (notes.length > 0) {
-		await incrementOffset(req, notes.length);
-	}
-	return notes;
+	const { evernoteAuthToken, noteImportOffset = 0 } = await getSession({ req });
+	console.log('getEvernoteNotes', { noteImportOffset });
+	const store = await getEvernoteNoteStore(req, evernoteAuthToken);
+
+	console.log({ store });
+	return [];
+	// const notes = await getNotesMetadata(store, noteImportOffset)
+	// 	// ensure that these are new notes; refetch meta until newness is achieved
+	// 	.then(async (meta) => validateNotes(ctx, store, meta))
+	// 	// fetch the remaining note content and images for the new notes
+	// 	.then(async (newNotes) => getNotesData(store, newNotes));
+
+
+	// // increment the notes offset in our session
+	// if (notes.length > 0) {
+	// 	await incrementOffset(req, notes.length);
+	// }
+	// return notes;
 };
 
 const getClient = (token) => {
@@ -67,12 +79,13 @@ const getClient = (token) => {
 const getEvernoteNotes = async (ctx) => {
 	const { req } = ctx;
   const { evernoteAuthToken, noteImportOffset = 0 } = await getSession({ req });
-	console.error('getEvernoteNotes', { noteImportOffset });
+	console.log('getEvernoteNotes', { noteImportOffset });
 	const store = await getEvernoteNoteStore(req, evernoteAuthToken)
 		.catch((err) => {
+			console.error({ err });
 			throw new Error(`Could not connect to Evernote. ${err}`)
 		});
-
+	console.log({ store });
 	const response = await getNotesMetadata(store, noteImportOffset)
 		// ensure that these are new notes; refetch meta until newness is achieved
 		.then(async (meta) => validateNotes(ctx, store, meta))
