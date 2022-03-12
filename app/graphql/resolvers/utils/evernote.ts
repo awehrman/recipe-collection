@@ -39,13 +39,9 @@ export const downloadNotes = async (ctx) => {
 	// fetch new note content from evernote
 	const notes = await getEvernoteNotes(ctx)
 		// minify and upload image data
-		// .then(async (data) => saveImages(data))
+		.then(async (data) => saveImages(data))
 		// save note data to db
-		// .then(async (data) => createNotes(ctx, data))
-		.catch((err) => {
-			console.error(err);
-			throw err;
-		});
+		.then(async (data) => createNotes(ctx, data))
 
 	// increment the notes offset in our session
 	if (notes.length > 0) {
@@ -69,23 +65,23 @@ const getClient = (token) => {
 };
 
 const getEvernoteNotes = async (ctx) => {
-	throw new Error('getEvernoteNotes');
-	// const { req } = ctx;
-  // const { evernoteAuthToken, noteImportOffset = 0 } = await getSession({ req });
-	// console.error('getEvernoteNotes', { noteImportOffset });
-	// const store = await getEvernoteNoteStore(req, evernoteAuthToken)
-	// 	.catch((err) => {
-	// 		console.error(err);
-	// 		throw new Error(`Could not connect to Evernote. ${err}`)
-	// 	});
+	const { req } = ctx;
+  const { evernoteAuthToken, noteImportOffset = 0 } = await getSession({ req });
+	console.error('getEvernoteNotes', { noteImportOffset });
+	const store = await getEvernoteNoteStore(req, evernoteAuthToken)
+		.catch((err) => {
+			throw new Error(`Could not connect to Evernote. ${err}`)
+		});
 
-	// const response = await getNotesMetadata(store, noteImportOffset)
-	// 	// ensure that these are new notes; refetch meta until newness is achieved
-	// 	.then(async (meta) => validateNotes(ctx, store, meta))
-	// 	// fetch the remaining note content and images for the new notes
-	// 	.then(async (newNotes) => getNotesData(store, newNotes));
+	const response = await getNotesMetadata(store, noteImportOffset)
+		// ensure that these are new notes; refetch meta until newness is achieved
+		.then(async (meta) => validateNotes(ctx, store, meta))
+		// fetch the remaining note content and images for the new notes
+		.then(async (newNotes) => getNotesData(store, newNotes));
 
-	// return response;
+
+	console.log({ response });
+	return response;
 };
 
 const getEvernoteNoteStore = async (req, token) => {
