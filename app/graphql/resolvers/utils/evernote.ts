@@ -45,10 +45,12 @@ export const downloadNotes = async (ctx) => {
 	const { evernoteAuthToken, noteImportOffset = 0 } = await getSession({ req });
 	console.log('getEvernoteNotes', { noteImportOffset });
 	const store = await getEvernoteNoteStore(req, evernoteAuthToken);
+	if (!store) {
+		throw new Error('Could not create Evernote store.');
+	}
+	const notes = await getNotesMetadata(store, noteImportOffset);
 
-	console.log({ store });
-	return [];
-	// const notes = await getNotesMetadata(store, noteImportOffset)
+	console.log({ notes });
 	// 	// ensure that these are new notes; refetch meta until newness is achieved
 	// 	.then(async (meta) => validateNotes(ctx, store, meta))
 	// 	// fetch the remaining note content and images for the new notes
@@ -59,7 +61,7 @@ export const downloadNotes = async (ctx) => {
 	// if (notes.length > 0) {
 	// 	await incrementOffset(req, notes.length);
 	// }
-	// return notes;
+	return notes;
 };
 
 const getClient = (token) => {
@@ -148,7 +150,6 @@ const getNotesMetadata = async (store, offset) => {
 		.catch((err) => {
 			throw new Error(`Could not fetch notes metadata. ${err}`);
 		})
-
 	return response;
 };
 
