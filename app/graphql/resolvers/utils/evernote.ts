@@ -39,7 +39,8 @@ export const downloadNotes = async (ctx) => {
 		// minify and upload image data
 		.then(async (data) => saveImages(data))
 		// save note data to db
-		.then(async (data) => createNotes(ctx, data));
+		.then(async (data) => createNotes(ctx, data))
+		.catch((err) => { throw err });
 
 	// increment the notes offset in our session
 	if (notes.length > 0) {

@@ -25,7 +25,7 @@ const Page: React.FC<PageProps>  = ({ title, children }) => {
         ? (
           <SignUp>
             <Link href='/api/auth/signin'>
-              <a data-active={isActive('/signup')}>Log in</a>
+              <a data-r={isActive('/signup')}>Log in</a>
             </Link>
           </SignUp>
         ) : (
