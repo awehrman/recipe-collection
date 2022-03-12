@@ -12,7 +12,7 @@ export const importNotes = async (_parent, _args, ctx) => {
   const { evernoteAuthToken, expires }: Session = await getSession({ req }) || {};
   const isAuthenticated = evernoteAuthToken && new Date(`${expires}`) > new Date();
   const response = {
-    errors: [],
+    error: null,
     notes: [],
   };
 
@@ -20,11 +20,11 @@ export const importNotes = async (_parent, _args, ctx) => {
     throw new AuthenticationError;
   }
 
-    response.notes = await downloadNotes(ctx)
-      .catch(err => {
-        console.error(err);
-        response.errors = [err.message];
-      });
+  response.notes = await downloadNotes(ctx)
+    .catch(err => {
+      console.error(err);
+      response.error = err.message;
+    });
 
   console.log({ response });
   return response;

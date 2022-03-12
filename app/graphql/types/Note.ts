@@ -17,7 +17,7 @@ export const Note = objectType({
 export const EvernoteResponse = objectType({
   name: 'EvernoteResponse',
   definition(t) {
-    t.list.string('errors');
+    t.string('error');
     t.list.field('notes', { type: 'Note' });
   }
 });

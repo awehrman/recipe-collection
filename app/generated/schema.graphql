@@ -10,7 +10,7 @@ type AuthenticationResponse {
 }
 
 type EvernoteResponse {
-  errors: [String]
+  error: String
   notes: [Note]
 }
 

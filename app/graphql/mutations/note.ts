@@ -6,7 +6,7 @@ import { ALL_RECIPE_FIELDS } from '../fragments/recipe';
 export const CONVERT_NOTES_MUTATION = gql`
 	mutation CONVERT_NOTES_MUTATION {
 		convertNotes {
-			errors
+			error
 			recipes {
 				...RecipeFields
 			}
@@ -18,7 +18,7 @@ export const CONVERT_NOTES_MUTATION = gql`
 export const IMPORT_NOTES_MUTATION = gql`
 	mutation IMPORT_NOTES_MUTATION {
 		importNotes {
-			errors
+			error
 			notes {
 				id
 				content
@@ -34,7 +34,7 @@ export const IMPORT_NOTES_MUTATION = gql`
 export const PARSE_NOTES_MUTATION = gql`
 	mutation PARSE_NOTES_MUTATION {
 		parseNotes {
-			errors
+			error
 			notes {
 				...NoteFields
 			}

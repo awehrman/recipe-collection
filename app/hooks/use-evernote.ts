@@ -8,7 +8,7 @@ function useEvernote() {
         __typename: 'Mutation',
         importNotes: {
           __typename: 'EvernoteResponse',
-          errors: [],
+          error: null,
           notes: new Array(bundleSize).fill(0).map((_, index) => ({
             __typename: 'Note',
             id: `-1_${index}`,
@@ -24,7 +24,7 @@ function useEvernote() {
       },
       update: (cache, { data }) => {
         console.log('importNotes', { data });
-        // const { errors } = data?.importNotes;
+        // const { error } = data?.importNotes;
 
         // update the cache with new notes data
         // const { notes } = cache.readQuery({ query: GET_ALL_NOTES_QUERY });
