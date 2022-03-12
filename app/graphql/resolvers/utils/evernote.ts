@@ -23,7 +23,7 @@ const metadataSpec = new Evernote.NoteStore.NotesMetadataResultSpec({
 
 const noteSpec = new Evernote.NoteStore.NoteResultSpec({
 	includeContent: true,
-	includeResourcesData: true,
+	includeResourcesData: false,
 	includeResourcesRecognition: false,
 	includeResourcesAlternateData: false,
 	includeSharedNotes: false,
