@@ -33,23 +33,21 @@ const noteSpec = new Evernote.NoteStore.NoteResultSpec({
 });
 
 export const downloadNotes = async (ctx) => {
-	console.log('downloadNotes');
 	const { req } = ctx;
-	// return [];
-	// // fetch new note content from evernote
-	// const notes = await getEvernoteNotes(ctx)
-	// 	// minify and upload image data
-	// 	.then(async (data) => saveImages(data))
-	// 	// save note data to db
-	// 	.then(async (data) => createNotes(ctx, data))
-	// 	.catch((err) => { throw err });
 
-	// // increment the notes offset in our session
-	// if (notes.length > 0) {
-	// 	await incrementOffset(req, notes.length);
-	// }
-	// return notes;
-	throw new Error('whoopsies');
+	// fetch new note content from evernote
+	const notes = await getEvernoteNotes(ctx)
+		// minify and upload image data
+		.then(async (data) => saveImages(data))
+		// save note data to db
+		.then(async (data) => createNotes(ctx, data))
+		.catch((err) => { throw err });
+
+	// increment the notes offset in our session
+	if (notes.length > 0) {
+		await incrementOffset(req, notes.length);
+	}
+	return notes;
 };
 
 const getClient = (token) => {
