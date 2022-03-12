@@ -141,13 +141,18 @@ const getNotesData = async (store, notes) => {
 const getNotesMetadata = async (store, offset) => {
 	console.log('getNotesMetadata', !!store, offset);
 	const response = await store.findNotesMetadata(filter, offset, maxResults, metadataSpec)
-		.then(({ notes }) => notes.map((note = {}) => ({
-			categories: [ note?.notebookGuid ],
-			evernoteGUID: note?.guid,
-			source: note?.attributes?.sourceURL,
-			tags: (note?.tagGuids) ? [ ...note?.tagGuids ] : null,
-			title: note?.title,
-		})))
+		.then((res) => {
+			console.log('**', res?.notes?.length);
+
+			const mapped = res.notes.map((note = {}) => ({
+				categories: [ note?.notebookGuid ],
+				evernoteGUID: note?.guid,
+				source: note?.attributes?.sourceURL,
+				tags: (note?.tagGuids) ? [ ...note?.tagGuids ] : null,
+				title: note?.title,
+			}));
+			return mapped;
+		});
 	console.log({ response });
 	return response;
 };
