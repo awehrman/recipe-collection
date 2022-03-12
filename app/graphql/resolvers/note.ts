@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { AuthenticationError } from 'apollo-server-micro';
 import { getSession } from 'next-auth/client';
 
 import { downloadNotes } from './utils/evernote';
@@ -16,16 +17,14 @@ export const importNotes = async (_parent, _args, ctx) => {
   };
 
   if (!isAuthenticated) {
-    response.errors.push('User is not authenticated.');
-    return response;
+    throw new AuthenticationError;
   }
 
-  const notes = await downloadNotes(ctx)
-    .catch((err) => {
-      response.errors.push(err)
-    });
-
-  response.notes = notes;
+    response.notes = await downloadNotes(ctx)
+      .catch(err => {
+        console.error(err);
+        response.errors = [err.message];
+      });
 
   console.log({ response });
   return response;
