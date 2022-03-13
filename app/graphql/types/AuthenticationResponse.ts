@@ -39,7 +39,6 @@ const requestEvernoteAuthToken = (
 
 const requestEvernoteRequestToken = (): Promise<EvernoteResponseProps> =>
   new Promise((resolve, reject) => {
-    console.log('requestEvernoteRequestToken')
     const cb = (err: EvernoteRequestErrorProps, evernoteReqToken: string, evernoteReqSecret: string) => {
       if (err) {
         reject(err);
@@ -156,7 +155,6 @@ export const ClearAuthentication = extendType({
       type: 'AuthenticationResponse',
       args: {},
       resolve: async(_parent, args, ctx) => {
-        console.log('clearAuthentication', { ctx });
         const { req } = ctx;
         const session = await getSession({ req }) || {};
         const id = Number(session.userId ?? 0);
@@ -192,7 +190,6 @@ export const ImportLocal = extendType({
       type: 'ImportLocalResponse',
       args: {},
       resolve: async () => {
-        console.log('resolve');
         const response = {
           errorMessage: '',
         };

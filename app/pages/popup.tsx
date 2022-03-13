@@ -17,7 +17,6 @@ const Popup: React.FC<PopupProps> = () => {
   const [authenticateEvernote] = useMutation(AUTHENTICATE_EVERNOTE_MUTATION, {
     update: (cache, { data: { authenticateEvernote } }) => {
       const { authURL = null } = authenticateEvernote || {};
-      console.log('update', { authenticateEvernote, authURL });
 
       if (authenticateEvernote?.isAuthenticated) {
         setIsAuthenticated(true);

@@ -22,8 +22,7 @@ function useEvernote() {
           })),
         },
       },
-      update: (cache, { data }) => {
-        console.log('importNotes', { data });
+      // update: (cache, { data }) => {
         // const { error } = data?.importNotes;
 
         // update the cache with new notes data
@@ -32,7 +31,7 @@ function useEvernote() {
         //   query: GET_ALL_NOTES_QUERY,
         //   data: { notes: notes.concat(data?.importNotes?.notes) },
         // });
-      },
+      // },
     });
   }
 

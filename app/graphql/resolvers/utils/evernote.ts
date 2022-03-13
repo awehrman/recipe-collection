@@ -23,7 +23,7 @@ const metadataSpec = new Evernote.NoteStore.NotesMetadataResultSpec({
 
 const noteSpec = new Evernote.NoteStore.NoteResultSpec({
 	includeContent: true,
-	includeResourcesData: false,
+	includeResourcesData: true,
 	includeResourcesRecognition: false,
 	includeResourcesAlternateData: false,
 	includeSharedNotes: false,
@@ -36,31 +36,17 @@ export const downloadNotes = async (ctx) => {
 	const { req } = ctx;
 
 	// fetch new note content from evernote
-	// const notes = await getEvernoteNotes(ctx)
+	const notes = await getEvernoteNotes(ctx)
 		// minify and upload image data
-		// .then(async (data) => saveImages(data))
-		// // save note data to db
-		// .then(async (data) => createNotes(ctx, data));
+		.then(async (data) => saveImages(data))
+		// save note data to db
+		.then(async (data) => createNotes(ctx, data))
+		.catch((err) => { throw err });
 
-	const { evernoteAuthToken, noteImportOffset = 0 } = await getSession({ req });
-	console.log('getEvernoteNotes', { noteImportOffset });
-	const store = await getEvernoteNoteStore(req, evernoteAuthToken);
-	if (!store) {
-		throw new Error('Could not create Evernote store.');
+	// increment the notes offset in our session
+	if (notes.length > 0) {
+		await incrementOffset(req, notes.length);
 	}
-	const notes = await getNotesMetadata(store, noteImportOffset);
-
-	console.log({ notes });
-	// 	// ensure that these are new notes; refetch meta until newness is achieved
-	// 	.then(async (meta) => validateNotes(ctx, store, meta))
-	// 	// fetch the remaining note content and images for the new notes
-	// 	.then(async (newNotes) => getNotesData(store, newNotes));
-
-
-	// // increment the notes offset in our session
-	// if (notes.length > 0) {
-	// 	await incrementOffset(req, notes.length);
-	// }
 	return notes;
 };
 
@@ -81,21 +67,18 @@ const getClient = (token) => {
 const getEvernoteNotes = async (ctx) => {
 	const { req } = ctx;
   const { evernoteAuthToken, noteImportOffset = 0 } = await getSession({ req });
-	console.log('getEvernoteNotes', { noteImportOffset });
+
 	const store = await getEvernoteNoteStore(req, evernoteAuthToken)
 		.catch((err) => {
-			console.error({ err });
 			throw new Error(`Could not connect to Evernote. ${err}`)
 		});
-	console.log({ store });
+
 	const response = await getNotesMetadata(store, noteImportOffset)
 		// ensure that these are new notes; refetch meta until newness is achieved
 		.then(async (meta) => validateNotes(ctx, store, meta))
 		// fetch the remaining note content and images for the new notes
 		.then(async (newNotes) => getNotesData(store, newNotes));
 
-
-	console.log({ response });
 	return response;
 };
 
@@ -139,7 +122,6 @@ const getNotesData = async (store, notes) => {
 };
 
 const getNotesMetadata = async (store, offset) => {
-	console.log('getNotesMetadata', maxResults);
 	const response = await store.findNotesMetadata(filter, offset, maxResults, metadataSpec)
 		.then(({ notes }) => notes.map((note) => ({
 			categories: [ note.notebookGuid ],
@@ -157,10 +139,8 @@ const getNotesMetadata = async (store, offset) => {
 
 const incrementOffset = async (req, increment = 1) => {
 	const session = await getSession({ req });
-	console.log({ session, increment });
 	if (!isNaN(parseInt(session.noteImportOffset))) {
 		session.noteImportOffset = +session.noteImportOffset + +increment;
-		console.log(session.noteImportOffset);
 		return session.noteImportOffset;
 	}
 	return increment + 1;
@@ -191,12 +171,10 @@ const validateNotes = async (ctx, store, notes) => {
 	}
 
 	const uniqueNotes = notes.filter((note) => !~existing.indexOf(note.evernoteGUID));
-	console.log('incrementing offset and re-fetching');
 
 	// increment the offset and fetch
 	const increment = ((uniqueNotes.length - existing.length) === 0) ? 1 : (uniqueNotes.length - existing.length);
 	const offset = await incrementOffset(req, increment);
-	console.log('new offset', offset);
 
 	return getNotesMetadata(store, offset)
 		.then(async (m) => validateNotes(ctx, store, m));

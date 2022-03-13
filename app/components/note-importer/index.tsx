@@ -15,8 +15,8 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
   const { evernoteAuthToken, expires }: Session = session || {};
   const isAuthenticated = evernoteAuthToken && new Date(`${expires}`) > new Date();
   const { importNotes } = useEvernote();
-  const [mutation, { loading, data }] = useMutation(IMPORT_NOTES_MUTATION);
-  console.log({ loading, data });
+  const [mutation, { data }] = useMutation(IMPORT_NOTES_MUTATION);
+  console.log({ ...data });
 
   function handleImportNotes() {
     importNotes(mutation);

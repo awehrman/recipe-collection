@@ -11,9 +11,8 @@ export const createNotes = async (ctx, notes) => {
 			source: note.source || null,
 			title: note.title || null,
 		};
-    console.log({ data });
-		const saved = await ctx.prisma.note.create({ data })
-			.catch((err) => console.log(err));
+
+		const saved = await ctx.prisma.note.create({ data });
 
 		return {
 			__typename: 'Note',
@@ -21,8 +20,7 @@ export const createNotes = async (ctx, notes) => {
 		};
 	}).filter((n) => n);
 
-	const noteRes = await Promise.all(resolveNotes)
-		.catch((err) => console.log(err));
+	const noteRes = await Promise.all(resolveNotes);
 
 	return noteRes;
 };

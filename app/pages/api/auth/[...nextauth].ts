@@ -44,7 +44,6 @@ const options = {
     },
     async signIn(user: UserProps) {
       const { role } = user;
-      console.log({ user });
       const isAllowedToSignIn = role === 'ADMIN' || role === 'USER';
       if (isAllowedToSignIn) {
         return true;

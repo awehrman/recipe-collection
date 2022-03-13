@@ -14,11 +14,9 @@ export const saveImages = async (notes) => {
 			if (!image) {
 				throw new Error('No image exists in this note.');
 			}
-			console.log('...uploading');
 			const uploaded = uploadImage(image, { folder: 'recipes' })
 				.catch((err) => { throw err; });
 
-			console.log({ image });
 			return {
 				...note,
 				image: uploaded.secure_url,
