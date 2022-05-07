@@ -10,10 +10,12 @@ export default authHandler;
 type UserProps = {
   id?: number;
   authURL?: string;
+  evernoteExpiration?: string;
   evernoteAuthToken?: string;
   evernoteReqToken?: string;
   evernoteReqSecret?: string;
   role?: string;
+  noteImportOffset?: number;
 }
 
 type TokenProps = {
@@ -23,7 +25,10 @@ type TokenProps = {
   evernoteReqToken?: string;
   evernoteReqSecret?: string;
   userId?: number;
+  noteImportOffset?: number;
+  evernoteExpiration?: string;
 }
+
 
 const options = {
   providers: [
@@ -36,11 +41,15 @@ const options = {
   secret: process.env.SECRET,
   callbacks: {
     async session(session: Session, token: TokenProps) {
-      session.userId = token.id;
-      session.evernoteAuthToken = token.evernoteAuthToken;
-      session.evernoteReqToken = token.evernoteReqToken;
-      session.evernoteReqSecret = token.evernoteReqSecret;
-      return session
+      console.log('token', token?.evernoteExpiration)
+      session.user.evernoteAuthToken = token.evernoteAuthToken;
+      session.user.evernoteReqToken = token.evernoteReqToken;
+      session.user.evernoteReqSecret = token.evernoteReqSecret;
+      session.user.evernoteExpiration = token?.evernoteExpiration;
+      session.user.noteImportOffset = token?.noteImportOffset || 0;
+      session.user.userId = token.id;
+
+      return session;
     },
     async signIn(user: UserProps) {
       const { role } = user;

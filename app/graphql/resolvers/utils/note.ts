@@ -1,26 +1,29 @@
 // @ts-nocheck
 export const createNotes = async (ctx, notes) => {
+	const { prisma } = ctx;
 	// save note data to db
 	const resolveNotes = notes.map(async (note) => {
-		if (!note || !note.content || !note.title) {return null;}
+		if (!note || !note.content || !note.title) {
+			throw new Error('Could not create note!');
+		}
 		const data = {
 			// TODO come back to categories and tags
-			content: note.content || null,
-			evernoteGUID: note.evernoteGUID || null,
-			image: '', // note.image || null, // TODO
-			source: note.source || null,
-			title: note.title || null,
+			content: note.content,
+			evernoteGUID: note.evernoteGUID,
+			image: note.image,
+			source: note.source,
+			title: note.title,
 		};
 
-		const saved = await ctx.prisma.note.create({ data });
+		const saved = await prisma.note.create({ data })
+			.catch(err => { throw err });
 
 		return {
 			__typename: 'Note',
       ...saved,
 		};
-	}).filter((n) => n);
+	});
 
 	const noteRes = await Promise.all(resolveNotes);
-
 	return noteRes;
 };

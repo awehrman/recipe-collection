@@ -5,6 +5,8 @@ const prisma = new PrismaClient();
 
 export interface Context {
   prisma: PrismaClient
+  req: IncomingMessage
+  res: ServerResponse
 }
 
 export type PrismaContext = {

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 import { useMemo } from 'react';
 import { ApolloClient, InMemoryCache, NormalizedCacheObject } from '@apollo/client';
 
@@ -6,12 +5,15 @@ import { PrismaContext } from './context';
 
 let apolloClient: ApolloClient<NormalizedCacheObject>;
 
-function createIsomorphLink(context: PrismaContext = {}): any {
+function createIsomorphLink(context: PrismaContext) {
   if (typeof window === 'undefined') {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { SchemaLink } = require('@apollo/client/link/schema')
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { schema } = require('./schema')
     return new SchemaLink({ schema, context })
   } else {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { HttpLink } = require('@apollo/client/link/http')
     return new HttpLink({
       uri: '/api/graphql',
@@ -20,7 +22,7 @@ function createIsomorphLink(context: PrismaContext = {}): any {
   }
 }
 
-function createApolloClient(context?: PrismaContext): ApolloClient<NormalizedCacheObject> {
+function createApolloClient(context: PrismaContext): ApolloClient<NormalizedCacheObject> {
   return new ApolloClient({
     ssrMode: typeof window === 'undefined',
     link: createIsomorphLink(context),
@@ -29,8 +31,8 @@ function createApolloClient(context?: PrismaContext): ApolloClient<NormalizedCac
 }
 
 export function initializeApollo(
-  initialState: any = null,
-  context?: PrismaContext
+  initialState = {},
+  context: PrismaContext
 ): ApolloClient<NormalizedCacheObject> {
   const _apolloClient = apolloClient ?? createApolloClient(context)
 
@@ -50,7 +52,7 @@ export function initializeApollo(
   return _apolloClient
 }
 
-export default function useApollo(initialState: any): ApolloClient<NormalizedCacheObject> {
+export default function useApollo(initialState = {}): ApolloClient<NormalizedCacheObject> {
   const store = useMemo(() => initializeApollo(initialState), [initialState])
   return store
 }

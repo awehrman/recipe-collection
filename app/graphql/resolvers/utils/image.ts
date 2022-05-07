@@ -14,7 +14,7 @@ export const saveImages = async (notes) => {
 			if (!image) {
 				throw new Error('No image exists in this note.');
 			}
-			const uploaded = uploadImage(image, { folder: 'recipes' })
+			const uploaded = await uploadImage(image, { folder: 'recipes' })
 				.catch((err) => { throw err; });
 
 			return {
@@ -29,7 +29,7 @@ export const saveImages = async (notes) => {
 	return notesRes;
 };
 
-export const uploadImage = (buffer, options) => (
+export const uploadImage = async (buffer, options) => (
 	new Promise((resolve, reject) => {
 		cloudinary.v2.uploader.upload_stream(options, (error, result) => {
 			if (error) {

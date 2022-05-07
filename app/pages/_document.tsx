@@ -33,6 +33,7 @@ export default class MyDocument extends Document {
     return (
       <Html>
         <Head>
+          <title>Recipes</title>
           <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700' rel='stylesheet' />
         </Head>
         <body>

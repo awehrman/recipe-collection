@@ -8,6 +8,7 @@ export const AUTHENTICATE_EVERNOTE_MUTATION = gql`
 			errorMessage
 			isAuthPending
 			isAuthenticated
+			evernoteExpiration
 		}
 	}
 `;

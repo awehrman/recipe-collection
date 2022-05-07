@@ -5,6 +5,7 @@
 type AuthenticationResponse {
   authURL: String
   errorMessage: String
+  evernoteExpiration: String
   isAuthPending: Boolean
   isAuthenticated: Boolean
 }
@@ -36,7 +37,7 @@ type Note {
 
 type Query {
   note(id: ID): Note
-  notes: Note
+  notes: [Note]
 }
 
 enum Role {

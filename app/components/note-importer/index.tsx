@@ -5,19 +5,24 @@ import styled from 'styled-components';
 
 import { IMPORT_NOTES_MUTATION } from '../../graphql/mutations/note';
 import useEvernote from '../../hooks/use-evernote';
-import Button from '../common/Button';
+import { Button, Loading } from '../common';
 import AuthenticateEvernote from './authenticate-evernote';
 
-import { NoteImporterProps, Session } from './types';
+import { NoteImporterProps } from './types';
 
 const NoteImporter: React.FC<NoteImporterProps> = () => {
   const [session] = useSession();
-  const { evernoteAuthToken, expires }: Session = session || {};
-  const isAuthenticated = evernoteAuthToken && new Date(`${expires}`) > new Date();
   const { importNotes } = useEvernote();
-  const [mutation, { data }] = useMutation(IMPORT_NOTES_MUTATION);
-  console.log({ ...data });
+  const [mutation, { loading, data }] = useMutation(IMPORT_NOTES_MUTATION);
+  const { evernoteAuthToken, evernoteExpiration } = session?.user || {};
+  const isExpired = new Date(`${evernoteExpiration}`) > new Date();
+  const isAuthenticated = evernoteAuthToken && isExpired;
 
+  if (loading) {
+    return <Loading />;
+  }
+
+  console.log({ data });
   function handleImportNotes() {
     importNotes(mutation);
   }
@@ -36,6 +41,7 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
               type='button'
             />
           ) : null}
+
       </NoteActions>
     </Wrapper>
   );

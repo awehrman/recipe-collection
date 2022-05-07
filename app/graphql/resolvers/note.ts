@@ -8,8 +8,8 @@ import { Session } from '../../components/note-importer/types';
 
 export const importNotes = async (_parent, _args, ctx) => {
   const { req } = ctx;
-  const { evernoteAuthToken, expires }: Session = await getSession({ req }) || {};
-  const isAuthenticated = evernoteAuthToken && new Date(`${expires}`) > new Date();
+  const { evernoteAuthToken, evernoteExpiration }: Session = await getSession({ req }) || {};
+  const isAuthenticated = evernoteAuthToken && new Date(`${evernoteExpiration}`) > new Date();
   const response = {
     error: null,
     notes: [],
@@ -21,7 +21,6 @@ export const importNotes = async (_parent, _args, ctx) => {
 
   response.notes = await downloadNotes(ctx)
     .catch(err => {
-      console.error(err);
       response.error = err.message;
     });
 

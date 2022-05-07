@@ -27,10 +27,15 @@ export const EvernoteResponse = objectType({
 export const NotesQuery = extendType({
   type: 'Query',
   definition(t) {
-    t.field('notes', {
+    t.list.field('notes', {
       type: 'Note',
-      resolve(root, args, ctx) {
-        return ctx.prisma.note.findMany();
+      resolve: async (_parent, _args, ctx) => {
+        const data = await ctx.prisma.note.findMany();
+        const response = {
+          notes: data,
+        };
+
+        return response;
       },
     });
   },
@@ -44,11 +49,15 @@ export const NoteQuery = extendType({
       args: {
         id: idArg(),
       },
-      resolve(root, args, ctx) {
-        const { id } = args;
-        return ctx.prisma.note.findUnique({
+      resolve: async (root, args, ctx) => {
+        const id = parseInt(`${args.id}`, 10);
+        const note = await ctx.prisma.note.findUnique({
           where: { id }
         });
+
+        return {
+          note
+        };
       },
     });
   },

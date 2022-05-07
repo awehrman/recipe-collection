@@ -14,9 +14,9 @@ const metadataSpec = new Evernote.NoteStore.NotesMetadataResultSpec({
 	includeUpdated: false,
 	includeDeleted: false,
 	includeUpdateSequenceNum: false,
-	includeNotebookGuid: true,
-	includeTagGuids: true,
-	includeAttributes: true,
+	includeNotebookGuid: false,
+	includeTagGuids: false,
+	includeAttributes: true, // needed for source
 	includeLargestResourceMime: false,
 	includeLargestResourceSize: false,
 });
@@ -33,7 +33,7 @@ const noteSpec = new Evernote.NoteStore.NoteResultSpec({
 });
 
 export const downloadNotes = async (ctx) => {
-	const { req } = ctx;
+	const { req, prisma } = ctx;
 
 	// fetch new note content from evernote
 	const notes = await getEvernoteNotes(ctx)
@@ -45,7 +45,7 @@ export const downloadNotes = async (ctx) => {
 
 	// increment the notes offset in our session
 	if (notes.length > 0) {
-		await incrementOffset(req, notes.length);
+		await incrementOffset(req, prisma, notes.length);
 	}
 	return notes;
 };
@@ -73,9 +73,7 @@ const getEvernoteNotes = async (ctx) => {
 			throw new Error(`Could not connect to Evernote. ${err}`)
 		});
 
-	const response = await getNotesMetadata(store, noteImportOffset)
-		// ensure that these are new notes; refetch meta until newness is achieved
-		.then(async (meta) => validateNotes(ctx, store, meta))
+	const response = await getNotesMetadata(ctx, store, noteImportOffset)
 		// fetch the remaining note content and images for the new notes
 		.then(async (newNotes) => getNotesData(store, newNotes));
 
@@ -94,9 +92,9 @@ const getNoteContent = async (store, guid) => {
 		// minify and upload image
 		.then((data) => {
 			const { content, resources } = data;
-			if (!resources) {
-				throw new Error(`No image for ${guid}!`);
-			}
+			// if (!resources) {
+			// 	throw new Error(`No image for ${guid}!`);
+			// }
 			return {
 				evernoteGUID: guid,
 				content,
@@ -121,49 +119,59 @@ const getNotesData = async (store, notes) => {
 	return response;
 };
 
-const getNotesMetadata = async (store, offset) => {
-	const response = await store.findNotesMetadata(filter, offset, maxResults, metadataSpec)
-		.then(({ notes }) => notes.map((note) => ({
-			categories: [ note.notebookGuid ],
-			evernoteGUID: note.guid,
-			source: note.attributes.sourceURL,
-			tags: (note.tagGuids) ? [ ...note.tagGuids ] : null,
-			title: note.title,
-		})))
+const getNotesMetadata = async (ctx, store, offset) => {
+	const newNotes = await store.findNotesMetadata(filter, offset, maxResults, metadataSpec)
+		// ensure that we haven't saved these as notes or recipes yet
+		.then(async (meta) => validateNotes(ctx, store, meta?.notes || []))
 		.catch((err) => {
 			throw new Error(`Could not fetch notes metadata. ${err}`);
-		})
+		});
+
+	const response = newNotes.map((note) => ({
+		// categories: [ note.notebookGuid ], // skip
+		evernoteGUID: note.guid,
+		source: note.attributes.sourceURL,
+		// tags: (note.tagGuids) ? [ ...note.tagGuids ] : null, // skip
+		title: note.title,
+	}))
 
 	return response;
 };
 
-const incrementOffset = async (req, increment = 1) => {
+const incrementOffset = async (req, prisma, increment = 1) => {
 	const session = await getSession({ req });
-	if (!isNaN(parseInt(session.noteImportOffset))) {
-		session.noteImportOffset = +session.noteImportOffset + +increment;
-		return session.noteImportOffset;
+	const id = Number(session.user.userId);
+	if (!isNaN(+session.user.noteImportOffset) && !isNaN(+increment)) {
+		const noteImportOffset = +session.user.noteImportOffset + +increment;
+		if (prisma?.user) {
+			await prisma.user.update({
+				data: { noteImportOffset },
+				where: { id },
+			});
+		}
+		return noteImportOffset;
 	}
-	return increment + 1;
 };
 
-const validateNotes = async (ctx, store, notes) => {
+const validateNotes = async (ctx, store, notes = []) => {
   const { req, prisma } = ctx;
 	const evernoteGUID = notes.map((m) => m.evernoteGUID);
 	// check that these notes aren't already imported or staged
 	const existing = await prisma.note.findMany({ where: { evernoteGUID: { in: [ ...evernoteGUID ] } } })
 		// check existing recipes for this guid
-		.then(async (existingNotes) => {
+		.then(async (existingNotes = []) => {
 			const existingRecipes = await prisma.recipe.findMany({
 				where: { evernoteGUID: { in: [ ...evernoteGUID ] } }
 			});
-
 			const combined = existingNotes.concat(existingRecipes)
-				.map((e) => ({
-					evernoteGUID: e.evernoteGUID,
-					title: e.title, // debug only
-				}));
+				// .map((e) => ({
+				// 	evernoteGUID: e.evernoteGUID,
+				// 	title: e.title, // debug only
+				// }));
 			return combined;
 		})
+		.catch(err => { throw err; });
+
 
 	// return these notes if they don't exist
 	if (existing.length === 0) {
@@ -174,8 +182,7 @@ const validateNotes = async (ctx, store, notes) => {
 
 	// increment the offset and fetch
 	const increment = ((uniqueNotes.length - existing.length) === 0) ? 1 : (uniqueNotes.length - existing.length);
-	const offset = await incrementOffset(req, increment);
-
-	return getNotesMetadata(store, offset)
-		.then(async (m) => validateNotes(ctx, store, m));
+	const offset = await incrementOffset(req, prisma, increment);
+	return await getNotesMetadata(store, offset)
+		.then((n) => validateNotes(ctx, store, n));
 };

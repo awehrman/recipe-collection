@@ -1,5 +1,6 @@
 import Evernote from 'evernote';
 import { getSession } from 'next-auth/client';
+import { Session } from 'next-auth';
 import { extendType, nullable, objectType, stringArg } from 'nexus';
 
 const client = new Evernote.Client({
@@ -19,7 +20,21 @@ type EvernoteResponseProps = {
   evernoteAuthSecret?: string
   evernoteReqToken?: string
   evernoteReqSecret?: string
-};
+  evernoteExpiration?: string
+}
+
+type SessionUserProps = {
+  evernoteAuthToken?: string
+  evernoteAuthSecret?: string
+  evernoteReqToken?: string
+  evernoteReqSecret?: string
+  evernoteExpiration?: string
+  userId?: number
+}
+
+type Results = {
+  edam_expires: string
+}
 
 const requestEvernoteAuthToken = (
   evernoteReqToken?: string,
@@ -27,11 +42,12 @@ const requestEvernoteAuthToken = (
   oauthVerifier?: string
 ) : Promise<EvernoteResponseProps> =>
   new Promise((resolve, reject) => {
-    const cb = (err: EvernoteRequestErrorProps, evernoteAuthToken: string) => {
+    const cb = (err: EvernoteRequestErrorProps, evernoteAuthToken: string, _secret: string, results: Results) => {
       if (err) {
         reject(err);
       }
-      resolve({ evernoteAuthToken });
+      console.log('resolving', { evernoteAuthToken, evernoteExpiration: `${results?.edam_expires}` });
+      resolve({ evernoteAuthToken, evernoteExpiration: `${results?.edam_expires}` });
     };
 
     client.getAccessToken(`${evernoteReqToken}`, `${evernoteReqSecret}`, `${oauthVerifier}`, cb);
@@ -58,6 +74,7 @@ export const AuthenticationResponse = objectType({
     t.string('errorMessage');
     t.boolean('isAuthPending');
     t.boolean('isAuthenticated');
+    t.string('evernoteExpiration');
   }
 });
 
@@ -68,6 +85,7 @@ export const ImportLocalResponse = objectType({
   }
 });
 
+// TODO move these resolvers into their own folder
 // Mutations
 export const AuthenticateEvernote = extendType({
   type: 'Mutation',
@@ -78,15 +96,21 @@ export const AuthenticateEvernote = extendType({
         oauthVerifier: nullable(stringArg()),
       },
       resolve: async (_parent, args, ctx) => {
-        console.error('authenticateEvernote');
         const { oauthVerifier } = args;
         const { prisma, req } = ctx;
+        let session: Session | null = await getSession({ req });
+        if (!session) {
+          session = {
+            user: {}
+          };
+        }
+
+        const user: SessionUserProps = session?.user || {};
         const {
-          evernoteAuthToken = null,
-          evernoteReqToken = null,
-          evernoteReqSecret = null,
-          userId = 0,
-        } = await getSession({ req }) || {};
+          evernoteReqToken,
+          evernoteReqSecret,
+          userId,
+        } = user;
         const id = Number(userId);
 
         const response = {
@@ -94,47 +118,43 @@ export const AuthenticateEvernote = extendType({
           isAuthPending: false,
           isAuthenticated: false,
           authURL: '',
+          evernoteExpiration: '',
         };
-
-        console.error({ evernoteAuthToken, evernoteReqToken });
 
         if (id < 1 || id === null || id === undefined || isNaN(id)) {
           response.errorMessage = 'No userId in session';
-          console.error('returning');
           return response;
         }
-
-        console.error({ evernoteAuthToken, evernoteReqSecret, oauthVerifier });
 
         if (!evernoteReqToken) {
           try {
             const { evernoteReqToken, evernoteReqSecret } = await requestEvernoteRequestToken();
-            console.error({ evernoteReqToken, evernoteReqSecret, client });
             response.authURL = evernoteReqToken ? client.getAuthorizeUrl(evernoteReqToken) : '';
             response.isAuthPending = !!response.authURL.length;
 
-            // TODO can we just update the session directly instead of tying this to the user?
             await prisma.user.update({
               data: { evernoteReqToken, evernoteReqSecret },
               where: { id },
             });
           } catch (err: unknown) {
-            console.error({ err });
             response.errorMessage = JSON.stringify(err, null, 2);
           }
         }
 
         if (oauthVerifier && evernoteReqToken && evernoteReqSecret) {
           try {
-            const { evernoteAuthToken } = await requestEvernoteAuthToken(
+            const { evernoteAuthToken, evernoteExpiration } = await requestEvernoteAuthToken(
               `${evernoteReqToken}`,
               `${evernoteReqSecret}`,
               `${oauthVerifier}`,
             );
             response.isAuthenticated = !!evernoteAuthToken;
+            session.user.evernoteAuthToken = evernoteAuthToken;
+            session.user.evernoteExpiration = evernoteExpiration;
+            console.log(session.user);
 
             await prisma.user.update({
-              data: { evernoteAuthToken },
+              data: { evernoteAuthToken, evernoteExpiration },
               where: { id },
             });
           } catch (err: unknown) {
@@ -156,8 +176,12 @@ export const ClearAuthentication = extendType({
       args: {},
       resolve: async(_parent, args, ctx) => {
         const { req } = ctx;
-        const session = await getSession({ req }) || {};
-        const id = Number(session.userId ?? 0);
+        const session: Session | null = await getSession({ req });
+        if (!session) {
+          throw new Error('no session object in clearAuthentication');
+        }
+        const { user } = session || {};
+        const id = Number(user?.userId ?? 0);
 
         const response = {
           errorMessage: '',
@@ -165,13 +189,16 @@ export const ClearAuthentication = extendType({
           isAuthenticated: false,
           authURL: '',
         };
-        session.evernoteAuthToken = null;
-        session.evernoteReqToken = null;
-        session.evernoteReqSecret = null;
+        session.user = {};
 
         try {
           await ctx.prisma.user.update({
-            data: { evernoteAuthToken: null, evernoteReqToken: null, evernoteReqSecret: null },
+            data: {
+              evernoteAuthToken: null,
+              evernoteReqToken: null,
+              evernoteReqSecret: null,
+              evernoteExpiration: null,
+            },
             where: { id },
           });
         } catch (err: unknown) {
