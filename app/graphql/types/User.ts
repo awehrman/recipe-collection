@@ -1,4 +1,4 @@
-import { enumType, objectType } from 'nexus';
+import { extendType, enumType, idArg, objectType } from 'nexus';
 
 export const User = objectType({
   name: 'User',
@@ -14,9 +14,30 @@ export const User = objectType({
     t.string('image');
     t.string('createdAt');
     t.string('updatedAt');
+    t.string('noteImportOffset');
     // t.string('importedRecipes');
     t.field('role', { type: Role });
   }
+});
+
+export const UserQuery = extendType({
+  type: 'Query',
+  definition(t) {
+    t.field('user', {
+      type: 'User',
+      args: {
+        id: idArg(),
+      },
+      resolve: async (root, args, ctx) => {
+        const id = parseInt(`${args.id}`, 10);
+        const user = await ctx.prisma.user.findUnique({
+          where: { id }
+        });
+        console.log({ user });
+        return user;
+      },
+    });
+  },
 });
 
 const Role = enumType({

@@ -1,28 +1,39 @@
-import { useMutation } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { useSession } from 'next-auth/client';
 import React from 'react';
 import styled from 'styled-components';
 
 import { IMPORT_NOTES_MUTATION } from '../../graphql/mutations/note';
+import { GET_USER_AUTHENTICATION_QUERY } from '../../graphql/queries/user';
 import useEvernote from '../../hooks/use-evernote';
-import { Button, Loading } from '../common';
-import AuthenticateEvernote from './authenticate-evernote';
 
+import { Button, Loading } from '../common';
+
+import AuthenticateEvernote from './authenticate-evernote';
 import { NoteImporterProps } from './types';
 
 const NoteImporter: React.FC<NoteImporterProps> = () => {
-  const [session] = useSession();
   const { importNotes } = useEvernote();
-  const [mutation, { loading, data }] = useMutation(IMPORT_NOTES_MUTATION);
-  const { evernoteAuthToken, evernoteExpiration } = session?.user || {};
-  const isExpired = new Date(`${evernoteExpiration}`) > new Date();
-  const isAuthenticated = evernoteAuthToken && isExpired;
+  const [mutation, { loading: noteLoading, data: noteData }] = useMutation(IMPORT_NOTES_MUTATION);
+  // TODO move all of this into the useEvernote hook
+  const [session] = useSession();
+  const { data, loading } = useQuery(GET_USER_AUTHENTICATION_QUERY, {
+    fetchPolicy: 'network-only',
+    variables: { id: session?.user?.userId },
+  });
+  const evernoteAuthToken = !loading && data?.user?.evernoteAuthToken;
+  const evernoteExpiration = !loading && data?.user?.evernoteExpiration;
+  const isExpired = !loading &&  Date.now() > parseInt(evernoteExpiration);
+  const isAuthenticated = !loading && evernoteAuthToken && !isExpired;
 
-  if (loading) {
+  if (noteLoading) {
     return <Loading />;
   }
 
-  console.log({ data });
+  if (noteData?.length) {
+    console.log({ noteData });
+  }
+
   function handleImportNotes() {
     importNotes(mutation);
   }
@@ -30,18 +41,17 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
   return (
     <Wrapper>
       <NoteActions>
-          {/* Authenticate Evernote or Clear Authentication  */}
-          <AuthenticateEvernote />
+        {/* Authenticate Evernote or Clear Authentication  */}
+        <AuthenticateEvernote />
 
-          {/* Import Notes */}
-          {isAuthenticated ? (
-            <Button
-              label='Import Notes'
-              onClick={handleImportNotes}
-              type='button'
-            />
-          ) : null}
-
+        {/* Import Notes */}
+        {isAuthenticated ? (
+          <Button
+            label='Import Notes'
+            onClick={handleImportNotes}
+            type='button'
+          />
+        ) : null}
       </NoteActions>
     </Wrapper>
   );

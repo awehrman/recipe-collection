@@ -28,11 +28,15 @@ model User {
 }
 
 model AuthenticationResponse {
-  id              Int     @id @default(autoincrement())
-  authURL         String?
-  errorMessage    String?
-  isAuthPending   Boolean @default(false)
-  isAuthenticated Boolean @default(false)
+  id                 Int     @id @default(autoincrement())
+  authURL            String?
+  errorMessage       String?
+  isAuthPending      Boolean @default(false)
+  isAuthenticated    Boolean @default(false)
+  evernoteAuthToken  String? @map(name: "evernote_auth_token")
+  evernoteReqToken   String? @map(name: "evernote_req_token")
+  evernoteReqSecret  String? @map(name: "evernote_req_secret")
+  evernoteExpiration String? @map(name: "evernote_expiration")
 
   @@map(name: "auth_response")
 }

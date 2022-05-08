@@ -5,7 +5,10 @@
 type AuthenticationResponse {
   authURL: String
   errorMessage: String
+  evernoteAuthToken: String
   evernoteExpiration: String
+  evernoteReqSecret: String
+  evernoteReqToken: String
   isAuthPending: Boolean
   isAuthenticated: Boolean
 }
@@ -38,6 +41,7 @@ type Note {
 type Query {
   note(id: ID): Note
   notes: [Note]
+  user(id: ID): User
 }
 
 enum Role {
@@ -56,6 +60,7 @@ type User {
   id: String
   image: String
   name: String
+  noteImportOffset: String
   role: Role
   updatedAt: String
 }

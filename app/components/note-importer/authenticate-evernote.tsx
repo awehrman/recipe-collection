@@ -1,6 +1,5 @@
-import { useMutation } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { useSession } from 'next-auth/client';
-import { Session } from 'next-auth';
 import { useRouter, NextRouter } from 'next/router';
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
@@ -9,6 +8,7 @@ import {
   AUTHENTICATE_EVERNOTE_MUTATION,
   CLEAR_EVERNOTE_AUTH_MUTATION,
 } from '../../graphql/mutations/evernote';
+import { GET_USER_AUTHENTICATION_QUERY } from '../../graphql/queries/user';
 import Button from '../common/Button';
 
 type AuthenticateEvernoteProps = {
@@ -22,10 +22,6 @@ const onAuthenticateEvernoteUpdate = ({ data: { authenticateEvernote } }) => {
   }
 };
 
-const onEvernoteAuthenticationReset = (session: Session) => {
-  session.user = {};
-};
-
 const onHandleOAuthParams = (router: NextRouter) => {
   // clear out the params sent back from the authentication
   router.replace('/import', '/import', { shallow: true });
@@ -34,10 +30,15 @@ const onHandleOAuthParams = (router: NextRouter) => {
 const AuthenticateEvernote: React.FC<AuthenticateEvernoteProps> = () => {
   const router: NextRouter = useRouter();
   const [session] = useSession();
-  const { evernoteAuthToken, evernoteExpiration } = session?.user || {};
-  console.log('AuthenticateEvernote', { session, evernoteAuthToken, evernoteExpiration });
-  const isExpired = false; // new Date(`${evernoteExpiration}`) > new Date();
-  const isAuthenticated = evernoteAuthToken && isExpired;
+  // TODO move into the useEvernote hook
+  const { data, loading, refetch } = useQuery(
+    GET_USER_AUTHENTICATION_QUERY,
+    { variables: { id: session?.user?.userId } }
+  );
+  const evernoteAuthToken = !loading && data?.user?.evernoteAuthToken;
+  const evernoteExpiration = !loading && data?.user?.evernoteExpiration;
+  const isExpired = !loading &&  Date.now() > parseInt(evernoteExpiration);
+  const isAuthenticated = !loading && evernoteAuthToken && !isExpired;
   const { query: { oauth_verifier } } = router;
 
   useEffect(handleEvernoteAuthVerifier, [oauth_verifier]);
@@ -47,7 +48,7 @@ const AuthenticateEvernote: React.FC<AuthenticateEvernoteProps> = () => {
   });
 
   const [clearAuthentication] = useMutation(CLEAR_EVERNOTE_AUTH_MUTATION, {
-    update: () => session && onEvernoteAuthenticationReset(session),
+    update: () => refetch({ id: session?.user?.userId }),
   });
 
   function handleEvernoteAuthVerifier() {
@@ -56,6 +57,8 @@ const AuthenticateEvernote: React.FC<AuthenticateEvernoteProps> = () => {
         update: () => onHandleOAuthParams(router),
         variables: { oauthVerifier: oauth_verifier },
       });
+    } else if (!evernoteAuthToken) {
+      refetch({ id: session?.user?.userId });
     }
   }
 
@@ -69,21 +72,17 @@ const AuthenticateEvernote: React.FC<AuthenticateEvernoteProps> = () => {
 
   return (
     <React.Fragment>
-      {!isAuthenticated ? (
-        <StyledButton
-          label='Authenticate Evernote'
-          onClick={handleAuthentication}
-          type='button'
-        />
-      ) : null}
-      {true ? (
-        <StyledButton
-          className='reset'
-          label='Clear Authentication'
-          onClick={handleClearAuthentication}
-          type='button'
-        />
-      ) : null}
+      <StyledButton
+        label='Authenticate Evernote'
+        onClick={handleAuthentication}
+        type='button'
+      />
+      <StyledButton
+        className='reset'
+        label='Clear Authentication'
+        onClick={handleClearAuthentication}
+        type='button'
+      />
     </React.Fragment>
   );
 };

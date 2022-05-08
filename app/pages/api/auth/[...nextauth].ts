@@ -2,6 +2,7 @@ import { NextApiHandler } from 'next'
 import NextAuth, { Session } from 'next-auth'
 import Providers from 'next-auth/providers'
 import Adapters from 'next-auth/adapters'
+
 import prisma from '../../../lib/prisma'
 
 const authHandler: NextApiHandler = (req, res) => NextAuth(req, res, options);
@@ -29,7 +30,6 @@ type TokenProps = {
   evernoteExpiration?: string;
 }
 
-
 const options = {
   providers: [
     Providers.GitHub({
@@ -41,12 +41,13 @@ const options = {
   secret: process.env.SECRET,
   callbacks: {
     async session(session: Session, token: TokenProps) {
-      console.log('token', token?.evernoteExpiration)
-      session.user.evernoteAuthToken = token.evernoteAuthToken;
+      // for whatever reason these don't always populate client side
+      // we'll just query these values once we have the userId set
+      // session.user.evernoteAuthToken = token.evernoteAuthToken;
       session.user.evernoteReqToken = token.evernoteReqToken;
       session.user.evernoteReqSecret = token.evernoteReqSecret;
-      session.user.evernoteExpiration = token?.evernoteExpiration;
-      session.user.noteImportOffset = token?.noteImportOffset || 0;
+      // session.user.evernoteExpiration = token.evernoteExpiration;
+      // session.user.noteImportOffset = token?.noteImportOffset || 0;
       session.user.userId = token.id;
 
       return session;

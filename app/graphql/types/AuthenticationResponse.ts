@@ -1,6 +1,7 @@
 import Evernote from 'evernote';
 import { getSession } from 'next-auth/client';
 import { Session } from 'next-auth';
+// import { useRouter } from 'next/router'
 import { extendType, nullable, objectType, stringArg } from 'nexus';
 
 const client = new Evernote.Client({
@@ -46,7 +47,6 @@ const requestEvernoteAuthToken = (
       if (err) {
         reject(err);
       }
-      console.log('resolving', { evernoteAuthToken, evernoteExpiration: `${results?.edam_expires}` });
       resolve({ evernoteAuthToken, evernoteExpiration: `${results?.edam_expires}` });
     };
 
@@ -62,6 +62,10 @@ const requestEvernoteRequestToken = (): Promise<EvernoteResponseProps> =>
       resolve({ evernoteReqToken, evernoteReqSecret });
     };
 
+    // TODO should this actually point to /api/auth/evernoteCallback?
+    // const router = useRouter();
+    // // `${process.env.OAuthCallback}`
+    // console.log(`${router.pathname}/api/auth/evernoteCallback`);
     client.getRequestToken(`${process.env.OAuthCallback}`, cb);
   });
 
@@ -74,6 +78,9 @@ export const AuthenticationResponse = objectType({
     t.string('errorMessage');
     t.boolean('isAuthPending');
     t.boolean('isAuthenticated');
+    t.string('evernoteAuthToken');
+    t.string('evernoteReqToken');
+    t.string('evernoteReqSecret');
     t.string('evernoteExpiration');
   }
 });
@@ -96,14 +103,10 @@ export const AuthenticateEvernote = extendType({
         oauthVerifier: nullable(stringArg()),
       },
       resolve: async (_parent, args, ctx) => {
+        console.log('>>>');
         const { oauthVerifier } = args;
         const { prisma, req } = ctx;
-        let session: Session | null = await getSession({ req });
-        if (!session) {
-          session = {
-            user: {}
-          };
-        }
+        const session: Session | null = await getSession({ req });
 
         const user: SessionUserProps = session?.user || {};
         const {
@@ -141,6 +144,7 @@ export const AuthenticateEvernote = extendType({
           }
         }
 
+        console.log({ oauthVerifier, evernoteReqToken, evernoteReqSecret });
         if (oauthVerifier && evernoteReqToken && evernoteReqSecret) {
           try {
             const { evernoteAuthToken, evernoteExpiration } = await requestEvernoteAuthToken(
@@ -149,10 +153,8 @@ export const AuthenticateEvernote = extendType({
               `${oauthVerifier}`,
             );
             response.isAuthenticated = !!evernoteAuthToken;
-            session.user.evernoteAuthToken = evernoteAuthToken;
-            session.user.evernoteExpiration = evernoteExpiration;
-            console.log(session.user);
 
+            console.log('updating evernoteAuthToken and exp')
             await prisma.user.update({
               data: { evernoteAuthToken, evernoteExpiration },
               where: { id },
@@ -176,10 +178,7 @@ export const ClearAuthentication = extendType({
       args: {},
       resolve: async(_parent, args, ctx) => {
         const { req } = ctx;
-        const session: Session | null = await getSession({ req });
-        if (!session) {
-          throw new Error('no session object in clearAuthentication');
-        }
+        const session: Session = await getSession({ req });
         const { user } = session || {};
         const id = Number(user?.userId ?? 0);
 
@@ -187,9 +186,12 @@ export const ClearAuthentication = extendType({
           errorMessage: '',
           isAuthPending: false,
           isAuthenticated: false,
+          evernoteExpiration: null,
           authURL: '',
+          evernoteAuthToken: null,
+          evernoteReqToken: null,
+          evernoteReqSecret: null,
         };
-        session.user = {};
 
         try {
           await ctx.prisma.user.update({

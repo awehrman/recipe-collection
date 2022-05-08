@@ -1,6 +1,5 @@
 import { useSession } from 'next-auth/client'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
 import React, { useContext, useState } from 'react';
 import styled, { ThemeContext } from 'styled-components';
 
@@ -13,11 +12,9 @@ export type PageProps = {
 };
 
 const Page: React.FC<PageProps>  = ({ title, children }) => {
-  const router = useRouter();
-  const [session /*, loading*/ ] = useSession();
+  const [session] = useSession();
   const themeContext = useContext(ThemeContext);
   const [isExpanded, setIsExpanded] = useState(false);
-  const isActive: (_pathname: string) => boolean = (pathname) => router?.pathname === pathname;
 
   return (
     <Canvas theme={themeContext}>
@@ -25,7 +22,7 @@ const Page: React.FC<PageProps>  = ({ title, children }) => {
         ? (
           <SignUp>
             <Link href='/api/auth/signin'>
-              <a data-r={isActive('/signup')}>Log in</a>
+              <a>Log in</a>
             </Link>
           </SignUp>
         ) : (
@@ -33,7 +30,7 @@ const Page: React.FC<PageProps>  = ({ title, children }) => {
             <Nav isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
             <Header title={title} />
             <Content>
-              { children }
+              {children}
             </Content>
           </Wrapper>
         )

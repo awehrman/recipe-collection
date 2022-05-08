@@ -172,7 +172,7 @@ const NavStyles = styled.nav<NavStylesProps>`
 				color: ${ ({ theme }) => theme.colors.menuColor };
 				font-size: 1em;
 				font-weight: 400;
-				padding: 6px 0;
+				padding: 6px;
 
 				&:hover {
 					color: ${ ({ theme }) => lighten(0.1, theme.colors.menuColor) };

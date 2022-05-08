@@ -52,7 +52,7 @@ export function initializeApollo(
   return _apolloClient
 }
 
-export default function useApollo(initialState = {}): ApolloClient<NormalizedCacheObject> {
-  const store = useMemo(() => initializeApollo(initialState), [initialState])
+export default function useApollo(initialState = {}, ctx: PrismaContext, ): ApolloClient<NormalizedCacheObject> {
+  const store = useMemo(() => initializeApollo(initialState, ctx), [initialState])
   return store
 }

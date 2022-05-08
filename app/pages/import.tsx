@@ -1,7 +1,7 @@
 import React from 'react'
 
-import NoteImporter from '../components/note-importer';
 import Page from '../components/Page';
+import NoteImporter from '../components/note-importer';
 
 type ImportProps = {
 }
