@@ -1,7 +1,6 @@
 import Evernote from 'evernote';
 import { getSession } from 'next-auth/client';
 import { Session } from 'next-auth';
-// import { useRouter } from 'next/router'
 import { extendType, nullable, objectType, stringArg } from 'nexus';
 
 const client = new Evernote.Client({

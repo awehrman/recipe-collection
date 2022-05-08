@@ -42,12 +42,14 @@ const options = {
   callbacks: {
     async session(session: Session, token: TokenProps) {
       // for whatever reason these don't always populate client side
-      // we'll just query these values once we have the userId set
-      // session.user.evernoteAuthToken = token.evernoteAuthToken;
+      console.log('session', token.evernoteAuthToken);
+      // look up the user, if its on here, then take that instead?
+
+      session.user.evernoteAuthToken = token.evernoteAuthToken;
       session.user.evernoteReqToken = token.evernoteReqToken;
       session.user.evernoteReqSecret = token.evernoteReqSecret;
-      // session.user.evernoteExpiration = token.evernoteExpiration;
-      // session.user.noteImportOffset = token?.noteImportOffset || 0;
+      session.user.evernoteExpiration = token.evernoteExpiration;
+      session.user.noteImportOffset = token?.noteImportOffset || 0;
       session.user.userId = token.id;
 
       return session;

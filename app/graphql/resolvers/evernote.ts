@@ -1,9 +1,9 @@
-// @ts-nocheck
 import Evernote from 'evernote';
 import { getSession } from 'next-auth/client';
 
 import { saveImages } from './image';
 import { createNotes } from './note';
+import { PrismaContext } from '../context';
 
 const filter = new Evernote.NoteStore.NoteFilter();
 const maxResults = process.env.DOWNLOAD_LIMIT;
@@ -33,6 +33,7 @@ const noteSpec = new Evernote.NoteStore.NoteResultSpec({
 });
 
 export const downloadNotes = async (ctx) => {
+	console.log('downloadNotes');
 	const { req, prisma } = ctx;
 
 	// fetch new note content from evernote
@@ -65,8 +66,10 @@ const getClient = (token) => {
 };
 
 const getEvernoteNotes = async (ctx) => {
+	console.log('getEvernoteNotes');
 	const { req } = ctx;
-  const { evernoteAuthToken, noteImportOffset = 0 } = await getSession({ req });
+  const session = await getSession({ req });
+	const { evernoteAuthToken, noteImportOffset = 0 } = session?.user ?? {};
 
 	const store = await getEvernoteNoteStore(req, evernoteAuthToken)
 		.catch((err) => {
@@ -140,12 +143,12 @@ const getNotesMetadata = async (ctx, store, offset) => {
 
 const incrementOffset = async (req, prisma, increment = 1) => {
 	const session = await getSession({ req });
-	const id = Number(session.user.userId);
-	if (!isNaN(+session.user.noteImportOffset) && !isNaN(+increment)) {
-		const noteImportOffset = +session.user.noteImportOffset + +increment;
+	const { userId, noteImportOffset } = session?.user ?? {};
+	const id = Number(userId);
+	if (noteImportOffset !== undefined && !isNaN(+noteImportOffset) && !isNaN(+increment)) {
 		if (prisma?.user) {
 			await prisma.user.update({
-				data: { noteImportOffset },
+				data: { noteImportOffset: +noteImportOffset + +increment },
 				where: { id },
 			});
 		}
@@ -153,7 +156,7 @@ const incrementOffset = async (req, prisma, increment = 1) => {
 	}
 };
 
-const validateNotes = async (ctx, store, notes = []) => {
+const validateNotes = async (ctx: PrismaContext, store, notes = []) => {
   const { req, prisma } = ctx;
 	const evernoteGUID = notes.map((m) => m.evernoteGUID);
 	// check that these notes aren't already imported or staged

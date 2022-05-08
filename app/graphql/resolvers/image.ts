@@ -1,4 +1,3 @@
-// @ts-nocheck
 import cloudinary from 'cloudinary';
 
 cloudinary.config({
