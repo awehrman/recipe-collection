@@ -38,7 +38,6 @@ export const importNotes = async (_parent: unknown, _args: unknown, ctx: PrismaC
   // TODO consider throwing this in a helper
   const session = await getSession({ req });
   const { evernoteAuthToken, evernoteExpiration } = session?.user ?? {};
-  console.log("importNotes", { evernoteAuthToken, evernoteExpiration });
   const isExpired = !!(Date.now() > parseInt(`${evernoteExpiration}`));
   const isAuthenticated = !!(evernoteAuthToken && !isExpired);
 

@@ -9,7 +9,6 @@ type AuthenticateEvernoteProps = {
 
 const AuthenticateEvernote: React.FC<AuthenticateEvernoteProps> = () => {
   const { authenticateEvernote, isAuthenticated, clearAuthentication } = useEvernote();
-
   function handleAuthentication() {
     authenticateEvernote();
   }

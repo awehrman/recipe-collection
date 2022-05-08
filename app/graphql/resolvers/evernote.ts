@@ -33,7 +33,6 @@ const noteSpec = new Evernote.NoteStore.NoteResultSpec({
 });
 
 export const downloadNotes = async (ctx) => {
-	console.log('downloadNotes');
 	const { req, prisma } = ctx;
 
 	// fetch new note content from evernote
@@ -66,7 +65,6 @@ const getClient = (token) => {
 };
 
 const getEvernoteNotes = async (ctx) => {
-	console.log('getEvernoteNotes');
 	const { req } = ctx;
   const session = await getSession({ req });
 	const { evernoteAuthToken, noteImportOffset = 0 } = session?.user ?? {};

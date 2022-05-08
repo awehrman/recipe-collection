@@ -40,11 +40,10 @@ const options = {
   adapter: Adapters.Prisma.Adapter({ prisma }),
   secret: process.env.SECRET,
   callbacks: {
+    // session starts out with our name, email and image from github
+    // rename token to 'user'; this is actually our user object from prisma
     async session(session: Session, token: TokenProps) {
       // for whatever reason these don't always populate client side
-      console.log('session', token.evernoteAuthToken);
-      // look up the user, if its on here, then take that instead?
-
       session.user.evernoteAuthToken = token.evernoteAuthToken;
       session.user.evernoteReqToken = token.evernoteReqToken;
       session.user.evernoteReqSecret = token.evernoteReqSecret;

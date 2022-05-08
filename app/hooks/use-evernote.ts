@@ -23,6 +23,9 @@ function useEvernote() {
   } = router;
   const [session] = useSession();
   const userId = session?.user?.userId;
+  // idk why but grabbing these tokens off the session
+  // doesn't immediately update on the client so we want to rely
+  // on querying the user for auth status
   const { data, loading, refetch } = useQuery(GET_USER_AUTHENTICATION_QUERY, {
     variables: { id: userId },
   });

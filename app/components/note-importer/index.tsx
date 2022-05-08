@@ -8,7 +8,6 @@ import { NoteImporterProps } from './types';
 
 const NoteImporter: React.FC<NoteImporterProps> = () => {
   const { importNotes, isAuthenticated, loadingNotes, notes } = useEvernote();
-  console.log({ notes });
 
   function handleImportNotes() {
     importNotes();
@@ -30,6 +29,10 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
         ) : null}
 
         {loadingNotes && <Loading />}
+
+        {!loadingNotes && (
+          <div>{JSON.stringify(notes?.importNotes?.notes, null, 2)}</div>
+        )}
       </NoteActions>
     </Wrapper>
   );
