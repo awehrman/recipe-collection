@@ -33,7 +33,6 @@ export const UserQuery = extendType({
         const user = await ctx.prisma.user.findUnique({
           where: { id }
         });
-        console.log({ user });
         return user;
       },
     });

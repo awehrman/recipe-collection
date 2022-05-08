@@ -1,45 +1,75 @@
-// @ts-nocheck
+import { useQuery, useMutation } from '@apollo/client';
+import { useRouter, NextRouter } from 'next/router';
+import { useSession } from 'next-auth/client';
+import { useEffect } from 'react';
+
+import { IMPORT_NOTES_MUTATION } from '../graphql/mutations/note';
+import {
+  AUTHENTICATE_EVERNOTE_MUTATION,
+  CLEAR_EVERNOTE_AUTH_MUTATION,
+} from '../graphql/mutations/evernote';
+import { GET_USER_AUTHENTICATION_QUERY } from '../graphql/queries/user';
+
+const onHandleOAuthParams = (router: NextRouter) => {
+  // clear out the params sent back from the authentication
+  router.replace('/import', '/import', { shallow: true });
+};
+
 function useEvernote() {
+  const router: NextRouter = useRouter();
   const bundleSize = 1;
+  const {
+    query: { oauth_verifier },
+  } = router;
+  const [session] = useSession();
+  const userId = session?.user?.userId;
+  const { data, loading, refetch } = useQuery(GET_USER_AUTHENTICATION_QUERY, {
+    variables: { id: userId },
+  });
+  const evernoteAuthToken = !loading && data?.user?.evernoteAuthToken;
+  const evernoteExpiration = !loading && data?.user?.evernoteExpiration;
+  const isExpired = !!(!loading && Date.now() > parseInt(evernoteExpiration));
+  const isAuthenticated = !!(!loading && evernoteAuthToken && !isExpired);
 
-  function importNotes(mutation) {
-    mutation({
-      optimisticResponse: {
-        __typename: 'Mutation',
-        importNotes: {
-          __typename: 'EvernoteResponse',
-          error: null,
-          notes: new Array(bundleSize).fill(0).map((_, index) => ({
-            __typename: 'Note',
-            id: `-1_${index}`,
-            content: null,
-            image: null,
-            //ingredients: [],
-            //instructions: [],
-            source: null,
-            title: null,
-            isParsed: false,
-          })),
-        },
-      },
-      // update: (cache, { data }) => {
-        // const { error } = data?.importNotes;
+  useEffect(handleEvernoteAuthVerifier, [oauth_verifier]);
 
-        // update the cache with new notes data
-        // const { notes } = cache.readQuery({ query: GET_ALL_NOTES_QUERY });
-        // cache.writeQuery({
-        //   query: GET_ALL_NOTES_QUERY,
-        //   data: { notes: notes.concat(data?.importNotes?.notes) },
-        // });
-      // },
-    });
+  const [authenticateEvernote] = useMutation(AUTHENTICATE_EVERNOTE_MUTATION, {
+    update: (_cache, { data: { authenticateEvernote } }) => {
+      const { authURL = null } = authenticateEvernote || {};
+
+      if (authURL) {
+        window.open(authURL, '_self');
+      }
+    },
+  });
+
+  const [clearAuthentication] = useMutation(CLEAR_EVERNOTE_AUTH_MUTATION, {
+    update: () => refetch({ id: session?.user?.userId }),
+  });
+
+  const [importNotes, { loading: loadingNotes, data: notes }] = useMutation(IMPORT_NOTES_MUTATION);
+
+  function handleEvernoteAuthVerifier() {
+    if (oauth_verifier) {
+      authenticateEvernote({
+        update: () => onHandleOAuthParams(router),
+        variables: { oauthVerifier: oauth_verifier },
+      });
+    } else if (!evernoteAuthToken) {
+      refetch({ id: session?.user?.userId });
+    }
   }
 
   return {
     meta: {
       bundleSize,
     },
+    authenticateEvernote,
+    clearAuthentication,
     importNotes,
+    isAuthenticated,
+    loadingNotes,
+    notes,
   };
 }
 

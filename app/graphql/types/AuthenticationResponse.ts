@@ -62,10 +62,6 @@ const requestEvernoteRequestToken = (): Promise<EvernoteResponseProps> =>
       resolve({ evernoteReqToken, evernoteReqSecret });
     };
 
-    // TODO should this actually point to /api/auth/evernoteCallback?
-    // const router = useRouter();
-    // // `${process.env.OAuthCallback}`
-    // console.log(`${router.pathname}/api/auth/evernoteCallback`);
     client.getRequestToken(`${process.env.OAuthCallback}`, cb);
   });
 
@@ -103,7 +99,6 @@ export const AuthenticateEvernote = extendType({
         oauthVerifier: nullable(stringArg()),
       },
       resolve: async (_parent, args, ctx) => {
-        console.log('>>>');
         const { oauthVerifier } = args;
         const { prisma, req } = ctx;
         const session: Session | null = await getSession({ req });
@@ -144,7 +139,6 @@ export const AuthenticateEvernote = extendType({
           }
         }
 
-        console.log({ oauthVerifier, evernoteReqToken, evernoteReqSecret });
         if (oauthVerifier && evernoteReqToken && evernoteReqSecret) {
           try {
             const { evernoteAuthToken, evernoteExpiration } = await requestEvernoteAuthToken(
@@ -154,7 +148,6 @@ export const AuthenticateEvernote = extendType({
             );
             response.isAuthenticated = !!evernoteAuthToken;
 
-            console.log('updating evernoteAuthToken and exp')
             await prisma.user.update({
               data: { evernoteAuthToken, evernoteExpiration },
               where: { id },
@@ -163,7 +156,6 @@ export const AuthenticateEvernote = extendType({
             response.errorMessage = `${err}`;
           }
         }
-
         return response;
       },
     });
@@ -178,7 +170,7 @@ export const ClearAuthentication = extendType({
       args: {},
       resolve: async(_parent, args, ctx) => {
         const { req } = ctx;
-        const session: Session = await getSession({ req });
+        const session: Session | null = await getSession({ req });
         const { user } = session || {};
         const id = Number(user?.userId ?? 0);
 
