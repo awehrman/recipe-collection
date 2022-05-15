@@ -5,19 +5,25 @@ import { importNotes } from '../resolvers/note';
 export const Note = objectType({
   name: 'Note',
   definition(t) {
-    t.id('id')
-    t.string('content')
-    t.string('image')
-    t.boolean('isParsed')
-    t.string('source')
-    t.string('title')
+    t.string('id');
+    // TODO https://nexusjs.org/docs/api/scalar-type
+    // createdAt: Date
+    // updatedAt: Date
+    t.nonNull.string('evernoteGUID');
+    t.nonNull.string('title');
+    t.string('source');
+    // categories: string[]
+    // tags: string[]
+    t.string('image');
+    t.nonNull.string('content');
+    t.nonNull.boolean('isParsed');
   }
 });
 
 export const EvernoteResponse = objectType({
   name: 'EvernoteResponse',
   definition(t) {
-    t.string('error');
+    t.nullable.string('error');
     t.list.field('notes', { type: 'Note' });
   }
 });
@@ -29,12 +35,13 @@ export const NotesQuery = extendType({
   definition(t) {
     t.list.field('notes', {
       type: 'Note',
-      resolve: async (_parent, _args, ctx) => {
+      // TODO fix the nexus auto type gen
+      resolve: async (root, _args, ctx) => {
         const data = await ctx.prisma.note.findMany();
         const response = {
           notes: data,
         };
-
+        console.log({ response });
         return response;
       },
     });

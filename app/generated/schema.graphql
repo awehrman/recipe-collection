@@ -30,12 +30,13 @@ type Mutation {
 }
 
 type Note {
-  content: String
-  id: ID
+  content: String!
+  evernoteGUID: String!
+  id: String
   image: String
-  isParsed: Boolean
+  isParsed: Boolean!
   source: String
-  title: String
+  title: String!
 }
 
 type Query {

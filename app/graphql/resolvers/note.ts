@@ -1,18 +1,24 @@
+import { Note } from '@prisma/client';
 import { AuthenticationError } from 'apollo-server-micro';
-import { getSession } from 'next-auth/client';
 
 import { PrismaContext } from '../context';
+import { isAuthenticated } from './helpers/evernote';
 import { downloadNotes } from './evernote';
 
-export const createNotes = async (ctx, notes) => {
+type EvernoteResponseProps = {
+  error?: string | null;
+	notes?: Note[];
+}
+
+export const createNotes = async (ctx: PrismaContext, notes: Note[]): Promise<Note[]> => {
 	const { prisma } = ctx;
+
 	// save note data to db
 	const resolveNotes = notes.map(async (note) => {
 		if (!note || !note.content || !note.title) {
 			throw new Error('Could not create note!');
 		}
 		const data = {
-			// TODO come back to categories and tags
 			content: note.content,
 			evernoteGUID: note.evernoteGUID,
 			image: note.image,
@@ -20,40 +26,37 @@ export const createNotes = async (ctx, notes) => {
 			title: note.title,
 		};
 
-		const saved = await prisma.note.create({ data })
-			.catch(err => { throw err });
+		const noteResponse = await prisma.note.create({ data })
+			.catch(err => {
+				throw new Error(`Could not create prisma Note: ${err}`);
+			});
 
-		return {
-			__typename: 'Note',
-      ...saved,
-		};
+			return noteResponse;
 	});
 
 	const noteRes = await Promise.all(resolveNotes);
 	return noteRes;
 };
 
-export const importNotes = async (_parent: unknown, _args: unknown, ctx: PrismaContext) => {
-  const { req } = ctx;
-  // TODO consider throwing this in a helper
-  const session = await getSession({ req });
-  const { evernoteAuthToken, evernoteExpiration } = session?.user ?? {};
-  const isExpired = !!(Date.now() > parseInt(`${evernoteExpiration}`));
-  const isAuthenticated = !!(evernoteAuthToken && !isExpired);
+export const importNotes = async (
+	root: unknown, // TODO look this up
+	_args: unknown, // TODO look this up
+	ctx: PrismaContext
+): Promise<EvernoteResponseProps> => {
+	const { req } = ctx;
+  const authenticated = isAuthenticated(req);
 
-  const response = {
-    error: null,
-    notes: [],
-  };
-
-  if (!isAuthenticated) {
+	if (!authenticated) {
     throw new AuthenticationError('Evernote is not authenticated');
   }
 
-  response.notes = await downloadNotes(ctx)
-    .catch(err => {
-      response.error = err.message;
-    });
+  const response:EvernoteResponseProps = {};
 
+	try {
+		const notes = await downloadNotes(ctx);
+		response.notes = [...notes];
+	} catch (err) {
+		response.error = `${err}`;
+	}
   return response;
 }

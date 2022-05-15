@@ -97,7 +97,7 @@ export const AuthenticateEvernote = extendType({
       args: {
         oauthVerifier: nullable(stringArg()),
       },
-      resolve: async (_parent, args, ctx) => {
+      resolve: async (root, args, ctx) => {
         const { oauthVerifier } = args;
         const { prisma, req } = ctx;
         const session: Session | null = await getSession({ req });
@@ -167,7 +167,7 @@ export const ClearAuthentication = extendType({
     t.field('clearAuthentication', {
       type: 'AuthenticationResponse',
       args: {},
-      resolve: async(_parent, args, ctx) => {
+      resolve: async(root, args, ctx) => {
         const { req } = ctx;
         const session: Session | null = await getSession({ req });
         const { user } = session || {};
