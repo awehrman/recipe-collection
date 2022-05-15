@@ -5,9 +5,10 @@ import useEvernote from '../../hooks/use-evernote';
 import { Button, Loading } from '../common';
 import AuthenticateEvernote from './authenticate-evernote';
 import { NoteImporterProps } from './types';
+import Notes from '../notes';
 
 const NoteImporter: React.FC<NoteImporterProps> = () => {
-  const { importNotes, isAuthenticated, loadingNotes, notes } = useEvernote();
+  const { importNotes, isAuthenticated, loadingNotes } = useEvernote();
 
   function handleImportNotes() {
     importNotes();
@@ -16,7 +17,7 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
   return (
     <Wrapper>
       <NoteActions>
-        {/* Authenticate Evernote or Clear Authentication  */}
+        {/* Authenticate Evernote */}
         <AuthenticateEvernote />
 
         {/* Import Notes */}
@@ -28,11 +29,8 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
           />
         ) : null}
 
-        {loadingNotes && <Loading />}
-
-        {!loadingNotes && (
-          <div>{JSON.stringify(notes?.importNotes?.notes, null, 2)}</div>
-        )}
+        {/* Notes */}
+        {loadingNotes ? <Loading /> : <Notes />}
       </NoteActions>
     </Wrapper>
   );
@@ -59,33 +57,3 @@ const NoteActions = styled.div`
     }
   }
 `;
-
-// const Description = styled.div`
-//   margin: 10px 0;
-//   font-size: 14px;
-// `;
-
-//   {/* Parse Notes */}
-//   {notes && notes.length > 0 ? (
-//     <Button
-//       label='Parse Notes'
-//       onClick={() => convertNotes({ parseNotesMutation })}
-//       type='button'
-//     />
-//   ) : null}
-
-//   {/* Save Recipes */}
-//   {converted && converted.length > 0 ? (
-//     <Button
-//       label='Save Recipes'
-//       onClick={() => saveRecipes({ saveMutation })}
-//       type='button'
-//     />
-//   ) : null}
-// </NoteActions>
-
-// {/* Messaging */}
-// {!loading ? <Description>{countMessage}</Description> : null}
-
-// {/* Notes */}
-// <NotesGrid notes={notes} />

@@ -10,6 +10,8 @@
   "dependencies": {
     "@apollo/client": "^3.3.19",
     "@prisma/client": "^2.23.0",
+    "@types/pretty": "^2.0.1",
+    "@types/react-syntax-highlighter": "^15.5.1",
     "apollo-server-micro": "^2.25.0",
     "cloudinary": "^1.28.1",
     "evernote": "^2.0.5",
@@ -23,8 +25,10 @@
     "nexus-prisma": "^0.35.0",
     "nprogress": "^0.2.0",
     "polished": "^4.1.2",
+    "pretty": "^2.0.0",
     "react": "17.0.2",
     "react-dom": "17.0.2",
+    "react-syntax-highlighter": "^15.5.0",
     "styled-components": "^5.3.0",
     "uuid": "^8.3.2"
   },

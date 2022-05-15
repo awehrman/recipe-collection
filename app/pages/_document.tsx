@@ -1,9 +1,17 @@
 import React from 'react';
-import Document, { DocumentContext, DocumentInitialProps, Html, Head, Main, NextScript } from 'next/document'
-import { ServerStyleSheet } from "styled-components";
-
+import Document, {
+  DocumentContext,
+  DocumentInitialProps,
+  Html,
+  Head,
+  Main,
+  NextScript,
+} from 'next/document';
+import { ServerStyleSheet } from 'styled-components';
 export default class MyDocument extends Document {
-  static async getStaticProps(ctx: DocumentContext): Promise<DocumentInitialProps> {
+  static async getStaticProps(
+    ctx: DocumentContext
+  ): Promise<DocumentInitialProps> {
     const sheet = new ServerStyleSheet();
     const originalRenderPage = ctx.renderPage;
 
@@ -34,7 +42,10 @@ export default class MyDocument extends Document {
       <Html>
         <Head>
           <title>Recipes</title>
-          <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700' rel='stylesheet' />
+          <link
+            href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700'
+            rel='stylesheet'
+          />
         </Head>
         <body>
           <Main />

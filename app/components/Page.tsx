@@ -65,13 +65,16 @@ const Canvas = styled.div`
 	overflow-x: hidden;
 	width: 100%;
 	height: 100%;
-  background: ${ ({ theme }) => theme.colors.headerBackground };
+  background: ${({ theme }) => theme.colors.headerBackground};
 `;
 
 const Content = styled.article`
   padding: 20px 40px;
   background: white;
-  height: 100%;
+  /* TODO there's a styling bug here preventing the background from going all the way to the bottom of the page */
+  height: 100vh;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
   color: ${ ({ theme }) => theme.colors.bodyText };
   font-size: 16px;
   font-family: 'Source Sans Pro', Verdana, sans-serif;

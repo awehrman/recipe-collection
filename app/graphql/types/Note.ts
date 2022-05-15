@@ -38,11 +38,7 @@ export const NotesQuery = extendType({
       // TODO fix the nexus auto type gen
       resolve: async (root, _args, ctx) => {
         const data = await ctx.prisma.note.findMany();
-        const response = {
-          notes: data,
-        };
-        console.log({ response });
-        return response;
+        return data;
       },
     });
   },
