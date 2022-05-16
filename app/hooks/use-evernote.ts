@@ -1,4 +1,5 @@
-import { useQuery, useMutation } from '@apollo/client';
+
+import { gql, useQuery, useMutation } from '@apollo/client';
 import { useRouter, NextRouter } from 'next/router';
 import { useSession } from 'next-auth/client';
 import { useEffect } from 'react';
@@ -14,6 +15,19 @@ const onHandleOAuthParams = (router: NextRouter) => {
   // clear out the params sent back from the authentication
   router.replace('/import', '/import', { shallow: true });
 };
+
+// TODO pull from fragments
+const fragment = gql`
+  fragment NewNote on Note {
+    id
+    content
+    evernoteGUID
+    image
+    isParsed
+    source
+    title
+  }
+`;
 
 function useEvernote() {
   const router: NextRouter = useRouter();
@@ -50,7 +64,26 @@ function useEvernote() {
     update: () => refetch({ id: session?.user?.userId }),
   });
 
-  const [importNotes, { loading: loadingNotes, data: notes }] = useMutation(IMPORT_NOTES_MUTATION);
+  const [importNotes, { loading: loadingNotes, data: notes }] = useMutation(IMPORT_NOTES_MUTATION, {
+    update: (cache, { data }) => {
+      const { importNotes: { notes } } = data;
+      cache.modify({
+        fields: {
+          notes(existingNotes = []) {
+            const newNotes = [];
+            for (let i = 0; i < notes.length; i++) {
+              const note = cache.writeFragment({
+                data: notes[i],
+                fragment
+              });
+              newNotes.push(note);
+            }
+            return [...existingNotes, ...newNotes];
+          }
+        }
+      });
+    }
+  });
 
   function handleEvernoteAuthVerifier() {
     if (oauth_verifier) {

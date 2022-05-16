@@ -10,11 +10,13 @@ import { NoteProps, NotesProps } from './types';
 const Notes: React.FC<NotesProps> = () => {
   const { notes, loading } = useNotes();
   console.log({ notes });
+
   function renderNotes() {
     if (loading) {
       return <Loading />
     }
-    return notes?.map((note: NoteProps, index: number) => <Note key={note?.id ?? index} note={note} />);
+    return notes?.map((note: NoteProps, index: number) =>
+      <Note key={note?.id ?? index} note={note} />);
   }
 
   return (

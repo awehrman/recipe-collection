@@ -15,6 +15,7 @@ type NoteProps = {
 }
 
 function useNotes() {
+  // TODO tack on an importedAt field and sort by latest
   const { data, loading } = useQuery(GET_ALL_NOTES_QUERY);
   const notes: NoteProps[] = (data?.notes ?? []);
 

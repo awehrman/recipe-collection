@@ -29,8 +29,11 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
           />
         ) : null}
 
+        {/* Loading */}
+        {loadingNotes && <Loading />}
+
         {/* Notes */}
-        {loadingNotes ? <Loading /> : <Notes />}
+        <Notes />
       </NoteActions>
     </Wrapper>
   );
