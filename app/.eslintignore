@@ -2,3 +2,6 @@
 /.next/
 ./../backup
 /generated/nexus-typegen.ts
+/lib/line-parser.js
+/lib/line-parser.pegjs
+/lib/line-parser.min.js

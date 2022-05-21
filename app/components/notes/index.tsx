@@ -2,13 +2,20 @@ import React from 'react';
 import styled from 'styled-components';
 
 import useNotes from '../../hooks/use-notes';
-import { Loading } from '../common';
+import { Button, Loading } from '../common';
+import Parser from '../../lib/line-parser-min.js';
 
 import Note from './note';
 import { NoteProps, NotesProps } from './types';
 
 const Notes: React.FC<NotesProps> = () => {
   const { notes, loading } = useNotes();
+
+  function handleParseTest() {
+    const string = '1 cup fresh sliced apples, cut into pieces';
+    const result = Parser.parse(string);
+    console.log({ string, result });
+  }
 
   function renderNotes() {
     if (loading) {
@@ -20,6 +27,7 @@ const Notes: React.FC<NotesProps> = () => {
 
   return (
     <Wrapper>
+      <Button label='press me' onClick={handleParseTest} />
       {/* Notes */}
       {renderNotes()}
     </Wrapper>
