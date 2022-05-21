@@ -7,8 +7,8 @@ export const Note = objectType({
   definition(t) {
     t.string('id');
     // TODO https://nexusjs.org/docs/api/scalar-type
-    // createdAt: Date
-    // updatedAt: Date
+    t.string('createdAt');
+    // t.string('updatedAt');
     t.nonNull.string('evernoteGUID');
     t.nonNull.string('title');
     t.string('source');

@@ -31,6 +31,7 @@ type Mutation {
 
 type Note {
   content: String!
+  createdAt: String
   evernoteGUID: String!
   id: String
   image: String

@@ -7,7 +7,7 @@ export type NotePageProps = {
 
 export type NoteProps = {
   id: string;
-  createdAt: string;
+  createdAt?: string;
   updatedAt: string;
   evernoteGUID: string;
   title: string;

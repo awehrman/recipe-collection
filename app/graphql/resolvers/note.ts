@@ -30,7 +30,6 @@ export const createNotes = async (ctx: PrismaContext, notes: Note[]): Promise<No
 			.catch(err => {
 				throw new Error(`Could not create prisma Note: ${err}`);
 			});
-
 			return noteResponse;
 	});
 

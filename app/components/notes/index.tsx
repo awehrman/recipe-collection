@@ -9,7 +9,6 @@ import { NoteProps, NotesProps } from './types';
 
 const Notes: React.FC<NotesProps> = () => {
   const { notes, loading } = useNotes();
-  console.log({ notes });
 
   function renderNotes() {
     if (loading) {

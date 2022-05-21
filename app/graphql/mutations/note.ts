@@ -22,6 +22,8 @@ export const IMPORT_NOTES_MUTATION = gql`
 			notes {
 				id
 				content
+				createdAt
+				evernoteGUID
 				image
 				isParsed
 				source

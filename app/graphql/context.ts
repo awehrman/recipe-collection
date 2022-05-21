@@ -1,7 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { IncomingMessage, ServerResponse } from 'http';
-
-const prisma = new PrismaClient();
+import prisma from '../lib/prisma';
 
 export interface Context {
   prisma: PrismaClient
