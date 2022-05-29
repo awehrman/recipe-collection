@@ -1,6 +1,6 @@
 import { extendType, idArg, objectType } from 'nexus';
 
-import { importNotes } from '../resolvers/note';
+import { importNotes, parseNotes } from '../resolvers/note';
 
 export const Note = objectType({
   name: 'Note',
@@ -8,7 +8,7 @@ export const Note = objectType({
     t.string('id');
     // TODO https://nexusjs.org/docs/api/scalar-type
     t.string('createdAt');
-    // t.string('updatedAt');
+    t.string('updatedAt');
     t.nonNull.string('evernoteGUID');
     t.nonNull.string('title');
     t.string('source');
@@ -17,6 +17,67 @@ export const Note = objectType({
     t.string('image');
     t.nonNull.string('content');
     t.nonNull.boolean('isParsed');
+//     t.list.field('ingredients', {
+//       type: 'IngredientLine',
+//       resolve: async (root, _args) => {
+//         console.log('resolving ingredient line', { _args });
+// //       // const data = await ctx.prisma.note.findMany();
+// //       // return data;
+//       return {
+//         id: '123',
+//         createdAt: '123',
+//         updatedAt: '123',
+//         blockIndex: 0,
+//         lineIndex: 0,
+//         reference: 'test',
+//         rule: 'test',
+//         isParsed: false,
+//       };
+//       },
+//     });
+    t.list.field('instructions', {
+      type: 'InstructionLine',
+      resolve: async () => {
+        console.log('resolving instruction line...');
+//       // const data = await ctx.prisma.note.findMany();
+//       // return data;
+      return [];
+      },
+    });
+  }
+});
+
+export const IngredientLine = objectType({
+  name: 'IngredientLine',
+  definition(t) {
+    t.string('id');
+    t.string('createdAt');
+    t.string('updatedAt');
+    t.string('blockIndex');
+    t.int('lineIndex');
+    t.string('reference');
+    t.string('rule');
+    t.boolean('isParsed');
+    // parsed
+    // recipe
+    // note
+    // recipeId
+    // noteId
+  }
+});
+
+export const InstructionLine = objectType({
+  name: 'InstructionLine',
+  definition(t) {
+    t.string('id');
+    t.string('createdAt');
+    t.string('updatedAt');
+    t.int('blockIndex');
+    t.string('reference');
+    // recipe
+    // note
+    // recipeId
+    // noteId
   }
 });
 
@@ -73,6 +134,16 @@ export const ImportNotes = extendType({
     t.field('importNotes', {
       type: 'EvernoteResponse',
       resolve: importNotes,
+    });
+  },
+});
+
+export const ParseNotes = extendType({
+  type: 'Mutation',
+  definition(t) {
+    t.field('parseNotes', {
+      type: 'EvernoteResponse',
+      resolve: parseNotes,
     });
   },
 });

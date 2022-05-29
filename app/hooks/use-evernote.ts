@@ -16,7 +16,6 @@ const onHandleOAuthParams = (router: NextRouter) => {
   router.replace('/import', '/import', { shallow: true });
 };
 
-// TODO pull from fragments
 const fragment = gql`
   fragment NewNote on Note {
     id

@@ -4,13 +4,22 @@ import { gql } from '@apollo/client';
 export const ALL_NOTE_FIELDS = gql`
 	fragment NoteFields on Note {
 		id
-		content
 		createdAt
+		updatedAt
 		evernoteGUID
-		image
-		isParsed
-		source
+		# ingredients
+		instructions {
+			id
+			blockIndex
+			reference
+		}
 		title
+		source
+		image
+		content
+		isParsed
+		# tags
+		# categories
 	}
 `;
 

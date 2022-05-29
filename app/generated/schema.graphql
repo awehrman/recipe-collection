@@ -22,11 +22,31 @@ type ImportLocalResponse {
   errorMessage: String
 }
 
+type IngredientLine {
+  blockIndex: String
+  createdAt: String
+  id: String
+  isParsed: Boolean
+  lineIndex: Int
+  reference: String
+  rule: String
+  updatedAt: String
+}
+
+type InstructionLine {
+  blockIndex: Int
+  createdAt: String
+  id: String
+  reference: String
+  updatedAt: String
+}
+
 type Mutation {
   authenticateEvernote(oauthVerifier: String): AuthenticationResponse
   clearAuthentication: AuthenticationResponse
   importLocal: ImportLocalResponse
   importNotes: EvernoteResponse
+  parseNotes: EvernoteResponse
 }
 
 type Note {
@@ -35,9 +55,11 @@ type Note {
   evernoteGUID: String!
   id: String
   image: String
+  instructions: [InstructionLine]
   isParsed: Boolean!
   source: String
   title: String!
+  updatedAt: String
 }
 
 type Query {

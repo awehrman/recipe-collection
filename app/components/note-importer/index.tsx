@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import useEvernote from '../../hooks/use-evernote';
+import useNotes from '../../hooks/use-notes';
 import { Button, Loading } from '../common';
 import AuthenticateEvernote from './authenticate-evernote';
 import { NoteImporterProps } from './types';
@@ -9,9 +10,15 @@ import Notes from '../notes';
 
 const NoteImporter: React.FC<NoteImporterProps> = () => {
   const { importNotes, isAuthenticated, loadingNotes } = useEvernote();
+  const { notes, loading, parseNotes } = useNotes();
+  const showParseButton = !loading && notes?.length > 0;
 
   function handleImportNotes() {
     importNotes();
+  }
+
+  function handleParseNotes() {
+    parseNotes();
   }
 
   return (
@@ -28,6 +35,17 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
             type='button'
           />
         ) : null}
+
+        {/* Parse Notes */}
+        {showParseButton ? (
+          <Button
+            label='Parse Notes'
+            onClick={handleParseNotes}
+            type='button'
+          />
+        ) : null}
+
+
 
         {/* Loading */}
         {loadingNotes && <Loading />}

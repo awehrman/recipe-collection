@@ -3,6 +3,7 @@ import { AuthenticationError } from 'apollo-server-micro';
 
 import { PrismaContext } from '../context';
 import { isAuthenticated } from './helpers/evernote';
+import { parseNotesContent, saveNotes } from './helpers/note';
 import { downloadNotes } from './evernote';
 
 type EvernoteResponseProps = {
@@ -38,7 +39,7 @@ export const createNotes = async (ctx: PrismaContext, notes: Note[]): Promise<No
 };
 
 export const importNotes = async (
-	root: unknown, // TODO look this up
+	_root: unknown, // TODO look this up
 	_args: unknown, // TODO look this up
 	ctx: PrismaContext
 ): Promise<EvernoteResponseProps> => {
@@ -58,4 +59,26 @@ export const importNotes = async (
 		response.error = `${err}`;
 	}
   return response;
-}
+};
+
+export const parseNotes = async (
+	_root: unknown, // TODO look this up
+	_args: unknown, // TODO look this up
+	ctx: PrismaContext
+): Promise<EvernoteResponseProps> => {
+	console.log('parseNotes');
+  const response:EvernoteResponseProps = {};
+	const { prisma } = ctx;
+
+	try {
+		const notes: Note[] = await prisma.note.findMany()
+			.then(parseNotesContent)
+			.then((notes) => saveNotes(notes, prisma));
+		console.log('updated:', notes?.instructions);
+			// TODO we really don't even need to pass this back if we're just going to refetch
+		response.notes = [...notes];
+	} catch (err) {
+		response.error = `${err}`;
+	}
+  return response;
+};

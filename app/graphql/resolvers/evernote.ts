@@ -130,7 +130,6 @@ const getNotesData = async (store: Evernote.NoteStoreClient, notes: PreSaveNote[
   });
 
   const response = await Promise.all(resolveContent);
-  console.log({ response });
   return response;
 };
 
