@@ -12,7 +12,7 @@ type IngredientLine = {
   parsed?: {
     index: number,
     ingredient: {
-      id: string;
+      id: number;
       isValidated: boolean;
       name: string;
     }
@@ -26,7 +26,7 @@ type IngredientLine = {
 
 
 type InstructionLine = {
-  id: string;
+  id: number;
   createAt: string;
   updatedAt: string;
   blockIndex: number;
@@ -51,29 +51,35 @@ export const parseNotesContent = (notes: NoteProps[]) => {
 };
 
 const saveNote = async (note: NoteProps, prisma: PrismaClient): Promise<NoteProps> => {
-  console.log('saveNote ~ ~ ~ ~');
-  //const ingredients = [...note.ingredients];
-  const instructions = [...note.instructions];
-  // delete note.ingredients;
-  delete note.instructions;
+  // clear out any previous relations
+  delete note.ingredients;
   console.log(JSON.stringify({
-    // ingredients: {
-    //   create: [...ingredients],
-    // },
     instructions: {
-      create: [...instructions],
-    }
+      upsert: (note?.instructions ?? []).map((instruction) => ({
+        create: { ...instruction },
+        update: { ...instruction },
+        where: { id: instruction.id },
+      })),
+    },
   }, null, 2));
 
+  // update relations
   const result = await prisma.note.update({
     data: {
-      // ...note,
-      // ingredients: {
-      //   create: [...ingredients],
-      // },
+      // title: note.title,
+      // source: note.source,
+      // // categories?:
+      // // tags?:
+      // image: note.image,
+      // content: note.content,
+      // isParsed: note.isParsed,
       instructions: {
-        create: [...instructions],
-      }
+        upsert: (note?.instructions ?? []).map((instruction) => ({
+          create: { ...instruction },
+          update: { ...instruction },
+          where: { id: instruction.id },
+        })),
+      },
     },
     where: { id: note.id },
   });
@@ -81,9 +87,8 @@ const saveNote = async (note: NoteProps, prisma: PrismaClient): Promise<NoteProp
 };
 
 export const saveNotes = async (notes: NoteProps[], prisma: PrismaClient): Promise<NoteProps[]> => {
-  console.log({ notes });
+  console.log('saveNotes');
   const result = await Promise.all(notes.map((note) => saveNote(note, prisma)));
-  console.log({ result });
   return result;
 }
 

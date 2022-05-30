@@ -6,7 +6,7 @@ export type NotePageProps = {
 }
 
 type InstructionLine = {
-  id: string;
+  id: number;
   createAt: string;
   updatedAt: string;
   blockIndex: number;
@@ -20,7 +20,7 @@ type IngredientLine = {
   parsed?: {
     index: number,
     ingredient: {
-      id: string;
+      id: number;
       isValidated: boolean;
       name: string;
     }
@@ -33,11 +33,11 @@ type IngredientLine = {
 }
 
 export type NoteProps = {
-  id: string;
+  id: number;
   createdAt: string;
   updatedAt: string;
   evernoteGUID: string;
-  // ingredients?: IngredientLine[];
+  ingredients?: IngredientLine[];
   instructions?: InstructionLine[];
   title: string;
   source?: string;

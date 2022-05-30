@@ -66,7 +66,6 @@ export const parseNotes = async (
 	_args: unknown, // TODO look this up
 	ctx: PrismaContext
 ): Promise<EvernoteResponseProps> => {
-	console.log('parseNotes');
   const response:EvernoteResponseProps = {};
 	const { prisma } = ctx;
 
@@ -74,7 +73,7 @@ export const parseNotes = async (
 		const notes: Note[] = await prisma.note.findMany()
 			.then(parseNotesContent)
 			.then((notes) => saveNotes(notes, prisma));
-		console.log('updated:', notes?.instructions);
+		console.log('updated:', notes?.[0]?.instructions);
 			// TODO we really don't even need to pass this back if we're just going to refetch
 		response.notes = [...notes];
 	} catch (err) {

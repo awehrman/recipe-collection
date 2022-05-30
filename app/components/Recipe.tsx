@@ -2,7 +2,7 @@ import React from "react";
 import Router from "next/router";
 
 export type RecipeProps = {
-  id: string;
+  id: number;
 };
 
 const Recipe: React.FC<{ Recipe: RecipeProps }> = ({ Recipe }) => {

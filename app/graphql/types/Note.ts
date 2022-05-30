@@ -5,7 +5,7 @@ import { importNotes, parseNotes } from '../resolvers/note';
 export const Note = objectType({
   name: 'Note',
   definition(t) {
-    t.string('id');
+    t.int('id');
     // TODO https://nexusjs.org/docs/api/scalar-type
     t.string('createdAt');
     t.string('updatedAt');
@@ -24,7 +24,7 @@ export const Note = objectType({
 // //       // const data = await ctx.prisma.note.findMany();
 // //       // return data;
 //       return {
-//         id: '123',
+//         id: 123,
 //         createdAt: '123',
 //         updatedAt: '123',
 //         blockIndex: 0,
@@ -37,11 +37,14 @@ export const Note = objectType({
 //     });
     t.list.field('instructions', {
       type: 'InstructionLine',
-      resolve: async () => {
+      resolve: async (root,_args, ctx) => {
         console.log('resolving instruction line...');
-//       // const data = await ctx.prisma.note.findMany();
-//       // return data;
-      return [];
+        if (!root?.id) {
+          return [];
+        }
+        const lines = await ctx.prisma.instructionLine.findMany({ where: { noteId: root.id } });
+        console.log({ lines });
+        return lines;
       },
     });
   }
@@ -50,10 +53,10 @@ export const Note = objectType({
 export const IngredientLine = objectType({
   name: 'IngredientLine',
   definition(t) {
-    t.string('id');
+    t.int('id');
     t.string('createdAt');
     t.string('updatedAt');
-    t.string('blockIndex');
+    t.int('blockIndex');
     t.int('lineIndex');
     t.string('reference');
     t.string('rule');
@@ -69,7 +72,7 @@ export const IngredientLine = objectType({
 export const InstructionLine = objectType({
   name: 'InstructionLine',
   definition(t) {
-    t.string('id');
+    t.int('id');
     t.string('createdAt');
     t.string('updatedAt');
     t.int('blockIndex');

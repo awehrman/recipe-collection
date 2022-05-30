@@ -23,9 +23,9 @@ type ImportLocalResponse {
 }
 
 type IngredientLine {
-  blockIndex: String
+  blockIndex: Int
   createdAt: String
-  id: String
+  id: Int
   isParsed: Boolean
   lineIndex: Int
   reference: String
@@ -36,7 +36,7 @@ type IngredientLine {
 type InstructionLine {
   blockIndex: Int
   createdAt: String
-  id: String
+  id: Int
   reference: String
   updatedAt: String
 }
@@ -53,7 +53,7 @@ type Note {
   content: String!
   createdAt: String
   evernoteGUID: String!
-  id: String
+  id: Int
   image: String
   instructions: [InstructionLine]
   isParsed: Boolean!

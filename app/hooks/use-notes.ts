@@ -3,25 +3,24 @@ import { useQuery, useMutation } from '@apollo/client';
 import { GET_ALL_NOTES_QUERY } from '../graphql/queries/note';
 import { PARSE_NOTES_MUTATION } from '../graphql/mutations/note';
 
-type IngredientLine = {
-  blockIndex: number;
-  isParsed?: boolean;
-  lineIndex: number;
-  parsed?: {
-    index: number,
-    ingredient: {
-      id: string;
-      isValidated: boolean;
-      name: string;
-    }
-    rule: string;
-    type: string;
-    value: string;
-  }
-  reference: string
-  rule?: string
-}
-
+// type IngredientLine = {
+//   blockIndex: number;
+//   isParsed?: boolean;
+//   lineIndex: number;
+//   parsed?: {
+//     index: number,
+//     ingredient: {
+//       id: string;
+//       isValidated: boolean;
+//       name: string;
+//     }
+//     rule: string;
+//     type: string;
+//     value: string;
+//   }
+//   reference: string
+//   rule?: string
+// }
 
 type InstructionLine = {
   id: string;
