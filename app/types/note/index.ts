@@ -1,7 +1,7 @@
 export type EvernoteNoteContent = {
   content: string;
   evernoteGUID: string;
-  image: string | null; // ? buffer
+  image: string | null;
 };
 
 export type EvernoteNoteMetaData = {
@@ -14,29 +14,31 @@ export type EvernoteNoteMetaData = {
 };
 
 export type ImportedNote = {
+  createdAt?: string | Date;
   // categories: Category[]; // ? or a pre-import version
   content: string;
   evernoteGUID: string;
-  image: string | null; // ? buffer?
+  image: string | null;
   isParsed: boolean;
   source: string | null;
   // tags: Tag[]; // ? or a pre-import version
   title: string;
+  updatedAt?: string | Date;
 };
 
 // TODO there's got to be a better way to include the Prisma Note type here
 export type Note = {
   content: string;
-  createdAt?: string;
+  createdAt?: string | Date;
   evernoteGUID: string;
   id: number;
-  image?: string;
+  image: string | null;
   // ingredients: IngredientLine[];
   instructions: InstructionLine[];
   isParsed: boolean;
-  source?: string;
+  source: string | null;
   title: string;
-  updatedAt?: string;
+  updatedAt?: string | Date;
 };
 
 export type NoteRelations = {
@@ -47,7 +49,9 @@ export type NoteRelations = {
 // TODO after you sort out your date types, you can
 // drop this in favor of the type from PrismaClient
 export type InstructionLine = {
+  createdAt?: string | Date;
   id: number;
   blockIndex: number;
   noteId: number;
+  updatedAt?: string | Date;
 };

@@ -5,16 +5,15 @@ import useNotes from '../../hooks/use-notes';
 import { Loading } from '../common';
 
 import Note from './note';
-import { NoteProps, NotesProps } from './types';
 
-const Notes: React.FC<NotesProps> = () => {
+const Notes: React.FC = () => {
   const { notes, loading } = useNotes();
 
   function renderNotes() {
     if (loading) {
       return <Loading />
     }
-    return notes?.map((note: NoteProps, index: number) =>
+    return notes?.map((note, index) =>
       <Note key={note?.id ?? index} note={note} />);
   }
 

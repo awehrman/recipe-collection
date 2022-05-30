@@ -1,7 +1,4 @@
-import {
-  Note as PrismaNote,
-  PrismaClient,
-} from '@prisma/client';
+import { Note as PrismaNote, Prisma, PrismaClient } from '@prisma/client';
 import Evernote from 'evernote';
 import { IncomingMessage } from 'http';
 import { getSession } from 'next-auth/client';
@@ -32,12 +29,13 @@ export const createNotes = async (
     if (!note || !note.content || !note.title) {
       throw new Error('Could not create note!');
     }
-    const data = {
+    const data: Prisma.NoteUncheckedCreateInput = {
       content: note.content,
       evernoteGUID: note.evernoteGUID,
-      image: `${note.image}`,
-      source: note.source,
+      image: `${note?.image}`,
+      source: note?.source ?? null,
       title: note.title,
+      isParsed: note.isParsed,
     };
 
     const noteResponse = await prisma.note.create({ data }).catch((err) => {
@@ -87,24 +85,24 @@ const combineNote = async (
     }
   );
 
-  return {
+  const result: Note = {
     ...note,
     // ingredients,
     instructions,
   };
+
+  return result;
 };
 
 export const getNotes = async (prisma: PrismaClient): Promise<Note[]> => {
   // get all note content
   const contents: PrismaNote[] = await prisma.note.findMany();
 
-  const resolveNoteRelations = (): Promise<Note[]> =>
-    contents.map(
-      async (note: PrismaNote): Promise<Note> => combineNote(note, prisma)
-    );
+  const resolveNoteRelations = async (note: PrismaNote): Promise<Note> =>
+    combineNote(note, prisma);
 
   // get the rest of the note relations
-  const notes: Note[] = await Promise.all(resolveNoteRelations);
+  const notes = await Promise.all(contents.map(resolveNoteRelations));
   return notes;
 };
 
@@ -227,7 +225,7 @@ const getNotesMetadata = async (
     // categories: [ note.notebookGuid ], // TODO
     evernoteGUID: `${note.guid}`,
     isParsed: false,
-    source: note.attributes?.sourceURL ?? null,
+    source: note?.attributes?.sourceURL ?? null,
     // tags: (note.tagGuids) ? [ ...note.tagGuids ] : null, // TODO
     title: `${note.title}`,
   }));

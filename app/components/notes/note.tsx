@@ -5,10 +5,14 @@ import pretty from 'pretty';
 import styled from 'styled-components';
 
 import { Button } from '../common';
-import { NotePageProps } from './types';
+import { Note } from '../../types/note';
 
 type ContentProps = {
   isExpanded: boolean;
+};
+
+type NotePageProps = {
+  note: Note
 };
 
 const Note: React.FC<NotePageProps> = ({ note }) => {

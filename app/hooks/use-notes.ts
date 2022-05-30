@@ -5,8 +5,8 @@ import { PARSE_NOTES_MUTATION } from '../graphql/mutations/note';
 
 // type IngredientLine = {
   // id: string;
-  // createdAt: Date;
-  // updatedAt: Date;
+  // createdAt: string | Date;
+  // updatedAt: string | Date;
 //   blockIndex: number;
 //   isParsed?: boolean;
 //   lineIndex: number;
@@ -27,16 +27,16 @@ import { PARSE_NOTES_MUTATION } from '../graphql/mutations/note';
 
 type InstructionLine = {
   id: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string | Date;
+  updatedAt: string | Date;
   blockIndex: number;
   reference: string;
 }
 
 type NoteProps = {
   id: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string | Date;
+  updatedAt: string | Date;
   evernoteGUID: string;
   // ingredients?: IngredientLine[];
   instructions?: InstructionLine[];
