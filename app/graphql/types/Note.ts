@@ -38,12 +38,10 @@ export const Note = objectType({
     t.list.field('instructions', {
       type: 'InstructionLine',
       resolve: async (root,_args, ctx) => {
-        console.log('resolving instruction line...');
         if (!root?.id) {
           return [];
         }
         const lines = await ctx.prisma.instructionLine.findMany({ where: { noteId: root.id } });
-        console.log({ lines });
         return lines;
       },
     });

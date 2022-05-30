@@ -81,7 +81,7 @@ const Title = styled.h2`
 const ContentStyles = styled.div<ContentProps>`
   font-size: 10px;
   width: 100%;
-  overflow: hidden;
+  overflow: scroll;
   height: ${({ isExpanded }) => isExpanded ? 'unset' : '200px' };
 
   pre {

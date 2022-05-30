@@ -1,78 +1,37 @@
 import { PrismaClient } from '@prisma/client';
-import cheerio from 'cheerio';
-// import { Note } from '@prisma/client'; this doesn't have any of the relation types on it
+import * as cheerio from 'cheerio';
 
-import { NoteProps } from '../../../components/notes/types';
+import { ImportedNote, InstructionLine, Note } from '../../../types/note';
 import Parser from '../../../lib/line-parser-min';
 
-type IngredientLine = {
-  blockIndex: number;
-  isParsed?: boolean;
-  lineIndex: number;
-  parsed?: {
-    index: number,
-    ingredient: {
-      id: number;
-      isValidated: boolean;
-      name: string;
+export const parseNotesContent = (notes: Note[]) => {
+  const parsedNotes = notes.map((note) => {
+    const { content } = note;
+    if (!content) {
+      throw new Error(
+        `Note: ${note?.title ?? note.evernoteGUID} is missing content!`
+      );
     }
-    rule: string;
-    type: string;
-    value: string;
-  }
-  reference: string
-  rule?: string
-}
-
-
-type InstructionLine = {
-  id: number;
-  createAt: string;
-  updatedAt: string;
-  blockIndex: number;
-  reference: string;
-}
-
-export const parseNotesContent = (notes: NoteProps[]) => {
-	const parsedNotes = notes.map((note) => {
-		const { content } = note;
-		if (!content) {
-			throw new Error(`Note: ${note?.title ?? note.evernoteGUID} is missing content!`);
-		}
-		const { ingredients, instructions } = parseContent(content);
-		return {
-			...note,
-			ingredients,
-			instructions,
-		}
-	});
-	// TODO save updates to prisma
-	return parsedNotes;
+    const { ingredients, instructions } = parseContent(content, note);
+    return {
+      ...note,
+      ingredients,
+      instructions,
+    };
+  });
+  return parsedNotes;
 };
 
-const saveNote = async (note: NoteProps, prisma: PrismaClient): Promise<NoteProps> => {
-  // clear out any previous relations
-  delete note.ingredients;
-  console.log(JSON.stringify({
-    instructions: {
-      upsert: (note?.instructions ?? []).map((instruction) => ({
-        create: { ...instruction },
-        update: { ...instruction },
-        where: { id: instruction.id },
-      })),
-    },
-  }, null, 2));
-
-  // update relations
-  const result = await prisma.note.update({
+const saveNote = async (note: Note, prisma: PrismaClient): Promise<Note> => {
+  await prisma.note.update({
     data: {
       // title: note.title,
       // source: note.source,
       // // categories?:
       // // tags?:
       // image: note.image,
-      // content: note.content,
-      // isParsed: note.isParsed,
+      content: note.content,
+      isParsed: true,
       instructions: {
         upsert: (note?.instructions ?? []).map((instruction) => ({
           create: { ...instruction },
@@ -83,22 +42,25 @@ const saveNote = async (note: NoteProps, prisma: PrismaClient): Promise<NoteProp
     },
     where: { id: note.id },
   });
+
+  return note;
+};
+
+export const saveNotes = async (
+  notes: ImportedNote[] | Note[],
+  prisma: PrismaClient
+): Promise<Note[] | ImportedNote[]> => {
+  const result = await Promise.all(notes.map((note) => saveNote(note, prisma)));
   return result;
 };
 
-export const saveNotes = async (notes: NoteProps[], prisma: PrismaClient): Promise<NoteProps[]> => {
-  console.log('saveNotes');
-  const result = await Promise.all(notes.map((note) => saveNote(note, prisma)));
-  return result;
-}
+const parseContent = (content: string, note: Note) => {
+  const { ingredients, instructions } = parseHTML(content, note);
 
-const parseContent = (content: string) => {
-	const { ingredients, instructions } = parseHTML(content);
-
-	return {
-		ingredients,
-		instructions,
-	};
+  return {
+    ingredients,
+    instructions,
+  };
 };
 
 /*
@@ -146,9 +108,9 @@ const parseContent = (content: string) => {
 	</en-note>
  */
 
-const parseHTML = (content: string) => {
-  const ingredients: IngredientLine[] = [];
-  const instructions: InstructionLine[] = [];
+const parseHTML = (content: string, note: Note) => {
+  const ingredients: unknown[] = []; // TODO
+  let instructions: InstructionLine[] = [];
 
   // load our string dom content into a cheerio object
   // this will allow us to easily traverse the DOM tree
@@ -160,29 +122,28 @@ const parseHTML = (content: string) => {
   let currentBlock: unknown[] = [];
   const blocks: unknown[] = [];
 
-
   // TODO wehrman you should really re-write this
   children.forEach((div) => {
-    const numChildren = (div.children && div.children.length) ? div.children.length : 0;
-    let textNode = (numChildren > 0) ? div.children[0] : null;
+    const numChildren =
+      div.children && div.children.length ? div.children.length : 0;
+    let textNode = numChildren > 0 ? div.children[0] : null;
     if (numChildren > 1) {
       textNode = div.children.find((c) => c.type === 'text');
     }
     const data = textNode && textNode.data && textNode.data.trim();
     const hasContent = Boolean(data);
 
-    if (!hasContent && (currentBlock.length > 0)) {
+    if (!hasContent && currentBlock.length > 0) {
       blocks.push(currentBlock);
       currentBlock = [];
-    } else if (data && (data.length > 0)) {
+    } else if (data && data.length > 0) {
       currentBlock.push(data);
     }
   });
 
-
   blocks.forEach((block, blockIndex) => {
     // add ingredient lines if its the first line, or if we have multiple lines per block
-    if ((blockIndex === 0) || (block.length > 1)) {
+    if (blockIndex === 0 || block.length > 1) {
       block.forEach((line: string, lineIndex: number) => {
         ingredients.push({
           blockIndex,
@@ -200,7 +161,7 @@ const parseHTML = (content: string) => {
   });
 
   // this occurs if we have a single line, useful mostly for testing
-  if ((blocks.length === 0) && (currentBlock.length > 0)) {
+  if (blocks.length === 0 && currentBlock.length > 0) {
     currentBlock.forEach((line, lineIndex) => {
       ingredients.push({
         blockIndex: 0,
@@ -211,7 +172,7 @@ const parseHTML = (content: string) => {
   }
 
   // if we still have leftovers in the current block and blocks is populated, then its a leftover instruction
-  if ((blocks.length > 0) && (currentBlock.length > 0)) {
+  if (blocks.length > 0 && currentBlock.length > 0) {
     currentBlock.forEach((line) => {
       instructions.push({
         blockIndex: blocks.length,
@@ -221,10 +182,37 @@ const parseHTML = (content: string) => {
   }
 
   // parse each ingredient line into its individual components
-  const ingredientLines = ingredients.map((line) => parseIngredientLine(line));
-
+  let parsedIngredientLines = ingredients.map((line) =>
+    parseIngredientLine(line)
+  );
+  console.log({ note });
+  // if we've previously parsed this, check changes
+  if (note?.ingredients?.length || note?.instructions?.length) {
+    if (note?.ingredients?.length === parsedIngredientLines.length) {
+      parsedIngredientLines = parsedIngredientLines.map((line, index) => ({
+        ...line,
+        id: note.ingredients[index].id,
+      }));
+    } else {
+      // TODO and come back to deal with this case
+      throw new Error(
+        'Wehrman you never implemented this feature for ingredients!'
+      );
+    }
+    if (note?.instructions?.length === instructions.length) {
+      instructions = instructions.map((line, index) => ({
+        ...line,
+        id: note.instructions[index].id,
+      }));
+    } else {
+      throw new Error(
+        'Wehrman you never implemented this feature for instructions!'
+      );
+    }
+  }
+  console.log({ instructions });
   return {
-    ingredients: ingredientLines,
+    ingredients: parsedIngredientLines,
     instructions,
   };
 };
@@ -249,27 +237,27 @@ const parseHTML = (content: string) => {
 	}
 */
 const parseIngredientLine = (line: IngredientLine) => {
-	const ingredientLine = {
-		...line,
-		isParsed: false,
-		reference: line.reference.trim(),
-	};
-	let parsed;
+  const ingredientLine = {
+    ...line,
+    isParsed: false,
+    reference: line.reference.trim(),
+  };
+  let parsed;
 
-	try {
-		parsed = Parser.parse(ingredientLine.reference);
-		ingredientLine.isParsed = true;
-		ingredientLine.rule = parsed.rule;
-		ingredientLine.parsed = parsed.values.map((data, index) => ({
-			...data,
-			index,
-			value: data.value.trim(),
-		}));
-	} catch (err) {
-		console.log(`failed to parse lineIndex: ${ ingredientLine.reference }`);
-		console.log(line);
-		// TODO log failures to db
-	}
+  try {
+    parsed = Parser.parse(ingredientLine.reference);
+    ingredientLine.isParsed = true;
+    ingredientLine.rule = parsed.rule;
+    ingredientLine.parsed = parsed.values.map((data, index) => ({
+      ...data,
+      index,
+      value: data.value.trim(),
+    }));
+  } catch (err) {
+    console.log(`failed to parse lineIndex: ${ingredientLine.reference}`);
+    console.log(line);
+    // TODO log failures to db
+  }
 
-	return ingredientLine;
+  return ingredientLine;
 };

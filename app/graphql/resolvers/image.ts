@@ -1,24 +1,27 @@
-import cloudinary from 'cloudinary';
+import cloudinary, { UploadApiOptions } from 'cloudinary';
 
+import { ImportedNote } from '../../types/note';
+
+// TODO go chase down cloudinary types and
 cloudinary.config({
 	cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
 	api_key: process.env.CLOUDINARY_API_KEY,
 	api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export const saveImages = async (notes) => {
+export const saveImages = async (notes: ImportedNote[]) => {
 	const resolveImage = notes
 		.map(async (note) => {
 			const { image } = note;
 			if (!image) {
 				throw new Error('No image exists in this note.');
 			}
-			const uploaded = await uploadImage(image, { folder: 'recipes' })
+			const uploaded = await uploadImage(Buffer.from(image), { folder: 'recipes' })
 				.catch((err) => { throw err; });
 
 			return {
 				...note,
-				image: uploaded.secure_url,
+				image: uploaded?.secure_url,
 			};
 		});
 
@@ -28,7 +31,7 @@ export const saveImages = async (notes) => {
 	return notesRes;
 };
 
-export const uploadImage = async (buffer, options) => (
+export const uploadImage = async (buffer: Buffer, options: UploadApiOptions): Promise<unknown> => (
 	new Promise((resolve, reject) => {
 		cloudinary.v2.uploader.upload_stream(options, (error, result) => {
 			if (error) {

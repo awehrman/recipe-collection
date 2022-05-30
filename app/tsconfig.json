@@ -18,15 +18,16 @@
     "jsx": "preserve",
     "rootDir": ".",
     "baseUrl": ".",
-    "typeRoots": ["node_modules/@types", "types", "@types"],
+    "typeRoots": ["node_modules/@types", "@types", "types/**"],
     "plugins": [{ "name": "nexus/typescript-language-service" }],
     "skipLibCheck": true,
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx"
-, "pages/theme.js"  ],
+    "**/*.tsx",
+    "pages/theme.js",
+  ],
   "exclude": [
     "node_modules",
     "app/generated"

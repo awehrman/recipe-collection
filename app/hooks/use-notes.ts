@@ -4,6 +4,9 @@ import { GET_ALL_NOTES_QUERY } from '../graphql/queries/note';
 import { PARSE_NOTES_MUTATION } from '../graphql/mutations/note';
 
 // type IngredientLine = {
+  // id: string;
+  // createdAt: Date;
+  // updatedAt: Date;
 //   blockIndex: number;
 //   isParsed?: boolean;
 //   lineIndex: number;
@@ -24,16 +27,16 @@ import { PARSE_NOTES_MUTATION } from '../graphql/mutations/note';
 
 type InstructionLine = {
   id: string;
-  createAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   blockIndex: number;
   reference: string;
 }
 
 type NoteProps = {
   id: string;
-  createdAt: string;
-  updatedAt?: string;
+  createdAt: Date;
+  updatedAt: Date;
   evernoteGUID: string;
   // ingredients?: IngredientLine[];
   instructions?: InstructionLine[];
@@ -49,7 +52,6 @@ const sortByDateCreatedDesc = (a: NoteProps, b: NoteProps) => (+a.createdAt < +b
 
 function useNotes() {
   const { data, loading, refetch } = useQuery(GET_ALL_NOTES_QUERY);
-  console.log('use-notes', { data });
   let notes: NoteProps[] = (data?.notes ?? []);
   notes = [...notes].sort(sortByDateCreatedDesc)
 

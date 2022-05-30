@@ -7,8 +7,8 @@ export type NotePageProps = {
 
 type InstructionLine = {
   id: number;
-  createAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   blockIndex: number;
   reference: string;
 }
@@ -34,8 +34,8 @@ type IngredientLine = {
 
 export type NoteProps = {
   id: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   evernoteGUID: string;
   ingredients?: IngredientLine[];
   instructions?: InstructionLine[];

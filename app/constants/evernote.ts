@@ -1,6 +1,6 @@
 import Evernote from 'evernote';
 
-export const metadataSpec = new Evernote.NoteStore.NotesMetadataResultSpec({
+export const METADATA_NOTE_SPEC = new Evernote.NoteStore.NotesMetadataResultSpec({
   includeTitle: true,
   includeContentLength: false,
   includeCreated: false,
@@ -14,7 +14,7 @@ export const metadataSpec = new Evernote.NoteStore.NotesMetadataResultSpec({
   includeLargestResourceSize: false,
 });
 
-export const noteSpec = new Evernote.NoteStore.NoteResultSpec({
+export const NOTE_SPEC = new Evernote.NoteStore.NoteResultSpec({
   includeContent: true,
   includeResourcesData: true,
   includeResourcesRecognition: false,
@@ -24,3 +24,6 @@ export const noteSpec = new Evernote.NoteStore.NoteResultSpec({
   includeResourceAppDataValues: true,
   includeAccountLimits: false,
 });
+
+export const NOTE_FILTER = new Evernote.NoteStore.NoteFilter();
+export const MAX_NOTES_LIMIT = parseInt(`${process.env.DOWNLOAD_LIMIT}`) ?? 1;
