@@ -14,6 +14,7 @@ export type EvernoteNoteMetaData = {
 };
 
 export type ImportedNote = {
+  id?: number;
   createdAt?: string | Date;
   // categories: Category[]; // ? or a pre-import version
   content: string;
@@ -49,9 +50,10 @@ export type NoteRelations = {
 // TODO after you sort out your date types, you can
 // drop this in favor of the type from PrismaClient
 export type InstructionLine = {
-  createdAt?: string | Date;
-  id: number;
   blockIndex: number;
-  noteId: number;
+  createdAt?: string | Date;
+  id?: number;
+  noteId?: number;
+  reference: string;
   updatedAt?: string | Date;
 };

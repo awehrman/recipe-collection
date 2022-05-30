@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import * as cheerio from 'cheerio';
 
-import { ImportedNote, InstructionLine, Note } from '../../../types/note';
+import { InstructionLine, Note } from '../../../types/note';
 import Parser from '../../../lib/line-parser-min';
 
 export const parseNotesContent = (notes: Note[]) => {
@@ -23,7 +23,18 @@ export const parseNotesContent = (notes: Note[]) => {
 };
 
 const saveNote = async (note: Note, prisma: PrismaClient): Promise<Note> => {
-  await prisma.note.update({
+  const instructions = {
+    upsert: note.instructions.map((instruction: InstructionLine) => ({
+      where: { id: instruction?.id },
+      update: { ...instruction },
+      create: {
+        blockIndex: instruction.blockIndex,
+        reference: instruction.reference,
+      },
+    }))
+  };
+
+  const noteResult = await prisma.note.update({
     data: {
       // title: note.title,
       // source: note.source,
@@ -32,24 +43,26 @@ const saveNote = async (note: Note, prisma: PrismaClient): Promise<Note> => {
       // image: note.image,
       content: note.content,
       isParsed: true,
-      instructions: {
-        upsert: (note?.instructions ?? []).map((instruction) => ({
-          create: { ...instruction },
-          update: { ...instruction },
-          where: { id: instruction.id },
-        })),
-      },
+      instructions,
+      // ingredients
     },
     where: { id: note.id },
   });
 
-  return note;
+  const updatedInstructions = await prisma.instructionLine.findMany({
+    where: { noteId: note.id },
+  });
+
+  return {
+    ...noteResult,
+    instructions: updatedInstructions,
+  };
 };
 
 export const saveNotes = async (
-  notes: ImportedNote[] | Note[],
+  notes: Note[],
   prisma: PrismaClient
-): Promise<Note[] | ImportedNote[]> => {
+): Promise<Note[]> => {
   const result = await Promise.all(notes.map((note) => saveNote(note, prisma)));
   return result;
 };
