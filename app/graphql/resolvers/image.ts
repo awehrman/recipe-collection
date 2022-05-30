@@ -11,7 +11,7 @@ cloudinary.config({
 
 export const saveImages = async (notes: ImportedNote[]) => {
 	const resolveImage = notes
-		.map(async (note) => {
+		.map(async (note: ImportedNote) => {
 			const { image } = note;
 			if (!image) {
 				throw new Error('No image exists in this note.');

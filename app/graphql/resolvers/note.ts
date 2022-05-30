@@ -48,12 +48,13 @@ export const parseNotes = async (
   try {
     const notes: Note[] = await getNotes(prisma)
       .then(parseNotesContent)
-      .then((notes: ImportedNote[] | Note[]) => saveNotes(notes, prisma));
+      .then((notes: Note[]) => saveNotes(notes, prisma));
     // TODO we really don't even need to pass this back if we're just going to refetch
     // i guess decide on whether we want to just shove this into the cache on update or not
     response.notes = [...notes];
   } catch (err) {
     response.error = `${err}`;
   }
+  console.log({ response });
   return response;
 };

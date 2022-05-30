@@ -176,7 +176,7 @@ const getNoteContent = async (
     .getNoteWithResultSpec(guid, NOTE_SPEC)
     .then(({ content = '', resources }) => {
       if (!resources) {
-        console.error('No image found for note ${guid}');
+        console.error(`No image found for note ${guid}`);
       }
       return {
         evernoteGUID: guid,

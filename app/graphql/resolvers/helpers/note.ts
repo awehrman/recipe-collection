@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import * as cheerio from 'cheerio';
 
-import { InstructionLine, Note } from '../../../types/note';
+import { ImportedNote, InstructionLine, Note } from '../../../types/note';
 import Parser from '../../../lib/line-parser-min';
 
 export const parseNotesContent = (notes: Note[]) => {
@@ -23,25 +23,51 @@ export const parseNotesContent = (notes: Note[]) => {
 };
 
 const saveNote = async (note: Note, prisma: PrismaClient): Promise<Note> => {
-  const instructions = {
-    upsert: note.instructions.map((instruction: InstructionLine) => ({
-      where: { id: instruction?.id },
-      update: { ...instruction },
-      create: {
-        blockIndex: instruction.blockIndex,
-        reference: instruction.reference,
-      },
-    }))
-  };
+  // TODO this a pretty dumb check; will want to replace this with _.every
+  const isCreate = note.instructions?.[0]?.id === undefined;
+  console.log({ isCreate, note: note.instructions?.[0]?.id, note });
+  const instructions: Prisma.InstructionLineUpdateManyWithoutNoteInput = isCreate
+    ? (
+      {
+        create: note.instructions.map(({ blockIndex, reference }) => ({
+          blockIndex,
+          reference,
+        }))
+      }
+    ) : (
+      {
+        update: note.instructions.map(({ id, blockIndex, reference }) => ({
+          where: { id },
+          data: { blockIndex, reference }, // ? updatedAt
+        }))
+      }
+    );
+
+  console.log(JSON.stringify(
+    {
+      data: {
+        // TODO eventually we'll add in the ability to edit these
+        // title: note.title,
+        // source: note.source,
+        // // categories?:
+        // // tags?:
+        // image: note.image,
+        // content: note.content,
+        isParsed: true,
+        instructions,
+        // ingredients
+      }
+    }, null, 2));
 
   const noteResult = await prisma.note.update({
     data: {
+      // TODO eventually we'll add in the ability to edit these
       // title: note.title,
       // source: note.source,
       // // categories?:
       // // tags?:
       // image: note.image,
-      content: note.content,
+      // content: note.content,
       isParsed: true,
       instructions,
       // ingredients
@@ -121,7 +147,7 @@ const parseContent = (content: string, note: Note) => {
 	</en-note>
  */
 
-const parseHTML = (content: string, note: Note) => {
+const parseHTML = (content: string, note: Note | ImportedNote) => {
   const ingredients: unknown[] = []; // TODO
   let instructions: InstructionLine[] = [];
 
@@ -195,27 +221,20 @@ const parseHTML = (content: string, note: Note) => {
   }
 
   // parse each ingredient line into its individual components
-  let parsedIngredientLines = ingredients.map((line) =>
+  const parsedIngredientLines = ingredients.map((line) =>
     parseIngredientLine(line)
   );
-  console.log({ note });
+
   // if we've previously parsed this, check changes
-  if (note?.ingredients?.length || note?.instructions?.length) {
-    if (note?.ingredients?.length === parsedIngredientLines.length) {
-      parsedIngredientLines = parsedIngredientLines.map((line, index) => ({
+  if (
+    (note as Note).instructions !== undefined &&
+    (note as Note)?.instructions?.length > 0
+  ) {
+    console.log((note as Note)?.instructions?.length, instructions.length);
+    if ((note as Note).instructions.length === instructions.length) {
+      instructions = instructions.map((line, index: number) => ({
         ...line,
-        id: note.ingredients[index].id,
-      }));
-    } else {
-      // TODO and come back to deal with this case
-      throw new Error(
-        'Wehrman you never implemented this feature for ingredients!'
-      );
-    }
-    if (note?.instructions?.length === instructions.length) {
-      instructions = instructions.map((line, index) => ({
-        ...line,
-        id: note.instructions[index].id,
+        id: (note as Note)?.instructions?.[index]?.id,
       }));
     } else {
       throw new Error(
@@ -249,7 +268,8 @@ const parseHTML = (content: string, note: Note) => {
 		]
 	}
 */
-const parseIngredientLine = (line: IngredientLine) => {
+const parseIngredientLine = (line: unknown) => {
+  // IngredientLine
   const ingredientLine = {
     ...line,
     isParsed: false,
@@ -261,7 +281,7 @@ const parseIngredientLine = (line: IngredientLine) => {
     parsed = Parser.parse(ingredientLine.reference);
     ingredientLine.isParsed = true;
     ingredientLine.rule = parsed.rule;
-    ingredientLine.parsed = parsed.values.map((data, index) => ({
+    ingredientLine.parsed = parsed.values.map((data, index: number) => ({
       ...data,
       index,
       value: data.value.trim(),
