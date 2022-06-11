@@ -34,7 +34,7 @@ export type Note = {
   evernoteGUID: string;
   id: number;
   image: string | null;
-  // ingredients: IngredientLine[];
+  ingredients: IngredientLine[];
   instructions: InstructionLine[];
   isParsed: boolean;
   source: string | null;
@@ -43,7 +43,7 @@ export type Note = {
 };
 
 export type NoteRelations = {
-  // ingredients: IngredientLine[];
+  ingredients: IngredientLine[];
   instructions: InstructionLine[];
 };
 
@@ -55,5 +55,17 @@ export type InstructionLine = {
   id?: number;
   noteId?: number;
   reference: string;
+  updatedAt?: string | Date;
+};
+
+export type IngredientLine = {
+  blockIndex: number;
+  createdAt?: string | Date;
+  id?: number;
+  isParsed: boolean;
+  lineIndex: number;
+  noteId?: number;
+  reference: string;
+  rule: string;
   updatedAt?: string | Date;
 };

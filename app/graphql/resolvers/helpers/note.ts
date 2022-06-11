@@ -24,9 +24,10 @@ export const parseNotesContent = (notes: Note[]) => {
 
 const saveNote = async (note: Note, prisma: PrismaClient): Promise<Note> => {
   // TODO this a pretty dumb check; will want to replace this with _.every
-  const isCreate = note.instructions?.[0]?.id === undefined;
-  console.log({ isCreate, note: note.instructions?.[0]?.id, note });
-  const instructions: Prisma.InstructionLineUpdateManyWithoutNoteInput = isCreate
+  const isCreateInstructions = note.instructions?.[0]?.id === undefined;
+  const isCreateIngredients = note.ingredients?.[0]?.id === undefined;
+
+  const instructions: Prisma.InstructionLineUpdateManyWithoutNoteInput = isCreateInstructions
     ? (
       {
         create: note.instructions.map(({ blockIndex, reference }) => ({
@@ -43,21 +44,31 @@ const saveNote = async (note: Note, prisma: PrismaClient): Promise<Note> => {
       }
     );
 
-  console.log(JSON.stringify(
-    {
-      data: {
-        // TODO eventually we'll add in the ability to edit these
-        // title: note.title,
-        // source: note.source,
-        // // categories?:
-        // // tags?:
-        // image: note.image,
-        // content: note.content,
-        isParsed: true,
-        instructions,
-        // ingredients
+  const ingredients: Prisma.IngredientLineUpdateManyWithoutNoteInput = isCreateIngredients
+    ? (
+      {
+        create: note.ingredients.map(({ blockIndex, isParsed, lineIndex, reference, rule }) => ({
+          blockIndex,
+          isParsed,
+          lineIndex,
+          reference,
+          rule,
+        }))
       }
-    }, null, 2));
+    ) : (
+      {
+        update: note.ingredients.map(({ id, blockIndex, isParsed, lineIndex, reference, rule }) => ({
+          where: { id },
+          data: {
+            blockIndex,
+            isParsed,
+            lineIndex,
+            reference,
+            rule,
+          }, // ? updatedAt
+        }))
+      }
+    );
 
   const noteResult = await prisma.note.update({
     data: {
@@ -70,7 +81,7 @@ const saveNote = async (note: Note, prisma: PrismaClient): Promise<Note> => {
       // content: note.content,
       isParsed: true,
       instructions,
-      // ingredients
+      ingredients
     },
     where: { id: note.id },
   });
@@ -230,7 +241,6 @@ const parseHTML = (content: string, note: Note | ImportedNote) => {
     (note as Note).instructions !== undefined &&
     (note as Note)?.instructions?.length > 0
   ) {
-    console.log((note as Note)?.instructions?.length, instructions.length);
     if ((note as Note).instructions.length === instructions.length) {
       instructions = instructions.map((line, index: number) => ({
         ...line,
@@ -242,7 +252,7 @@ const parseHTML = (content: string, note: Note | ImportedNote) => {
       );
     }
   }
-  console.log({ instructions });
+
   return {
     ingredients: parsedIngredientLines,
     instructions,
@@ -265,6 +275,7 @@ const parseHTML = (content: string, note: Note | ImportedNote) => {
 					"type": "ingredient",
 					"value": "apples"
 				}
+        ...
 		]
 	}
 */
@@ -287,10 +298,11 @@ const parseIngredientLine = (line: unknown) => {
       value: data.value.trim(),
     }));
   } catch (err) {
-    console.log(`failed to parse lineIndex: ${ingredientLine.reference}`);
+    console.log(`OH FUCK! failed to parse lineIndex: ${ingredientLine.reference}`);
     console.log(line);
     // TODO log failures to db
   }
 
+  console.log(JSON.stringify(ingredientLine, null, 2));
   return ingredientLine;
 };

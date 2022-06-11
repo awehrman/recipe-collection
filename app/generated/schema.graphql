@@ -55,6 +55,7 @@ type Note {
   evernoteGUID: String!
   id: Int
   image: String
+  ingredients: [IngredientLine]
   instructions: [InstructionLine]
   isParsed: Boolean!
   source: String

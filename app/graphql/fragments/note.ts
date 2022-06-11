@@ -7,7 +7,14 @@ export const ALL_NOTE_FIELDS = gql`
 		createdAt
 		updatedAt
 		evernoteGUID
-		# ingredients
+		ingredients  {
+			id
+			blockIndex
+			isParsed
+			lineIndex
+			reference
+			rule
+		}
 		instructions {
 			id
 			blockIndex

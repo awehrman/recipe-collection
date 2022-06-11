@@ -17,24 +17,16 @@ export const Note = objectType({
     t.string('image');
     t.nonNull.string('content');
     t.nonNull.boolean('isParsed');
-//     t.list.field('ingredients', {
-//       type: 'IngredientLine',
-//       resolve: async (root, _args) => {
-//         console.log('resolving ingredient line', { _args });
-// //       // const data = await ctx.prisma.note.findMany();
-// //       // return data;
-//       return {
-//         id: 123,
-//         createdAt: '123',
-//         updatedAt: '123',
-//         blockIndex: 0,
-//         lineIndex: 0,
-//         reference: 'test',
-//         rule: 'test',
-//         isParsed: false,
-//       };
-//       },
-//     });
+    t.list.field('ingredients', {
+      type: 'IngredientLine',
+      resolve: async (root,_args, ctx) => {
+        if (!root?.id) {
+          return [];
+        }
+        const lines = await ctx.prisma.ingredientLine.findMany({ where: { noteId: root.id } });
+        return lines;
+      },
+    });
     t.list.field('instructions', {
       type: 'InstructionLine',
       resolve: async (root,_args, ctx) => {
@@ -59,7 +51,6 @@ export const IngredientLine = objectType({
     t.string('reference');
     t.string('rule');
     t.boolean('isParsed');
-    // parsed
     // recipe
     // note
     // recipeId

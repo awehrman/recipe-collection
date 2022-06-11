@@ -71,7 +71,7 @@ export const getEvernoteNotes = async (
   return response;
 };
 
-const combineNote = async (
+const assignRelations = async (
   note: PrismaNote,
   prisma: PrismaClient
 ): Promise<Note> => {
@@ -99,7 +99,7 @@ export const getNotes = async (prisma: PrismaClient): Promise<Note[]> => {
   const contents: PrismaNote[] = await prisma.note.findMany();
 
   const resolveNoteRelations = async (note: PrismaNote): Promise<Note> =>
-    combineNote(note, prisma);
+    assignRelations(note, prisma);
 
   // get the rest of the note relations
   const notes = await Promise.all(contents.map(resolveNoteRelations));

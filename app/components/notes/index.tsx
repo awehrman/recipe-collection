@@ -8,6 +8,7 @@ import Note from './note';
 
 const Notes: React.FC = () => {
   const { notes, loading } = useNotes();
+  console.log({ notes });
 
   function renderNotes() {
     if (loading) {

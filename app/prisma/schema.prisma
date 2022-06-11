@@ -182,26 +182,26 @@ model Session {
 //   @@map(name: "tags")
 // }
 
-// model IngredientLine {
-//   id        Int      @id @default(autoincrement())
-//   createdAt DateTime @default(now()) @map(name: "created_at")
-//   updatedAt DateTime @default(now()) @map(name: "updated_at")
+model IngredientLine {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @default(now()) @map(name: "updated_at")
 
-//   blockIndex Int     @map(name: "block_index")
-//   lineIndex  Int     @map(name: "line_index")
-//   reference  String
-//   rule       String
-//   isParsed   Boolean @map(name: "is_parsed")
-//   // parsed     ParsedSegment[]
+  blockIndex Int     @map(name: "block_index")
+  lineIndex  Int     @map(name: "line_index")
+  reference  String
+  rule       String
+  isParsed   Boolean @map(name: "is_parsed")
+  // parsed     ParsedSegment[]
 
-//   // recipe   Recipe @relation(fields: [recipeId], references: [id])
-//   // recipeId Int
+  // recipe   Recipe @relation(fields: [recipeId], references: [id])
+  // recipeId Int
 
-//   // note   Note @relation(fields: [noteId], references: [id])
-//   // noteId Int
+  Note   Note? @relation(fields: [noteId], references: [id])
+  noteId Int?
 
-//   @@map(name: "ingredient_line")
-// }
+  @@map(name: "ingredient_line")
+}
 
 model InstructionLine {
   id         Int      @id @default(autoincrement())
@@ -209,9 +209,6 @@ model InstructionLine {
   updatedAt  DateTime @default(now()) @map(name: "updated_at")
   blockIndex Int      @map(name: "block_index")
   reference  String
-
-  // recipe   Recipe @relation(fields: [recipeId], references: [id])
-  // recipeId Int
 
   note   Note @relation(fields: [noteId], references: [id])
   noteId Int
@@ -257,7 +254,7 @@ model Note {
   content  String // may need to check size limit here
   isParsed Boolean @default(false) @map(name: "is_parsed")
 
-  // ingredients  IngredientLine[]
+  ingredients  IngredientLine[]
   instructions InstructionLine[]
 }
 

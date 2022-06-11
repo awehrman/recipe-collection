@@ -37,6 +37,7 @@ export const importNotes = async (
   return response;
 };
 
+// TODO consider renaming to resolveParseNotes or something more specific
 export const parseNotes = async (
   _root: unknown, // TODO look this up
   _args: unknown, // TODO look this up
@@ -55,6 +56,5 @@ export const parseNotes = async (
   } catch (err) {
     response.error = `${err}`;
   }
-  console.log({ response });
   return response;
 };

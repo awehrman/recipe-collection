@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@apollo/client';
 import { GET_ALL_NOTES_QUERY } from '../graphql/queries/note';
 import { PARSE_NOTES_MUTATION } from '../graphql/mutations/note';
 
+// TODO clean up your types
 // type IngredientLine = {
   // id: string;
   // createdAt: string | Date;
