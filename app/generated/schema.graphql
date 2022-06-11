@@ -28,6 +28,7 @@ type IngredientLine {
   id: Int
   isParsed: Boolean
   lineIndex: Int
+  parsed: [ParsedSegment]
   reference: String
   rule: String
   updatedAt: String
@@ -61,6 +62,16 @@ type Note {
   source: String
   title: String!
   updatedAt: String
+}
+
+type ParsedSegment {
+  createdAt: String
+  id: Int
+  index: Int
+  rule: String
+  type: String
+  updatedAt: String
+  value: String
 }
 
 type Query {

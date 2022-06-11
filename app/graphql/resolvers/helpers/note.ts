@@ -26,7 +26,6 @@ const saveNote = async (note: Note, prisma: PrismaClient): Promise<Note> => {
   // TODO this a pretty dumb check; will want to replace this with _.every
   const isCreateInstructions = note.instructions?.[0]?.id === undefined;
   const isCreateIngredients = note.ingredients?.[0]?.id === undefined;
-
   const instructions: Prisma.InstructionLineUpdateManyWithoutNoteInput = isCreateInstructions
     ? (
       {
@@ -44,32 +43,54 @@ const saveNote = async (note: Note, prisma: PrismaClient): Promise<Note> => {
       }
     );
 
+  // TODO you may have created the ingredient line, BUT NOT the parsed segment
+  // will need to update that
   const ingredients: Prisma.IngredientLineUpdateManyWithoutNoteInput = isCreateIngredients
     ? (
       {
-        create: note.ingredients.map(({ blockIndex, isParsed, lineIndex, reference, rule }) => ({
+        create: note.ingredients.map(({ blockIndex, isParsed, lineIndex, parsed = [], reference, rule }) => ({
           blockIndex,
           isParsed,
           lineIndex,
           reference,
+          parsed: {
+            create: parsed.map(({ index, rule, type, value }) => ({
+              index,
+              rule,
+              type,
+              value,
+            })),
+          },
           rule,
         }))
       }
     ) : (
       {
-        update: note.ingredients.map(({ id, blockIndex, isParsed, lineIndex, reference, rule }) => ({
+        update: note.ingredients.map(({ id, blockIndex, isParsed, lineIndex, parsed = [], reference, rule }) => ({
           where: { id },
           data: {
             blockIndex,
             isParsed,
             lineIndex,
             reference,
+            parsed: {
+              update: parsed.map(({ id: parsedId, index, rule, type, value }) => ({
+                where: { id: parsedId },
+                data: {
+                  index,
+                  rule,
+                  type,
+                  value,
+                },
+              })),
+            },
             rule,
           }, // ? updatedAt
         }))
       }
     );
 
+    console.log(JSON.stringify(ingredients, null, 2));
   const noteResult = await prisma.note.update({
     data: {
       // TODO eventually we'll add in the ability to edit these

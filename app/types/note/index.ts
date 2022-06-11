@@ -65,7 +65,18 @@ export type IngredientLine = {
   isParsed: boolean;
   lineIndex: number;
   noteId?: number;
+  parsed?: ParsedSegment[];
   reference: string;
   rule: string;
+  updatedAt?: string | Date;
+};
+
+export type ParsedSegment = {
+  id?: number;
+  createdAt?: string | Date;
+  index: number;
+  rule: string;
+  type: string;
+  value: string;
   updatedAt?: string | Date;
 };

@@ -187,12 +187,12 @@ model IngredientLine {
   createdAt DateTime @default(now()) @map(name: "created_at")
   updatedAt DateTime @default(now()) @map(name: "updated_at")
 
-  blockIndex Int     @map(name: "block_index")
-  lineIndex  Int     @map(name: "line_index")
+  blockIndex Int             @map(name: "block_index")
+  lineIndex  Int             @map(name: "line_index")
   reference  String
   rule       String
-  isParsed   Boolean @map(name: "is_parsed")
-  // parsed     ParsedSegment[]
+  isParsed   Boolean         @map(name: "is_parsed")
+  parsed     ParsedSegment[]
 
   // recipe   Recipe @relation(fields: [recipeId], references: [id])
   // recipeId Int
@@ -219,24 +219,24 @@ model InstructionLine {
   @@map(name: "instruction_line")
 }
 
-// model ParsedSegment {
-//   id        Int      @id @default(autoincrement())
-//   createdAt DateTime @default(now()) @map(name: "created_at")
-//   updatedAt DateTime @default(now()) @map(name: "updated_at")
+model ParsedSegment {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @default(now()) @map(name: "updated_at")
 
-//   index Int
-//   rule  String
-//   type  String
-//   value String
+  index Int
+  rule  String
+  type  String
+  value String
 
-//   ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
-//   ingredientId Int        @map("ingredient_id")
+  // ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  // ingredientId Int        @map("ingredient_id")
 
-//   ingredientLine   IngredientLine @relation(fields: [ingredientLineId], references: [id])
-//   ingredientLineId Int            @map("ingredient_line_id")
+  ingredientLine   IngredientLine @relation(fields: [ingredientLineId], references: [id])
+  ingredientLineId Int            @map("ingredient_line_id")
 
-//   @@map(name: "parsed_segment")
-// }
+  @@map(name: "parsed_segment")
+}
 
 model Note {
   id           Int      @id @default(autoincrement())

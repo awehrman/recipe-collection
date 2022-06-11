@@ -12,6 +12,13 @@ export const ALL_NOTE_FIELDS = gql`
 			blockIndex
 			isParsed
 			lineIndex
+			parsed {
+				id
+				index
+				rule
+				type
+				value
+			}
 			reference
 			rule
 		}

@@ -51,10 +51,33 @@ export const IngredientLine = objectType({
     t.string('reference');
     t.string('rule');
     t.boolean('isParsed');
+    t.list.field('parsed', {
+      type: 'ParsedSegment',
+      resolve: async (root,_args, ctx) => {
+        if (!root?.id) {
+          return [];
+        }
+        const lines = await ctx.prisma.parsedSegment.findMany({ where: { ingredientLineId: root.id } });
+        return lines;
+      },
+    });
     // recipe
     // note
     // recipeId
     // noteId
+  }
+});
+
+export const ParsedSegment = objectType({
+  name: 'ParsedSegment',
+  definition(t) {
+    t.int('id');
+    t.string('createdAt');
+    t.string('updatedAt');
+    t.int('index');
+    t.string('rule');
+    t.string('type');
+    t.string('value');
   }
 });
 
