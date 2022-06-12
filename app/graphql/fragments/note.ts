@@ -15,6 +15,11 @@ export const ALL_NOTE_FIELDS = gql`
 			parsed {
 				id
 				index
+				ingredient {
+					id
+					name
+					plural
+				}
 				rule
 				type
 				value

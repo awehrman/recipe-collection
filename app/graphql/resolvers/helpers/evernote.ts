@@ -7,6 +7,7 @@ import {
   EvernoteNoteContent,
   EvernoteNoteMetaData,
   ImportedNote,
+  IngredientLine,
   InstructionLine,
   Note,
 } from '../../../types/note';
@@ -75,9 +76,9 @@ const assignRelations = async (
   note: PrismaNote,
   prisma: PrismaClient
 ): Promise<Note> => {
-  // const ingredients: IngredientLine[] = await prisma.ingredientLine.findMany({
-  // 	where: { noteId: note.id }
-  // });
+  const ingredients: IngredientLine[] = await prisma.ingredientLine.findMany({
+    where: { noteId: note.id }
+  });
 
   const instructions: InstructionLine[] = await prisma.instructionLine.findMany(
     {
@@ -87,7 +88,7 @@ const assignRelations = async (
 
   const result: Note = {
     ...note,
-    // ingredients,
+    ingredients,
     instructions,
   };
 

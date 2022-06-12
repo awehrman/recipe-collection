@@ -40,6 +40,25 @@ export const Note = objectType({
   }
 });
 
+export const Ingredient = objectType({
+  name: 'Ingredient',
+  definition(t) {
+    t.int('id');
+    t.string('createdAt');
+    t.string('updatedAt');
+    t.string('name');
+    t.string('plural');
+    t.boolean('isComposedIngredient');
+    t.boolean('isValidated');
+    // alternateNames[]
+    // properties
+    // parent / parentId
+    // relatedIngredients[]
+    // substitutes[]
+    // references[]
+  }
+});
+
 export const IngredientLine = objectType({
   name: 'IngredientLine',
   definition(t) {
@@ -75,9 +94,30 @@ export const ParsedSegment = objectType({
     t.string('createdAt');
     t.string('updatedAt');
     t.int('index');
+    t.nullable.field('ingredient', {
+      type: 'Ingredient',
+      resolve: async (root, _args, ctx) => {
+        if ((root?.type && root.type !== 'ingredient') || !root?.ingredientId) {
+          return null;
+        }
+        const data = await ctx.prisma.ingredient.findUnique({ where: { id: +root.ingredientId } });
+        console.log({
+          id: data?.id,
+          name: data?.name,
+          plural: data?.plural,
+      });
+        return {
+          id: data?.id,
+          name: data?.name,
+          plural: data?.plural,
+        };
+      },
+    });
     t.string('rule');
     t.string('type');
     t.string('value');
+    t.nullable.int('ingredientId');
+    t.nullable.int('ingredientLineId');
   }
 });
 

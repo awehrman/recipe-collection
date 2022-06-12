@@ -1,31 +1,189 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import * as cheerio from 'cheerio';
 
-import { ImportedNote, InstructionLine, Note } from '../../../types/note';
+import {
+  ExistingParsedSegment,
+  ImportedNote,
+  // Ingredient,
+  IngredientLine,
+  InstructionLine,
+  Note,
+  ParsedSegment,
+} from '../../../types/note';
 import Parser from '../../../lib/line-parser-min';
 
-export const parseNotesContent = (notes: Note[]) => {
-  const parsedNotes = notes.map((note) => {
-    const { content } = note;
-    if (!content) {
-      throw new Error(
-        `Note: ${note?.title ?? note.evernoteGUID} is missing content!`
-      );
+const findIngredient = async (name: string, prisma: PrismaClient)
+  :Promise<Prisma.IngredientCreateNestedOneWithoutParsedSegmentInput | null> => {
+    const existing = await prisma.ingredient.findMany({
+      where: {
+        OR: [
+          { name: { equals: name } },
+          { plural: { equals: name } },
+          // TODO search by plural values
+          // TODO search by altNames
+        ],
+      }
+    });
+    console.log({ existing });
+
+    if (!existing?.length) {
+      // TODO determine plural/singular
+      const ingredient = await prisma.ingredient.create({ data: { name: name }});
+      if (ingredient?.id) {
+        return { connect: { id: +ingredient.id } };
+      }
     }
-    const { ingredients, instructions } = parseContent(content, note);
-    return {
-      ...note,
-      ingredients,
-      instructions,
+    if (existing?.length > 0 && existing?.[0]?.id) {
+      // TODO any updates needed here? new plural, altNames or something?
+      return { connect: { id: +existing[0].id } };
+    }
+
+    return null;
+  };
+
+const createParsedSegment = async (parsed: ParsedSegment, prisma: PrismaClient)
+  : Promise<Prisma.ParsedSegmentCreateWithoutIngredientLineInput> => {
+    const data: Prisma.ParsedSegmentCreateWithoutIngredientLineInput = {
+      index: parsed.index,
+      rule: parsed.rule,
+      type: parsed.type,
+      value: parsed.value,
     };
-  });
-  return parsedNotes;
+    const hasIngredient = parsed.type === 'ingredient';
+    const ingredient: Prisma.IngredientCreateNestedOneWithoutParsedSegmentInput | null =
+      hasIngredient
+        ? await findIngredient(parsed.value, prisma)
+        : null;
+
+    if (hasIngredient && ingredient !== null) {
+      data.ingredient = ingredient;
+    }
+
+    return data;
+};
+
+const updateParsedSegment = async (parsed: ExistingParsedSegment, prisma: PrismaClient)
+  : Promise<Prisma.ParsedSegmentUpdateWithWhereUniqueWithoutIngredientLineInput> => {
+    const data: Prisma.ParsedSegmentUpdateWithoutIngredientLineInput = {
+      index: parsed.index,
+      rule: parsed.rule,
+      type: parsed.type,
+      value: parsed.value,
+    };
+    // TODO there's probably some disconnections that should happen here
+    const hasIngredient = parsed.type === 'ingredient' && !parsed?.ingredient;
+    const ingredient: Prisma.IngredientCreateNestedOneWithoutParsedSegmentInput | null =
+      hasIngredient
+        ? await findIngredient(parsed.value, prisma)
+        : parsed?.ingredient?.id ? { connect: { id: +parsed.ingredient.id } } : null;
+
+    if (hasIngredient && ingredient !== null) {
+      data.ingredient = ingredient;
+    }
+
+    return {
+      where: { id: +parsed.id },
+      data,
+    };
+};
+
+const resolveParsedBuild = async (parsed: ParsedSegment, prisma: PrismaClient)
+  :Promise<(Prisma.ParsedSegmentCreateNestedManyWithoutIngredientLineInput
+    | Prisma.ParsedSegmentUpdateManyWithoutIngredientLineInput)> => {
+    const isNewParsedSegment = !parsed?.id;
+    if (isNewParsedSegment) {
+      const create: Prisma.ParsedSegmentCreateWithoutIngredientLineInput =
+        await createParsedSegment(parsed, prisma);
+      return { create };
+    }
+    const update: Prisma.ParsedSegmentUpdateWithWhereUniqueWithoutIngredientLineInput =
+        await updateParsedSegment(parsed as ExistingParsedSegment, prisma);
+    return { update };
+  };
+
+const buildParsedSegments = async (parsedSegments: ParsedSegment[] = [], prisma: PrismaClient)
+  : Promise<(Prisma.ParsedSegmentUpdateManyWithoutIngredientLineInput)> => {
+      console.log('buildParsedSegments');
+      const parsedConnection: (Prisma.ParsedSegmentCreateNestedManyWithoutIngredientLineInput
+        | Prisma.ParsedSegmentUpdateManyWithoutIngredientLineInput)[] = await Promise.all(
+        parsedSegments.map(async (parsed) => resolveParsedBuild(parsed, prisma)));
+      console.log(JSON.stringify(parsedConnection, null, 2));
+      const create = parsedConnection.filter((c) => c?.create).map((c) => c.create);
+      const update = parsedConnection.filter((c) => c?.update).map((c) => c.update);
+      const result = {};
+      if (create.length > 0) {
+        result.create = create;
+      }
+      if (update.length > 0) {
+        result.update = update;
+      }
+
+      return result;
+    };
+
+const createIngredientLine = async (ingredient: IngredientLine, prisma: PrismaClient)
+  : Promise<Prisma.IngredientLineCreateWithoutNoteInput>  => {
+    const parsed: Prisma.ParsedSegmentCreateNestedManyWithoutIngredientLineInput =
+      await buildParsedSegments(ingredient.parsed, prisma);
+      console.log('parsed', JSON.stringify(parsed, null, 2))
+    return {
+      blockIndex: ingredient.blockIndex,
+      lineIndex: ingredient.lineIndex,
+      reference: ingredient.reference,
+      rule: ingredient.rule,
+      isParsed: ingredient.isParsed,
+      parsed,
+    };
+  };
+
+const updateIngredientLine = async (ingredient: IngredientLine, prisma: PrismaClient)
+  : Promise<Prisma.IngredientLineUpdateWithWhereUniqueWithoutNoteInput>  => {
+    const parsed: Prisma.ParsedSegmentUpdateManyWithoutIngredientLineInput =
+      await buildParsedSegments(ingredient.parsed, prisma);
+    return {
+      where: { id: +ingredient.id },
+      data: {
+        blockIndex: ingredient.blockIndex,
+        lineIndex: ingredient.lineIndex,
+        reference: ingredient.reference,
+        rule: ingredient.rule,
+        isParsed: ingredient.isParsed,
+        parsed,
+      },
+    };
+  };
+
+const createIngredientLines = async (ingredients: IngredientLine[] = [], prisma: PrismaClient)
+: Promise<Prisma.IngredientLineCreateWithoutNoteInput[]> =>
+  Promise.all(
+    ingredients.map(async (ingredient: IngredientLine) => createIngredientLine(ingredient, prisma))
+  );
+
+const updateIngredientLines = async (ingredients: IngredientLine[] = [], prisma: PrismaClient)
+: Promise<Prisma.IngredientLineUpdateWithWhereUniqueWithoutNoteInput[]> =>
+  Promise.all(
+    ingredients.map(async (ingredient: IngredientLine) =>
+      updateIngredientLine(ingredient, prisma))
+  );
+
+const buildIngredientLines = async (ingredients: IngredientLine[] = [], prisma: PrismaClient)
+  : Promise<Prisma.IngredientLineUpdateManyWithoutNoteInput> => {
+    const isCreateIngredients = ingredients?.[0]?.id === undefined;
+    if (isCreateIngredients) {
+      const create: Promise<Prisma.IngredientLineCreateWithoutNoteInput[]> =
+        await createIngredientLines(ingredients, prisma);
+      return { create };
+    }
+
+    const update: Promise<Prisma.IngredientLineUpdateWithWhereUniqueWithoutNoteInput> =
+      await updateIngredientLines(ingredients, prisma);
+    return { update };
 };
 
 const saveNote = async (note: Note, prisma: PrismaClient): Promise<Note> => {
   // TODO this a pretty dumb check; will want to replace this with _.every
   const isCreateInstructions = note.instructions?.[0]?.id === undefined;
-  const isCreateIngredients = note.ingredients?.[0]?.id === undefined;
+
   const instructions: Prisma.InstructionLineUpdateManyWithoutNoteInput = isCreateInstructions
     ? (
       {
@@ -43,54 +201,9 @@ const saveNote = async (note: Note, prisma: PrismaClient): Promise<Note> => {
       }
     );
 
-  // TODO you may have created the ingredient line, BUT NOT the parsed segment
-  // will need to update that
-  const ingredients: Prisma.IngredientLineUpdateManyWithoutNoteInput = isCreateIngredients
-    ? (
-      {
-        create: note.ingredients.map(({ blockIndex, isParsed, lineIndex, parsed = [], reference, rule }) => ({
-          blockIndex,
-          isParsed,
-          lineIndex,
-          reference,
-          parsed: {
-            create: parsed.map(({ index, rule, type, value }) => ({
-              index,
-              rule,
-              type,
-              value,
-            })),
-          },
-          rule,
-        }))
-      }
-    ) : (
-      {
-        update: note.ingredients.map(({ id, blockIndex, isParsed, lineIndex, parsed = [], reference, rule }) => ({
-          where: { id },
-          data: {
-            blockIndex,
-            isParsed,
-            lineIndex,
-            reference,
-            parsed: {
-              update: parsed.map(({ id: parsedId, index, rule, type, value }) => ({
-                where: { id: parsedId },
-                data: {
-                  index,
-                  rule,
-                  type,
-                  value,
-                },
-              })),
-            },
-            rule,
-          }, // ? updatedAt
-        }))
-      }
-    );
+  const ingredients: Promise<Prisma.IngredientLineUpdateManyWithoutNoteInput> =
+    await buildIngredientLines(note.ingredients, prisma);
 
-    console.log(JSON.stringify(ingredients, null, 2));
   const noteResult = await prisma.note.update({
     data: {
       // TODO eventually we'll add in the ability to edit these
@@ -111,8 +224,13 @@ const saveNote = async (note: Note, prisma: PrismaClient): Promise<Note> => {
     where: { noteId: note.id },
   });
 
+  const updatedIngredients = await prisma.ingredientLine.findMany({
+    where: { noteId: note.id },
+  });
+
   return {
     ...noteResult,
+    ingredients: updatedIngredients, // TODO do we also need to query parsed again?
     instructions: updatedInstructions,
   };
 };
@@ -123,6 +241,24 @@ export const saveNotes = async (
 ): Promise<Note[]> => {
   const result = await Promise.all(notes.map((note) => saveNote(note, prisma)));
   return result;
+};
+
+export const parseNotesContent = (notes: Note[]) => {
+  const parsedNotes = notes.map((note) => {
+    const { content } = note;
+    if (!content) {
+      throw new Error(
+        `Note: ${note?.title ?? note.evernoteGUID} is missing content!`
+      );
+    }
+    const { ingredients, instructions } = parseContent(content, note);
+    return {
+      ...note,
+      ingredients,
+      instructions,
+    };
+  });
+  return parsedNotes;
 };
 
 const parseContent = (content: string, note: Note) => {
@@ -300,7 +436,7 @@ const parseHTML = (content: string, note: Note | ImportedNote) => {
 		]
 	}
 */
-const parseIngredientLine = (line: unknown) => {
+const parseIngredientLine = (line: string) => {
   // IngredientLine
   const ingredientLine = {
     ...line,
@@ -324,6 +460,5 @@ const parseIngredientLine = (line: unknown) => {
     // TODO log failures to db
   }
 
-  console.log(JSON.stringify(ingredientLine, null, 2));
   return ingredientLine;
 };

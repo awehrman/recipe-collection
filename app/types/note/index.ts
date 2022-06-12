@@ -32,7 +32,7 @@ export type Note = {
   content: string;
   createdAt?: string | Date;
   evernoteGUID: string;
-  id: number;
+  id?: number | null;
   image: string | null;
   ingredients: IngredientLine[];
   instructions: InstructionLine[];
@@ -71,10 +71,33 @@ export type IngredientLine = {
   updatedAt?: string | Date;
 };
 
+export type Ingredient = {
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+  name: string;
+  id?: number;
+  plural?: string | null;
+  isComposedIngredient?: boolean;
+  isValidated?: boolean;
+  // TODO properties, altNames, related, parent, substitutes, references
+};
+
 export type ParsedSegment = {
   id?: number;
   createdAt?: string | Date;
   index: number;
+  ingredient?: Ingredient;
+  rule: string;
+  type: string;
+  value: string;
+  updatedAt?: string | Date;
+};
+
+export type ExistingParsedSegment = {
+  id: number;
+  createdAt?: string | Date;
+  index: number;
+  ingredient?: Ingredient;
   rule: string;
   type: string;
   value: string;

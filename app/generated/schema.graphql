@@ -22,6 +22,16 @@ type ImportLocalResponse {
   errorMessage: String
 }
 
+type Ingredient {
+  createdAt: String
+  id: Int
+  isComposedIngredient: Boolean
+  isValidated: Boolean
+  name: String
+  plural: String
+  updatedAt: String
+}
+
 type IngredientLine {
   blockIndex: Int
   createdAt: String
@@ -68,6 +78,9 @@ type ParsedSegment {
   createdAt: String
   id: Int
   index: Int
+  ingredient: Ingredient
+  ingredientId: Int
+  ingredientLineId: Int
   rule: String
   type: String
   updatedAt: String

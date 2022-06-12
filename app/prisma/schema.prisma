@@ -86,38 +86,39 @@ model Session {
 
 // TODO will need to come back and add indicies for these too
 
-// model Ingredient {
-//   id                   Int             @id @default(autoincrement())
-//   createdAt            DateTime        @default(now()) @map(name: "created_at")
-//   updatedAt            DateTime        @default(now()) @map(name: "updated_at")
-//   name                 String          @unique
-//   plural               String          @unique
-//   alternateNames       AlternateName[]
-//   properties           Properties[]
-//   isComposedIngredient Boolean         @default(false) @map(name: "is_composed_ingredient")
-//   isValidated          Boolean         @default(false) @map(name: "is_validated")
+model Ingredient {
+  id                   Int      @id @default(autoincrement())
+  createdAt            DateTime @default(now()) @map(name: "created_at")
+  updatedAt            DateTime @default(now()) @map(name: "updated_at")
+  name                 String   @unique
+  plural               String?  @unique
+  // alternateNames       AlternateName[]
+  // properties           Properties[]
+  isComposedIngredient Boolean  @default(false) @map(name: "is_composed_ingredient")
+  isValidated          Boolean  @default(false) @map(name: "is_validated")
 
-//   // i'm re-thinking related ingredients a bit
-//   // if 'chicken thights' has a parent of 'chicken'
-//   // then my related ingredients are everything else that shares that parent
-//   // (i.e. 'chicken legs', 'chicken quarters')
-//   // i might come back to this but i don't think we need an additional relation here
-//   parent             Ingredient?  @relation("IngredientParent", fields: [parentId], references: [id])
-//   parentId           Int?
-//   relatedIngredients Ingredient[] @relation("IngredientParent")
+  // i'm re-thinking related ingredients a bit
+  // if 'chicken thights' has a parent of 'chicken'
+  // then my related ingredients are everything else that shares that parent
+  // (i.e. 'chicken legs', 'chicken quarters')
+  // i might come back to this but i don't think we need an additional relation here
+  // parent             Ingredient?  @relation("IngredientParent", fields: [parentId], references: [id])
+  // parentId           Int?
+  // relatedIngredients Ingredient[] @relation("IngredientParent")
 
-//   // ingredients that can stand in for this one
-//   substitutes           Ingredient[] @relation("Substitutes", references: [id])
-//   // ingredients that have used this as a substitutes
-//   // i don't think we'll use this side of the relation
-//   referencedSubstitutes Ingredient[] @relation("Substitutes", references: [id]) // the language here is stupid
+  // // ingredients that can stand in for this one
+  // substitutes           Ingredient[] @relation("Substitutes", references: [id])
+  // // ingredients that have used this as a substitutes
+  // // i don't think we'll use this side of the relation
+  // referencedSubstitutes Ingredient[] @relation("Substitutes", references: [id]) // the language here is stupid
 
-//   // references  IngredientLine[]  @relation("References", references: [id])
-//   // i may go back and put another relation in for ingredient lines, but maybe i can make this work
-//   // references ParsedSegment[]
+  // references  IngredientLine[]  @relation("References", references: [id])
+  // i may go back and put another relation in for ingredient lines, but maybe i can make this work
+  // references ParsedSegment[]
 
-//   @@map(name: "ingredients")
-// }
+  ParsedSegment ParsedSegment[]
+  @@map(name: "ingredients")
+}
 
 // enum Properties {
 //   MEAT
@@ -229,8 +230,8 @@ model ParsedSegment {
   type  String
   value String
 
-  // ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
-  // ingredientId Int        @map("ingredient_id")
+  ingredient   Ingredient? @relation(fields: [ingredientId], references: [id])
+  ingredientId Int?        @map("ingredient_id")
 
   ingredientLine   IngredientLine @relation(fields: [ingredientLineId], references: [id])
   ingredientLineId Int            @map("ingredient_line_id")
