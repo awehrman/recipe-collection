@@ -21,20 +21,29 @@ const findIngredient = async (name: string, prisma: PrismaClient)
     if (plural === singular) {
       plural = null;
     }
+    console.log(singular, plural)
+    const where = {
+      OR: [
+        { name: { equals: name } },
+        { plural: { equals: name } },
+        // TODO search by altNames
+      ],
+    };
+    if (plural) {
+      where.OR.push({ name: { equals: plural } });
+      where.OR.push({ plural: { equals: plural } });
+    }
     const existing = await prisma.ingredient.findMany({
-      where: {
-        OR: [
-          { name: { equals: name } },
-          { plural: { equals: name } },
-          { name: { equals: plural } },
-          { plural: { equals: plural } },
-          // TODO search by altNames
-        ],
-      }
+      where
     });
 
     if (!existing?.length) {
-      const ingredient = await prisma.ingredient.create({ data: { name: singular, plural } });
+      const ingredient = await prisma.ingredient.create({ data: { name: singular, plural } })
+        .catch((err) => {
+          // most likely this was already created, so attempt to re-fetch it
+          console.log({ err });
+          findIngredient(name, prisma);
+        });
       if (ingredient?.id) {
         return { connect: { id: +ingredient.id } };
       }
@@ -392,7 +401,7 @@ const parseHTML = (content: string, note: Note | ImportedNote) => {
   }
 
   // parse each ingredient line into its individual components
-  const parsedIngredientLines = ingredients.map((line) =>
+  const parsedIngredientLines = ingredients.map((line: string) =>
     parseIngredientLine(line)
   );
 

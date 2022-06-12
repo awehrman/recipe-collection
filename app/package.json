@@ -10,6 +10,7 @@
   "dependencies": {
     "@apollo/client": "^3.3.19",
     "@prisma/client": "3.14.0",
+    "@types/pluralize": "^0.0.29",
     "apollo-server-micro": "^2.25.0",
     "cheerio": "^1.0.0-rc.11",
     "cloudinary": "^1.28.1",

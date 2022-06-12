@@ -103,7 +103,11 @@ const ParsedNote: React.FC<ParsedNotePageProps> = ({ note }) => {
 };
 
 export default ParsedNote;
-const Block = styled.ul``;
+const Block = styled.ul`
+  &:last-of-type {
+    margin-bottom: 20px;
+  }
+`;
 const Parsed = styled.span`
   span {
     margin-left: 2px;
@@ -144,7 +148,7 @@ const IngredientListItem = styled.li`
   margin-bottom: 2px;
 
   &:last-of-type {
-    margin-bottom: 20px;
+    margin-bottom: 12px;
   }
 `;
 
