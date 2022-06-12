@@ -24,7 +24,6 @@ const findIngredient = async (name: string, prisma: PrismaClient)
         ],
       }
     });
-    console.log({ existing });
 
     if (!existing?.length) {
       // TODO determine plural/singular
@@ -103,11 +102,9 @@ const resolveParsedBuild = async (parsed: ParsedSegment, prisma: PrismaClient)
 
 const buildParsedSegments = async (parsedSegments: ParsedSegment[] = [], prisma: PrismaClient)
   : Promise<(Prisma.ParsedSegmentUpdateManyWithoutIngredientLineInput)> => {
-      console.log('buildParsedSegments');
       const parsedConnection: (Prisma.ParsedSegmentCreateNestedManyWithoutIngredientLineInput
         | Prisma.ParsedSegmentUpdateManyWithoutIngredientLineInput)[] = await Promise.all(
         parsedSegments.map(async (parsed) => resolveParsedBuild(parsed, prisma)));
-      console.log(JSON.stringify(parsedConnection, null, 2));
       const create = parsedConnection.filter((c) => c?.create).map((c) => c.create);
       const update = parsedConnection.filter((c) => c?.update).map((c) => c.update);
       const result = {};
@@ -125,7 +122,6 @@ const createIngredientLine = async (ingredient: IngredientLine, prisma: PrismaCl
   : Promise<Prisma.IngredientLineCreateWithoutNoteInput>  => {
     const parsed: Prisma.ParsedSegmentCreateNestedManyWithoutIngredientLineInput =
       await buildParsedSegments(ingredient.parsed, prisma);
-      console.log('parsed', JSON.stringify(parsed, null, 2))
     return {
       blockIndex: ingredient.blockIndex,
       lineIndex: ingredient.lineIndex,
@@ -258,6 +254,7 @@ export const parseNotesContent = (notes: Note[]) => {
       instructions,
     };
   });
+  console.log('~~~~~~', JSON.stringify(parsedNotes, null, 2));
   return parsedNotes;
 };
 

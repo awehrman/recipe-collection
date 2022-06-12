@@ -23,7 +23,10 @@ export const Note = objectType({
         if (!root?.id) {
           return [];
         }
-        const lines = await ctx.prisma.ingredientLine.findMany({ where: { noteId: root.id } });
+        const lines = await ctx.prisma.ingredientLine.findMany({
+          where: { noteId: root.id },
+        });
+
         return lines;
       },
     });
@@ -101,11 +104,6 @@ export const ParsedSegment = objectType({
           return null;
         }
         const data = await ctx.prisma.ingredient.findUnique({ where: { id: +root.ingredientId } });
-        console.log({
-          id: data?.id,
-          name: data?.name,
-          plural: data?.plural,
-      });
         return {
           id: data?.id,
           name: data?.name,
