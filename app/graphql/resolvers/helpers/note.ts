@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import * as cheerio from 'cheerio';
+import pluralize from 'pluralize';
 
 import {
   ExistingParsedSegment,
@@ -14,26 +15,32 @@ import Parser from '../../../lib/line-parser-min';
 
 const findIngredient = async (name: string, prisma: PrismaClient)
   :Promise<Prisma.IngredientCreateNestedOneWithoutParsedSegmentInput | null> => {
+    const isSingular = pluralize.isSingular(name);
+    let plural = isSingular ? pluralize.plural(name) : name;
+    const singular = isSingular ? name : pluralize.singular(name);
+    if (plural === singular) {
+      plural = null;
+    }
     const existing = await prisma.ingredient.findMany({
       where: {
         OR: [
           { name: { equals: name } },
           { plural: { equals: name } },
-          // TODO search by plural values
+          { name: { equals: plural } },
+          { plural: { equals: plural } },
           // TODO search by altNames
         ],
       }
     });
 
     if (!existing?.length) {
-      // TODO determine plural/singular
-      const ingredient = await prisma.ingredient.create({ data: { name: name }});
+      const ingredient = await prisma.ingredient.create({ data: { name: singular, plural } });
       if (ingredient?.id) {
         return { connect: { id: +ingredient.id } };
       }
     }
     if (existing?.length > 0 && existing?.[0]?.id) {
-      // TODO any updates needed here? new plural, altNames or something?
+      // TODO update ingredient references?
       return { connect: { id: +existing[0].id } };
     }
 
@@ -254,7 +261,6 @@ export const parseNotesContent = (notes: Note[]) => {
       instructions,
     };
   });
-  console.log('~~~~~~', JSON.stringify(parsedNotes, null, 2));
   return parsedNotes;
 };
 

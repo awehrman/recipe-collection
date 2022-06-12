@@ -5,6 +5,7 @@ import useNotes from '../../hooks/use-notes';
 import { Loading } from '../common';
 
 import Note from './note';
+import ParsedNote from './parsed-note';
 
 const Notes: React.FC = () => {
   const { notes, loading } = useNotes();
@@ -14,8 +15,12 @@ const Notes: React.FC = () => {
     if (loading) {
       return <Loading />
     }
-    return notes?.map((note, index) =>
-      <Note key={note?.id ?? index} note={note} />);
+    return notes?.map((note, index) => {
+      if (note.isParsed) {
+        return (<ParsedNote key={`parsed_${note?.id ?? index}`} note={note} />);
+      }
+      return (<Note key={note?.id ?? index} note={note} />);
+    });
   }
 
   return (
