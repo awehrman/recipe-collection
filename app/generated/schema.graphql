@@ -2,6 +2,11 @@
 ### Do not make changes to this file directly
 
 
+type AlternateName {
+  ingredientId: Int
+  name: String
+}
+
 type AuthenticationResponse {
   authURL: String
   errorMessage: String
@@ -23,12 +28,14 @@ type ImportLocalResponse {
 }
 
 type Ingredient {
+  alternateNames: [AlternateName]
   createdAt: String
   id: Int
   isComposedIngredient: Boolean
   isValidated: Boolean
   name: String
   plural: String
+  properties: [Property]
   updatedAt: String
 }
 
@@ -85,6 +92,15 @@ type ParsedSegment {
   type: String
   updatedAt: String
   value: String
+}
+
+enum Property {
+  DAIRY
+  FISH
+  GLUTEN
+  MEAT
+  POULTRY
+  SOY
 }
 
 type Query {

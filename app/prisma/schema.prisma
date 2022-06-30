@@ -87,15 +87,15 @@ model Session {
 // TODO will need to come back and add indicies for these too
 
 model Ingredient {
-  id                   Int      @id @default(autoincrement())
-  createdAt            DateTime @default(now()) @map(name: "created_at")
-  updatedAt            DateTime @default(now()) @map(name: "updated_at")
-  name                 String   @unique
-  plural               String?  @unique
-  // alternateNames       AlternateName[]
-  // properties           Properties[]
-  isComposedIngredient Boolean  @default(false) @map(name: "is_composed_ingredient")
-  isValidated          Boolean  @default(false) @map(name: "is_validated")
+  id                   Int             @id @default(autoincrement())
+  createdAt            DateTime        @default(now()) @map(name: "created_at")
+  updatedAt            DateTime        @default(now()) @map(name: "updated_at")
+  name                 String          @unique
+  plural               String?         @unique
+  alternateNames       AlternateName[]
+  properties           Properties[]
+  isComposedIngredient Boolean         @default(false) @map(name: "is_composed_ingredient")
+  isValidated          Boolean         @default(false) @map(name: "is_validated")
 
   // i'm re-thinking related ingredients a bit
   // if 'chicken thights' has a parent of 'chicken'
@@ -120,22 +120,22 @@ model Ingredient {
   @@map(name: "ingredients")
 }
 
-// enum Properties {
-//   MEAT
-//   POULTRY
-//   FISH
-//   DAIRY
-//   SOY
-//   GLUTEN
-// }
+enum Properties {
+  MEAT
+  POULTRY
+  FISH
+  DAIRY
+  SOY
+  GLUTEN
+}
 
-// model AlternateName {
-//   name         String     @unique
-//   ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
-//   ingredientId Int
+model AlternateName {
+  name         String     @unique
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  ingredientId Int
 
-//   @@map(name: "alternate_names")
-// }
+  @@map(name: "alternate_names")
+}
 
 // model Recipe {
 //   id             Int      @id @default(autoincrement())

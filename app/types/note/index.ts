@@ -79,8 +79,24 @@ export type Ingredient = {
   plural?: string | null;
   isComposedIngredient?: boolean;
   isValidated?: boolean;
+  alternateNames?: AlternateName[];
+  properties: Property[];
   // TODO properties, altNames, related, parent, substitutes, references
 };
+
+export type AlternateName = {
+  name: string;
+  ingredientId: number;
+}
+
+export enum Property {
+  MEAT,
+  POULTRY,
+  FISH,
+  DAIRY,
+  SOY,
+  GLUTEN
+}
 
 export type ParsedSegment = {
   id?: number;

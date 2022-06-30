@@ -19,6 +19,10 @@ export const ALL_NOTE_FIELDS = gql`
 					id
 					name
 					plural
+					alternateNames {
+						name
+					}
+					properties
 				}
 				rule
 				type

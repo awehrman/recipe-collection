@@ -1,4 +1,4 @@
-import { extendType, idArg, objectType } from 'nexus';
+import { enumType, extendType, idArg, objectType } from 'nexus';
 
 import { importNotes, parseNotes } from '../resolvers/note';
 
@@ -42,6 +42,37 @@ export const Note = objectType({
     });
   }
 });
+/*
+
+enum Properties {
+  MEAT
+  POULTRY
+  FISH
+  DAIRY
+  SOY
+  GLUTEN
+}
+*/
+
+export const Property = enumType({
+  name: 'Property',
+  members: [
+    'MEAT',
+    'POULTRY',
+    'FISH',
+    'DAIRY',
+    'SOY',
+    'GLUTEN'
+  ]
+});
+
+export const AlternateName = objectType({
+  name: 'AlternateName',
+  definition(t) {
+    t.string('name');
+    t.int('ingredientId');
+  }
+});
 
 export const Ingredient = objectType({
   name: 'Ingredient',
@@ -53,8 +84,34 @@ export const Ingredient = objectType({
     t.string('plural');
     t.boolean('isComposedIngredient');
     t.boolean('isValidated');
-    // alternateNames[]
-    // properties
+    t.list.field('alternateNames', {
+      type: 'AlternateName',
+      resolve: async (root,_args, ctx) => {
+        console.log({ root });
+        if (!root?.id) {
+          return [];
+        }
+        const lines = await ctx.prisma.alternateName.findMany({
+          where: { ingredientId: root.id },
+        });
+
+        return lines;
+      },
+    });
+    t.list.field('properties', {
+      type: 'Property',
+      resolve: async (root,_args, ctx) => {
+        console.log({ root });
+        if (!root?.id) {
+          return [];
+        }
+        // const lines = await ctx.prisma.property.findMany({
+        //   where: { ingredientId: root.id },
+        // });
+        // TODO
+        return [];
+      },
+    });
     // parent / parentId
     // relatedIngredients[]
     // substitutes[]

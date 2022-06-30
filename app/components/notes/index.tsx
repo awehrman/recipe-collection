@@ -9,7 +9,9 @@ import ParsedNote from './parsed-note';
 
 const Notes: React.FC = () => {
   const { notes, loading } = useNotes();
-  console.log({ notes });
+  if (!loading) {
+    console.log({ notes });
+  }
 
   function renderNotes() {
     if (loading) {

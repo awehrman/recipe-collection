@@ -32,6 +32,7 @@ export const importNotes = async (
     const notes = await downloadNotes(ctx);
     response.notes = [...notes];
   } catch (err) {
+    console.log({ err });
     response.error = `${err}`;
   }
   return response;
@@ -54,6 +55,7 @@ export const parseNotes = async (
     // i guess decide on whether we want to just shove this into the cache on update or not
     response.notes = [...notes];
   } catch (err) {
+    console.log({ err });
     response.error = `${err}`;
   }
   return response;

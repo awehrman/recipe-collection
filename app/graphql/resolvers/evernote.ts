@@ -5,6 +5,7 @@ import { createNotes, getEvernoteNotes, incrementOffset } from './helpers/everno
 import { ImportedNote } from '../../types/note';
 
 export const downloadNotes = async (ctx: PrismaContext): Promise<ImportedNote[]> => {
+  console.log('downloadNotes');
   const { req, prisma } = ctx;
 
   // fetch new note content from evernote
@@ -14,6 +15,7 @@ export const downloadNotes = async (ctx: PrismaContext): Promise<ImportedNote[]>
     // save note data to db
     .then(async (data) => createNotes(ctx, data))
     .catch((err) => {
+      console.log(err);
       throw new Error(`An error occurred in downloadNotes: ${err}`);
     });
 

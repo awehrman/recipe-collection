@@ -38,10 +38,15 @@ const findIngredient = async (name: string, prisma: PrismaClient)
     });
 
     if (!existing?.length) {
-      const ingredient = await prisma.ingredient.create({ data: { name: singular, plural } })
-        .catch((err) => {
+      const data = {
+        name: singular
+      };
+      if (plural !== null) {
+        data.plural = plural;
+      }
+      const ingredient = await prisma.ingredient.create({ data })
+        .catch(() => {
           // most likely this was already created, so attempt to re-fetch it
-          console.log({ err });
           findIngredient(name, prisma);
         });
       if (ingredient?.id) {
@@ -264,6 +269,7 @@ export const parseNotesContent = (notes: Note[]) => {
       );
     }
     const { ingredients, instructions } = parseContent(content, note);
+    console.log({ ingredients, instructions });
     return {
       ...note,
       ingredients,
