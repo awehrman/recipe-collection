@@ -97,26 +97,17 @@ model Ingredient {
   isComposedIngredient Boolean         @default(false) @map(name: "is_composed_ingredient")
   isValidated          Boolean         @default(false) @map(name: "is_validated")
 
-  // i'm re-thinking related ingredients a bit
-  // if 'chicken thights' has a parent of 'chicken'
-  // then my related ingredients are everything else that shares that parent
-  // (i.e. 'chicken legs', 'chicken quarters')
-  // i might come back to this but i don't think we need an additional relation here
-  // parent             Ingredient?  @relation("IngredientParent", fields: [parentId], references: [id])
-  // parentId           Int?
-  // relatedIngredients Ingredient[] @relation("IngredientParent")
+  parentId           Int?
+  parent             Ingredient?  @relation("relatedIngredients", fields: [parentId], references: [id])
+  relatedIngredients Ingredient[] @relation("relatedIngredients") // i think this is right? i'll have to come back to this
 
-  // // ingredients that can stand in for this one
-  // substitutes           Ingredient[] @relation("Substitutes", references: [id])
-  // // ingredients that have used this as a substitutes
-  // // i don't think we'll use this side of the relation
-  // referencedSubstitutes Ingredient[] @relation("Substitutes", references: [id]) // the language here is stupid
+  substitutes         Ingredient[] @relation("substitutes")
+  substitutesRelation Ingredient[] @relation("substitutes")
 
   // references  IngredientLine[]  @relation("References", references: [id])
-  // i may go back and put another relation in for ingredient lines, but maybe i can make this work
-  // references ParsedSegment[]
 
   ParsedSegment ParsedSegment[]
+
   @@map(name: "ingredients")
 }
 

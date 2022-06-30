@@ -34,8 +34,11 @@ type Ingredient {
   isComposedIngredient: Boolean
   isValidated: Boolean
   name: String
+  parent: Ingredient
   plural: String
   properties: [Property]
+  relatedIngredients: [Ingredient]
+  substitutes: [Ingredient]
   updatedAt: String
 }
 

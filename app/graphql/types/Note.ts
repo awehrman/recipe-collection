@@ -19,7 +19,7 @@ export const Note = objectType({
     t.nonNull.boolean('isParsed');
     t.list.field('ingredients', {
       type: 'IngredientLine',
-      resolve: async (root,_args, ctx) => {
+      resolve: async (root, _args, ctx) => {
         if (!root?.id) {
           return [];
         }
@@ -32,38 +32,22 @@ export const Note = objectType({
     });
     t.list.field('instructions', {
       type: 'InstructionLine',
-      resolve: async (root,_args, ctx) => {
+      resolve: async (root, _args, ctx) => {
         if (!root?.id) {
           return [];
         }
-        const lines = await ctx.prisma.instructionLine.findMany({ where: { noteId: root.id } });
+        const lines = await ctx.prisma.instructionLine.findMany({
+          where: { noteId: root.id },
+        });
         return lines;
       },
     });
-  }
+  },
 });
-/*
-
-enum Properties {
-  MEAT
-  POULTRY
-  FISH
-  DAIRY
-  SOY
-  GLUTEN
-}
-*/
 
 export const Property = enumType({
   name: 'Property',
-  members: [
-    'MEAT',
-    'POULTRY',
-    'FISH',
-    'DAIRY',
-    'SOY',
-    'GLUTEN'
-  ]
+  members: ['MEAT', 'POULTRY', 'FISH', 'DAIRY', 'SOY', 'GLUTEN'],
 });
 
 export const AlternateName = objectType({
@@ -71,7 +55,7 @@ export const AlternateName = objectType({
   definition(t) {
     t.string('name');
     t.int('ingredientId');
-  }
+  },
 });
 
 export const Ingredient = objectType({
@@ -86,37 +70,94 @@ export const Ingredient = objectType({
     t.boolean('isValidated');
     t.list.field('alternateNames', {
       type: 'AlternateName',
-      resolve: async (root,_args, ctx) => {
-        console.log({ root });
+      resolve: async (root, _args, ctx) => {
         if (!root?.id) {
           return [];
         }
-        const lines = await ctx.prisma.alternateName.findMany({
+        const names = await ctx.prisma.alternateName.findMany({
           where: { ingredientId: root.id },
         });
-
-        return lines;
+        return names;
       },
     });
     t.list.field('properties', {
       type: 'Property',
-      resolve: async (root,_args, ctx) => {
-        console.log({ root });
+      resolve: async (root, _args, ctx) => {
         if (!root?.id) {
           return [];
         }
-        // const lines = await ctx.prisma.property.findMany({
-        //   where: { ingredientId: root.id },
-        // });
-        // TODO
-        return [];
+        // i wonder if there's a better way to define this in nexus :\
+        const response = await ctx.prisma.ingredient.findUnique({
+          where: { id: root.id },
+          select: { properties: true },
+        });
+        return response?.properties ?? [];
       },
     });
-    // parent / parentId
-    // relatedIngredients[]
-    // substitutes[]
+    t.field('parent', {
+      type: 'Ingredient',
+      resolve: async (root, _args, ctx) => {
+        if (!root?.id) {
+          return [];
+        }
+        const parent = await ctx.prisma.ingredient.findUnique({
+          where: { id: root.id },
+          select: {
+            parent: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        });
+        return parent;
+      },
+    });
+    t.list.field('relatedIngredients', {
+      type: 'Ingredient',
+      resolve: async (root, _args, ctx) => {
+        if (!root?.id) {
+          return [];
+        }
+        const response = await ctx.prisma.ingredient.findMany({
+          where: { id: root.id },
+          select: {
+            relatedIngredients: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        });
+        const related = response.flatMap((s) => s.relatedIngredients);
+        return related;
+      },
+    });
+    t.list.field('substitutes', {
+      type: 'Ingredient',
+      resolve: async (root, _args, ctx) => {
+        if (!root?.id) {
+          return [];
+        }
+        const response = await ctx.prisma.ingredient.findMany({
+          where: { id: root.id },
+          select: {
+            substitutes: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        });
+        const substitutes = response.flatMap((s) => s.substitutes);
+        return substitutes;
+      },
+    });
     // references[]
-  }
+  },
 });
 
 export const IngredientLine = objectType({
@@ -132,11 +173,13 @@ export const IngredientLine = objectType({
     t.boolean('isParsed');
     t.list.field('parsed', {
       type: 'ParsedSegment',
-      resolve: async (root,_args, ctx) => {
+      resolve: async (root, _args, ctx) => {
         if (!root?.id) {
           return [];
         }
-        const lines = await ctx.prisma.parsedSegment.findMany({ where: { ingredientLineId: root.id } });
+        const lines = await ctx.prisma.parsedSegment.findMany({
+          where: { ingredientLineId: root.id },
+        });
         return lines;
       },
     });
@@ -144,7 +187,7 @@ export const IngredientLine = objectType({
     // note
     // recipeId
     // noteId
-  }
+  },
 });
 
 export const ParsedSegment = objectType({
@@ -160,7 +203,9 @@ export const ParsedSegment = objectType({
         if ((root?.type && root.type !== 'ingredient') || !root?.ingredientId) {
           return null;
         }
-        const data = await ctx.prisma.ingredient.findUnique({ where: { id: +root.ingredientId } });
+        const data = await ctx.prisma.ingredient.findUnique({
+          where: { id: +root.ingredientId },
+        });
         return {
           id: data?.id,
           name: data?.name,
@@ -173,7 +218,7 @@ export const ParsedSegment = objectType({
     t.string('value');
     t.nullable.int('ingredientId');
     t.nullable.int('ingredientLineId');
-  }
+  },
 });
 
 export const InstructionLine = objectType({
@@ -188,7 +233,7 @@ export const InstructionLine = objectType({
     // note
     // recipeId
     // noteId
-  }
+  },
 });
 
 export const EvernoteResponse = objectType({
@@ -196,7 +241,7 @@ export const EvernoteResponse = objectType({
   definition(t) {
     t.nullable.string('error');
     t.list.field('notes', { type: 'Note' });
-  }
+  },
 });
 
 // NOTE: https://www.prisma.io/blog/using-graphql-nexus-with-a-database-pmyl3660ncst#3-expose-full-crud-graphql-api-via-nexus-prisma
@@ -226,11 +271,11 @@ export const NoteQuery = extendType({
       resolve: async (root, args, ctx) => {
         const id = parseInt(`${args.id}`, 10);
         const note = await ctx.prisma.note.findUnique({
-          where: { id }
+          where: { id },
         });
 
         return {
-          note
+          note,
         };
       },
     });

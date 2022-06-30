@@ -81,7 +81,8 @@ export type Ingredient = {
   isValidated?: boolean;
   alternateNames?: AlternateName[];
   properties: Property[];
-  // TODO properties, altNames, related, parent, substitutes, references
+  parent?: Ingredient;
+  // TODO related, substitutes, references
 };
 
 export type AlternateName = {

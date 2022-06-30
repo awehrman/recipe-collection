@@ -23,6 +23,19 @@ export const ALL_NOTE_FIELDS = gql`
 						name
 					}
 					properties
+					parent {
+						id
+						name
+					}
+					relatedIngredients {
+						id
+						name
+					}
+					substitutes {
+						id
+						name
+						# TODO properties
+					}
 				}
 				rule
 				type
