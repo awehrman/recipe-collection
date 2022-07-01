@@ -69,6 +69,8 @@ type Mutation {
   importLocal: ImportLocalResponse
   importNotes: EvernoteResponse
   parseNotes: EvernoteResponse
+  resetDatabase: EvernoteResponse
+  saveRecipes: EvernoteResponse
 }
 
 type Note {

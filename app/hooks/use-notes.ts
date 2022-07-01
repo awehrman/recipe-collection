@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from '@apollo/client';
 
 import { GET_ALL_NOTES_QUERY } from '../graphql/queries/note';
-import { PARSE_NOTES_MUTATION } from '../graphql/mutations/note';
+import { PARSE_NOTES_MUTATION, SAVE_RECIPES_MUTATION } from '../graphql/mutations/note';
 
 import { Note } from '../types/note';
 
@@ -16,10 +16,13 @@ function useNotes() {
     update: () => refetch(),
   });
 
+  const [saveRecipes] = useMutation(SAVE_RECIPES_MUTATION);
+
   return {
     notes,
     loading,
     parseNotes,
+    saveRecipes,
   };
 }
 

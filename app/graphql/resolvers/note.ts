@@ -60,3 +60,20 @@ export const parseNotes = async (
   }
   return response;
 };
+
+export const saveRecipes = async (
+  _root: unknown, // TODO look this up
+  _args: unknown, // TODO look this up
+  ctx: PrismaContext
+): Promise<EvernoteResponseProps> => {
+  const response: EvernoteResponseProps = {};
+  // const { prisma } = ctx;
+
+  try {
+    // TODO
+  } catch (err) {
+    console.log({ err });
+    response.error = `${err}`;
+  }
+  return response;
+};

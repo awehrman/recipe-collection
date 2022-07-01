@@ -46,8 +46,17 @@ export const PARSE_NOTES_MUTATION = gql`
 	${ ALL_NOTE_FIELDS }
 `;
 
+export const SAVE_RECIPES_MUTATION = gql`
+	mutation SAVE_RECIPES_MUTATION {
+		saveRecipes {
+			error
+		}
+	}
+`;
+
 export default {
 	CONVERT_NOTES_MUTATION,
 	IMPORT_NOTES_MUTATION,
 	PARSE_NOTES_MUTATION,
+	SAVE_RECIPES_MUTATION
 };

@@ -1,6 +1,8 @@
-import React from 'react';
+import _ from 'lodash';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
+import useAdminTools from '../../hooks/use-admin-tools';
 import useEvernote from '../../hooks/use-evernote';
 import useNotes from '../../hooks/use-notes';
 import { Button, Loading } from '../common';
@@ -10,8 +12,12 @@ import Notes from '../notes';
 
 const NoteImporter: React.FC<NoteImporterProps> = () => {
   const { importNotes, isAuthenticated, loadingNotes } = useEvernote();
-  const { notes, loading, parseNotes } = useNotes();
+  const { notes, loading, parseNotes, saveRecipes } = useNotes();
+  const { resetDatabase } = useAdminTools();
   const showParseButton = !loading && notes?.length > 0;
+  const hasParsedNotes = !loading && notes?.length > 0 && _.some(notes, (note) => note.isParsed);
+  const showSaveButton = hasParsedNotes;
+  const [refresh, triggerRefresh] = useState(false);
 
   function handleImportNotes() {
     importNotes();
@@ -20,6 +26,17 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
   function handleParseNotes() {
     parseNotes();
   }
+
+  function handleRecipeSave() {
+    saveRecipes();
+  }
+
+  function handleReset() {
+    resetDatabase();
+    triggerRefresh(!refresh);
+  }
+
+  useEffect(_.noop, [refresh]);
 
   return (
     <Wrapper>
@@ -45,7 +62,14 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
           />
         ) : null}
 
-
+        {/* Save Recipes */}
+        {showSaveButton ? (
+          <Button
+            label='Save Recipes'
+            onClick={handleRecipeSave}
+            type='button'
+          />
+        ) : null}
 
         {/* Loading */}
         {loadingNotes && <Loading />}
@@ -53,11 +77,37 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
         {/* Notes */}
         <Notes />
       </NoteActions>
+
+      {/* TEMP dev shortcuts */}
+      <AdminHelpers>
+          <Button label='reset' onClick={handleReset} type='button' />
+      </AdminHelpers>
     </Wrapper>
   );
 };
 
 export default NoteImporter;
+
+const AdminHelpers = styled.div`
+  button {
+    cursor: pointer;
+    color: tomato;
+    background: transparent;
+    padding: 4px 6px;
+    margin: 0;
+    border: 0;
+    font-size: 18px;
+    position: absolute;
+    right: 20px;
+    top: 120px;
+
+    :hover {
+      background: lightsalmon;
+      color: white;
+      border-radius: 5px;
+    }
+  }
+`;
 
 const Wrapper = styled.div``;
 
