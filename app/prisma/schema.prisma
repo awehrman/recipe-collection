@@ -204,8 +204,8 @@ model InstructionLine {
   blockIndex Int      @map(name: "block_index")
   reference  String
 
-  note   Note @relation(fields: [noteId], references: [id])
-  noteId Int
+  note   Note? @relation(fields: [noteId], references: [id])
+  noteId Int?
 
   Recipe   Recipe? @relation(fields: [recipeId], references: [id])
   recipeId Int?
