@@ -36,6 +36,10 @@ export const ALL_NOTE_FIELDS = gql`
 						name
 						# TODO properties
 					}
+					references {
+						id
+						reference
+					}
 				}
 				rule
 				type

@@ -71,6 +71,8 @@ export type IngredientLine = {
   updatedAt?: string | Date;
 };
 
+// TODO i guess i should be making variants of this type for various inputs?
+
 export type Ingredient = {
   createdAt?: string | Date;
   updatedAt?: string | Date;
@@ -80,9 +82,11 @@ export type Ingredient = {
   isComposedIngredient?: boolean;
   isValidated?: boolean;
   alternateNames?: AlternateName[];
-  properties: Property[];
+  properties?: Property[];
   parent?: Ingredient;
-  // TODO related, substitutes, references
+  relatedIngredients?: Ingredient[];
+  substitutes?: Ingredient[];
+  references?: IngredientLine[];
 };
 
 export type AlternateName = {
@@ -91,12 +95,12 @@ export type AlternateName = {
 }
 
 export enum Property {
-  MEAT,
-  POULTRY,
-  FISH,
-  DAIRY,
-  SOY,
-  GLUTEN
+  'MEAT',
+  'POULTRY',
+  'FISH',
+  'DAIRY',
+  'SOY',
+  'GLUTEN',
 }
 
 export type ParsedSegment = {

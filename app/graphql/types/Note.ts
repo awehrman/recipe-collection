@@ -156,7 +156,28 @@ export const Ingredient = objectType({
         return substitutes;
       },
     });
-    // references[]
+    t.list.field('references', {
+      type: 'IngredientLine',
+      resolve: async (root, _args, ctx) => {
+        if (!root?.id) {
+          return [];
+        }
+        const response = await ctx.prisma.ingredient.findMany({
+          where: { id: root.id },
+          select: {
+            references: {
+              select: {
+                id: true,
+                // reference: true,
+              },
+            },
+          },
+        });
+        const references = response.flatMap((r) => r.references);
+        console.log({ references });
+        return references;
+      },
+    });
   },
 });
 
@@ -184,8 +205,8 @@ export const IngredientLine = objectType({
       },
     });
     // recipe
-    // note
     // recipeId
+    // note
     // noteId
   },
 });
@@ -230,8 +251,8 @@ export const InstructionLine = objectType({
     t.int('blockIndex');
     t.string('reference');
     // recipe
-    // note
     // recipeId
+    // note
     // noteId
   },
 });

@@ -37,6 +37,7 @@ type Ingredient {
   parent: Ingredient
   plural: String
   properties: [Property]
+  references: [IngredientLine]
   relatedIngredients: [Ingredient]
   substitutes: [Ingredient]
   updatedAt: String

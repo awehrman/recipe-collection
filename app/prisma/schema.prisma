@@ -104,9 +104,8 @@ model Ingredient {
   substitutes         Ingredient[] @relation("substitutes")
   substitutesRelation Ingredient[] @relation("substitutes")
 
-  // references  IngredientLine[]  @relation("References", references: [id])
-
   ParsedSegment ParsedSegment[]
+  references    IngredientLine[]
 
   @@map(name: "ingredients")
 }
@@ -128,31 +127,30 @@ model AlternateName {
   @@map(name: "alternate_names")
 }
 
-// model Recipe {
-//   id             Int      @id @default(autoincrement())
-//   createdAt      DateTime @default(now()) @map(name: "created_at")
-//   updatedAt      DateTime @default(now()) @map(name: "updated_at")
-//   importedUser   User     @relation(fields: [importedUserId], references: [id])
-//   importedUserId Int      @map(name: "imported_user_id")
+model Recipe {
+  id             Int      @id @default(autoincrement())
+  createdAt      DateTime @default(now()) @map(name: "created_at")
+  updatedAt      DateTime @default(now()) @map(name: "updated_at")
+  // importedUser   User     @relation(fields: [importedUserId], references: [id])
+  importedUserId Int      @map(name: "imported_user_id")
 
-//   evernoteGUID String   @map(name: "evernote_guid")
-//   title        String
-//   sources      String[]
-//   image        String
+  evernoteGUID String   @map(name: "evernote_guid")
+  title        String
+  sources      String[]
+  image        String
 
-//   book   Book @relation(fields: [bookId], references: [id])
-//   bookId Int  @map(name: "book_id")
-//   // author
-//   // authorId
+  // book   Book @relation(fields: [bookId], references: [id])
+  // bookId Int  @map(name: "book_id")
+  // author
+  // authorId
 
-//   categories Category[]
-//   tags       Tag[]
+  // categories Category[]
+  // tags       Tag[]
 
-//   // ingredients  IngredientLine[]
-//   // instructions InstructionLine[]
-
-//   @@map(name: "recipes")
-// }
+  IngredientLine  IngredientLine[]
+  InstructionLine InstructionLine[]
+  @@map(name: "recipes")
+}
 
 // model Category {
 //   id           Int    @id @default(autoincrement())
@@ -186,11 +184,15 @@ model IngredientLine {
   isParsed   Boolean         @map(name: "is_parsed")
   parsed     ParsedSegment[]
 
-  // recipe   Recipe @relation(fields: [recipeId], references: [id])
-  // recipeId Int
+  recipe   Recipe? @relation(fields: [recipeId], references: [id])
+  recipeId Int?
 
   Note   Note? @relation(fields: [noteId], references: [id])
   noteId Int?
+
+  // hmm how is this going to work with multiple ingredients in a line?
+  Ingredient   Ingredient? @relation(fields: [ingredientId], references: [id])
+  ingredientId Int?
 
   @@map(name: "ingredient_line")
 }
@@ -205,8 +207,8 @@ model InstructionLine {
   note   Note @relation(fields: [noteId], references: [id])
   noteId Int
 
-  // Recipe   Recipe? @relation(fields: [recipeId], references: [id])
-  // recipeId Int?
+  Recipe   Recipe? @relation(fields: [recipeId], references: [id])
+  recipeId Int?
 
   @@map(name: "instruction_line")
 }

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { Prisma, PrismaClient } from '@prisma/client';
 import * as cheerio from 'cheerio';
 import pluralize from 'pluralize';
@@ -5,7 +6,6 @@ import pluralize from 'pluralize';
 import {
   ExistingParsedSegment,
   ImportedNote,
-  // Ingredient,
   IngredientLine,
   InstructionLine,
   Note,
@@ -21,7 +21,6 @@ const findIngredient = async (name: string, prisma: PrismaClient)
     if (plural === singular) {
       plural = null;
     }
-    console.log(singular, plural)
     const where = {
       OR: [
         { name: { equals: name } },
@@ -33,12 +32,10 @@ const findIngredient = async (name: string, prisma: PrismaClient)
       where.OR.push({ name: { equals: plural } });
       where.OR.push({ plural: { equals: plural } });
     }
-    const existing = await prisma.ingredient.findMany({
-      where
-    });
+    const existing = await prisma.ingredient.findMany({ where });
 
     if (!existing?.length) {
-      const data = {
+      const data: Prisma.IngredientCreateInput = {
         name: singular
       };
       if (plural !== null) {
@@ -54,7 +51,6 @@ const findIngredient = async (name: string, prisma: PrismaClient)
       }
     }
     if (existing?.length > 0 && existing?.[0]?.id) {
-      // TODO update ingredient references?
       return { connect: { id: +existing[0].id } };
     }
 
@@ -268,8 +264,7 @@ export const parseNotesContent = (notes: Note[]) => {
         `Note: ${note?.title ?? note.evernoteGUID} is missing content!`
       );
     }
-    const { ingredients, instructions } = parseContent(content, note);
-    console.log({ ingredients, instructions });
+    const { ingredients, instructions } = parseHTML(content, note);
     return {
       ...note,
       ingredients,
@@ -279,14 +274,12 @@ export const parseNotesContent = (notes: Note[]) => {
   return parsedNotes;
 };
 
-const parseContent = (content: string, note: Note) => {
-  const { ingredients, instructions } = parseHTML(content, note);
-
-  return {
-    ingredients,
-    instructions,
-  };
-};
+type BlockObject = {
+  blockIndex: number;
+  lineIndex?: number;
+  reference: string;
+}
+type Blocks = Array<Array<BlockObject>>;
 
 /*
 	we're going to run with some basic assumptions on how recipe data is formatted
@@ -334,82 +327,68 @@ const parseContent = (content: string, note: Note) => {
  */
 
 const parseHTML = (content: string, note: Note | ImportedNote) => {
-  const ingredients: unknown[] = []; // TODO
+  let ingredients: IngredientLine[] = []; // TODO
   let instructions: InstructionLine[] = [];
 
   // load our string dom content into a cheerio object
   // this will allow us to easily traverse the DOM tree
   const $ = cheerio.load(content);
+  const enNote = $('en-note');
+  const children = enNote.children('div').length === 1
+    ? enNote.children('div').children('div')
+    : enNote.children('div');
 
-  const body = $('body').children();
-  const { children } = body[0];
+  const blocks: Blocks = []; // [[{}, {}, {}], [{}], [{}], [{}]]
+  let blockIndex = 0;
+  let lineIndex = 0;
+  let startTrackingNewBlocks = false;
 
-  let currentBlock: unknown[] = [];
-  const blocks: unknown[] = [];
+  // split the children into groups based on spacing
+  children.each((index) => {
+    const line = children[index].children;
+    // for the most part, we're only looking 1 level deep
+    // anything else multi nested is either an image or junk that we'll skip over
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: reference, type } = (line[0] as any);
 
-  // TODO wehrman you should really re-write this
-  children.forEach((div) => {
-    const numChildren =
-      div.children && div.children.length ? div.children.length : 0;
-    let textNode = numChildren > 0 ? div.children[0] : null;
-    if (numChildren > 1) {
-      textNode = div.children.find((c) => c.type === 'text');
+    if (type === 'tag' && startTrackingNewBlocks) {
+      // start a new block any time we see a non-text element
+      blocks.push([]);
+      blockIndex += 1;
+      lineIndex = 0;
     }
-    const data = textNode && textNode.data && textNode.data.trim();
-    const hasContent = Boolean(data);
 
-    if (!hasContent && currentBlock.length > 0) {
-      blocks.push(currentBlock);
-      currentBlock = [];
-    } else if (data && data.length > 0) {
-      currentBlock.push(data);
+    if (type === 'text' && reference) {
+      startTrackingNewBlocks = true;
+      if (!blocks?.[blockIndex] && blockIndex === 0) {
+        blocks.push([]);
+      }
+      lineIndex += 1;
+      blocks[blockIndex].push({
+        blockIndex,
+        lineIndex,
+        reference,
+      });
     }
   });
 
   blocks.forEach((block, blockIndex) => {
-    // add ingredient lines if its the first line, or if we have multiple lines per block
-    if (blockIndex === 0 || block.length > 1) {
-      block.forEach((line: string, lineIndex: number) => {
-        ingredients.push({
-          blockIndex,
-          lineIndex,
-          reference: line,
-        });
-      });
-    } else if (block?.length === 1) {
-      // add ingredient lines if our block only has a single line
-      instructions.push({
-        blockIndex,
-        reference: block[0],
-      });
+    // if we only have a single line in the block, and it's not our initial line,
+    // then its an instruction line
+    if (block.length === 1 && blockIndex !== 0) {
+      instructions.push(block);
+    } else {
+      ingredients.push(block);
     }
   });
 
-  // this occurs if we have a single line, useful mostly for testing
-  if (blocks.length === 0 && currentBlock.length > 0) {
-    currentBlock.forEach((line, lineIndex) => {
-      ingredients.push({
-        blockIndex: 0,
-        lineIndex,
-        reference: `${line}`,
-      });
-    });
-  }
-
-  // if we still have leftovers in the current block and blocks is populated, then its a leftover instruction
-  if (blocks.length > 0 && currentBlock.length > 0) {
-    currentBlock.forEach((line) => {
-      instructions.push({
-        blockIndex: blocks.length,
-        reference: `${line}`,
-      });
-    });
-  }
+  instructions = _.flatMap(instructions).map((i) => ({ blockIndex: i.blockIndex, reference: i.reference }));
+  ingredients = _.flatMap(ingredients);
 
   // parse each ingredient line into its individual components
-  const parsedIngredientLines = ingredients.map((line: string) =>
-    parseIngredientLine(line)
-  );
+  const parsedIngredientLines = ingredients.map((line: BlockObject) =>
+      parseIngredientLine(line)
+    );
 
   // if we've previously parsed this, check changes
   if (
@@ -422,6 +401,7 @@ const parseHTML = (content: string, note: Note | ImportedNote) => {
         id: (note as Note)?.instructions?.[index]?.id,
       }));
     } else {
+      console.log('!!!');
       throw new Error(
         'Wehrman you never implemented this feature for instructions!'
       );
@@ -454,17 +434,18 @@ const parseHTML = (content: string, note: Note | ImportedNote) => {
 		]
 	}
 */
-const parseIngredientLine = (line: string) => {
+const parseIngredientLine = (line: BlockObject) => {
+  const reference = line.reference.trim();
   // IngredientLine
   const ingredientLine = {
     ...line,
     isParsed: false,
-    reference: line.reference.trim(),
+    reference,
   };
   let parsed;
 
   try {
-    parsed = Parser.parse(ingredientLine.reference);
+    parsed = Parser.parse(reference);
     ingredientLine.isParsed = true;
     ingredientLine.rule = parsed.rule;
     ingredientLine.parsed = parsed.values.map((data, index: number) => ({
@@ -473,10 +454,9 @@ const parseIngredientLine = (line: string) => {
       value: data.value.trim(),
     }));
   } catch (err) {
-    console.log(`OH FUCK! failed to parse lineIndex: ${ingredientLine.reference}`);
+    console.log(`OH FUCK! failed to parse lineIndex: ${reference}`);
     console.log(line);
     // TODO log failures to db
   }
-
   return ingredientLine;
 };
