@@ -13,206 +13,246 @@ import {
 } from '../../../types/note';
 import Parser from '../../../lib/line-parser-min';
 
-const findIngredient = async (name: string, prisma: PrismaClient)
-  :Promise<Prisma.IngredientCreateNestedOneWithoutParsedSegmentInput | null> => {
-    const isSingular = pluralize.isSingular(name);
-    let plural = isSingular ? pluralize.plural(name) : name;
-    const singular = isSingular ? name : pluralize.singular(name);
-    if (plural === singular) {
-      plural = null;
-    }
-    const where = {
-      OR: [
-        { name: { equals: name } },
-        { plural: { equals: name } },
-        // TODO search by altNames
-      ],
-    };
-    if (plural) {
-      where.OR.push({ name: { equals: plural } });
-      where.OR.push({ plural: { equals: plural } });
-    }
-    const existing = await prisma.ingredient.findMany({ where });
-
-    if (!existing?.length) {
-      const data: Prisma.IngredientCreateInput = {
-        name: singular
-      };
-      if (plural !== null) {
-        data.plural = plural;
-      }
-      const ingredient = await prisma.ingredient.create({ data })
-        .catch(() => {
-          // most likely this was already created, so attempt to re-fetch it
-          findIngredient(name, prisma);
-        });
-      if (ingredient?.id) {
-        return { connect: { id: +ingredient.id } };
-      }
-    }
-    if (existing?.length > 0 && existing?.[0]?.id) {
-      return { connect: { id: +existing[0].id } };
-    }
-
-    return null;
+const findIngredient = async (
+  name: string,
+  prisma: PrismaClient
+): Promise<Prisma.IngredientCreateNestedOneWithoutParsedSegmentInput | null> => {
+  const isSingular = pluralize.isSingular(name);
+  let plural = isSingular ? pluralize.plural(name) : name;
+  const singular = isSingular ? name : pluralize.singular(name);
+  if (plural === singular) {
+    plural = null;
+  }
+  const where = {
+    OR: [
+      { name: { equals: name } },
+      { plural: { equals: name } },
+      // TODO search by altNames
+    ],
   };
+  if (plural) {
+    where.OR.push({ name: { equals: plural } });
+    where.OR.push({ plural: { equals: plural } });
+  }
+  const existing = await prisma.ingredient.findMany({ where });
 
-const createParsedSegment = async (parsed: ParsedSegment, prisma: PrismaClient)
-  : Promise<Prisma.ParsedSegmentCreateWithoutIngredientLineInput> => {
-    const data: Prisma.ParsedSegmentCreateWithoutIngredientLineInput = {
-      index: parsed.index,
-      rule: parsed.rule,
-      type: parsed.type,
-      value: parsed.value,
+  if (!existing?.length) {
+    const data: Prisma.IngredientCreateInput = {
+      name: singular,
     };
-    const hasIngredient = parsed.type === 'ingredient';
-    const ingredient: Prisma.IngredientCreateNestedOneWithoutParsedSegmentInput | null =
-      hasIngredient
-        ? await findIngredient(parsed.value, prisma)
-        : null;
-
-    if (hasIngredient && ingredient !== null) {
-      data.ingredient = ingredient;
+    if (plural !== null) {
+      data.plural = plural;
     }
+    const ingredient = await prisma.ingredient.create({ data }).catch(() => {
+      // most likely this was already created, so attempt to re-fetch it
+      findIngredient(name, prisma);
+    });
+    if (ingredient?.id) {
+      return { connect: { id: +ingredient.id } };
+    }
+  }
+  if (existing?.length > 0 && existing?.[0]?.id) {
+    return { connect: { id: +existing[0].id } };
+  }
 
-    return data;
+  return null;
 };
 
-const updateParsedSegment = async (parsed: ExistingParsedSegment, prisma: PrismaClient)
-  : Promise<Prisma.ParsedSegmentUpdateWithWhereUniqueWithoutIngredientLineInput> => {
-    const data: Prisma.ParsedSegmentUpdateWithoutIngredientLineInput = {
-      index: parsed.index,
-      rule: parsed.rule,
-      type: parsed.type,
-      value: parsed.value,
-    };
-    // TODO there's probably some disconnections that should happen here
-    const hasIngredient = parsed.type === 'ingredient' && !parsed?.ingredient;
-    const ingredient: Prisma.IngredientCreateNestedOneWithoutParsedSegmentInput | null =
-      hasIngredient
-        ? await findIngredient(parsed.value, prisma)
-        : parsed?.ingredient?.id ? { connect: { id: +parsed.ingredient.id } } : null;
+const createParsedSegment = async (
+  parsed: ParsedSegment,
+  prisma: PrismaClient
+): Promise<Prisma.ParsedSegmentCreateWithoutIngredientLineInput> => {
+  const data: Prisma.ParsedSegmentCreateWithoutIngredientLineInput = {
+    index: parsed.index,
+    rule: parsed.rule,
+    type: parsed.type,
+    value: parsed.value,
+  };
+  const hasIngredient = parsed.type === 'ingredient';
+  const ingredient: Prisma.IngredientCreateNestedOneWithoutParsedSegmentInput | null =
+    hasIngredient ? await findIngredient(parsed.value, prisma) : null;
 
-    if (hasIngredient && ingredient !== null) {
-      data.ingredient = ingredient;
-    }
+  if (hasIngredient && ingredient !== null) {
+    data.ingredient = ingredient;
+  }
 
-    return {
-      where: { id: +parsed.id },
-      data,
-    };
+  return data;
 };
 
-const resolveParsedBuild = async (parsed: ParsedSegment, prisma: PrismaClient)
-  :Promise<(Prisma.ParsedSegmentCreateNestedManyWithoutIngredientLineInput
-    | Prisma.ParsedSegmentUpdateManyWithoutIngredientLineInput)> => {
-    const isNewParsedSegment = !parsed?.id;
-    if (isNewParsedSegment) {
-      const create: Prisma.ParsedSegmentCreateWithoutIngredientLineInput =
-        await createParsedSegment(parsed, prisma);
-      return { create };
-    }
-    const update: Prisma.ParsedSegmentUpdateWithWhereUniqueWithoutIngredientLineInput =
-        await updateParsedSegment(parsed as ExistingParsedSegment, prisma);
-    return { update };
+const updateParsedSegment = async (
+  parsed: ExistingParsedSegment,
+  prisma: PrismaClient
+): Promise<Prisma.ParsedSegmentUpdateWithWhereUniqueWithoutIngredientLineInput> => {
+  const data: Prisma.ParsedSegmentUpdateWithoutIngredientLineInput = {
+    index: parsed.index,
+    rule: parsed.rule,
+    type: parsed.type,
+    value: parsed.value,
   };
+  // TODO there's probably some disconnections that should happen here
+  const hasIngredient = parsed.type === 'ingredient' && !parsed?.ingredient;
+  const ingredient: Prisma.IngredientCreateNestedOneWithoutParsedSegmentInput | null =
+    hasIngredient
+      ? await findIngredient(parsed.value, prisma)
+      : parsed?.ingredient?.id
+      ? { connect: { id: +parsed.ingredient.id } }
+      : null;
 
-const buildParsedSegments = async (parsedSegments: ParsedSegment[] = [], prisma: PrismaClient)
-  : Promise<(Prisma.ParsedSegmentUpdateManyWithoutIngredientLineInput)> => {
-      const parsedConnection: (Prisma.ParsedSegmentCreateNestedManyWithoutIngredientLineInput
-        | Prisma.ParsedSegmentUpdateManyWithoutIngredientLineInput)[] = await Promise.all(
-        parsedSegments.map(async (parsed) => resolveParsedBuild(parsed, prisma)));
-      const create = parsedConnection.filter((c) => c?.create).map((c) => c.create);
-      const update = parsedConnection.filter((c) => c?.update).map((c) => c.update);
-      const result = {};
-      if (create.length > 0) {
-        result.create = create;
-      }
-      if (update.length > 0) {
-        result.update = update;
-      }
+  if (hasIngredient && ingredient !== null) {
+    data.ingredient = ingredient;
+  }
 
-      return result;
-    };
+  return {
+    where: { id: +parsed.id },
+    data,
+  };
+};
 
-const createIngredientLine = async (ingredient: IngredientLine, prisma: PrismaClient)
-  : Promise<Prisma.IngredientLineCreateWithoutNoteInput>  => {
-    const parsed: Prisma.ParsedSegmentCreateNestedManyWithoutIngredientLineInput =
-      await buildParsedSegments(ingredient.parsed, prisma);
-    return {
+const resolveParsedBuild = async (
+  parsed: ParsedSegment,
+  prisma: PrismaClient
+): Promise<
+  | Prisma.ParsedSegmentCreateNestedManyWithoutIngredientLineInput
+  | Prisma.ParsedSegmentUpdateManyWithoutIngredientLineInput
+> => {
+  const isNewParsedSegment = !parsed?.id;
+  if (isNewParsedSegment) {
+    const create: Prisma.ParsedSegmentCreateWithoutIngredientLineInput =
+      await createParsedSegment(parsed, prisma);
+    return { create };
+  }
+  const update: Prisma.ParsedSegmentUpdateWithWhereUniqueWithoutIngredientLineInput =
+    await updateParsedSegment(parsed as ExistingParsedSegment, prisma);
+  return { update };
+};
+
+const buildParsedSegments = async (
+  parsedSegments: ParsedSegment[] = [],
+  prisma: PrismaClient
+): Promise<Prisma.ParsedSegmentUpdateManyWithoutIngredientLineInput> => {
+  const parsedConnection: (
+    | Prisma.ParsedSegmentCreateNestedManyWithoutIngredientLineInput
+    | Prisma.ParsedSegmentUpdateManyWithoutIngredientLineInput
+  )[] = await Promise.all(
+    parsedSegments.map(async (parsed) => resolveParsedBuild(parsed, prisma))
+  );
+  const create = parsedConnection.filter((c) => c?.create).map((c) => c.create);
+  const update = parsedConnection.filter((c) => c?.update).map((c) => c.update);
+  const result = {};
+  if (create.length > 0) {
+    result.create = create;
+  }
+  if (update.length > 0) {
+    result.update = update;
+  }
+
+  return result;
+};
+
+const createIngredientLine = async (
+  ingredient: IngredientLine,
+  prisma: PrismaClient
+): Promise<Prisma.IngredientLineCreateWithoutNoteInput> => {
+  const parsed: Prisma.ParsedSegmentCreateNestedManyWithoutIngredientLineInput =
+    await buildParsedSegments(ingredient.parsed, prisma);
+  return {
+    blockIndex: ingredient.blockIndex,
+    lineIndex: ingredient.lineIndex,
+    reference: ingredient.reference,
+    rule: ingredient.rule,
+    isParsed: ingredient.isParsed,
+    parsed,
+  };
+};
+
+const updateIngredientLine = async (
+  ingredient: IngredientLine,
+  prisma: PrismaClient
+): Promise<Prisma.IngredientLineUpdateWithWhereUniqueWithoutNoteInput> => {
+  const parsed: Prisma.ParsedSegmentUpdateManyWithoutIngredientLineInput =
+    await buildParsedSegments(ingredient.parsed, prisma);
+  return {
+    where: { id: +ingredient.id },
+    data: {
       blockIndex: ingredient.blockIndex,
       lineIndex: ingredient.lineIndex,
       reference: ingredient.reference,
       rule: ingredient.rule,
       isParsed: ingredient.isParsed,
       parsed,
-    };
+    },
   };
+};
 
-const updateIngredientLine = async (ingredient: IngredientLine, prisma: PrismaClient)
-  : Promise<Prisma.IngredientLineUpdateWithWhereUniqueWithoutNoteInput>  => {
-    const parsed: Prisma.ParsedSegmentUpdateManyWithoutIngredientLineInput =
-      await buildParsedSegments(ingredient.parsed, prisma);
-    return {
-      where: { id: +ingredient.id },
-      data: {
-        blockIndex: ingredient.blockIndex,
-        lineIndex: ingredient.lineIndex,
-        reference: ingredient.reference,
-        rule: ingredient.rule,
-        isParsed: ingredient.isParsed,
-        parsed,
-      },
-    };
-  };
-
-const createIngredientLines = async (ingredients: IngredientLine[] = [], prisma: PrismaClient)
-: Promise<Prisma.IngredientLineCreateWithoutNoteInput[]> =>
-  Promise.all(
-    ingredients.map(async (ingredient: IngredientLine) => createIngredientLine(ingredient, prisma))
-  );
-
-const updateIngredientLines = async (ingredients: IngredientLine[] = [], prisma: PrismaClient)
-: Promise<Prisma.IngredientLineUpdateWithWhereUniqueWithoutNoteInput[]> =>
+const createIngredientLines = async (
+  ingredients: IngredientLine[] = [],
+  prisma: PrismaClient
+): Promise<Prisma.IngredientLineCreateWithoutNoteInput[]> =>
   Promise.all(
     ingredients.map(async (ingredient: IngredientLine) =>
-      updateIngredientLine(ingredient, prisma))
+      createIngredientLine(ingredient, prisma)
+    )
   );
 
-const buildIngredientLines = async (ingredients: IngredientLine[] = [], prisma: PrismaClient)
-  : Promise<Prisma.IngredientLineUpdateManyWithoutNoteInput> => {
-    const isCreateIngredients = ingredients?.[0]?.id === undefined;
-    if (isCreateIngredients) {
-      const create: Promise<Prisma.IngredientLineCreateWithoutNoteInput[]> =
-        await createIngredientLines(ingredients, prisma);
-      return { create };
-    }
+const updateIngredientLines = async (
+  ingredients: IngredientLine[] = [],
+  prisma: PrismaClient
+): Promise<Prisma.IngredientLineUpdateWithWhereUniqueWithoutNoteInput[]> =>
+  Promise.all(
+    ingredients.map(async (ingredient: IngredientLine) =>
+      updateIngredientLine(ingredient, prisma)
+    )
+  );
 
-    const update: Promise<Prisma.IngredientLineUpdateWithWhereUniqueWithoutNoteInput> =
-      await updateIngredientLines(ingredients, prisma);
-    return { update };
+const buildIngredientLines = async (
+  ingredients: IngredientLine[] = [],
+  prisma: PrismaClient
+): Promise<Prisma.IngredientLineUpdateManyWithoutNoteInput> => {
+  const isCreateIngredients = ingredients?.[0]?.id === undefined;
+  if (isCreateIngredients) {
+    const create: Promise<Prisma.IngredientLineCreateWithoutNoteInput[]> =
+      await createIngredientLines(ingredients, prisma);
+    return { create };
+  }
+
+  const update: Promise<Prisma.IngredientLineUpdateWithWhereUniqueWithoutNoteInput> =
+    await updateIngredientLines(ingredients, prisma);
+  return { update };
+};
+
+const updateIngredientLineRelation = async (line: unknown, prisma: PrismaClient): Promise<void> => {
+  const { id, parsed } = line;
+  const parsedIngredientIds = parsed.filter((p) => p.ingredientId !== null).map((p) => p.ingredientId);
+
+  if (parsedIngredientIds.length > 0) {
+    // update the ingredient line itself to have a direct ingredient relationship
+    await prisma.ingredientLine.update({
+      data: {
+        ingredientId: parsedIngredientIds[0], // for now we'll just assume a single ingredient
+      },
+      where: { id }
+    });
+  }
 };
 
 const saveNote = async (note: Note, prisma: PrismaClient): Promise<Note> => {
   // TODO this a pretty dumb check; will want to replace this with _.every
   const isCreateInstructions = note.instructions?.[0]?.id === undefined;
 
-  const instructions: Prisma.InstructionLineUpdateManyWithoutNoteInput = isCreateInstructions
-    ? (
-      {
-        create: note.instructions.map(({ blockIndex, reference }) => ({
-          blockIndex,
-          reference,
-        }))
-      }
-    ) : (
-      {
-        update: note.instructions.map(({ id, blockIndex, reference }) => ({
-          where: { id },
-          data: { blockIndex, reference }, // ? updatedAt
-        }))
-      }
-    );
+  const instructions: Prisma.InstructionLineUpdateManyWithoutNoteInput =
+    isCreateInstructions
+      ? {
+          create: note.instructions.map(({ blockIndex, reference }) => ({
+            blockIndex,
+            reference,
+          })),
+        }
+      : {
+          update: note.instructions.map(({ id, blockIndex, reference }) => ({
+            where: { id },
+            data: { blockIndex, reference }, // ? updatedAt
+          })),
+        };
 
   const ingredients: Promise<Prisma.IngredientLineUpdateManyWithoutNoteInput> =
     await buildIngredientLines(note.ingredients, prisma);
@@ -228,7 +268,7 @@ const saveNote = async (note: Note, prisma: PrismaClient): Promise<Note> => {
       // content: note.content,
       isParsed: true,
       instructions,
-      ingredients
+      ingredients,
     },
     where: { id: note.id },
   });
@@ -239,11 +279,24 @@ const saveNote = async (note: Note, prisma: PrismaClient): Promise<Note> => {
 
   const updatedIngredients = await prisma.ingredientLine.findMany({
     where: { noteId: note.id },
+    select: {
+      id: true,
+      reference: true,
+      parsed: {
+        select: {
+          ingredientId: true
+        },
+      },
+    },
   });
 
+  // TODO again this is going to need to be updated for multi ingredient lines
+  await Promise.all(updatedIngredients.map((line) => updateIngredientLineRelation(line, prisma)))
+
+  // TODO we don't actually need to pass this shit back. lets just re-query
   return {
     ...noteResult,
-    ingredients: updatedIngredients, // TODO do we also need to query parsed again?
+    ingredients: updatedIngredients,
     instructions: updatedInstructions,
   };
 };
@@ -278,7 +331,7 @@ type BlockObject = {
   blockIndex: number;
   lineIndex?: number;
   reference: string;
-}
+};
 type Blocks = Array<Array<BlockObject>>;
 
 /*
@@ -334,9 +387,10 @@ const parseHTML = (content: string, note: Note | ImportedNote) => {
   // this will allow us to easily traverse the DOM tree
   const $ = cheerio.load(content);
   const enNote = $('en-note');
-  const children = enNote.children('div').length === 1
-    ? enNote.children('div').children('div')
-    : enNote.children('div');
+  const children =
+    enNote.children('div').length === 1
+      ? enNote.children('div').children('div')
+      : enNote.children('div');
 
   const blocks: Blocks = []; // [[{}, {}, {}], [{}], [{}], [{}]]
   let blockIndex = 0;
@@ -349,7 +403,7 @@ const parseHTML = (content: string, note: Note | ImportedNote) => {
     // for the most part, we're only looking 1 level deep
     // anything else multi nested is either an image or junk that we'll skip over
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: reference, type } = (line[0] as any);
+    const { data: reference, type } = line[0] as any;
 
     if (type === 'tag' && startTrackingNewBlocks) {
       // start a new block any time we see a non-text element
@@ -382,13 +436,16 @@ const parseHTML = (content: string, note: Note | ImportedNote) => {
     }
   });
 
-  instructions = _.flatMap(instructions).map((i) => ({ blockIndex: i.blockIndex, reference: i.reference }));
+  instructions = _.flatMap(instructions).map((i) => ({
+    blockIndex: i.blockIndex,
+    reference: i.reference,
+  }));
   ingredients = _.flatMap(ingredients);
 
   // parse each ingredient line into its individual components
   const parsedIngredientLines = ingredients.map((line: BlockObject) =>
-      parseIngredientLine(line)
-    );
+    parseIngredientLine(line)
+  );
 
   // if we've previously parsed this, check changes
   if (

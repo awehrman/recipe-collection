@@ -174,7 +174,7 @@ export const Ingredient = objectType({
           },
         });
         const references = response.flatMap((r) => r.references);
-        console.log({ references });
+        // console.log({ references });
         return references;
       },
     });

@@ -43,7 +43,6 @@ export const createNotes = async (
       console.log({ err });
       throw new Error(`Could not create prisma Note: ${err}`);
     });
-    console.log({ noteResponse});
     return noteResponse;
   });
 

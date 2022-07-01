@@ -5,7 +5,6 @@ import { createNotes, getEvernoteNotes, incrementOffset } from './helpers/everno
 import { ImportedNote } from '../../types/note';
 
 export const downloadNotes = async (ctx: PrismaContext): Promise<ImportedNote[]> => {
-  console.log('downloadNotes');
   const { req, prisma } = ctx;
 
   // fetch new note content from evernote
