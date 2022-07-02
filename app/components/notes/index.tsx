@@ -1,8 +1,8 @@
 
 import styled, { keyframes } from 'styled-components';
-import React, { useEffect } from 'react';
-import { useQuery } from '@apollo/client';
-import { GET_ALL_NOTES_QUERY } from '../../graphql/queries/note';
+import React from 'react';
+
+import useNotes from '../../hooks/use-notes';
 
 const defaultStatus = {
   meta: false,
@@ -11,22 +11,9 @@ const defaultStatus = {
   saving: false,
 };
 
-const sortByDateCreatedDesc = (a: Note, b: Note) => (+a?.createdAt < +b?.createdAt) ? 1 : -1;
-
 const Notes: React.FC = ({ status = defaultStatus }) => {
-  const { data = {} } = useQuery(GET_ALL_NOTES_QUERY, {
-    fetchPolicy: 'cache-and-network'
-  });
-  let { notes = [] } = data;
-  // TODO we should really do this sort on the backend; might need to add a createdAt on noteMeta
-  notes = [...notes].sort(sortByDateCreatedDesc);
+  const { notes } = useNotes(status);
   const className = status.meta ? 'loading' : '';
-  console.log('%c NOTES ', 'background: pink; color: black;', { notes }, className);
-
-  // useEffect(() => {
-  //   console.log('useEffect - should i refetch?', { data});
-  //   refetch();
-  // }, [status.meta]);
 
   function renderNotes() {
     return notes.map((note, index) => (

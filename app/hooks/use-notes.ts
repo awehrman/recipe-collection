@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { gql, useQuery, useMutation, useApolloClient } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 
 
 import { GET_ALL_NOTES_QUERY } from '../graphql/queries/note';
@@ -17,15 +17,6 @@ const loadingSkeleton = new Array(DEFAULT_ARRAY_SIZE).fill(null).map((_empty, in
   __typename: 'Note',
 }));
 
-const fragment = gql`
-  fragment NoteMeta on Note {
-    id
-    evernoteGUID
-    title
-  }
-`;
-
-
 const defaultLoadingStatus = {
   meta: false,
   content: false,
@@ -34,23 +25,68 @@ const defaultLoadingStatus = {
 };
 
 function useNotes(status = defaultLoadingStatus, setStatus = _.noop) {
-  const client = useApolloClient();
-  console.log('USE NOTES', JSON.stringify(client?.cache?.data?.data, null, 2));
-  const { data, loading: loadingNotes, refetch } = useQuery(GET_ALL_NOTES_QUERY);
+  const { data = {}, loading, refetch } = useQuery(GET_ALL_NOTES_QUERY, {
+    fetchPolicy: 'cache-and-network'
+  });
 
   let notes: Note[] = data?.notes ?? [];
   notes = [...notes].sort(sortByDateCreatedDesc);
 
-  function forceClear() {
-    notes = [];
-    refetch();
+
+  const [getNotesMeta] = useMutation(GET_NOTES_METADATA_MUTATION, {
+    optimisticResponse: {
+      getNotesMeta: {
+        error: null,
+        notes: loadingSkeleton,
+        __typename: 'StandardResponse',
+      }
+    },
+    update: (cache, { data: { getNotesMeta } }) => {
+      const isOptimisticResponse = _.some(getNotesMeta.notes, (note) => _.includes(note.evernoteGUID, 'loading_'));
+
+      // update loading status
+      if (!isOptimisticResponse) {
+        const updatedStatus = {...status};
+        updatedStatus.meta = false;
+        updatedStatus.content = true;
+        setStatus(updatedStatus);
+      }
+
+      const newNotesFromResponse = getNotesMeta?.notes ?? [];
+      const existingNotes = cache.readQuery({
+        query: GET_ALL_NOTES_QUERY,
+      });
+
+      const data = {
+        notes: _.flatMap([
+          // we'll have to pick out the optimistic response here
+          newNotesFromResponse,
+          ...existingNotes?.notes,
+        ]),
+      };
+
+      if (existingNotes && newNotesFromResponse) {
+        cache.writeQuery({
+          query: GET_ALL_NOTES_QUERY,
+          data,
+        });
+      }
+      // TODO kick off next stage of import process
+    }
+  });
+
+  function importNotes() {
+    const updated = {...status};
+    updated.meta = true;
+    setStatus(updated);
+    getNotesMeta();
   }
 
   return {
-    forceClear,
-    loading: loadingNotes,
+    loading,
     notes,
     refetchNotes: refetch,
+    importNotes,
   };
 }
 
