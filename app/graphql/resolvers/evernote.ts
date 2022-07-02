@@ -10,7 +10,7 @@ import {
   incrementOffset,
   validateNotes,
 } from './helpers/evernote';
-import { ImportedNote, NoteMetaData } from '../../types/note';
+import { ImportedNote, NoteMeta } from '../../types/note';
 import {
   METADATA_NOTE_SPEC,
   NOTE_FILTER,
@@ -43,11 +43,13 @@ export const downloadNotes = async (
 
 export const fetchNotesMeta = async (
   ctx: PrismaContext
-): Promise<void> => {
+): Promise<NoteMeta[]> => {
   const { req, prisma } = ctx;
   const store = await getEvernoteStore(req);
   const session = await getSession({ req });
   const { noteImportOffset = 0 } = session?.user ?? {};
+  const evernoteGUIDs: string[] = [];
+
   // fetch new note content from evernote
   try {
     const downloadedCount: number = await store
@@ -64,13 +66,19 @@ export const fetchNotesMeta = async (
       // write our metadata to our db
       .then(async (data) => {
         // TODO throw an error if we're lacking guids or titles
-        const notes = data.map((note) => ({
-          evernoteGUID: `${note?.guid}`,
-          title: `${note?.title?.trim()}`,
-          // tagGuids
-          // notebookGuid
-          // attributes.source vs sourceURL
-        }));
+        const notes = data.map((note) => {
+          if (note?.guid) {
+            evernoteGUIDs.push(note.guid);
+          }
+          return ({
+            evernoteGUID: `${note?.guid}`,
+            title: `${note?.title?.trim()}`,
+            // tagGuids
+            // notebookGuid
+            // attributes.source vs sourceURL
+          });
+        });
+
         const { count } = await prisma.note.createMany({
           data: notes,
         });
@@ -84,6 +92,18 @@ export const fetchNotesMeta = async (
     if (downloadedCount > 0) {
       await incrementOffset(req, prisma, downloadedCount);
     }
+
+    const notes = await prisma.note.findMany({
+      where: {
+        evernoteGUID: { in: evernoteGUIDs }
+      },
+      select: {
+        id: true,
+        evernoteGUID: true,
+        title: true,
+      }
+    });
+    return notes;
   } catch (err) {
     console.log(err);
     throw new Error(`An error occurred in downloadNotesMeta: ${err}`);

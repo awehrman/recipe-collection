@@ -4,7 +4,7 @@ export type EvernoteNoteContent = {
   image?: string | null;
 };
 
-export type NoteMetaData = {
+export type NoteMeta = {
   id?: number;
   // categories: Category[]; // ? or a pre-import version
   evernoteGUID: string;

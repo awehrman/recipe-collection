@@ -5,7 +5,7 @@ import { getSession } from 'next-auth/client';
 
 import {
   EvernoteNoteContent,
-  NoteMetaData,
+  NoteMeta,
   ImportedNote,
   IngredientLine,
   InstructionLine,
@@ -204,7 +204,7 @@ const getNoteContent = async (
 
 const getNotesContent = async (
   store: Evernote.NoteStoreClient,
-  notes: NoteMetaData[]
+  notes: NoteMeta[]
 ): Promise<ImportedNote[]> => {
   const resolveContent = notes.map(async (note) => {
     const { content, image } = await getNoteContent(store, note.evernoteGUID);
@@ -224,8 +224,7 @@ const getNotesMetadata = async (
   ctx: PrismaContext,
   store: Evernote.NoteStoreClient,
   offset: number
-): Promise<NoteMetaData[]> => {
-  console.log({ MAX_NOTES_LIMIT });
+): Promise<NoteMeta[]> => {
   const notes: Evernote.NoteStore.NoteMetadata[] = await store
     .findNotesMetadata(NOTE_FILTER, offset, MAX_NOTES_LIMIT, METADATA_NOTE_SPEC)
     // ensure that we haven't saved these as notes or recipes yet

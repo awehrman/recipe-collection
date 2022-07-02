@@ -1,23 +1,104 @@
+import _ from 'lodash';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { gql, useMutation } from '@apollo/client';
+
+import { GET_NOTES_METADATA_MUTATION } from '../../graphql/mutations/note';
+import { GET_ALL_NOTES_QUERY } from '../../graphql/queries/note';
 
 import useAdminTools from '../../hooks/use-admin-tools';
 import useEvernote from '../../hooks/use-evernote';
-import useNotes from '../../hooks/use-notes';
 import { Button } from '../common';
 import AuthenticateEvernote from './authenticate-evernote';
 import { NoteImporterProps } from './types';
 import Notes from '../notes';
 
+const defaultLoadingStatus = {
+  meta: false,
+  content: false,
+  parsing: false,
+  saving: false,
+};
+
+const DEFAULT_ARRAY_SIZE = 5; // TODO load this from env
+const loadingSkeleton = new Array(DEFAULT_ARRAY_SIZE).fill(null).map((_empty, index) => ({
+  id: index,
+  evernoteGUID: `loading_${index}`,
+  title: null,
+  __typename: 'Note',
+}));
+
+const fragment = gql`
+  fragment NoteMeta on Note {
+    id
+    evernoteGUID
+    title
+  }
+`;
+
 const NoteImporter: React.FC<NoteImporterProps> = () => {
   const { resetDatabase } = useAdminTools();
   const { isAuthenticated } = useEvernote();
-  const [isImporting, setIsImporting] = useState(false);
-  const { importNotes, refetchNotes } = useNotes(setIsImporting);
+  const [status, setStatus] = useState(defaultLoadingStatus);
 
+  const [getNotesMeta, { data: meta }] = useMutation(GET_NOTES_METADATA_MUTATION, {
+    optimisticResponse: {
+      getNotesMeta: {
+        error: null,
+        notes: loadingSkeleton,
+        __typename: 'StandardResponse',
+      }
+    },
+    // refetchQueries: [
+    //   { query: GET_ALL_NOTES_QUERY }
+    // ],
+    update: (cache, { data: { getNotesMeta } }) => {
+      const isOptimisticResponse = _.some(getNotesMeta.notes, (note) => _.includes(note.evernoteGUID, 'loading_'));
+      console.log({ isOptimisticResponse });
+      // update loading status
+      if (!isOptimisticResponse) {
+        const updatedStatus = {...status};
+        updatedStatus.meta = false;
+        updatedStatus.content = true;
+        setStatus(updatedStatus);
+      }
+
+      console.log('%c ~ ~ ~ modifying the cache ~ ~ ~', 'background: orange; color: black;');
+      const newNotesFromResponse = getNotesMeta?.notes ?? [];
+      const existingNotes = cache.readQuery({
+        query: GET_ALL_NOTES_QUERY,
+      });
+
+      const data = {
+        notes: _.flatMap([
+          // we'll have to pick out the optimistic response here
+          newNotesFromResponse,
+          ...existingNotes?.notes,
+        ]),
+      };
+
+      console.log({ existingNotes, data });
+      if (existingNotes && newNotesFromResponse) {
+        cache.writeQuery({
+          query: GET_ALL_NOTES_QUERY,
+          data,
+        });
+      }
+      console.log('post mod', JSON.stringify(cache.data.data, null, 2));
+
+      // we need to write the notes response here to the notesQuery directly in the cache
+      // while the optimisticResponse will be in this mutation, it won't be tied to getNotes
+      // TODO kick off next stage of import process
+      return getNotesMeta.notes;
+    }
+  });
+
+  console.log({ ...meta});
   function handleImportNotes() {
-    setIsImporting(true);
-    importNotes();
+    const updated = {...status};
+    updated.meta = true;
+    setStatus(updated);
+    getNotesMeta();
   }
 
   // function handleRecipeSave() {
@@ -25,8 +106,8 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
   // }
 
   function handleReset() {
-    resetDatabase();
-    refetchNotes();
+   resetDatabase();
+  //  forceClear();
   }
 
   // useEffect(_.noop, [refresh]);
@@ -40,14 +121,14 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
         {/* Import Notes */}
         {isAuthenticated ? (
           <Button
-            disabled={isImporting}
+            disabled={status.meta}
             label='Import Notes'
             onClick={handleImportNotes}
           />
         ) : null}
 
         {/* Notes */}
-        <Notes isImporting={isImporting} />
+        <Notes status={status} />
       </NoteActions>
 
       {/* TEMP dev shortcuts */}

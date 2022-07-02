@@ -7,7 +7,7 @@ import { parseNotesContent, saveNotes } from './helpers/note';
 // TODO rename downloadNotes vs getNotes to be more specific
 import { downloadNotes, fetchNotesMeta } from './evernote';
 
-import { ImportedNote, Note } from '../../types/note';
+import { ImportedNote, Note, NoteMeta } from '../../types/note';
 
 // TODO move this into /types
 type EvernoteResponseProps = {
@@ -17,11 +17,11 @@ type EvernoteResponseProps = {
 
 type StandardResponse = {
   error?: string | null;
+  notes: NoteMeta[];
 };
 
 export const getNotesMeta = async (_root: unknown, _args: unknown, ctx: PrismaContext)
   : Promise<StandardResponse> => {
-    console.log('getNotesMeta');
     const { req } = ctx;
     const authenticated = isAuthenticated(req);
 
@@ -32,12 +32,12 @@ export const getNotesMeta = async (_root: unknown, _args: unknown, ctx: PrismaCo
     const response: StandardResponse = {};
 
     try {
-      await fetchNotesMeta(ctx);
+      const notes = await fetchNotesMeta(ctx);
+      response.notes = notes;
     } catch (err) {
       console.log({ err });
       response.error = `${err}`;
     }
-    console.log({ response });
     return response;
   };
 

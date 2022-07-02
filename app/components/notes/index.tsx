@@ -1,26 +1,38 @@
+
 import styled, { keyframes } from 'styled-components';
-import React from 'react';
-import Skeleton from 'react-loading-skeleton';
-import useNotes from '../../hooks/use-notes';
+import React, { useEffect } from 'react';
+import { useQuery } from '@apollo/client';
+import { GET_ALL_NOTES_QUERY } from '../../graphql/queries/note';
 
-const DEFAULT_ARRAY_SIZE = 5; // TODO load this from env
+const defaultStatus = {
+  meta: false,
+  content: false,
+  parsing: false,
+  saving: false,
+};
 
-const loadingSkeleton = new Array(DEFAULT_ARRAY_SIZE).fill(null).map((_empty, index) => ({
-  id: index,
-  evernoteGUID: index,
-  title: null,
-}));
+const sortByDateCreatedDesc = (a: Note, b: Note) => (+a?.createdAt < +b?.createdAt) ? 1 : -1;
 
-const Notes: React.FC = ({ isImporting = false }) => {
-  const { notes } = useNotes();
-  const noteList = !isImporting ? notes : loadingSkeleton;
-  const className = isImporting ? 'loading' : '';
+const Notes: React.FC = ({ status = defaultStatus }) => {
+  const { data = {} } = useQuery(GET_ALL_NOTES_QUERY, {
+    fetchPolicy: 'cache-and-network'
+  });
+  let { notes = [] } = data;
+  // TODO we should really do this sort on the backend; might need to add a createdAt on noteMeta
+  notes = [...notes].sort(sortByDateCreatedDesc);
+  const className = status.meta ? 'loading' : '';
+  console.log('%c NOTES ', 'background: pink; color: black;', { notes }, className);
+
+  // useEffect(() => {
+  //   console.log('useEffect - should i refetch?', { data});
+  //   refetch();
+  // }, [status.meta]);
 
   function renderNotes() {
-    return noteList.map((note, index) => (
+    return notes.map((note, index) => (
       <Note key={`note_${note?.evernoteGUID}_${index}`} className={className}>
         {/* Title */}
-        <Title className={className}>
+        <Title className={!note?.title ? className : ''}>
           {note.title}
         </Title>
       </Note>
