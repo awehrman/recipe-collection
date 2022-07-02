@@ -458,7 +458,6 @@ const parseHTML = (content: string, note: Note | ImportedNote) => {
         id: (note as Note)?.instructions?.[index]?.id,
       }));
     } else {
-      console.log('!!!');
       throw new Error(
         'Wehrman you never implemented this feature for instructions!'
       );

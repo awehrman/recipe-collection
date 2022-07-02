@@ -63,6 +63,7 @@ function useEvernote() {
     update: () => refetch({ id: session?.user?.userId }),
   });
 
+  // TODO deprecate in favor of multi ste
   const [importNotes, { loading: loadingNotes, data: notes }] = useMutation(IMPORT_NOTES_MUTATION, {
     update: (cache, { data }) => {
       const { importNotes: { notes } } = data;

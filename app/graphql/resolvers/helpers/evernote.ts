@@ -5,7 +5,7 @@ import { getSession } from 'next-auth/client';
 
 import {
   EvernoteNoteContent,
-  EvernoteNoteMetaData,
+  NoteMetaData,
   ImportedNote,
   IngredientLine,
   InstructionLine,
@@ -50,6 +50,7 @@ export const createNotes = async (
   return noteRes;
 };
 
+// deprecated use getEvernoteStore instead
 export const getEvernoteNotes = async (
   ctx: PrismaContext
 ): Promise<ImportedNote[]> => {
@@ -64,13 +65,24 @@ export const getEvernoteNotes = async (
   );
 
   const response = await getNotesMetadata(ctx, store, noteImportOffset)
-    // fetch the remaining note content and images for the new notes
-    .then(async (newNotes) => getNotesContent(store, newNotes))
     .catch((err) => {
       throw new Error(`Could not request metadata: ${err}`);
     });
 
   return response;
+};
+
+export const getEvernoteStore = async (req: IncomingMessage): Promise<Evernote.NoteStoreClient> => {
+  const session = await getSession({ req });
+  const { evernoteAuthToken: token } = session?.user ?? {};
+  const client = getClient(token);
+
+  try {
+    const store = await client.getNoteStore();
+    return store;
+  } catch (err) {
+    throw new Error('Could not access Evernote store!')
+  }
 };
 
 const assignRelations = async (
@@ -192,7 +204,7 @@ const getNoteContent = async (
 
 const getNotesContent = async (
   store: Evernote.NoteStoreClient,
-  notes: EvernoteNoteMetaData[]
+  notes: NoteMetaData[]
 ): Promise<ImportedNote[]> => {
   const resolveContent = notes.map(async (note) => {
     const { content, image } = await getNoteContent(store, note.evernoteGUID);
@@ -212,7 +224,8 @@ const getNotesMetadata = async (
   ctx: PrismaContext,
   store: Evernote.NoteStoreClient,
   offset: number
-): Promise<EvernoteNoteMetaData[]> => {
+): Promise<NoteMetaData[]> => {
+  console.log({ MAX_NOTES_LIMIT });
   const notes: Evernote.NoteStore.NoteMetadata[] = await store
     .findNotesMetadata(NOTE_FILTER, offset, MAX_NOTES_LIMIT, METADATA_NOTE_SPEC)
     // ensure that we haven't saved these as notes or recipes yet
@@ -235,7 +248,7 @@ const getNotesMetadata = async (
   return response;
 };
 
-const validateNotes = async (
+export const validateNotes = async (
   ctx: PrismaContext,
   store: Evernote.NoteStoreClient,
   notes: Evernote.NoteStore.NoteMetadata[]

@@ -1,10 +1,11 @@
+import { PrismaClient } from '@prisma/client';
 import { AuthenticationError } from 'apollo-server-micro';
 
 import { PrismaContext } from '../context';
 import { isAuthenticated, getNotes } from './helpers/evernote';
 import { parseNotesContent, saveNotes } from './helpers/note';
 // TODO rename downloadNotes vs getNotes to be more specific
-import { downloadNotes } from './evernote';
+import { downloadNotes, fetchNotesMeta } from './evernote';
 
 import { ImportedNote, Note } from '../../types/note';
 
@@ -14,6 +15,33 @@ type EvernoteResponseProps = {
   notes?: ImportedNote[] | Note[];
 };
 
+type StandardResponse = {
+  error?: string | null;
+};
+
+export const getNotesMeta = async (_root: unknown, _args: unknown, ctx: PrismaContext)
+  : Promise<StandardResponse> => {
+    console.log('getNotesMeta');
+    const { req } = ctx;
+    const authenticated = isAuthenticated(req);
+
+    if (!authenticated) {
+      throw new AuthenticationError('Evernote is not authenticated');
+    }
+
+    const response: StandardResponse = {};
+
+    try {
+      await fetchNotesMeta(ctx);
+    } catch (err) {
+      console.log({ err });
+      response.error = `${err}`;
+    }
+    console.log({ response });
+    return response;
+  };
+
+// deprecated
 export const importNotes = async (
   _root: unknown, // TODO look this up
   _args: unknown, // TODO look this up
@@ -38,7 +66,7 @@ export const importNotes = async (
   return response;
 };
 
-// TODO consider renaming to resolveParseNotes or something more specific
+// deprecated
 export const parseNotes = async (
   _root: unknown, // TODO look this up
   _args: unknown, // TODO look this up
@@ -62,8 +90,7 @@ export const parseNotes = async (
 };
 
 const saveRecipe = async (note, prisma: PrismaClient): Promise<void> => {
-  const { id, evernoteGUID, title, source, image, ingredients, instructions } = note;
-  console.log('create', { ingredients });
+  const { evernoteGUID, title, source, image, ingredients, instructions } = note;
   // we'll eventually expand this to include a book reference and/or a url
   // but we'll just throw strings in for the meantime
   const sources = [source];

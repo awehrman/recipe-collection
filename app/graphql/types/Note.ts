@@ -1,6 +1,6 @@
 import { enumType, extendType, idArg, objectType } from 'nexus';
 
-import { importNotes, parseNotes, saveRecipes } from '../resolvers/note';
+import { getNotesMeta, importNotes, parseNotes, saveRecipes } from '../resolvers/note';
 import { resetDatabase } from '../resolvers/admin-tools';
 
 export const Note = objectType({
@@ -16,8 +16,8 @@ export const Note = objectType({
     // categories: string[]
     // tags: string[]
     t.string('image');
-    t.nonNull.string('content');
-    t.nonNull.boolean('isParsed');
+    t.string('content');
+    t.boolean('isParsed');
     t.list.field('ingredients', {
       type: 'IngredientLine',
       resolve: async (root, _args, ctx) => {
@@ -169,13 +169,12 @@ export const Ingredient = objectType({
             references: {
               select: {
                 id: true,
-                // reference: true,
+                reference: true,
               },
             },
           },
         });
         const references = response.flatMap((r) => r.references);
-        // console.log({ references });
         return references;
       },
     });
@@ -266,6 +265,23 @@ export const EvernoteResponse = objectType({
   },
 });
 
+export const NoteMeta = objectType({
+  name: 'NoteMeta',
+  definition(t) {
+    t.int('id');
+    t.nonNull.string('evernoteGUID');
+    t.nonNull.string('title');
+  },
+});
+
+export const StandardResponse = objectType({
+  name: 'StandardResponse',
+  definition(t) {
+    t.nullable.string('error');
+    t.list.field('notes', { type: 'NoteMeta' });
+  },
+});
+
 // NOTE: https://www.prisma.io/blog/using-graphql-nexus-with-a-database-pmyl3660ncst#3-expose-full-crud-graphql-api-via-nexus-prisma
 // Queries
 export const NotesQuery = extendType({
@@ -305,6 +321,17 @@ export const NoteQuery = extendType({
 });
 
 // Mutations
+export const GetNotesMeta = extendType({
+  type: 'Mutation',
+  definition(t) {
+    t.field('getNotesMeta', {
+      type: 'EvernoteResponse',
+      resolve: getNotesMeta,
+    });
+  },
+});
+
+// deprecated
 export const ImportNotes = extendType({
   type: 'Mutation',
   definition(t) {
@@ -315,6 +342,7 @@ export const ImportNotes = extendType({
   },
 });
 
+// deprecated
 export const ParseNotes = extendType({
   type: 'Mutation',
   definition(t) {

@@ -1,42 +1,35 @@
-import _ from 'lodash';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import useAdminTools from '../../hooks/use-admin-tools';
 import useEvernote from '../../hooks/use-evernote';
 import useNotes from '../../hooks/use-notes';
-import { Button, Loading } from '../common';
+import { Button } from '../common';
 import AuthenticateEvernote from './authenticate-evernote';
 import { NoteImporterProps } from './types';
 import Notes from '../notes';
 
 const NoteImporter: React.FC<NoteImporterProps> = () => {
-  const { importNotes, isAuthenticated, loadingNotes } = useEvernote();
-  const { notes, loading, parseNotes, saveRecipes } = useNotes();
   const { resetDatabase } = useAdminTools();
-  const showParseButton = !loading && notes?.length > 0;
-  const hasParsedNotes = !loading && notes?.length > 0 && _.some(notes, (note) => note.isParsed);
-  const showSaveButton = hasParsedNotes;
-  const [refresh, triggerRefresh] = useState(false);
+  const { isAuthenticated } = useEvernote();
+  const [isImporting, setIsImporting] = useState(false);
+  const { importNotes, refetchNotes } = useNotes(setIsImporting);
 
   function handleImportNotes() {
+    setIsImporting(true);
     importNotes();
   }
 
-  function handleParseNotes() {
-    parseNotes();
-  }
-
-  function handleRecipeSave() {
-    saveRecipes();
-  }
+  // function handleRecipeSave() {
+  //   saveRecipes();
+  // }
 
   function handleReset() {
     resetDatabase();
-    triggerRefresh(!refresh);
+    refetchNotes();
   }
 
-  useEffect(_.noop, [refresh]);
+  // useEffect(_.noop, [refresh]);
 
   return (
     <Wrapper>
@@ -47,35 +40,14 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
         {/* Import Notes */}
         {isAuthenticated ? (
           <Button
+            disabled={isImporting}
             label='Import Notes'
             onClick={handleImportNotes}
-            type='button'
           />
         ) : null}
-
-        {/* Parse Notes */}
-        {showParseButton ? (
-          <Button
-            label='Parse Notes'
-            onClick={handleParseNotes}
-            type='button'
-          />
-        ) : null}
-
-        {/* Save Recipes */}
-        {showSaveButton ? (
-          <Button
-            label='Save Recipes'
-            onClick={handleRecipeSave}
-            type='button'
-          />
-        ) : null}
-
-        {/* Loading */}
-        {loadingNotes && <Loading />}
 
         {/* Notes */}
-        <Notes />
+        <Notes isImporting={isImporting} />
       </NoteActions>
 
       {/* TEMP dev shortcuts */}

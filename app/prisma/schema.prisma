@@ -244,8 +244,8 @@ model Note {
   categories String[]
   tags       String[]
 
-  image    String
-  content  String // may need to check size limit here
+  image    String?
+  content  String? // may need to check size limit here
   isParsed Boolean @default(false) @map(name: "is_parsed")
 
   ingredients  IngredientLine[]

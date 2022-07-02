@@ -66,6 +66,7 @@ type InstructionLine {
 type Mutation {
   authenticateEvernote(oauthVerifier: String): AuthenticationResponse
   clearAuthentication: AuthenticationResponse
+  getNotesMeta: EvernoteResponse
   importLocal: ImportLocalResponse
   importNotes: EvernoteResponse
   parseNotes: EvernoteResponse
@@ -74,17 +75,23 @@ type Mutation {
 }
 
 type Note {
-  content: String!
+  content: String
   createdAt: String
   evernoteGUID: String!
   id: Int
   image: String
   ingredients: [IngredientLine]
   instructions: [InstructionLine]
-  isParsed: Boolean!
+  isParsed: Boolean
   source: String
   title: String!
   updatedAt: String
+}
+
+type NoteMeta {
+  evernoteGUID: String!
+  id: Int
+  title: String!
 }
 
 type ParsedSegment {
@@ -118,6 +125,11 @@ type Query {
 enum Role {
   ADMIN
   USER
+}
+
+type StandardResponse {
+  error: String
+  notes: [NoteMeta]
 }
 
 type User {

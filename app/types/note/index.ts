@@ -1,14 +1,15 @@
 export type EvernoteNoteContent = {
-  content: string;
+  content?: string;
   evernoteGUID: string;
-  image: string | null;
+  image?: string | null;
 };
 
-export type EvernoteNoteMetaData = {
+export type NoteMetaData = {
+  id?: number;
   // categories: Category[]; // ? or a pre-import version
   evernoteGUID: string;
-  isParsed: boolean;
-  source: string | null;
+  // isParsed: boolean;
+  // source: string | null;
   title: string;
   // tags: Tag[]; // ? or a pre-import version
 };
@@ -17,11 +18,11 @@ export type ImportedNote = {
   id?: number;
   createdAt?: string | Date;
   // categories: Category[]; // ? or a pre-import version
-  content: string;
+  content?: string;
   evernoteGUID: string;
-  image: string | null;
-  isParsed: boolean;
-  source: string | null;
+  image?: string | null;
+  isParsed?: boolean;
+  source?: string | null;
   // tags: Tag[]; // ? or a pre-import version
   title: string;
   updatedAt?: string | Date;
@@ -29,15 +30,15 @@ export type ImportedNote = {
 
 // TODO there's got to be a better way to include the Prisma Note type here
 export type Note = {
-  content: string;
+  content?: string;
   createdAt?: string | Date;
   evernoteGUID: string;
   id?: number | null;
-  image: string | null;
-  ingredients: IngredientLine[];
-  instructions: InstructionLine[];
-  isParsed: boolean;
-  source: string | null;
+  image?: string | null;
+  ingredients?: IngredientLine[];
+  instructions?: InstructionLine[];
+  isParsed?: boolean;
+  source?: string | null;
   title: string;
   updatedAt?: string | Date;
 };

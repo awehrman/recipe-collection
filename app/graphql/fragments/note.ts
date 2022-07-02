@@ -63,4 +63,18 @@ export const ALL_NOTE_FIELDS = gql`
 	}
 `;
 
-export default { ALL_NOTE_FIELDS };
+export const NOTE_META_FIELDS = gql`
+	fragment NoteMetaFields on Note {
+		id
+		evernoteGUID
+		title
+		# source
+		# tags
+		# categories
+	}
+`;
+
+export default {
+	ALL_NOTE_FIELDS,
+	NOTE_META_FIELDS,
+};
