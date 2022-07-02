@@ -1,78 +1,72 @@
-import { Note as PrismaNote, Prisma, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import Evernote from 'evernote';
 import { IncomingMessage } from 'http';
 import { getSession } from 'next-auth/client';
 
-import {
-  EvernoteNoteContent,
-  NoteMeta,
-  ImportedNote,
-  IngredientLine,
-  InstructionLine,
-  Note,
-} from '../../../types/note';
+import { NoteMeta } from '../../../types/note';
 import {
   METADATA_NOTE_SPEC,
-  NOTE_SPEC,
   NOTE_FILTER,
   MAX_NOTES_LIMIT,
 } from '../../../constants/evernote';
 import { PrismaContext } from '../../context';
 
-export const createNotes = async (
-  ctx: PrismaContext,
-  notes: ImportedNote[]
-): Promise<PrismaNote[]> => {
-  const { prisma } = ctx;
+// export const createNotes = async (
+//   ctx: PrismaContext,
+//   notes: ImportedNote[]
+// ): Promise<PrismaNote[]> => {
+//   const { prisma } = ctx;
 
-  // save note data to db
-  const resolveNotes = notes.map(async (note) => {
-    if (!note || !note.content || !note.title) {
-      throw new Error('Could not create note!');
-    }
-    const data: Prisma.NoteUncheckedCreateInput = {
-      content: note.content,
-      evernoteGUID: note.evernoteGUID,
-      image: `${note?.image}`,
-      source: note?.source ?? null,
-      title: note.title,
-      isParsed: note.isParsed,
-    };
+//   // save note data to db
+//   const resolveNotes = notes.map(async (note) => {
+//     if (!note || !note.content || !note.title) {
+//       throw new Error('Could not create note!');
+//     }
+//     const data: Prisma.NoteUncheckedCreateInput = {
+//       content: note.content,
+//       evernoteGUID: note.evernoteGUID,
+//       image: `${note?.image}`,
+//       source: note?.source ?? null,
+//       title: note.title,
+//       isParsed: note.isParsed,
+//     };
 
-    const noteResponse = await prisma.note.create({ data }).catch((err) => {
-      console.log({ err });
-      throw new Error(`Could not create prisma Note: ${err}`);
-    });
-    return noteResponse;
-  });
+//     const noteResponse = await prisma.note.create({ data }).catch((err) => {
+//       console.log({ err });
+//       throw new Error(`Could not create prisma Note: ${err}`);
+//     });
+//     return noteResponse;
+//   });
 
-  const noteRes = await Promise.all(resolveNotes);
-  return noteRes;
-};
+//   const noteRes = await Promise.all(resolveNotes);
+//   return noteRes;
+// };
 
 // deprecated use getEvernoteStore instead
-export const getEvernoteNotes = async (
-  ctx: PrismaContext
-): Promise<ImportedNote[]> => {
-  const { req } = ctx;
-  const session = await getSession({ req });
-  const { evernoteAuthToken, noteImportOffset = 0 } = session?.user ?? {};
+// export const getEvernoteNotes = async (
+//   ctx: PrismaContext
+// ): Promise<ImportedNote[]> => {
+//   const { req } = ctx;
+//   const session = await getSession({ req });
+//   const { evernoteAuthToken, noteImportOffset = 0 } = session?.user ?? {};
 
-  const store = await getEvernoteNoteStore(req, evernoteAuthToken).catch(
-    (err) => {
-      throw new Error(`Could not connect to Evernote. ${err}`);
-    }
-  );
+//   const store = await getEvernoteNoteStore(req, evernoteAuthToken).catch(
+//     (err) => {
+//       throw new Error(`Could not connect to Evernote. ${err}`);
+//     }
+//   );
 
-  const response = await getNotesMetadata(ctx, store, noteImportOffset)
-    .catch((err) => {
-      throw new Error(`Could not request metadata: ${err}`);
-    });
+//   const response = await getNotesMetadata(ctx, store, noteImportOffset)
+//     .catch((err) => {
+//       throw new Error(`Could not request metadata: ${err}`);
+//     });
 
-  return response;
-};
+//   return response;
+// };
 
-export const getEvernoteStore = async (req: IncomingMessage): Promise<Evernote.NoteStoreClient> => {
+export const getEvernoteStore = async (
+  req: IncomingMessage
+): Promise<Evernote.NoteStoreClient> => {
   const session = await getSession({ req });
   const { evernoteAuthToken: token } = session?.user ?? {};
   const client = getClient(token);
@@ -81,44 +75,44 @@ export const getEvernoteStore = async (req: IncomingMessage): Promise<Evernote.N
     const store = await client.getNoteStore();
     return store;
   } catch (err) {
-    throw new Error('Could not access Evernote store!')
+    throw new Error('Could not access Evernote store!');
   }
 };
 
-const assignRelations = async (
-  note: PrismaNote,
-  prisma: PrismaClient
-): Promise<Note> => {
-  const ingredients: IngredientLine[] = await prisma.ingredientLine.findMany({
-    where: { noteId: note.id }
-  });
+// const assignRelations = async (
+//   note: PrismaNote,
+//   prisma: PrismaClient
+// ): Promise<Note> => {
+//   const ingredients: IngredientLine[] = await prisma.ingredientLine.findMany({
+//     where: { noteId: note.id }
+//   });
 
-  const instructions: InstructionLine[] = await prisma.instructionLine.findMany(
-    {
-      where: { noteId: note.id },
-    }
-  );
+//   const instructions: InstructionLine[] = await prisma.instructionLine.findMany(
+//     {
+//       where: { noteId: note.id },
+//     }
+//   );
 
-  const result: Note = {
-    ...note,
-    ingredients,
-    instructions,
-  };
+//   const result: Note = {
+//     ...note,
+//     ingredients,
+//     instructions,
+//   };
 
-  return result;
-};
+//   return result;
+// };
 
-export const getNotes = async (prisma: PrismaClient): Promise<Note[]> => {
-  // get all note content
-  const contents: PrismaNote[] = await prisma.note.findMany();
+// export const getNotes = async (prisma: PrismaClient): Promise<Note[]> => {
+//   // get all note content
+//   const contents: PrismaNote[] = await prisma.note.findMany();
 
-  const resolveNoteRelations = async (note: PrismaNote): Promise<Note> =>
-    assignRelations(note, prisma);
+//   const resolveNoteRelations = async (note: PrismaNote): Promise<Note> =>
+//     assignRelations(note, prisma);
 
-  // get the rest of the note relations
-  const notes = await Promise.all(contents.map(resolveNoteRelations));
-  return notes;
-};
+//   // get the rest of the note relations
+//   const notes = await Promise.all(contents.map(resolveNoteRelations));
+//   return notes;
+// };
 
 export const incrementOffset = async (
   req: IncomingMessage,
@@ -170,55 +164,55 @@ const getClient = (token: string | undefined): Evernote.Client => {
   return client;
 };
 
-const getEvernoteNoteStore = async (
-  req: IncomingMessage,
-  token: string | undefined
-): Promise<Evernote.NoteStoreClient> => {
-  if (!token) {
-    throw new Error('No access token provided!');
-  }
-  const client = getClient(token);
-  const store = await client.getNoteStore();
-  return store;
-};
+// const getEvernoteNoteStore = async (
+//   req: IncomingMessage,
+//   token: string | undefined
+// ): Promise<Evernote.NoteStoreClient> => {
+//   if (!token) {
+//     throw new Error('No access token provided!');
+//   }
+//   const client = getClient(token);
+//   const store = await client.getNoteStore();
+//   return store;
+// };
 
-const getNoteContent = async (
-  store: Evernote.NoteStoreClient,
-  guid: string
-): Promise<EvernoteNoteContent> => {
-  const noteContent = await store
-    .getNoteWithResultSpec(guid, NOTE_SPEC)
-    .then(({ content = '', resources }) => {
-      if (!resources) {
-        console.error(`No image found for note ${guid}`);
-      }
-      return {
-        evernoteGUID: guid,
-        content,
-        image: resources?.[0]?.data?.body ?? null,
-        // TODO categories & tags
-      };
-    });
-  return noteContent;
-};
+// const getNoteContent = async (
+//   store: Evernote.NoteStoreClient,
+//   guid: string
+// ): Promise<EvernoteNoteContent> => {
+//   const noteContent = await store
+//     .getNoteWithResultSpec(guid, NOTE_SPEC)
+//     .then(({ content = '', resources }) => {
+//       if (!resources) {
+//         console.error(`No image found for note ${guid}`);
+//       }
+//       return {
+//         evernoteGUID: guid,
+//         content,
+//         image: resources?.[0]?.data?.body ?? null,
+//         // TODO categories & tags
+//       };
+//     });
+//   return noteContent;
+// };
 
-const getNotesContent = async (
-  store: Evernote.NoteStoreClient,
-  notes: NoteMeta[]
-): Promise<ImportedNote[]> => {
-  const resolveContent = notes.map(async (note) => {
-    const { content, image } = await getNoteContent(store, note.evernoteGUID);
+// export const getNotesContent = async (
+//   store: Evernote.NoteStoreClient,
+//   notes: NoteMeta[]
+// ): Promise<ImportedNote[]> => {
+//   const resolveContent = notes.map(async (note) => {
+//     const { content, image } = await getNoteContent(store, note.evernoteGUID);
 
-    return {
-      ...note,
-      content,
-      image,
-    };
-  });
+//     return {
+//       ...note,
+//       content,
+//       image,
+//     };
+//   });
 
-  const response = await Promise.all(resolveContent);
-  return response;
-};
+//   const response = await Promise.all(resolveContent);
+//   return response;
+// };
 
 const getNotesMetadata = async (
   ctx: PrismaContext,
@@ -247,6 +241,7 @@ const getNotesMetadata = async (
   return response;
 };
 
+// TODO we might need to check this over when it fails
 export const validateNotes = async (
   ctx: PrismaContext,
   store: Evernote.NoteStoreClient,
@@ -275,9 +270,7 @@ export const validateNotes = async (
 };
 
 export default {
-  createNotes,
-  getEvernoteNotes,
-  getNotes,
+  getEvernoteStore,
   incrementOffset,
   isAuthenticated,
 };

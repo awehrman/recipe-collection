@@ -66,12 +66,10 @@ type InstructionLine {
 type Mutation {
   authenticateEvernote(oauthVerifier: String): AuthenticationResponse
   clearAuthentication: AuthenticationResponse
+  getNotesContent: EvernoteResponse
   getNotesMeta: EvernoteResponse
   importLocal: ImportLocalResponse
-  importNotes: EvernoteResponse
-  parseNotes: EvernoteResponse
   resetDatabase: EvernoteResponse
-  saveRecipes: EvernoteResponse
 }
 
 type Note {

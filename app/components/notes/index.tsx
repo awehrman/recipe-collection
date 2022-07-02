@@ -13,15 +13,35 @@ const defaultStatus = {
 
 const Notes: React.FC = ({ status = defaultStatus }) => {
   const { notes } = useNotes(status);
-  const className = status.meta ? 'loading' : '';
+
+  function renderIngredients(note) {
+    if (!note?.ingredients) {
+      return null;
+    }
+
+    return note.ingredients.map((line, index) => (
+      <IngredientLine key={`${note.id}_ingredient_line_${line.id}_${index}`}>
+        {line.reference}
+      </IngredientLine>
+    ));
+  }
 
   function renderNotes() {
     return notes.map((note, index) => (
-      <Note key={`note_${note?.evernoteGUID}_${index}`} className={className}>
+      <Note key={`note_${note?.evernoteGUID}_${index}`}>
         {/* Title */}
-        <Title className={!note?.title ? className : ''}>
+        <Title className={status.meta ? 'loading' : ''}>
           {note.title}
         </Title>
+
+        {/* Image */}
+
+        {/* Ingredients */}
+        <Ingredients className={status.content ? 'loading' : ''}>
+          {renderIngredients(note)}
+        </Ingredients>
+
+        {/* Instructions */}
       </Note>
     ));
   }
@@ -35,6 +55,12 @@ const Notes: React.FC = ({ status = defaultStatus }) => {
 };
 
 export default Notes;
+
+const Ingredients = styled.ul`
+`;
+
+const IngredientLine = styled.li`
+`;
 
 // TODO move all loading skeletons to another component file
 const loading = keyframes`
