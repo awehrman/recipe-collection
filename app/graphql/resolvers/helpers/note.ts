@@ -235,7 +235,7 @@ const updateIngredientLineRelation = async (line: unknown, prisma: PrismaClient)
   }
 };
 
-const saveNote = async (note: Note, prisma: PrismaClient): Promise<Note> => {
+export const saveNote = async (note: Note, prisma: PrismaClient): Promise<Note> => {
   // TODO this a pretty dumb check; will want to replace this with _.every
   const isCreateInstructions = note.instructions?.[0]?.id === undefined;
 
@@ -301,31 +301,31 @@ const saveNote = async (note: Note, prisma: PrismaClient): Promise<Note> => {
   };
 };
 
-export const saveNotes = async (
-  notes: Note[],
-  prisma: PrismaClient
-): Promise<Note[]> => {
-  const result = await Promise.all(notes.map((note) => saveNote(note, prisma)));
-  return result;
-};
+// export const saveNotes = async (
+//   notes: Note[],
+//   prisma: PrismaClient
+// ): Promise<Note[]> => {
+//   const result = await Promise.all(notes.map((note) => saveNote(note, prisma)));
+//   return result;
+// };
 
-export const parseNotesContent = (notes: Note[]) => {
-  const parsedNotes = notes.map((note) => {
-    const { content } = note;
-    if (!content) {
-      throw new Error(
-        `Note: ${note?.title ?? note.evernoteGUID} is missing content!`
-      );
-    }
-    const { ingredients, instructions } = parseHTML(content, note);
-    return {
-      ...note,
-      ingredients,
-      instructions,
-    };
-  });
-  return parsedNotes;
-};
+// export const parseNotesContent = (notes: Note[]) => {
+//   const parsedNotes = notes.map((note) => {
+//     const { content } = note;
+//     if (!content) {
+//       throw new Error(
+//         `Note: ${note?.title ?? note.evernoteGUID} is missing content!`
+//       );
+//     }
+//     const { ingredients, instructions } = parseHTML(content, note);
+//     return {
+//       ...note,
+//       ingredients,
+//       instructions,
+//     };
+//   });
+//   return parsedNotes;
+// };
 
 type BlockObject = {
   blockIndex: number;
@@ -379,7 +379,7 @@ type Blocks = Array<Array<BlockObject>>;
 	</en-note>
  */
 
-const parseHTML = (content: string, note: Note | ImportedNote) => {
+export const parseHTML = (content: string, note: Note | ImportedNote) => {
   let ingredients: IngredientLine[] = []; // TODO
   let instructions: InstructionLine[] = [];
 

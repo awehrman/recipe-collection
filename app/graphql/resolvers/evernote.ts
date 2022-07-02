@@ -1,4 +1,3 @@
-import cloudinary, { UploadApiOptions } from 'cloudinary';
 import Evernote from 'evernote';
 import { PrismaContext } from '../context';
 import { getSession } from 'next-auth/client';
@@ -8,6 +7,7 @@ import {
   incrementOffset,
   validateNotes,
 } from './helpers/evernote';
+import { parseHTML, saveNote } from './helpers/note';
 import { NoteMeta } from '../../types/note';
 import {
   NOTE_SPEC,
@@ -17,13 +17,6 @@ import {
 } from '../../constants/evernote';
 
 import { uploadImage } from './image';
-
-cloudinary.config({
-	cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-	api_key: process.env.CLOUDINARY_API_KEY,
-	api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
 
 const { performance } = require('perf_hooks');
 
@@ -139,13 +132,10 @@ export const fetchNotesContent = async (
   const { req, prisma } = ctx;
   const e0 = performance.now();
   const store = await getEvernoteStore(req); // TODO could we store this in session? i'd love to speed this up
-  const session = await getSession({ req });
   const e1 = performance.now();
   console.log(
     `evernote and session setup took ${(e1 - e0).toFixed(2)} milliseconds.`
   );
-  const { noteImportOffset = 0 } = session?.user ?? {};
-
   // fetch new note content from evernote
   try {
     const t0 = performance.now();
@@ -159,24 +149,32 @@ export const fetchNotesContent = async (
       }
     });
 
-    const resolveContent = notesSansContent.map(async (note) => {
-      const { content, resources } = await store.getNoteWithResultSpec(note.evernoteGUID, NOTE_SPEC);
+    const resolveContent = notesSansContent.map(async (noteMeta) => {
+      const { content, resources } = await store.getNoteWithResultSpec(noteMeta.evernoteGUID, NOTE_SPEC);
       // save image
       const imageBinary = resources?.[0]?.data?.body ?? null;
       if (!imageBinary) {
         console.log('No image found!');
       }
       const image = await uploadImage(Buffer.from(imageBinary), { folder: 'recipes' })
+        .then((data) => data.secure_url)
         .catch((err) => { throw err; });
 
       // parse note content
-      // save new note info
+      const { ingredients, instructions } = parseHTML(content, noteMeta);
 
-      return {
-        ...note,
+      const note = {
+        ...noteMeta,
         content,
-        image: image?.secure_url,
+        image,
+        ingredients,
+        instructions,
       };
+
+      // save new note info
+      await saveNote(note, prisma);
+
+      return note;
     });
 
     const notes = await Promise.all(resolveContent);
