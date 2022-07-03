@@ -266,8 +266,8 @@ export const saveNote = async (note: Note, prisma: PrismaClient): Promise<Note> 
       // source: note.source,
       // // categories?:
       // // tags?:
-      // image: note.image,
-      // content: note.content,
+      image: note.image,
+      content: note.content,
       isParsed: true,
       instructions,
       ingredients,

@@ -124,9 +124,10 @@ export const fetchNotesContent = async (
         console.log('No image found!');
       }
       const image = await uploadImage(Buffer.from(imageBinary), { folder: 'recipes' })
-        .then((data) => data.secure_url)
+        .then((data) => data?.secure_url)
         .catch((err) => { throw err; });
 
+      console.log({ image });
       // parse note content
       const { ingredients, instructions } = parseHTML(content, noteMeta);
 

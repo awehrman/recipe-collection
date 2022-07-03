@@ -22,7 +22,8 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
   const { resetDatabase } = useAdminTools();
   const { isAuthenticated } = useEvernote();
   const [status, setStatus] = useState(defaultLoadingStatus);
-  const { importNotes } = useNotes(status, setStatus);
+  const { importNotes, notes = [], saveRecipes } = useNotes(status, setStatus);
+  const notLoading = !status.meta && !status.content && !status.saving;
 
   function handleImportNotes() {
     importNotes();
@@ -30,6 +31,10 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
 
   function handleReset() {
    resetDatabase();
+  }
+
+  function handleSaveRecipes() {
+    saveRecipes();
   }
 
   return (
@@ -47,6 +52,18 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
           />
         ) : null}
 
+         {/* Save Recipes */}
+         {notes.length > 0 && notLoading ? (
+          <Button
+            disabled={status.saving}
+            label='Save Recipes'
+            onClick={handleSaveRecipes}
+          />
+        ) : null}
+
+        {/* No Notes Placeholder */}
+        {notes.length === 0 && notLoading ? <Placeholder>No imported notes.</Placeholder> : null}
+
         {/* Notes */}
         <Notes status={status} />
       </NoteActions>
@@ -60,6 +77,12 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
 };
 
 export default NoteImporter;
+
+const Placeholder = styled.div`
+  font-size: 14px;
+  color: #222;
+  margin-top: 10px;
+`;
 
 const AdminHelpers = styled.div`
   button {

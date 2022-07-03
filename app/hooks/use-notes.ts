@@ -5,6 +5,7 @@ import { GET_ALL_NOTES_QUERY } from '../graphql/queries/note';
 import {
   GET_NOTES_METADATA_MUTATION,
   GET_NOTES_CONTENT_MUTATION,
+  SAVE_RECIPES_MUTATION,
 } from '../graphql/mutations/note';
 
 import { Note } from '../types/note';
@@ -141,11 +142,22 @@ function useNotes(status = defaultLoadingStatus, setStatus = _.noop) {
     getNotesMeta();
   }
 
+  const [saveRecipes] = useMutation(SAVE_RECIPES_MUTATION, {
+    update: (cache) => {
+			console.log('save recipes update');
+			cache.writeQuery({
+        query: GET_ALL_NOTES_QUERY,
+        data: { notes: [] },
+      });
+		}
+  });
+
   return {
     loading,
     notes,
     refetchNotes: refetch,
     importNotes,
+    saveRecipes,
   };
 }
 
