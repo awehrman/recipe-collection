@@ -1,42 +1,48 @@
 import _ from 'lodash';
 import { useQuery, useMutation } from '@apollo/client';
 
-
 import { GET_ALL_NOTES_QUERY } from '../graphql/queries/note';
-import { GET_NOTES_METADATA_MUTATION, GET_NOTES_CONTENT_MUTATION } from '../graphql/mutations/note';
+import {
+  GET_NOTES_METADATA_MUTATION,
+  GET_NOTES_CONTENT_MUTATION,
+} from '../graphql/mutations/note';
 
 import { Note } from '../types/note';
 
-const sortByDateCreatedDesc = (a: Note, b: Note) => (+a?.createdAt < +b?.createdAt) ? 1 : -1;
+const sortByDateCreatedDesc = (a: Note, b: Note) =>
+  +a?.createdAt < +b?.createdAt ? 1 : -1;
 
 const DEFAULT_ARRAY_SIZE = 1; // TODO load this from env
-const loadingSkeleton = new Array(DEFAULT_ARRAY_SIZE).fill(null).map((_empty, index) => ({
-  id: index,
-  evernoteGUID: `loading_${index}`,
-  title: null,
-  __typename: 'Note',
-}));
+const loadingSkeleton = new Array(DEFAULT_ARRAY_SIZE)
+  .fill(null)
+  .map((_empty, index) => ({
+    id: index,
+    evernoteGUID: `loading_${index}`,
+    title: null,
+    ingredients: [],
+    instructions: [],
+    __typename: 'Note',
+  }));
 
 const loadingIngredients = [
-  { id: 'loading_1',  blockIndex: 0, lineIndex: 0, reference: null },
-  { id: 'loading_2',  blockIndex: 1, lineIndex: 0, reference: null },
-  { id: 'loading_3',  blockIndex: 1, lineIndex: 1, reference: null },
-  { id: 'loading_4',  blockIndex: 1, lineIndex: 2, reference: null },
-  { id: 'loading_5',  blockIndex: 2, lineIndex: 0, reference: null },
-  { id: 'loading_6',  blockIndex: 2, lineIndex: 1, reference: null },
-  { id: 'loading_7',  blockIndex: 2, lineIndex: 2, reference: null },
+  { id: 1, blockIndex: 0, lineIndex: 0, reference: null, parsed: [], isParsed: false, __typeName: 'IngredientLine' },
+  { id: 2, blockIndex: 1, lineIndex: 0, reference: null, parsed: [], isParsed: false, __typeName: 'IngredientLine' },
+  { id: 3, blockIndex: 1, lineIndex: 1, reference: null, parsed: [], isParsed: false, __typeName: 'IngredientLine' },
+  { id: 4, blockIndex: 1, lineIndex: 2, reference: null, parsed: [], isParsed: false, __typeName: 'IngredientLine' },
+  { id: 5, blockIndex: 2, lineIndex: 0, reference: null, parsed: [], isParsed: false, __typeName: 'IngredientLine' },
+  { id: 6, blockIndex: 2, lineIndex: 1, reference: null, parsed: [], isParsed: false, __typeName: 'IngredientLine' },
+  { id: 7, blockIndex: 2, lineIndex: 2, reference: null, parsed: [], isParsed: false, __typeName: 'IngredientLine' },
 ];
 
 const loadingInstructions = [
-  { id: 'loading_1',  lineIndex: 0, reference: null },
-  { id: 'loading_2',  lineIndex: 1, reference: null },
-  { id: 'loading_3',  lineIndex: 2, reference: null },
+  { id: 1, blockIndex: 0, reference: null, __typeName: 'InstructionLine' },
+  { id: 2, blockIndex: 1, reference: null, __typeName: 'InstructionLine' },
+  { id: 3, blockIndex: 2, reference: null, __typeName: 'InstructionLine' },
 ];
 
 const defaultLoadingStatus = {
   meta: false,
   content: false,
-  parsing: false,
   saving: false,
 };
 
@@ -45,55 +51,58 @@ const loadingContent = (notes) =>
     ...note,
     ingredients: loadingIngredients,
     instructions: loadingInstructions,
+    __typename: 'Note',
   }));
 
 function useNotes(status = defaultLoadingStatus, setStatus = _.noop) {
-  const { data = {}, loading, refetch } = useQuery(GET_ALL_NOTES_QUERY, {
-    fetchPolicy: 'cache-and-network'
+  const {
+    data = {},
+    loading,
+    refetch,
+  } = useQuery(GET_ALL_NOTES_QUERY, {
+    fetchPolicy: 'cache-and-network',
+    nextFetchPolicy: 'cache-only',
   });
 
   let notes: Note[] = data?.notes ?? [];
   notes = [...notes].sort(sortByDateCreatedDesc);
 
+  console.log('%c use-notes', 'background: aqua; color: black;');
+
   const [getNotesContent] = useMutation(GET_NOTES_CONTENT_MUTATION, {
-    optimisticResponse: {
-      getNotesContent: {
-        error: null,
-        notes: loadingContent(notes),
-        __typename: 'StandardResponse',
-      }
-    },
     update: (cache, { data: { getNotesContent } }) => {
-      console.log('update getNotesContent', { getNotesContent });
-      const isOptimisticResponse =
-        _.some(getNotesContent.notes, (note) => _.some(note.instructions, (line) => _.includes(line.id, 'loading_')));
+      // const isOptimisticResponse = _.some(getNotesContent.notes, (note) =>
+      //   _.some(note.instructions, (line) => line.reference === null)
+      // );
+      console.log(
+        '%c getNotesContent update',
+        'background: goldenrod; color: black;',
+        // { isOptimisticResponse }
+      );
 
       const newNotesFromResponse = getNotesContent?.notes ?? [];
-      const existingNotes = cache.readQuery({
+
+      const data = {
+        notes: _.flatMap([
+          newNotesFromResponse,
+        ]),
+      };
+
+      console.log(JSON.stringify(data.notes?.[0]?.ingredients?.[0], null, 2));
+
+      console.log('%c content - meta writing cache', 'background: tomato; color: black;', data.notes);
+      cache.writeQuery({
         query: GET_ALL_NOTES_QUERY,
+        data,
       });
 
-      const data = { notes: newNotesFromResponse };
+      const updatedStatus = { ...status };
+      updatedStatus.content = false;
+      console.log('disabling content status', { updatedStatus });
+      setStatus(updatedStatus);
 
-      console.log(JSON.stringify(data.notes, null, 2));
-
-      if (existingNotes && newNotesFromResponse) {
-        cache.writeQuery({
-          query: GET_ALL_NOTES_QUERY,
-          data,
-        });
-      }
-
-      if (!isOptimisticResponse) {
-        const updatedStatus = {...status};
-        updatedStatus.content = false;
-        updatedStatus.parsed = true;
-        setStatus(updatedStatus);
-
-        // TODO kick off parsing process
-
-      }
-    }
+      // TODO kick off parsing process
+    },
   });
 
   const [getNotesMeta] = useMutation(GET_NOTES_METADATA_MUTATION, {
@@ -102,10 +111,18 @@ function useNotes(status = defaultLoadingStatus, setStatus = _.noop) {
         error: null,
         notes: loadingSkeleton,
         __typename: 'StandardResponse',
-      }
+      },
     },
     update: (cache, { data: { getNotesMeta } }) => {
-      const isOptimisticResponse = _.some(getNotesMeta.notes, (note) => _.includes(note.evernoteGUID, 'loading_'));
+      const isOptimisticResponse = _.some(getNotesMeta.notes, (note) =>
+        _.includes(note.evernoteGUID, 'loading_')
+      );
+
+      console.log(
+        '%c getNotesMeta update',
+        'background: coral; color: black;',
+        { isOptimisticResponse }
+      );
 
       const newNotesFromResponse = getNotesMeta?.notes ?? [];
       const existingNotes = cache.readQuery({
@@ -120,28 +137,56 @@ function useNotes(status = defaultLoadingStatus, setStatus = _.noop) {
         ]),
       };
 
-      if (existingNotes && newNotesFromResponse) {
+      // tack on skeletons
+      if (!isOptimisticResponse) {
+        console.log('loading skeletons...');
+        data.notes = loadingContent(data.notes);
+      }
+
+      if (data.notes.length > 0) {
+        console.log('%c meta writing cache', 'background: tomato; color: black;', data);
         cache.writeQuery({
           query: GET_ALL_NOTES_QUERY,
           data,
         });
-      }
 
-      // kick off the next process
-      if (!isOptimisticResponse) {
-        // update status
-        const updatedStatus = {...status};
-        updatedStatus.meta = false;
-        updatedStatus.content = true;
-        setStatus(updatedStatus);
+        // const written = cache.readQuery({
+        //   query: GET_ALL_NOTES_QUERY,
+        // });
 
-        getNotesContent();
+        // console.log('written', JSON.stringify(written?.notes?.[0]?.ingredients?.[0], null, 2));
+
+
+        // kick off the next process
+        if (!isOptimisticResponse) {
+          // update status
+          const updatedStatus = { ...status };
+          updatedStatus.meta = false;
+          updatedStatus.content = true;
+          console.log('disabling meta status', { updatedStatus });
+          setStatus(updatedStatus);
+          console.log('calling getNotesContent');
+
+          // const optimisticResponse = loadingContent(data.notes);
+
+          getNotesContent();
+          /* {
+            optimisticResponse: {
+              getNotesContent: {
+                error: null,
+                notes: optimisticResponse,
+                __typename: 'StandardResponse',
+              },
+            },
+          }
+          */
+        }
       }
-    }
+    },
   });
 
   function importNotes() {
-    const updated = {...status};
+    const updated = { ...status };
     updated.meta = true;
     setStatus(updated);
     getNotesMeta();
