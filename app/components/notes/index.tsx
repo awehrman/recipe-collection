@@ -1,6 +1,8 @@
 import styled, { keyframes } from 'styled-components';
 import React from 'react';
 
+import { IngredientLine, InstructionLine, ParsedSegment } from '../types/note';
+
 import useNotes from '../../hooks/use-notes';
 
 const defaultStatus = {
@@ -10,67 +12,112 @@ const defaultStatus = {
   saving: false,
 };
 
+
+type IngredientsProps = {
+  ingredients: IngredientLine[]
+};
+
+const sortByIndexAsc = (a: ParsedSegment, b: ParsedSegment) => (a?.index > b?.index) ? 1 : -1;
+
+const IngredientLines: React.FC<IngredientsProps> = ({ ingredients }) => {
+  const ingBlocks = [...new Set(ingredients.map((i) => i.blockIndex))];
+
+  function renderParsed(key: string, parsed: ParsedSegment[] = []) {
+    const sortedParsed = parsed?.length ? [...parsed].sort(sortByIndexAsc) : parsed;
+    return sortedParsed.map((v) => {
+      let ingClassName = '';
+      if (v.ingredient) {
+        ingClassName = (v.ingredient.isValidated) ? ' valid' : ' invalid';
+      }
+      // if v.value starts with a comma, remove the initial space
+      // TODO extend this to a lookup of allowed punctuation characters
+      const hasComma = v.value[0] === ',' ? 'noSpace' : '';
+
+      return (
+        <span key={`_${v.value}`} className={`${v.type} ${ingClassName} ${hasComma}`}>
+          {v.value}
+        </span>
+      );
+    })
+  }
+
+  function renderBlock(index: number) {
+    const blockIngredients = ingredients.filter((i) => i.blockIndex === index);
+
+    return blockIngredients.map((line, lineIndex) =>
+      <IngredientListItem key={`parsed_ingredient_block_${index}_${line?.id ?? lineIndex}`}>
+        {
+          line.isParsed && line?.parsed
+            ? (
+              <Parsed>
+                {renderParsed(`${index}${line.id}_${line.blockIndex}_${line.lineIndex}`, line.parsed)}
+              </Parsed>
+            ): <span className='unparsed'>{line.reference}</span>
+        }
+      </IngredientListItem>
+    );
+  }
+
+  function renderIngredients() {
+    return ingBlocks.map((blockIndex) =>
+      <Block key={`parsed_ingredient_block${blockIndex}`} className='block'>
+        {renderBlock(blockIndex)}
+      </Block>
+    )
+  }
+
+  return (
+    <IngredientList>
+      {renderIngredients()}
+    </IngredientList>
+  )
+};
+
+type InstructionsProps = {
+  instructions: InstructionLine[]
+};
+const Instructions: React.FC<InstructionsProps> = ({ instructions }) => {
+  function renderIngredients() {
+    return instructions.map((instruction) =>
+      <InstructionListItem key={`parsed_instruction_${instruction.id}`}>
+        {instruction.reference}
+      </InstructionListItem>)
+  }
+
+  return (
+    <InstructionList>
+      {renderIngredients()}
+    </InstructionList>
+  )
+};
+
+
 const Notes: React.FC = ({ status = defaultStatus }) => {
   const { notes } = useNotes(status);
   console.log({ ...status });
-  console.log(notes);
 
-  // function renderIngredients(note) {
-  //   return (note?.ingredients ?? []).map((line, index) => (
-  //     <IngredientLine key={`${note.id}_ingredient_line_${line.id}_${index}`}>
-  //       {line.reference}
-  //     </IngredientLine>
-  //   ));
-  // }
 
-  // function renderNotes() {
-  //   return notes.map((note, index) => (
-  //     <Note key={`note_${note?.evernoteGUID}_${index}`}>
-  //       {/* Title */}
-  //       <Title className={status.meta ? 'loading' : ''}>{note.title}</Title>
-
-  //       {/* Image */}
-
-  //       {/* Ingredients */}
-  //       <Ingredients className={status.content ? 'loading' : ''}>
-  //         {(note?.ingredients ?? []).map((line, index) => (
-  //           <IngredientLine
-  //             key={`${note.id}_ingredient_line_${line.id}_${index}`}
-  //           >
-  //             {line?.reference ?? 'butts'}
-  //           </IngredientLine>
-  //         ))}
-  //       </Ingredients>
-
-  //       {/* Instructions */}
-  //     </Note>
-  //   ));
-  // }
-
-  return (
-    <Wrapper>
-      {/* Notes */}
-      {notes.map((note, index) => (
+  function renderNotes() {
+    return notes.map((note, index) => (
       <Note key={`note_${note?.evernoteGUID}_${index}`}>
         {/* Title */}
         <Title className={status.meta ? 'loading' : ''}>{note.title}</Title>
 
         {/* Image */}
 
-        {/* Ingredients */}
-        <Ingredients className={status.content ? 'loading' : ''}>
-          {(note?.ingredients ?? []).map((line, index) => (
-            <IngredientLine
-              key={`${note.id}_ingredient_line_${line.id}_${index}`}
-            >
-              {line?.reference ?? 'butts'}
-            </IngredientLine>
-          ))}
-        </Ingredients>
-
-        {/* Instructions */}
+        {/* Content */}
+        <ContentStyles>
+          <IngredientLines ingredients={note.ingredients} />
+          <Instructions instructions={note.instructions} />
+        </ContentStyles>
       </Note>
-    ))}
+    ));
+  }
+
+  return (
+    <Wrapper>
+      {/* Notes */}
+      {renderNotes()}
     </Wrapper>
   );
 };
@@ -83,21 +130,6 @@ const loading = keyframes`
   }
   100% {
     background: rgba(230, 230, 230, 1);
-  }
-`;
-
-const Ingredients = styled.ul``;
-
-const IngredientLine = styled.li`
-  background: pink;
-
-  &.loading {
-    border-radius: 5px;
-    animation: ${loading} 1s linear infinite alternate;
-    width: 10%;
-    border-radius: 5px;
-    height: 13px;
-    margin: 5px 0;
   }
 `;
 
@@ -133,4 +165,85 @@ const Wrapper = styled.ul`
   padding: 0;
   max-width: 850px;
   list-style: none;
+`;
+
+const Block = styled.ul`
+  &:last-of-type {
+    margin-bottom: 20px;
+  }
+`;
+const Parsed = styled.span`
+  span {
+    margin-left: 2px;
+
+    &:first-of-type {
+      margin-left: 0px;
+    }
+
+    &.noSpace {
+      margin-left: 0px;
+    }
+
+    &.ingredient {
+      font-weight: 900;
+      color: orange;
+
+      &.valid {
+        color: #222;
+      }
+
+      &.invalid {
+        color: ${ ({ theme }) => theme.colors.altGreen };
+      }
+    }
+  }
+`;
+
+const IngredientList = styled.ul`
+  &&& {
+    margin-top: 20px;
+  }
+`;
+
+const InstructionList = styled.ul`
+`;
+
+const IngredientListItem = styled.li`
+  margin-bottom: 2px;
+
+  &:last-of-type {
+    margin-bottom: 12px;
+  }
+`;
+
+const InstructionListItem = styled.li`
+  margin-bottom: 12px;
+`;
+
+const ContentStyles = styled.div`
+  width: 100%;
+  overflow: scroll;
+  flex-basis: 100%;
+	font-size: 12px;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+
+  hr {
+		border: 0;
+    height: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+		width: 50%;
+		margin: 30px auto;
+	}
+
+  ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+  pre {
+    white-space: pre-wrap;
+  }
 `;
