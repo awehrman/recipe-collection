@@ -26,7 +26,6 @@ export const resetDatabase = async (
     // await prisma.category.deleteMany({});
     // await prisma.tag.deleteMany({});
   } catch (err) {
-    console.log({ err });
     response.error = `${err}`;
   }
   return response;

@@ -1,6 +1,6 @@
 import { enumType, extendType, idArg, objectType } from 'nexus';
 
-import { getNotesMeta, getNotesContent } from '../resolvers/note';
+import { getNotesMeta, getNotesContent, saveRecipes } from '../resolvers/note';
 import { resetDatabase } from '../resolvers/admin-tools';
 
 export const Note = objectType({
@@ -341,37 +341,15 @@ export const GetNotesContent = extendType({
   },
 });
 
-// deprecated
-// export const ImportNotes = extendType({
-//   type: 'Mutation',
-//   definition(t) {
-//     t.field('importNotes', {
-//       type: 'EvernoteResponse',
-//       resolve: importNotes,
-//     });
-//   },
-// });
-
-// deprecated
-// export const ParseNotes = extendType({
-//   type: 'Mutation',
-//   definition(t) {
-//     t.field('parseNotes', {
-//       type: 'EvernoteResponse',
-//       resolve: parseNotes,
-//     });
-//   },
-// });
-
-// export const SaveRecipes = extendType({
-//   type: 'Mutation',
-//   definition(t) {
-//     t.field('saveRecipes', {
-//       type: 'EvernoteResponse',
-//       resolve: saveRecipes,
-//     });
-//   },
-// });
+export const SaveRecipes = extendType({
+  type: 'Mutation',
+  definition(t) {
+    t.field('saveRecipes', {
+      type: 'EvernoteResponse',
+      resolve: saveRecipes,
+    });
+  },
+});
 
 export const ResetDatabase = extendType({
   type: 'Mutation',

@@ -20,41 +20,13 @@ import { uploadImage } from './image';
 
 const { performance } = require('perf_hooks');
 
-// deprecated
-// export const downloadNotes = async (
-//   ctx: PrismaContext
-// ): Promise<ImportedNote[]> => {
-//   const { req, prisma } = ctx;
-
-//   // fetch new note content from evernote
-//   const notes = await getEvernoteNotes(ctx)
-//     // minify and upload image data
-//     .then(async (data) => saveImages(data))
-//     // save note data to db
-//     .then(async (data) => createNotes(ctx, data))
-//     .catch((err) => {
-//       console.log(err);
-//       throw new Error(`An error occurred in downloadNotes: ${err}`);
-//     });
-
-//   // increment the notes offset in our session
-//   if (notes.length > 0) {
-//     await incrementOffset(req, prisma, notes.length);
-//   }
-//   return notes;
-// };
-
 export const fetchNotesMeta = async (
   ctx: PrismaContext
 ): Promise<NoteMeta[]> => {
   const { req, prisma } = ctx;
-  const e0 = performance.now();
   const store = await getEvernoteStore(req);
   const session = await getSession({ req });
-  const e1 = performance.now();
-  console.log(
-    `evernote and session setup took ${(e1 - e0).toFixed(2)} milliseconds.`
-  );
+
   const { noteImportOffset = 0 } = session?.user ?? {};
   const evernoteGUIDs: string[] = [];
 
@@ -115,13 +87,12 @@ export const fetchNotesMeta = async (
     });
     const t1 = performance.now();
     console.log(
-      `fetchNotesMeta bulk processing took ${(t1 - t0).toFixed(
+      `[fetchNotesMeta] took ${(t1 - t0).toFixed(
         2
       )} milliseconds.`
     );
     return notes;
   } catch (err) {
-    console.log(err);
     throw new Error(`An error occurred in fetchNotesMeta: ${err}`);
   }
 };
@@ -130,12 +101,8 @@ export const fetchNotesContent = async (
   ctx: PrismaContext
 ): Promise<NoteMeta[]> => {
   const { req, prisma } = ctx;
-  const e0 = performance.now();
   const store = await getEvernoteStore(req); // TODO could we store this in session? i'd love to speed this up
-  const e1 = performance.now();
-  console.log(
-    `[fetchNotesContent] evernote and session setup took ${(e1 - e0).toFixed(2)} milliseconds.`
-  );
+
   // fetch new note content from evernote
   try {
     const t0 = performance.now();
@@ -178,17 +145,15 @@ export const fetchNotesContent = async (
     });
 
     const notes = await Promise.all(resolveContent);
-    console.log(JSON.stringify(notes?.[0]?.ingredients, null, 2));
-    // TODO
+
     const t1 = performance.now();
     console.log(
-      `[fetchNotesContent] bulk processing took ${(t1 - t0).toFixed(
+      `[fetchNotesContent] took ${(t1 - t0).toFixed(
         2
       )} milliseconds.`
     );
     return notes;
   } catch (err) {
-    console.log(err);
     throw new Error(`An error occurred in fetchNotesContent: ${err}`);
   }
 };

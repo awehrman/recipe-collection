@@ -13,6 +13,8 @@ import {
 } from '../../../types/note';
 import Parser from '../../../lib/line-parser-min';
 
+const { performance } = require('perf_hooks');
+
 const findIngredient = async (
   name: string,
   prisma: PrismaClient
@@ -443,8 +445,15 @@ export const parseHTML = (content: string, note: Note | ImportedNote) => {
   ingredients = _.flatMap(ingredients);
 
   // parse each ingredient line into its individual components
+  const p0 = performance.now();
   const parsedIngredientLines = ingredients.map((line: BlockObject) =>
     parseIngredientLine(line)
+  );
+  const p1 = performance.now();
+  console.log(
+    `[parsingIngredients] took ${(p1 - p0).toFixed(
+      2
+    )} milliseconds.`
   );
 
   // if we've previously parsed this, check changes

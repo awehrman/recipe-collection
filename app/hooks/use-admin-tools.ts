@@ -1,5 +1,6 @@
 import { gql, useMutation } from '@apollo/client';
 
+import { GET_ALL_NOTES_QUERY } from '../graphql/queries/note';
 
 export const RESET_DATABASE_MUTATION = gql`
 	mutation RESET_DATABASE_MUTATION {
@@ -10,7 +11,16 @@ export const RESET_DATABASE_MUTATION = gql`
 `;
 
 function useAdminTools() {
-  const [resetDatabase] = useMutation(RESET_DATABASE_MUTATION);
+  const [resetDatabase] = useMutation(RESET_DATABASE_MUTATION, {
+		// refetchQueries: [{ query: GET_ALL_NOTES_QUERY }],
+		update: (cache) => {
+			console.log('reset database');
+			cache.writeQuery({
+        query: GET_ALL_NOTES_QUERY,
+        data: { notes: [] },
+      });
+		}
+	});
 
   return {
     resetDatabase,

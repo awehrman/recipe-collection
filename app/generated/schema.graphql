@@ -70,6 +70,7 @@ type Mutation {
   getNotesMeta: EvernoteResponse
   importLocal: ImportLocalResponse
   resetDatabase: EvernoteResponse
+  saveRecipes: EvernoteResponse
 }
 
 type Note {

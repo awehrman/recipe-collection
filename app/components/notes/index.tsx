@@ -111,7 +111,6 @@ const Instructions: React.FC<InstructionsProps> = ({
 
 const Notes: React.FC = ({ status = defaultStatus }) => {
   const { notes } = useNotes(status);
-  console.log('%c render', 'background: mediumseagreen; color: black;');
 
   function renderNotes() {
     return notes.map((note, index) => {
@@ -239,10 +238,10 @@ const IngredientListItem = styled.li`
   &.loading {
     border-radius: 5px;
     animation: ${loading} 1s linear infinite alternate;
-    width: 15%;
+    width: 20%;
     border-radius: 5px;
     height: 13px;
-    margin: 5px 0;
+    margin: 5px 0 8px;
   }
 `;
 
@@ -255,7 +254,7 @@ const InstructionListItem = styled.li`
     width: 100%;
     border-radius: 5px;
     height: 13px;
-    margin: 5px 0;
+    margin: 5px 0 8px;
   }
 `;
 
