@@ -54,7 +54,7 @@ export const getNotesMeta = async (_root: unknown, _args: unknown, ctx: PrismaCo
       const t0 = performance.now();
       const notes = await fetchNotesContent(ctx);
       const t1 = performance.now();
-      console.log(`fetchNotesContent took ${(t1 - t0).toFixed(2)} milliseconds.`);
+      console.log(`[getNotesContent] took ${(t1 - t0).toFixed(2)} milliseconds.`);
       response.notes = notes;
     } catch (err) {
       console.log({ err });

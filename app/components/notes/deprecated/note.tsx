@@ -5,8 +5,8 @@ import { atomOneDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs';
 import pretty from 'pretty';
 import styled from 'styled-components';
 
-import { Button } from '../common';
-import { Note as NoteProps } from '../../types/note';
+import { Button } from '../../common';
+import { Note as NoteProps } from '../../../types/note';
 
 type ContentProps = {
   isExpanded: boolean;

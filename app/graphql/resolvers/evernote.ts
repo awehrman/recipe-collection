@@ -134,7 +134,7 @@ export const fetchNotesContent = async (
   const store = await getEvernoteStore(req); // TODO could we store this in session? i'd love to speed this up
   const e1 = performance.now();
   console.log(
-    `evernote and session setup took ${(e1 - e0).toFixed(2)} milliseconds.`
+    `[fetchNotesContent] evernote and session setup took ${(e1 - e0).toFixed(2)} milliseconds.`
   );
   // fetch new note content from evernote
   try {
@@ -178,11 +178,11 @@ export const fetchNotesContent = async (
     });
 
     const notes = await Promise.all(resolveContent);
-    console.log({ notes });
+    console.log(JSON.stringify(notes?.[0]?.ingredients, null, 2));
     // TODO
     const t1 = performance.now();
     console.log(
-      `fetchNotesContent bulk processing took ${(t1 - t0).toFixed(
+      `[fetchNotesContent] bulk processing took ${(t1 - t0).toFixed(
         2
       )} milliseconds.`
     );

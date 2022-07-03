@@ -9,7 +9,7 @@ import { Note } from '../types/note';
 
 const sortByDateCreatedDesc = (a: Note, b: Note) => (+a?.createdAt < +b?.createdAt) ? 1 : -1;
 
-const DEFAULT_ARRAY_SIZE = 5; // TODO load this from env
+const DEFAULT_ARRAY_SIZE = 1; // TODO load this from env
 const loadingSkeleton = new Array(DEFAULT_ARRAY_SIZE).fill(null).map((_empty, index) => ({
   id: index,
   evernoteGUID: `loading_${index}`,
@@ -40,6 +40,13 @@ const defaultLoadingStatus = {
   saving: false,
 };
 
+const loadingContent = (notes) =>
+  notes.map((note) => ({
+    ...note,
+    ingredients: loadingIngredients,
+    instructions: loadingInstructions,
+  }));
+
 function useNotes(status = defaultLoadingStatus, setStatus = _.noop) {
   const { data = {}, loading, refetch } = useQuery(GET_ALL_NOTES_QUERY, {
     fetchPolicy: 'cache-and-network'
@@ -52,27 +59,23 @@ function useNotes(status = defaultLoadingStatus, setStatus = _.noop) {
     optimisticResponse: {
       getNotesContent: {
         error: null,
-        notes,
+        notes: loadingContent(notes),
         __typename: 'StandardResponse',
       }
     },
     update: (cache, { data: { getNotesContent } }) => {
       console.log('update getNotesContent', { getNotesContent });
+      const isOptimisticResponse =
+        _.some(getNotesContent.notes, (note) => _.some(note.instructions, (line) => _.includes(line.id, 'loading_')));
 
       const newNotesFromResponse = getNotesContent?.notes ?? [];
       const existingNotes = cache.readQuery({
         query: GET_ALL_NOTES_QUERY,
       });
 
-      const data = {
-        notes: _.flatMap([
-          // we'll have to pick out the optimistic response here
-          ...existingNotes?.notes,
-          newNotesFromResponse,
-        ]),
-      };
+      const data = { notes: newNotesFromResponse };
 
-      console.log({ data });
+      console.log(JSON.stringify(data.notes, null, 2));
 
       if (existingNotes && newNotesFromResponse) {
         cache.writeQuery({
@@ -81,7 +84,15 @@ function useNotes(status = defaultLoadingStatus, setStatus = _.noop) {
         });
       }
 
-      // TODO kick off parsing
+      if (!isOptimisticResponse) {
+        const updatedStatus = {...status};
+        updatedStatus.content = false;
+        updatedStatus.parsed = true;
+        setStatus(updatedStatus);
+
+        // TODO kick off parsing process
+
+      }
     }
   });
 
@@ -95,14 +106,6 @@ function useNotes(status = defaultLoadingStatus, setStatus = _.noop) {
     },
     update: (cache, { data: { getNotesMeta } }) => {
       const isOptimisticResponse = _.some(getNotesMeta.notes, (note) => _.includes(note.evernoteGUID, 'loading_'));
-
-      // update loading status
-      if (!isOptimisticResponse) {
-        const updatedStatus = {...status};
-        updatedStatus.meta = false;
-        updatedStatus.content = true;
-        setStatus(updatedStatus);
-      }
 
       const newNotesFromResponse = getNotesMeta?.notes ?? [];
       const existingNotes = cache.readQuery({
@@ -123,8 +126,17 @@ function useNotes(status = defaultLoadingStatus, setStatus = _.noop) {
           data,
         });
       }
-      // TODO kick off next stage of import process
-      getNotesContent();
+
+      // kick off the next process
+      if (!isOptimisticResponse) {
+        // update status
+        const updatedStatus = {...status};
+        updatedStatus.meta = false;
+        updatedStatus.content = true;
+        setStatus(updatedStatus);
+
+        getNotesContent();
+      }
     }
   });
 

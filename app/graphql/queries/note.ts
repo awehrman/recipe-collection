@@ -3,12 +3,11 @@ import { ALL_NOTE_FIELDS } from '../fragments/note';
 
 export const GET_ALL_NOTES_QUERY = gql`
   query GET_ALL_NOTES_QUERY {
-  	notes {
-  		id
-			title
-			evernoteGUID
+		notes {
+			...NoteFields
 		}
-  }
+	}
+	${ ALL_NOTE_FIELDS }
 `;
 
 export const GET_DASHBOARD_PARSING_QUERY = gql`

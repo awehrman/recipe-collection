@@ -1,4 +1,3 @@
-
 import styled, { keyframes } from 'styled-components';
 import React from 'react';
 
@@ -13,62 +12,92 @@ const defaultStatus = {
 
 const Notes: React.FC = ({ status = defaultStatus }) => {
   const { notes } = useNotes(status);
+  console.log({ ...status });
+  console.log(notes);
 
-  function renderIngredients(note) {
-    if (!note?.ingredients) {
-      return null;
-    }
+  // function renderIngredients(note) {
+  //   return (note?.ingredients ?? []).map((line, index) => (
+  //     <IngredientLine key={`${note.id}_ingredient_line_${line.id}_${index}`}>
+  //       {line.reference}
+  //     </IngredientLine>
+  //   ));
+  // }
 
-    return note.ingredients.map((line, index) => (
-      <IngredientLine key={`${note.id}_ingredient_line_${line.id}_${index}`}>
-        {line.reference}
-      </IngredientLine>
-    ));
-  }
+  // function renderNotes() {
+  //   return notes.map((note, index) => (
+  //     <Note key={`note_${note?.evernoteGUID}_${index}`}>
+  //       {/* Title */}
+  //       <Title className={status.meta ? 'loading' : ''}>{note.title}</Title>
 
-  function renderNotes() {
-    return notes.map((note, index) => (
+  //       {/* Image */}
+
+  //       {/* Ingredients */}
+  //       <Ingredients className={status.content ? 'loading' : ''}>
+  //         {(note?.ingredients ?? []).map((line, index) => (
+  //           <IngredientLine
+  //             key={`${note.id}_ingredient_line_${line.id}_${index}`}
+  //           >
+  //             {line?.reference ?? 'butts'}
+  //           </IngredientLine>
+  //         ))}
+  //       </Ingredients>
+
+  //       {/* Instructions */}
+  //     </Note>
+  //   ));
+  // }
+
+  return (
+    <Wrapper>
+      {/* Notes */}
+      {notes.map((note, index) => (
       <Note key={`note_${note?.evernoteGUID}_${index}`}>
         {/* Title */}
-        <Title className={status.meta ? 'loading' : ''}>
-          {note.title}
-        </Title>
+        <Title className={status.meta ? 'loading' : ''}>{note.title}</Title>
 
         {/* Image */}
 
         {/* Ingredients */}
         <Ingredients className={status.content ? 'loading' : ''}>
-          {renderIngredients(note)}
+          {(note?.ingredients ?? []).map((line, index) => (
+            <IngredientLine
+              key={`${note.id}_ingredient_line_${line.id}_${index}`}
+            >
+              {line?.reference ?? 'butts'}
+            </IngredientLine>
+          ))}
         </Ingredients>
 
         {/* Instructions */}
       </Note>
-    ));
-  }
-
-  return (
-    <Wrapper>
-      {/* Notes */}
-      {renderNotes()}
+    ))}
     </Wrapper>
   );
 };
 
 export default Notes;
 
-const Ingredients = styled.ul`
-`;
-
-const IngredientLine = styled.li`
-`;
-
-// TODO move all loading skeletons to another component file
 const loading = keyframes`
   0% {
     background: rgba(238, 238, 238, 1);
   }
   100% {
     background: rgba(230, 230, 230, 1);
+  }
+`;
+
+const Ingredients = styled.ul``;
+
+const IngredientLine = styled.li`
+  background: pink;
+
+  &.loading {
+    border-radius: 5px;
+    animation: ${loading} 1s linear infinite alternate;
+    width: 10%;
+    border-radius: 5px;
+    height: 13px;
+    margin: 5px 0;
   }
 `;
 
@@ -100,8 +129,8 @@ const Note = styled.li`
 `;
 
 const Wrapper = styled.ul`
-	margin: 0;
+  margin: 0;
   padding: 0;
-	max-width: 850px;
+  max-width: 850px;
   list-style: none;
 `;
