@@ -5,16 +5,17 @@ import { GET_ALL_NOTES_QUERY } from '../graphql/queries/note';
 import {
   GET_NOTES_METADATA_MUTATION,
   GET_NOTES_CONTENT_MUTATION,
+  GET_PARSED_NOTES_MUTATION,
   SAVE_RECIPES_MUTATION,
 } from '../graphql/mutations/note';
+import { MAX_NOTES_LIMIT } from '../constants/evernote';
 
 import { Note } from '../types/note';
 
 const sortByDateCreatedDesc = (a: Note, b: Note) =>
   +a?.createdAt < +b?.createdAt ? 1 : -1;
 
-const DEFAULT_ARRAY_SIZE = 1; // TODO load this from env
-const loadingSkeleton = new Array(DEFAULT_ARRAY_SIZE)
+const loadingSkeleton = new Array(MAX_NOTES_LIMIT)
   .fill(null)
   .map((_empty, index) => ({
     id: index,
@@ -26,9 +27,33 @@ const loadingSkeleton = new Array(DEFAULT_ARRAY_SIZE)
   }));
 
 const loadingIngredients = [
-  { id: 1, blockIndex: 0, lineIndex: 0, reference: null, parsed: [], isParsed: false, __typeName: 'IngredientLine' },
-  { id: 2, blockIndex: 1, lineIndex: 0, reference: null, parsed: [], isParsed: false, __typeName: 'IngredientLine' },
-  { id: 3, blockIndex: 1, lineIndex: 1, reference: null, parsed: [], isParsed: false, __typeName: 'IngredientLine' },
+  {
+    id: 1,
+    blockIndex: 0,
+    lineIndex: 0,
+    reference: null,
+    parsed: [],
+    isParsed: false,
+    __typeName: 'IngredientLine',
+  },
+  {
+    id: 2,
+    blockIndex: 1,
+    lineIndex: 0,
+    reference: null,
+    parsed: [],
+    isParsed: false,
+    __typeName: 'IngredientLine',
+  },
+  {
+    id: 3,
+    blockIndex: 1,
+    lineIndex: 1,
+    reference: null,
+    parsed: [],
+    isParsed: false,
+    __typeName: 'IngredientLine',
+  },
 ];
 
 const loadingInstructions = [
@@ -40,6 +65,7 @@ const loadingInstructions = [
 const defaultLoadingStatus = {
   meta: false,
   content: false,
+  parsing: false,
   saving: false,
 };
 
@@ -64,24 +90,71 @@ function useNotes(status = defaultLoadingStatus, setStatus = _.noop) {
   let notes: Note[] = data?.notes ?? [];
   notes = [...notes].sort(sortByDateCreatedDesc);
 
+  const [getParsedNotes] = useMutation(GET_PARSED_NOTES_MUTATION, {
+    update: (cache, { data: { getParsedNotes } }) => {
+      console.log('getParsedNotes - update');
+      const parsedNotes = getParsedNotes?.notes ?? [];
+      // ? i wonder why i'm not seeing existing here
+      // const existingNotes = cache.readQuery({
+      //   query: GET_ALL_NOTES_QUERY,
+      // });
+
+      console.log({ parsedNotes });
+      if (parsedNotes.length) {
+        const data = {
+          notes: parsedNotes.map((note) => ({
+            __typename: 'Note',
+            ...note,
+            ingredients: (note?.ingredients ?? []).map((line) => ({
+              __typename: 'IngredientLine',
+              ...line,
+              parsed: (line?.parsed ?? []).map((parsed) => ({
+                __typename: 'ParsedSegment',
+                ...parsed,
+              }))
+            })),
+            instructions: (note?.instructions ?? []).map((line) => ({
+              __typename: 'InstructionLine',
+              ...line,
+            }))
+          })),
+        };
+      }
+
+      console.log({ data });
+      cache.writeQuery({
+        query: GET_ALL_NOTES_QUERY,
+        data: { notes: parsedNotes },
+      });
+
+      const updatedStatus = { ...status };
+      updatedStatus.parsing = false;
+      setStatus(updatedStatus);
+    },
+  });
+
   const [getNotesContent] = useMutation(GET_NOTES_CONTENT_MUTATION, {
     update: (cache, { data: { getNotesContent } }) => {
       const newNotesFromResponse = getNotesContent?.notes ?? [];
 
-      const data = {
-        notes: _.flatMap([
-          newNotesFromResponse,
-        ]),
-      };
+      if (newNotesFromResponse.length) {
+        const data = {
+          notes: _.flatMap([newNotesFromResponse]),
+        };
 
-      cache.writeQuery({
-        query: GET_ALL_NOTES_QUERY,
-        data,
-      });
+        cache.writeQuery({
+          query: GET_ALL_NOTES_QUERY,
+          data,
+        });
+      }
 
       const updatedStatus = { ...status };
       updatedStatus.content = false;
+      updatedStatus.parsing = true;
       setStatus(updatedStatus);
+
+      // kick off parsing process
+      getParsedNotes();
     },
   });
 
@@ -104,10 +177,7 @@ function useNotes(status = defaultLoadingStatus, setStatus = _.noop) {
       });
 
       const data = {
-        notes: _.flatMap([
-          newNotesFromResponse,
-          ...existingNotes?.notes,
-        ]),
+        notes: _.flatMap([newNotesFromResponse, ...existingNotes?.notes]),
       };
 
       // tack on skeletons
@@ -144,12 +214,11 @@ function useNotes(status = defaultLoadingStatus, setStatus = _.noop) {
 
   const [saveRecipes] = useMutation(SAVE_RECIPES_MUTATION, {
     update: (cache) => {
-			console.log('save recipes update');
-			cache.writeQuery({
+      cache.writeQuery({
         query: GET_ALL_NOTES_QUERY,
         data: { notes: [] },
       });
-		}
+    },
   });
 
   return {
@@ -158,6 +227,7 @@ function useNotes(status = defaultLoadingStatus, setStatus = _.noop) {
     refetchNotes: refetch,
     importNotes,
     saveRecipes,
+    getParsedNotes,
   };
 }
 

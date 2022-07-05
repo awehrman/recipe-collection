@@ -127,7 +127,6 @@ export const fetchNotesContent = async (
         .then((data) => data?.secure_url)
         .catch((err) => { throw err; });
 
-      console.log({ image });
       // parse note content
       const { ingredients, instructions } = parseHTML(content, noteMeta);
 

@@ -68,6 +68,7 @@ type Mutation {
   clearAuthentication: AuthenticationResponse
   getNotesContent: EvernoteResponse
   getNotesMeta: EvernoteResponse
+  getParsedNotes: EvernoteResponse
   importLocal: ImportLocalResponse
   resetDatabase: EvernoteResponse
   saveRecipes: EvernoteResponse

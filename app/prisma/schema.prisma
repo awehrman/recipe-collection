@@ -180,7 +180,7 @@ model IngredientLine {
   blockIndex Int             @map(name: "block_index")
   lineIndex  Int             @map(name: "line_index")
   reference  String
-  rule       String
+  rule       String?
   isParsed   Boolean         @map(name: "is_parsed")
   parsed     ParsedSegment[]
 

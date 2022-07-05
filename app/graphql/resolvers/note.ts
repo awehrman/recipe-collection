@@ -6,6 +6,7 @@ import { isAuthenticated } from './helpers/evernote';
 import { fetchNotesMeta, fetchNotesContent } from './evernote';
 
 import { ImportedNote, Note } from '../../types/note';
+import { parseNotes } from './helpers/note';
 
 const { performance } = require('perf_hooks');
 
@@ -35,25 +36,46 @@ export const getNotesMeta = async (_root: unknown, _args: unknown, ctx: PrismaCo
     return response;
   };
 
-  export const getNotesContent = async (_root: unknown, _args: unknown, ctx: PrismaContext)
-  : Promise<EvernoteResponseProps> => {
-    const { req } = ctx;
-    const authenticated = isAuthenticated(req);
+export const getNotesContent = async (_root: unknown, _args: unknown, ctx: PrismaContext)
+: Promise<EvernoteResponseProps> => {
+  const { req } = ctx;
+  const authenticated = isAuthenticated(req);
 
-    if (!authenticated) {
-      throw new AuthenticationError('Evernote is not authenticated');
-    }
+  if (!authenticated) {
+    throw new AuthenticationError('Evernote is not authenticated');
+  }
 
-    const response: EvernoteResponseProps = {};
+  const response: EvernoteResponseProps = {};
 
-    try {
-      const notes = await fetchNotesContent(ctx);
-      response.notes = notes;
-    } catch (err) {
-      response.error = `${err}`;
-    }
-    return response;
-  };
+  try {
+    const notes = await fetchNotesContent(ctx);
+    response.notes = notes;
+  } catch (err) {
+    response.error = `${err}`;
+  }
+  return response;
+};
+
+export const getParsedNotes = async (_root: unknown, _args: unknown, ctx: PrismaContext)
+: Promise<EvernoteResponseProps> => {
+  const { req, prisma } = ctx;
+  const authenticated = isAuthenticated(req);
+
+  if (!authenticated) {
+    throw new AuthenticationError('Evernote is not authenticated');
+  }
+
+  const response: EvernoteResponseProps = {};
+
+  try {
+    const notes = await parseNotes(prisma);
+    response.notes = notes;
+  } catch (err) {
+    console.log({ err });
+    response.error = `${err}`;
+  }
+  return response;
+};
 
 const saveRecipe = async (note, prisma: PrismaClient): Promise<void> => {
   const { evernoteGUID, title, source, image, ingredients, instructions } = note;
@@ -86,8 +108,6 @@ export const saveRecipes = async (
   _args: unknown, // TODO look this up
   ctx: PrismaContext
 ): Promise<EvernoteResponseProps> => {
-  console.log('saveRecipes')
-
   const response: EvernoteResponseProps = {};
   const { prisma } = ctx;
 
@@ -123,7 +143,6 @@ export const saveRecipes = async (
     await prisma.note.deleteMany({
       where: { id: { in: noteIds } }
     });
-    console.log('done');
   } catch (err) {
     response.error = `${err}`;
   }

@@ -68,7 +68,7 @@ export type IngredientLine = {
   noteId?: number;
   parsed?: ParsedSegment[];
   reference: string;
-  rule: string;
+  rule?: string;
   updatedAt?: string | Date;
 };
 

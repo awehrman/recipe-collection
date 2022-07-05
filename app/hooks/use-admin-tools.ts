@@ -12,9 +12,7 @@ export const RESET_DATABASE_MUTATION = gql`
 
 function useAdminTools() {
   const [resetDatabase] = useMutation(RESET_DATABASE_MUTATION, {
-		// refetchQueries: [{ query: GET_ALL_NOTES_QUERY }],
 		update: (cache) => {
-			console.log('reset database');
 			cache.writeQuery({
         query: GET_ALL_NOTES_QUERY,
         data: { notes: [] },

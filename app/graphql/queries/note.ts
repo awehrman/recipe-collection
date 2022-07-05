@@ -17,6 +17,7 @@ export const GET_ALL_NOTES_QUERY = gql`
           index
           ingredient {
             id
+            isValidated
             name
           }
           type

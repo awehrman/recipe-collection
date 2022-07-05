@@ -17,29 +17,8 @@ export const ALL_NOTE_FIELDS = gql`
 				index
 				ingredient {
 					id
+					isValidated
 					name
-					plural
-					alternateNames {
-						name
-					}
-					properties
-					parent {
-						id
-						name
-					}
-					relatedIngredients {
-						id
-						name
-					}
-					substitutes {
-						id
-						name
-						# TODO properties
-					}
-					references {
-						id
-						reference
-					}
 				}
 				rule
 				type

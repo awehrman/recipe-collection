@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -23,7 +24,7 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
   const { isAuthenticated } = useEvernote();
   const [status, setStatus] = useState(defaultLoadingStatus);
   const { importNotes, notes = [], saveRecipes } = useNotes(status, setStatus);
-  const notLoading = !status.meta && !status.content && !status.saving;
+  const notLoading = !_.every(_.values(defaultLoadingStatus));
 
   function handleImportNotes() {
     importNotes();

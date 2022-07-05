@@ -222,9 +222,14 @@ const buildIngredientLines = async (
   return { update };
 };
 
-const updateIngredientLineRelation = async (line: unknown, prisma: PrismaClient): Promise<void> => {
+const updateIngredientLineRelation = async (
+  line: unknown,
+  prisma: PrismaClient
+): Promise<void> => {
   const { id, parsed } = line;
-  const parsedIngredientIds = parsed.filter((p) => p.ingredientId !== null).map((p) => p.ingredientId);
+  const parsedIngredientIds = parsed
+    .filter((p) => p.ingredientId !== null)
+    .map((p) => p.ingredientId);
 
   if (parsedIngredientIds.length > 0) {
     // update the ingredient line itself to have a direct ingredient relationship
@@ -232,12 +237,15 @@ const updateIngredientLineRelation = async (line: unknown, prisma: PrismaClient)
       data: {
         ingredientId: parsedIngredientIds[0], // for now we'll just assume a single ingredient
       },
-      where: { id }
+      where: { id },
     });
   }
 };
 
-export const saveNote = async (note: Note, prisma: PrismaClient): Promise<Note> => {
+export const saveNote = async (
+  note: Note,
+  prisma: PrismaClient
+): Promise<Note> => {
   // TODO this a pretty dumb check; will want to replace this with _.every
   const isCreateInstructions = note.instructions?.[0]?.id === undefined;
 
@@ -286,14 +294,16 @@ export const saveNote = async (note: Note, prisma: PrismaClient): Promise<Note> 
       reference: true,
       parsed: {
         select: {
-          ingredientId: true
+          ingredientId: true,
         },
       },
     },
   });
 
   // TODO again this is going to need to be updated for multi ingredient lines
-  await Promise.all(updatedIngredients.map((line) => updateIngredientLineRelation(line, prisma)))
+  await Promise.all(
+    updatedIngredients.map((line) => updateIngredientLineRelation(line, prisma))
+  );
 
   // TODO we don't actually need to pass this shit back. lets just re-query
   return {
@@ -302,32 +312,6 @@ export const saveNote = async (note: Note, prisma: PrismaClient): Promise<Note> 
     instructions: updatedInstructions,
   };
 };
-
-// export const saveNotes = async (
-//   notes: Note[],
-//   prisma: PrismaClient
-// ): Promise<Note[]> => {
-//   const result = await Promise.all(notes.map((note) => saveNote(note, prisma)));
-//   return result;
-// };
-
-// export const parseNotesContent = (notes: Note[]) => {
-//   const parsedNotes = notes.map((note) => {
-//     const { content } = note;
-//     if (!content) {
-//       throw new Error(
-//         `Note: ${note?.title ?? note.evernoteGUID} is missing content!`
-//       );
-//     }
-//     const { ingredients, instructions } = parseHTML(content, note);
-//     return {
-//       ...note,
-//       ingredients,
-//       instructions,
-//     };
-//   });
-//   return parsedNotes;
-// };
 
 type BlockObject = {
   blockIndex: number;
@@ -414,7 +398,7 @@ export const parseHTML = (content: string, note: Note | ImportedNote) => {
       lineIndex = 0;
     }
 
-    if (type === 'text' && reference) {
+    if (type === 'text' && reference.trim().length > 0) {
       startTrackingNewBlocks = true;
       if (!blocks?.[blockIndex] && blockIndex === 0) {
         blocks.push([]);
@@ -440,21 +424,17 @@ export const parseHTML = (content: string, note: Note | ImportedNote) => {
 
   instructions = _.flatMap(instructions).map((i) => ({
     blockIndex: i.blockIndex,
-    reference: i.reference,
+    reference: i.reference.trim(),
   }));
-  ingredients = _.flatMap(ingredients);
-
-  // parse each ingredient line into its individual components
-  const p0 = performance.now();
-  const parsedIngredientLines = ingredients.map((line: BlockObject) =>
-    parseIngredientLine(line)
-  );
-  const p1 = performance.now();
-  console.log(
-    `[parsingIngredients] took ${(p1 - p0).toFixed(
-      2
-    )} milliseconds.`
-  );
+  ingredients = _.flatMap(ingredients).map((line) => {
+    const reference = line.reference.trim();
+    const ingredientLine = {
+      ...line,
+      isParsed: false,
+      reference,
+    };
+    return ingredientLine;
+  });
 
   // if we've previously parsed this, check changes
   if (
@@ -474,7 +454,7 @@ export const parseHTML = (content: string, note: Note | ImportedNote) => {
   }
 
   return {
-    ingredients: parsedIngredientLines,
+    ingredients,
     instructions,
   };
 };
@@ -520,8 +500,116 @@ const parseIngredientLine = (line: BlockObject) => {
     }));
   } catch (err) {
     console.log(`OH FUCK! failed to parse lineIndex: ${reference}`);
-    console.log(line);
-    // TODO log failures to db
   }
   return ingredientLine;
+};
+
+const saveParsedNote = async (note: Note, prisma: PrismaClient): Promise<unknown> => {
+  const ingredients: Promise<Prisma.IngredientLineUpdateManyWithoutNoteInput> =
+    await buildIngredientLines(note.ingredients, prisma);
+  const noteResult = await prisma.note.update({
+    data: {
+      isParsed: true,
+      ingredients,
+    },
+    where: { id: note.id },
+  });
+  const updatedIngredients = await prisma.ingredientLine.findMany({
+    where: { noteId: note.id },
+    select: {
+      id: true,
+      reference: true,
+      parsed: {
+        select: {
+          ingredientId: true,
+        },
+      },
+    },
+  });
+
+  // TODO again this is going to need to be updated for multi ingredient lines
+  await Promise.all(
+    updatedIngredients.map((line) => updateIngredientLineRelation(line, prisma))
+  );
+
+  const savedNote = await prisma.note.findUnique({
+    where: { id: note.id },
+    select: {
+      id: true,
+      title: true,
+      isParsed: true,
+      ingredients: {
+        select: {
+          id: true,
+          blockIndex: true,
+          isParsed: true,
+          lineIndex: true,
+          reference: true,
+          rule: true,
+          parsed: {
+            select: {
+              id: true,
+              index: true,
+              ingredient: {
+                select: {
+                  id: true,
+                  isValidated: true,
+                  name: true,
+                }
+              },
+              // rule: true,
+              type: true,
+              value: true,
+            }
+          }
+        }
+      },
+      instructions: {
+        select: {
+          id: true,
+          blockIndex: true,
+          reference: true
+        }
+      }
+    }
+  });
+  console.log({ savedNote });
+  return savedNote;
+};
+
+export const parseNotes = async (prisma: PrismaClient): Promise<unknown[]> => {
+  // get all notes with ingredientLines
+  const notes = await prisma.note.findMany({
+    where: {
+      ingredients: {
+        some: {
+          isParsed: false,
+        },
+      },
+    },
+    select: {
+      id: true,
+      ingredients: {
+        select: {
+          id: true,
+          reference: true,
+          parsed: true, // hmm
+        },
+      },
+    },
+  });
+
+  // parse notes
+  const parsedNotes = _.map(notes, (note) => {
+    const ingredients = _.map(note.ingredients, (line) => parseIngredientLine(line));
+    return ({
+      id: note.id,
+      isParsed: true,
+      ingredients,
+    });
+  });
+
+  const saved = await Promise.all(_.map(parsedNotes, (note) => saveParsedNote(note, prisma)));
+  console.log(saved)
+  return saved;
 };

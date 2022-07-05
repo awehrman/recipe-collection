@@ -6,8 +6,8 @@ import { extendType, nullable, objectType, stringArg } from 'nexus';
 const client = new Evernote.Client({
   consumerKey: process.env.API_CONSUMER_KEY,
   consumerSecret: process.env.API_CONSUMER_SECRET,
-  sandbox: !!process.env.SANDBOX,
-  china: !!process.env.CHINA,
+  sandbox: Boolean(process.env.SANDBOX),
+  china: Boolean(process.env.CHINA),
 });
 
 type EvernoteRequestErrorProps = {
