@@ -18,13 +18,15 @@ type AuthenticationResponse {
   isAuthenticated: Boolean
 }
 
+type Category {
+  evernoteGUID: String
+  id: Int
+  name: String
+}
+
 type EvernoteResponse {
   error: String
   notes: [Note]
-}
-
-type ImportLocalResponse {
-  errorMessage: String
 }
 
 type Ingredient {
@@ -69,12 +71,12 @@ type Mutation {
   getNotesContent: EvernoteResponse
   getNotesMeta: EvernoteResponse
   getParsedNotes: EvernoteResponse
-  importLocal: ImportLocalResponse
   resetDatabase: EvernoteResponse
   saveRecipes: EvernoteResponse
 }
 
 type Note {
+  categories: [Category]
   content: String
   createdAt: String
   evernoteGUID: String!
@@ -84,6 +86,7 @@ type Note {
   instructions: [InstructionLine]
   isParsed: Boolean
   source: String
+  tags: [Tag]
   title: String!
   updatedAt: String
 }
@@ -130,6 +133,12 @@ enum Role {
 type StandardResponse {
   error: String
   notes: [NoteMeta]
+}
+
+type Tag {
+  evernoteGUID: String
+  id: Int
+  name: String
 }
 
 type User {

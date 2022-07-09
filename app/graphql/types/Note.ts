@@ -3,6 +3,25 @@ import { enumType, extendType, idArg, objectType } from 'nexus';
 import { getNotesMeta, getNotesContent, getParsedNotes, saveRecipes } from '../resolvers/note';
 import { resetDatabase } from '../resolvers/admin-tools';
 
+export const Category = objectType({
+  name: 'Category',
+  definition(t) {
+    t.int('id');
+    t.string('name');
+    t.string('evernoteGUID');
+  },
+});
+
+
+export const Tag = objectType({
+  name: 'Tag',
+  definition(t) {
+    t.int('id');
+    t.string('name');
+    t.string('evernoteGUID');
+  },
+});
+
 export const Note = objectType({
   name: 'Note',
   definition(t) {
@@ -13,8 +32,32 @@ export const Note = objectType({
     t.nonNull.string('evernoteGUID');
     t.nonNull.string('title');
     t.string('source');
-    // categories: string[]
-    // tags: string[]
+    t.list.field('categories', {
+      type: 'Category',
+      resolve: async (root, _args, ctx) => {
+        if (!root?.id) {
+          return [];
+        }
+        const categories = await ctx.prisma.category.findMany({
+          where: { notes: { some: { id: root.id } } },
+        });
+        console.log({ categories });
+        return categories;
+      },
+    });
+    t.list.field('tags', {
+      type: 'Tag',
+      resolve: async (root, _args, ctx) => {
+        if (!root?.id) {
+          return [];
+        }
+        const tags = await ctx.prisma.tag.findMany({
+          where: { notes: { some: { id: root.id } } },
+        });
+        console.log({ tags });
+        return tags;
+      },
+    });
     t.string('image');
     t.string('content');
     t.boolean('isParsed');
@@ -254,14 +297,6 @@ export const InstructionLine = objectType({
     // recipeId
     // note
     // noteId
-  },
-});
-
-export const EvernoteResponse = objectType({
-  name: 'EvernoteResponse',
-  definition(t) {
-    t.nullable.string('error');
-    t.list.field('notes', { type: 'Note' });
   },
 });
 

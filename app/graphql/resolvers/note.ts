@@ -1,23 +1,15 @@
+import { PrismaClient } from '@prisma/client';
 import { AuthenticationError } from 'apollo-server-micro';
 
 import { PrismaContext } from '../context';
-import { isAuthenticated } from './helpers/evernote';
-// TODO rename downloadNotes vs getNotes to be more specific
 import { fetchNotesMeta, fetchNotesContent } from './evernote';
 
-import { ImportedNote, Note } from '../../types/note';
-import { parseNotes } from './helpers/note';
-
-const { performance } = require('perf_hooks');
-
-// TODO move this into /types
-type EvernoteResponseProps = {
-  error?: string | null;
-  notes?: ImportedNote[] | Note[];
-};
+import { EvernoteResponse } from '../../types/evernote';
+import { isAuthenticated } from './helpers/authenticate-evernote';
+import { parseNotes } from './helpers/parse';
 
 export const getNotesMeta = async (_root: unknown, _args: unknown, ctx: PrismaContext)
-  : Promise<EvernoteResponseProps> => {
+  : Promise<EvernoteResponse> => {
     const { req } = ctx;
     const authenticated = isAuthenticated(req);
 
@@ -25,7 +17,7 @@ export const getNotesMeta = async (_root: unknown, _args: unknown, ctx: PrismaCo
       throw new AuthenticationError('Evernote is not authenticated');
     }
 
-    const response: EvernoteResponseProps = {};
+    const response: EvernoteResponse = {};
 
     try {
       const notes = await fetchNotesMeta(ctx);
@@ -37,7 +29,7 @@ export const getNotesMeta = async (_root: unknown, _args: unknown, ctx: PrismaCo
   };
 
 export const getNotesContent = async (_root: unknown, _args: unknown, ctx: PrismaContext)
-: Promise<EvernoteResponseProps> => {
+: Promise<EvernoteResponse> => {
   const { req } = ctx;
   const authenticated = isAuthenticated(req);
 
@@ -45,7 +37,7 @@ export const getNotesContent = async (_root: unknown, _args: unknown, ctx: Prism
     throw new AuthenticationError('Evernote is not authenticated');
   }
 
-  const response: EvernoteResponseProps = {};
+  const response: EvernoteResponse = {};
 
   try {
     const notes = await fetchNotesContent(ctx);
@@ -57,7 +49,7 @@ export const getNotesContent = async (_root: unknown, _args: unknown, ctx: Prism
 };
 
 export const getParsedNotes = async (_root: unknown, _args: unknown, ctx: PrismaContext)
-: Promise<EvernoteResponseProps> => {
+: Promise<EvernoteResponse> => {
   const { req, prisma } = ctx;
   const authenticated = isAuthenticated(req);
 
@@ -65,7 +57,7 @@ export const getParsedNotes = async (_root: unknown, _args: unknown, ctx: Prisma
     throw new AuthenticationError('Evernote is not authenticated');
   }
 
-  const response: EvernoteResponseProps = {};
+  const response: EvernoteResponse = {};
 
   try {
     const notes = await parseNotes(prisma);
@@ -104,11 +96,11 @@ const saveRecipe = async (note, prisma: PrismaClient): Promise<void> => {
 };
 
 export const saveRecipes = async (
-  _root: unknown, // TODO look this up
-  _args: unknown, // TODO look this up
+  _root: unknown,
+  _args: unknown,
   ctx: PrismaContext
-): Promise<EvernoteResponseProps> => {
-  const response: EvernoteResponseProps = {};
+): Promise<EvernoteResponse> => {
+  const response: EvernoteResponse = {};
   const { prisma } = ctx;
 
   try {

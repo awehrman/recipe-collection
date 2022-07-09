@@ -1,6 +1,6 @@
 import cloudinary, { UploadApiOptions } from 'cloudinary';
 
-import { ImportedNote } from '../../types/note';
+import { Note } from '../../types/note';
 
 // TODO go chase down cloudinary types and
 cloudinary.config({
@@ -9,9 +9,9 @@ cloudinary.config({
 	api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export const saveImages = async (notes: ImportedNote[]) => {
+export const saveImages = async (notes: Note[]) => {
 	const resolveImage = notes
-		.map(async (note: ImportedNote) => {
+		.map(async (note: Note) => {
 			const { image } = note;
 			if (!image) {
 				throw new Error('No image exists in this note.');

@@ -10,10 +10,10 @@ import {
 } from '../graphql/mutations/note';
 import { MAX_NOTES_LIMIT } from '../constants/evernote';
 
-import { Note } from '../types/note';
+import { Note, NotesResponse } from '../types/note';
 
 const sortByDateCreatedDesc = (a: Note, b: Note) =>
-  +a?.createdAt < +b?.createdAt ? 1 : -1;
+  +a.createdAt < +b.createdAt ? 1 : -1;
 
 const loadingSkeleton = new Array(MAX_NOTES_LIMIT)
   .fill(null)
@@ -69,7 +69,7 @@ const defaultLoadingStatus = {
   saving: false,
 };
 
-const loadingContent = (notes) =>
+const loadingContent = (notes: Note[]) =>
   notes.map((note) => ({
     ...note,
     ingredients: loadingIngredients,
@@ -92,36 +92,8 @@ function useNotes(status = defaultLoadingStatus, setStatus = _.noop) {
 
   const [getParsedNotes] = useMutation(GET_PARSED_NOTES_MUTATION, {
     update: (cache, { data: { getParsedNotes } }) => {
-      console.log('getParsedNotes - update');
       const parsedNotes = getParsedNotes?.notes ?? [];
-      // ? i wonder why i'm not seeing existing here
-      // const existingNotes = cache.readQuery({
-      //   query: GET_ALL_NOTES_QUERY,
-      // });
 
-      console.log({ parsedNotes });
-      if (parsedNotes.length) {
-        const data = {
-          notes: parsedNotes.map((note) => ({
-            __typename: 'Note',
-            ...note,
-            ingredients: (note?.ingredients ?? []).map((line) => ({
-              __typename: 'IngredientLine',
-              ...line,
-              parsed: (line?.parsed ?? []).map((parsed) => ({
-                __typename: 'ParsedSegment',
-                ...parsed,
-              }))
-            })),
-            instructions: (note?.instructions ?? []).map((line) => ({
-              __typename: 'InstructionLine',
-              ...line,
-            }))
-          })),
-        };
-      }
-
-      console.log({ data });
       cache.writeQuery({
         query: GET_ALL_NOTES_QUERY,
         data: { notes: parsedNotes },
@@ -167,17 +139,18 @@ function useNotes(status = defaultLoadingStatus, setStatus = _.noop) {
       },
     },
     update: (cache, { data: { getNotesMeta } }) => {
+      console.log({ getNotesMeta });
       const isOptimisticResponse = _.some(getNotesMeta.notes, (note) =>
         _.includes(note.evernoteGUID, 'loading_')
       );
 
       const newNotesFromResponse = getNotesMeta?.notes ?? [];
-      const existingNotes = cache.readQuery({
+      const existingNotes: NotesResponse | null = cache.readQuery({
         query: GET_ALL_NOTES_QUERY,
       });
 
       const data = {
-        notes: _.flatMap([newNotesFromResponse, ...existingNotes?.notes]),
+        notes: _.flatMap([newNotesFromResponse, ...existingNotes?.notes ?? []]),
       };
 
       // tack on skeletons

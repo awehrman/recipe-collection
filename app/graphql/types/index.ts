@@ -1,3 +1,4 @@
-export * from './AuthenticationResponse';
-export * from './Note';
-export * from './User';
+export * from './authenticate-evernote';
+export * from './evernote';
+export * from './note';
+export * from './user';

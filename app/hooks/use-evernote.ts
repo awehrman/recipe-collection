@@ -8,6 +8,7 @@ import {
   CLEAR_EVERNOTE_AUTH_MUTATION,
 } from '../graphql/mutations/evernote';
 import { GET_USER_AUTHENTICATION_QUERY } from '../graphql/queries/user';
+import { MAX_NOTES_LIMIT } from '../constants/evernote';
 
 const onHandleOAuthParams = (router: NextRouter) => {
   // clear out the params sent back from the authentication
@@ -16,18 +17,18 @@ const onHandleOAuthParams = (router: NextRouter) => {
 
 function useEvernote() {
   const router: NextRouter = useRouter();
-  const bundleSize = 1;
-  const {
-    query: { oauth_verifier },
-  } = router;
+  const bundleSize = MAX_NOTES_LIMIT;
+  const { query: { oauth_verifier } } = router;
   const [session] = useSession();
   const userId = session?.user?.userId;
+
   // idk why but grabbing these tokens off the session
   // doesn't immediately update on the client so we want to rely
   // on querying the user for auth status
   const { data, loading, refetch } = useQuery(GET_USER_AUTHENTICATION_QUERY, {
     variables: { id: userId },
   });
+
   const evernoteAuthToken = !loading && data?.user?.evernoteAuthToken;
   const evernoteExpiration = !loading && data?.user?.evernoteExpiration;
   const isExpired = !!(!loading && Date.now() > parseInt(evernoteExpiration));

@@ -20,7 +20,7 @@ model User {
   image              String?
   createdAt          DateTime  @default(now()) @map(name: "created_at")
   updatedAt          DateTime  @updatedAt @map(name: "updated_at")
-  // importedRecipes    Recipe[]
+  importedRecipes    Recipe[]
   role               Role?
   noteImportOffset   Int?      @map(name: "note_import_offset")
 
@@ -85,7 +85,6 @@ model Session {
 }
 
 // TODO will need to come back and add indicies for these too
-
 model Ingredient {
   id                   Int             @id @default(autoincrement())
   createdAt            DateTime        @default(now()) @map(name: "created_at")
@@ -131,7 +130,7 @@ model Recipe {
   id             Int      @id @default(autoincrement())
   createdAt      DateTime @default(now()) @map(name: "created_at")
   updatedAt      DateTime @default(now()) @map(name: "updated_at")
-  // importedUser   User     @relation(fields: [importedUserId], references: [id])
+  importedUser   User     @relation(fields: [importedUserId], references: [id])
   importedUserId Int      @map(name: "imported_user_id")
 
   evernoteGUID String   @map(name: "evernote_guid")
@@ -144,33 +143,35 @@ model Recipe {
   // author
   // authorId
 
-  // categories Category[]
-  // tags       Tag[]
+  categories Category[]
+  tags       Tag[]
 
   IngredientLine  IngredientLine[]
   InstructionLine InstructionLine[]
   @@map(name: "recipes")
 }
 
-// model Category {
-//   id           Int    @id @default(autoincrement())
-//   name         String @unique
-//   evernoteGUID String @map(name: "evernote_guid")
+model Category {
+  id           Int     @id @default(autoincrement())
+  name         String  @unique
+  evernoteGUID String? @map(name: "evernote_guid")
 
-//   recipes Recipe[]
+  recipes Recipe[]
+  notes   Note[]
 
-//   @@map(name: "categories")
-// }
+  @@map(name: "categories")
+}
 
-// model Tag {
-//   id           Int    @id @default(autoincrement())
-//   name         String @unique
-//   evernoteGUID String @map(name: "evernote_guid")
+model Tag {
+  id           Int     @id @default(autoincrement())
+  name         String  @unique
+  evernoteGUID String? @map(name: "evernote_guid")
 
-//   recipes Recipe[]
+  recipes Recipe[]
+  notes   Note[]
 
-//   @@map(name: "tags")
-// }
+  @@map(name: "tags")
+}
 
 model IngredientLine {
   id        Int      @id @default(autoincrement())
@@ -240,9 +241,8 @@ model Note {
   title        String
   source       String?
 
-  // i may revisit these types...
-  categories String[]
-  tags       String[]
+  categories Category[]
+  tags       Tag[]
 
   image    String?
   content  String? // may need to check size limit here

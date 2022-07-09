@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
+import { defaultLoadingStatus } from '../../constants/note';
 import useAdminTools from '../../hooks/use-admin-tools';
 import useEvernote from '../../hooks/use-evernote';
 import useNotes from '../../hooks/use-notes';
@@ -10,13 +11,8 @@ import { Button } from '../common';
 import Notes from '../notes';
 
 import AuthenticateEvernote from './authenticate-evernote';
-import { NoteImporterProps } from './types';
 
-const defaultLoadingStatus = {
-  meta: false,
-  content: false,
-  parsing: false,
-  saving: false,
+type NoteImporterProps = {
 };
 
 const NoteImporter: React.FC<NoteImporterProps> = () => {

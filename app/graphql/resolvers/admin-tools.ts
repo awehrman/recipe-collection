@@ -1,19 +1,13 @@
 import { PrismaContext } from '../context';
 
-import { ImportedNote, Note } from '../../types/note';
-
-// TODO move this into /types
-type EvernoteResponseProps = {
-  error?: string | null;
-  notes?: ImportedNote[] | Note[];
-};
+import { EvernoteResponse } from '../../types/evernote';
 
 export const resetDatabase = async (
-  _root: unknown, // TODO look this up
-  _args: unknown, // TODO look this up
+  _root: unknown,
+  _args: unknown,
   ctx: PrismaContext
-): Promise<EvernoteResponseProps> => {
-  const response: EvernoteResponseProps = {};
+): Promise<EvernoteResponse> => {
+  const response: EvernoteResponse = {};
   const { prisma } = ctx;
 
   try {
@@ -23,8 +17,8 @@ export const resetDatabase = async (
     await prisma.ingredient.deleteMany({});
     await prisma.note.deleteMany({});
     await prisma.recipe.deleteMany({});
-    // await prisma.category.deleteMany({});
-    // await prisma.tag.deleteMany({});
+    await prisma.category.deleteMany({});
+    await prisma.tag.deleteMany({});
   } catch (err) {
     response.error = `${err}`;
   }

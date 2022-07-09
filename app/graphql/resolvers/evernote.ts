@@ -1,28 +1,26 @@
 import Evernote from 'evernote';
-import { PrismaContext } from '../context';
 import { getSession } from 'next-auth/client';
+import { performance } from 'perf_hooks';
 
 import {
-  getEvernoteStore,
-  incrementOffset,
-  validateNotes,
-} from './helpers/evernote';
-import { parseHTML, saveNote } from './helpers/note';
-import { NoteMeta } from '../../types/note';
-import {
-  NOTE_SPEC,
   METADATA_NOTE_SPEC,
-  NOTE_FILTER,
   MAX_NOTES_LIMIT,
+  NOTE_FILTER,
+  NOTE_SPEC,
 } from '../../constants/evernote';
+import { EvernoteNoteMeta } from '../../types/note';
 
+import { PrismaContext } from '../context';
+
+import { parseHTML } from './helpers/parse';
+import { incrementOffset, validateNotes } from './helpers/note'
+import { getEvernoteStore } from './helpers/evernote';
+import { saveNote } from './helpers/note';
 import { uploadImage } from './image';
-
-const { performance } = require('perf_hooks');
 
 export const fetchNotesMeta = async (
   ctx: PrismaContext
-): Promise<NoteMeta[]> => {
+): Promise<EvernoteNoteMeta[]> => {
   const { req, prisma } = ctx;
   const store = await getEvernoteStore(req);
   const session = await getSession({ req });
@@ -55,9 +53,9 @@ export const fetchNotesMeta = async (
           return {
             evernoteGUID: `${note?.guid}`,
             title: `${note?.title?.trim()}`,
-            // tagGuids
-            // notebookGuid
-            // attributes.source vs sourceURL
+            // tags: buildTags(note),
+            // categories: buildCategories(note),
+            source: note?.attributes?.sourceURL
           };
         });
 
@@ -86,11 +84,7 @@ export const fetchNotesMeta = async (
       },
     });
     const t1 = performance.now();
-    console.log(
-      `[fetchNotesMeta] took ${(t1 - t0).toFixed(
-        2
-      )} milliseconds.`
-    );
+    console.log(`[fetchNotesMeta] took ${(t1 - t0).toFixed(2)} milliseconds.`);
     return notes;
   } catch (err) {
     throw new Error(`An error occurred in fetchNotesMeta: ${err}`);
@@ -99,7 +93,7 @@ export const fetchNotesMeta = async (
 
 export const fetchNotesContent = async (
   ctx: PrismaContext
-): Promise<NoteMeta[]> => {
+): Promise<EvernoteNoteMeta[]> => {
   const { req, prisma } = ctx;
   const store = await getEvernoteStore(req); // TODO could we store this in session? i'd love to speed this up
 
@@ -113,19 +107,26 @@ export const fetchNotesContent = async (
         id: true,
         evernoteGUID: true,
         title: true,
-      }
+      },
     });
 
     const resolveContent = notesSansContent.map(async (noteMeta) => {
-      const { content, resources } = await store.getNoteWithResultSpec(noteMeta.evernoteGUID, NOTE_SPEC);
+      const { content, resources } = await store.getNoteWithResultSpec(
+        noteMeta.evernoteGUID,
+        NOTE_SPEC
+      );
       // save image
       const imageBinary = resources?.[0]?.data?.body ?? null;
       if (!imageBinary) {
         console.log('No image found!');
       }
-      const image = await uploadImage(Buffer.from(imageBinary), { folder: 'recipes' })
+      const image = await uploadImage(Buffer.from(imageBinary), {
+        folder: 'recipes',
+      })
         .then((data) => data?.secure_url)
-        .catch((err) => { throw err; });
+        .catch((err) => {
+          throw err;
+        });
 
       // parse note content
       const { ingredients, instructions } = parseHTML(content, noteMeta);
@@ -148,9 +149,7 @@ export const fetchNotesContent = async (
 
     const t1 = performance.now();
     console.log(
-      `[fetchNotesContent] took ${(t1 - t0).toFixed(
-        2
-      )} milliseconds.`
+      `[fetchNotesContent] took ${(t1 - t0).toFixed(2)} milliseconds.`
     );
     return notes;
   } catch (err) {

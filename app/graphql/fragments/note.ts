@@ -37,8 +37,14 @@ export const ALL_NOTE_FIELDS = gql`
 		image
 		content
 		isParsed
-		# tags
-		# categories
+		tags {
+			id
+			name
+		}
+		categories {
+			id
+			name
+		}
 	}
 `;
 
@@ -47,9 +53,15 @@ export const NOTE_META_FIELDS = gql`
 		id
 		evernoteGUID
 		title
-		# source
-		# tags
-		# categories
+		source
+		tags {
+			id
+			name
+		}
+		categories {
+			id
+			name
+		}
 	}
 `;
 
