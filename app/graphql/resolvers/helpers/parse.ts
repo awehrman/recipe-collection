@@ -233,6 +233,7 @@ const saveParsedNote = async (
       id: true,
       title: true,
       isParsed: true,
+      source: true,
       ingredients: {
         select: {
           id: true,
@@ -288,7 +289,7 @@ export const parseNotes = async (prisma: PrismaClient): Promise<unknown[]> => {
         select: {
           id: true,
           reference: true,
-          parsed: true, // hmm
+          parsed: true,
         },
       },
     },

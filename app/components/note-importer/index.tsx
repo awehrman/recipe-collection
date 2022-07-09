@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -20,7 +19,8 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
   const { isAuthenticated } = useEvernote();
   const [status, setStatus] = useState(defaultLoadingStatus);
   const { importNotes, notes = [], saveRecipes } = useNotes(status, setStatus);
-  const notLoading = !_.every(_.values(defaultLoadingStatus));
+  const isLoading = status.meta || status.content || status.parsing;
+  const isSaving = status.saving;
 
   function handleImportNotes() {
     importNotes();
@@ -50,7 +50,7 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
         ) : null}
 
          {/* Save Recipes */}
-         {notes.length > 0 && notLoading ? (
+         {notes.length > 0 && !isLoading && !isSaving ? (
           <Button
             disabled={status.saving}
             label='Save Recipes'
@@ -59,7 +59,7 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
         ) : null}
 
         {/* No Notes Placeholder */}
-        {notes.length === 0 && notLoading ? <Placeholder>No imported notes.</Placeholder> : null}
+        {notes.length === 0 && isLoading ? <Placeholder>No imported notes.</Placeholder> : null}
 
         {/* Notes */}
         <Notes status={status} />

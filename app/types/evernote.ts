@@ -1,3 +1,5 @@
+import { Note } from './note';
+
 export type AuthenticateEvernoteArgs = {
   oauthVerifier?: string;
 };
@@ -15,4 +17,5 @@ export type AuthenticationResponse = {
 
 export type EvernoteResponse = {
   error?: string;
+  notes?: Note[];
 };

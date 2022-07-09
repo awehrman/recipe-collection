@@ -13,7 +13,7 @@ import { EvernoteNoteMeta } from '../../types/note';
 import { PrismaContext } from '../context';
 
 import { parseHTML } from './helpers/parse';
-import { incrementOffset, validateNotes } from './helpers/note'
+import { incrementOffset, validateNotes } from './helpers/note';
 import { getEvernoteStore } from './helpers/evernote';
 import { saveNote } from './helpers/note';
 import { uploadImage } from './image';
@@ -55,7 +55,7 @@ export const fetchNotesMeta = async (
             title: `${note?.title?.trim()}`,
             // tags: buildTags(note),
             // categories: buildCategories(note),
-            source: note?.attributes?.sourceURL
+            source: `${note?.attributes?.sourceURL}`,
           };
         });
 
@@ -106,6 +106,7 @@ export const fetchNotesContent = async (
       select: {
         id: true,
         evernoteGUID: true,
+        source: true,
         title: true,
       },
     });
@@ -116,20 +117,18 @@ export const fetchNotesContent = async (
         NOTE_SPEC
       );
       // save image
-      const imageBinary = resources?.[0]?.data?.body ?? null;
-      if (!imageBinary) {
+      const imageBinary = resources?.[0]?.data?.body ?? '';
+      if (!imageBinary.length) {
         console.log('No image found!');
       }
-      const image = await uploadImage(Buffer.from(imageBinary), {
-        folder: 'recipes',
-      })
+      const image = await uploadImage(Buffer.from(imageBinary), { folder: 'recipes' })
         .then((data) => data?.secure_url)
         .catch((err) => {
           throw err;
         });
 
       // parse note content
-      const { ingredients, instructions } = parseHTML(content, noteMeta);
+      const { ingredients, instructions } = parseHTML(`${content}`, noteMeta);
 
       const note = {
         ...noteMeta,
@@ -153,6 +152,8 @@ export const fetchNotesContent = async (
     );
     return notes;
   } catch (err) {
-    throw new Error(`An error occurred in fetchNotesContent: ${err}`);
+    throw new Error(
+      `An error occurred in fetchNotesContent: ${JSON.stringify(err, null, 2)}`
+    );
   }
 };

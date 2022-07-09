@@ -40,7 +40,7 @@ export const saveNote = async (
     data: {
       // TODO eventually we'll add in the ability to edit these
       // title: note.title,
-      // source: note.source,
+      source: note.source,
       // // categories?:
       // // tags?:
       image: note.image,

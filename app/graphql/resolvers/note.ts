@@ -1,10 +1,14 @@
 import { PrismaClient } from '@prisma/client';
 import { AuthenticationError } from 'apollo-server-micro';
+import { Session } from 'next-auth';
+import { getSession } from 'next-auth/client';
 
 import { PrismaContext } from '../context';
 import { fetchNotesMeta, fetchNotesContent } from './evernote';
 
+import { SessionUserProps } from '../../types/session';
 import { EvernoteResponse } from '../../types/evernote';
+import { Note } from '../../types/note';
 import { isAuthenticated } from './helpers/authenticate-evernote';
 import { parseNotes } from './helpers/parse';
 
@@ -69,18 +73,18 @@ export const getParsedNotes = async (_root: unknown, _args: unknown, ctx: Prisma
   return response;
 };
 
-const saveRecipe = async (note, prisma: PrismaClient): Promise<void> => {
+const saveRecipe = async (note: Note, prisma: PrismaClient, importedUserId: number): Promise<void> => {
   const { evernoteGUID, title, source, image, ingredients, instructions } = note;
   // we'll eventually expand this to include a book reference and/or a url
   // but we'll just throw strings in for the meantime
   const sources = [];
+  console.log({ source })
   if (source) {
     sources.push(source);
   }
   await prisma.recipe.create({
     data: {
-      // TODO grab this off the session
-      importedUserId: 3,
+      importedUserId,
       evernoteGUID,
       title,
       sources,
@@ -101,7 +105,10 @@ export const saveRecipes = async (
   ctx: PrismaContext
 ): Promise<EvernoteResponse> => {
   const response: EvernoteResponse = {};
-  const { prisma } = ctx;
+  const { prisma, req } = ctx;
+  const session: Session | null = await getSession({ req });
+  const user: SessionUserProps = session?.user || {};
+  const userId = Number(user.userId);
 
   try {
     // find all parsed notes
@@ -127,9 +134,10 @@ export const saveRecipes = async (
       }
     });
     const noteIds = notes.map((note) => note.id);
+    console.log(notes[0].source)
 
     // create new recipes
-    await Promise.all(notes.map((note) => saveRecipe(note, prisma)));
+    await Promise.all(notes.map((note) => saveRecipe(note, prisma, userId)));
 
     // remove notes
     await prisma.note.deleteMany({

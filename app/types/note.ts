@@ -18,7 +18,7 @@ export type EvernoteNoteMeta = {
 
 export type Note = {
   content?: string;
-  createdAt: string | Date;
+  createdAt?: string | Date;
   evernoteGUID: string;
   id?: number | null;
   image?: string | null;
