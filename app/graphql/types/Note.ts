@@ -41,7 +41,6 @@ export const Note = objectType({
         const categories = await ctx.prisma.category.findMany({
           where: { notes: { some: { id: root.id } } },
         });
-        console.log({ categories });
         return categories;
       },
     });
@@ -54,7 +53,6 @@ export const Note = objectType({
         const tags = await ctx.prisma.tag.findMany({
           where: { notes: { some: { id: root.id } } },
         });
-        console.log({ tags });
         return tags;
       },
     });

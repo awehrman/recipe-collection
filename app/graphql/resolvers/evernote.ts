@@ -104,8 +104,8 @@ const buildTags = async (
       const evernoteTag = await store
         .getTag(tagGUID)
         .catch((err) => console.log({ err }));
-      console.log({ evernoteTag });
-      // create the tag
+
+        // create the tag
       try {
         const saved = await prisma.tag.create({
           data: {
@@ -199,7 +199,7 @@ export const fetchNotesMeta = async (
             if (note?.guid !== undefined) {
               const noteMeta = _.find(savedMeta, ['evernoteGUID', note.guid]);
               const noteId = parseInt(noteMeta.id, 10);
-              console.log({ noteId });
+
               const relations = await resolveCategoriesAndTagsHash(
                 note,
                 noteId,
@@ -234,7 +234,6 @@ export const fetchNotesMeta = async (
     if (notes?.length > 0) {
       await incrementOffset(req, prisma, notes.length);
     }
-    console.log({ notes });
     const t1 = performance.now();
     console.log(`[fetchNotesMeta] took ${(t1 - t0).toFixed(2)} milliseconds.`);
     return notes;

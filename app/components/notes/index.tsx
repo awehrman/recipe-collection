@@ -5,6 +5,8 @@ import { defaultLoadingStatus } from '../../constants/note';
 import { StatusProps } from '../../types/note';
 import useNotes from '../../hooks/use-notes';
 
+import Loader from '../common/Loading';
+
 import Ingredients from './ingredients';
 import Instructions from './instructions';
 
@@ -18,6 +20,7 @@ const Notes: React.FC<NotesProps> = ({ status = defaultLoadingStatus }) => {
     return notes.map((note, index) => {
       const { evernoteGUID, ingredients = [], instructions = [], title} = note;
       const showContent = ingredients.length > 0 || instructions.length > 0;
+      const showParsingLoader = status.parsing;
 
       return (
       <Note key={`note_${evernoteGUID}_${index}`}>
@@ -25,6 +28,9 @@ const Notes: React.FC<NotesProps> = ({ status = defaultLoadingStatus }) => {
         <Title className={status.meta ? 'loading' : ''}>{title}</Title>
 
         {/* Image */}
+
+        {/* Parsing Loader */}
+        {showParsingLoader ? <ParsingLoader /> : null}
 
         {/* Content */}
         {showContent ? (
@@ -46,6 +52,9 @@ const Notes: React.FC<NotesProps> = ({ status = defaultLoadingStatus }) => {
 };
 
 export default Notes;
+
+const ParsingLoader = styled(Loader)`
+`;
 
 const loading = keyframes`
   0% {

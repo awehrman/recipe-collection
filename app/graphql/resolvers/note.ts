@@ -99,7 +99,6 @@ const saveRecipe = async (
   // we'll eventually expand this to include a book reference and/or a url
   // but we'll just throw strings in for the meantime
   const sources = [];
-  console.log({ categories, tags });
   if (source) {
     sources.push(source);
   }

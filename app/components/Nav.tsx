@@ -187,23 +187,19 @@ const NavStyles = styled.nav<NavStylesProps>`
 	}
 
 	button.sign-out {
-    display: flex;
-    justify-content: center;
-		text-align: center;
-		margin: auto;
-		position: absolute;
-		left: 0;
-		bottom: 20px;
-		right: 0;
-    border: 0;
-    color: ${({ theme }) => theme.colors.altGreen};
-    font-weight: bold;
-    background: transparent;
-    flex-basis: 100%;
-		top: ${ ({ isExpanded }) => (isExpanded ? 'unset' : '10px') };
+		display: flex;
+		margin: 10px auto;
+		border: 0;
+		color: ${({ theme }) => theme.colors.altGreen};
+		font-weight: bold;
+		background: transparent;
+		cursor: pointer;
 
 		@media (min-width: ${ ({ theme }) => theme.sizes.tablet }) {
-			top: unset;
+			position: absolute;
+			bottom: 20px;
+			left: 50%;
+  		transform: translate(-50%, -50%);
 		}
   }
 

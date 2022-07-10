@@ -139,7 +139,6 @@ function useNotes(status = defaultLoadingStatus, setStatus = _.noop) {
       },
     },
     update: (cache, { data: { getNotesMeta } }) => {
-      console.log({ getNotesMeta });
       const isOptimisticResponse = _.some(getNotesMeta.notes, (note) =>
         _.includes(note.evernoteGUID, 'loading_')
       );
