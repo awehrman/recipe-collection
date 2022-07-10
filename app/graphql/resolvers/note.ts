@@ -8,7 +8,6 @@ import { fetchNotesMeta, fetchNotesContent } from './evernote';
 
 import { SessionUserProps } from '../../types/session';
 import { EvernoteResponse } from '../../types/evernote';
-import { Note } from '../../types/note';
 import { isAuthenticated } from './helpers/authenticate-evernote';
 import { parseNotes } from './helpers/parse';
 

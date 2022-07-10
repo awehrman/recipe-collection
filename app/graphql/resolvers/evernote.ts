@@ -69,12 +69,61 @@ const buildCategories = async (
   }
 };
 
-const buildTags = async (tagGUIDs: string[] = []) => {
+const buildTags = async (
+  noteId: number,
+  tagGUIDs: string[],
+  prisma: PrismaClient,
+  store: Evernote.NoteStoreClient
+) => {
   if (!tagGUIDs?.length) {
     return null;
   }
-  const tags = {};
 
+  // see if we have this tagGUID locally
+  const existing = await prisma.tag.findMany({
+    where: { evernoteGUID: { in: tagGUIDs } },
+    select: {
+      id: true,
+      name: true,
+      evernoteGUID: true,
+    },
+  });
+
+  const tags = await Promise.all(
+    _.map(tagGUIDs, async (tagGUID) => {
+      const existingTag = _.find(existing, ['evernoteGUID', tagGUID]);
+
+      if (existingTag) {
+        return {
+          id: existingTag.id,
+          name: existingTag.name,
+        };
+      }
+
+      // look up the name from evernote
+      const evernoteTag = await store
+        .getTag(tagGUID)
+        .catch((err) => console.log({ err }));
+      console.log({ evernoteTag });
+      // create the tag
+      try {
+        const saved = await prisma.tag.create({
+          data: {
+            name: evernoteTag.name,
+            evernoteGUID: tagGUID,
+            notes: { connect: [{ id: noteId }] },
+          },
+          select: {
+            id: true,
+            name: true,
+          },
+        });
+        return saved;
+      } catch (err) {
+        console.log(err);
+      }
+    })
+  );
   return tags;
 };
 
@@ -85,7 +134,7 @@ const resolveCategoriesAndTagsHash = async (
   store: Evernote.NoteStoreClient
 ): Promise<unknown> => {
   // TODO keep a hash in our session of current prisma categories and tags so that we can limit these calls
-  const tags = await buildTags(note?.tagGuids, prisma, store);
+  const tags = await buildTags(noteId, note?.tagGuids ?? [], prisma, store);
   const categories = await buildCategories(
     noteId,
     note?.notebookGuid,
