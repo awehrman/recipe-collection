@@ -1,13 +1,19 @@
 import React from 'react'
+
 import Page from '../../components/Page';
+import useRecipes from '../../hooks/use-recipes';
 
 type RecipesProps = {
 }
 
-const Recipes: React.FC<RecipesProps> = () => {
+const Recipes: React.FC<RecipesProps> = (props) => {
+  const { recipes } = useRecipes();
+
   return (
     <Page title='Recipes'>
-      There's nothing here yet!
+      {recipes.map((rp) => (
+        <div key={`recipe_${rp.id}`}>{rp.title}</div>
+      ))}
     </Page>
   );
 }

@@ -120,9 +120,18 @@ enum Property {
 }
 
 type Query {
+  ingredient(id: ID): Ingredient
+  ingredients: [Ingredient]
   note(id: ID): Note
   notes: [Note]
+  recipe(id: ID): Recipe
+  recipes: [Recipe]
   user(id: ID): User
+}
+
+type Recipe {
+  id: Int
+  title: String
 }
 
 enum Role {
