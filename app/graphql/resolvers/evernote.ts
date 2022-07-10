@@ -1,3 +1,5 @@
+import _ from 'lodash';
+import { PrismaClient } from '@prisma/client';
 import Evernote from 'evernote';
 import { getSession } from 'next-auth/client';
 import { performance } from 'perf_hooks';
@@ -18,6 +20,85 @@ import { getEvernoteStore } from './helpers/evernote';
 import { saveNote } from './helpers/note';
 import { uploadImage } from './image';
 
+const buildCategories = async (
+  noteId: number,
+  notebookGUID: string,
+  prisma: PrismaClient,
+  store: Evernote.NoteStoreClient
+): Promise<unknown> => {
+  if (!notebookGUID) {
+    return null;
+  }
+
+  // see if we have this notebookGUID locally
+  const existing = await prisma.category.findMany({
+    where: { evernoteGUID: notebookGUID },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+
+  if (existing?.length > 0) {
+    return existing[0];
+  }
+
+  // fetch this info from evernote
+  const notebook = await store
+    .getNotebook(notebookGUID)
+    .catch((err) => console.log({ err }));
+
+  if (notebook) {
+    try {
+      const saved = await prisma.category.create({
+        data: {
+          name: notebook.name,
+          evernoteGUID: notebook.guid,
+          notes: { connect: [{ id: noteId }] },
+        },
+        select: {
+          id: true,
+          name: true,
+          evernoteGUID: true,
+        },
+      });
+      return saved;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+};
+
+const buildTags = async (tagGUIDs: string[] = []) => {
+  if (!tagGUIDs?.length) {
+    return null;
+  }
+  const tags = {};
+
+  return tags;
+};
+
+const resolveCategoriesAndTagsHash = async (
+  note: unknown,
+  noteId: number,
+  prisma: PrismaClient,
+  store: Evernote.NoteStoreClient
+): Promise<unknown> => {
+  // TODO keep a hash in our session of current prisma categories and tags so that we can limit these calls
+  const tags = await buildTags(note?.tagGuids, prisma, store);
+  const categories = await buildCategories(
+    noteId,
+    note?.notebookGuid,
+    prisma,
+    store
+  );
+
+  return {
+    categories,
+    tags,
+  };
+};
+
 export const fetchNotesMeta = async (
   ctx: PrismaContext
 ): Promise<EvernoteNoteMeta[]> => {
@@ -26,13 +107,12 @@ export const fetchNotesMeta = async (
   const session = await getSession({ req });
 
   const { noteImportOffset = 0 } = session?.user ?? {};
-  const evernoteGUIDs: string[] = [];
 
   // fetch new note content from evernote
   try {
     const t0 = performance.now();
 
-    const downloadedCount: number = await store
+    const notes = await store
       .findNotesMetadata(
         NOTE_FILTER,
         noteImportOffset,
@@ -45,44 +125,67 @@ export const fetchNotesMeta = async (
       )
       // write our metadata to our db
       .then(async (data) => {
-        // TODO throw an error if we're lacking guids or titles
-        const notes = data.map((note) => {
-          if (note?.guid) {
-            evernoteGUIDs.push(note.guid);
-          }
-          return {
-            evernoteGUID: `${note?.guid}`,
-            title: `${note?.title?.trim()}`,
-            // tags: buildTags(note),
-            // categories: buildCategories(note),
-            source: `${note?.attributes?.sourceURL}`,
-          };
-        });
+        // prisma doesn't support a select statement on createMany
+        const savedMeta = await prisma.$transaction(
+          _.map(data, (note) =>
+            prisma.note.create({
+              data: {
+                title: note.title,
+                evernoteGUID: note.guid,
+                source: note?.attributes?.sourceURL,
+              },
+              select: {
+                id: true,
+                title: true,
+                source: true,
+                evernoteGUID: true,
+              },
+            })
+          )
+        );
 
-        const { count } = await prisma.note.createMany({
-          data: notes,
+        const noteGUIDHash = {};
+        await Promise.all(
+          _.map(data, async (note) => {
+            if (note?.guid !== undefined) {
+              const noteMeta = _.find(savedMeta, ['evernoteGUID', note.guid]);
+              const noteId = parseInt(noteMeta.id, 10);
+              console.log({ noteId });
+              const relations = await resolveCategoriesAndTagsHash(
+                note,
+                noteId,
+                prisma,
+                store
+              );
+              noteGUIDHash[`${note.guid}`] = relations;
+            }
+          })
+        );
+
+        const notes = _.map(savedMeta, (note) => {
+          const { categories, tags } = noteGUIDHash[note.evernoteGUID];
+          const response = {
+            ...note,
+          };
+          if (categories) {
+            response.categories = categories;
+          }
+          if (tags?.length > 0) {
+            response.tags = [...tags];
+          }
+          return response;
         });
-        return count;
+        return notes;
       })
       .catch((err) => {
         throw new Error(`Could not fetch notes metadata. ${err}`);
       });
 
     // increment the notes offset in our session
-    if (downloadedCount > 0) {
-      await incrementOffset(req, prisma, downloadedCount);
+    if (notes?.length > 0) {
+      await incrementOffset(req, prisma, notes.length);
     }
-
-    const notes = await prisma.note.findMany({
-      where: {
-        evernoteGUID: { in: evernoteGUIDs },
-      },
-      select: {
-        id: true,
-        evernoteGUID: true,
-        title: true,
-      },
-    });
+    console.log({ notes });
     const t1 = performance.now();
     console.log(`[fetchNotesMeta] took ${(t1 - t0).toFixed(2)} milliseconds.`);
     return notes;
@@ -118,10 +221,12 @@ export const fetchNotesContent = async (
       );
       // save image
       const imageBinary = resources?.[0]?.data?.body ?? '';
-      if (!imageBinary.length) {
+      if (!imageBinary?.length) {
         console.log('No image found!');
       }
-      const image = await uploadImage(Buffer.from(imageBinary), { folder: 'recipes' })
+      const image = await uploadImage(Buffer.from(imageBinary), {
+        folder: 'recipes',
+      })
         .then((data) => data?.secure_url)
         .catch((err) => {
           throw err;

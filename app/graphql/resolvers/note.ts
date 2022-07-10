@@ -12,28 +12,34 @@ import { Note } from '../../types/note';
 import { isAuthenticated } from './helpers/authenticate-evernote';
 import { parseNotes } from './helpers/parse';
 
-export const getNotesMeta = async (_root: unknown, _args: unknown, ctx: PrismaContext)
-  : Promise<EvernoteResponse> => {
-    const { req } = ctx;
-    const authenticated = isAuthenticated(req);
+export const getNotesMeta = async (
+  _root: unknown,
+  _args: unknown,
+  ctx: PrismaContext
+): Promise<EvernoteResponse> => {
+  const { req } = ctx;
+  const authenticated = isAuthenticated(req);
 
-    if (!authenticated) {
-      throw new AuthenticationError('Evernote is not authenticated');
-    }
+  if (!authenticated) {
+    throw new AuthenticationError('Evernote is not authenticated');
+  }
 
-    const response: EvernoteResponse = {};
+  const response: EvernoteResponse = {};
 
-    try {
-      const notes = await fetchNotesMeta(ctx);
-      response.notes = notes;
-    } catch (err) {
-      response.error = `${err}`;
-    }
-    return response;
-  };
+  try {
+    const notes = await fetchNotesMeta(ctx);
+    response.notes = notes;
+  } catch (err) {
+    response.error = `${err}`;
+  }
+  return response;
+};
 
-export const getNotesContent = async (_root: unknown, _args: unknown, ctx: PrismaContext)
-: Promise<EvernoteResponse> => {
+export const getNotesContent = async (
+  _root: unknown,
+  _args: unknown,
+  ctx: PrismaContext
+): Promise<EvernoteResponse> => {
   const { req } = ctx;
   const authenticated = isAuthenticated(req);
 
@@ -52,8 +58,11 @@ export const getNotesContent = async (_root: unknown, _args: unknown, ctx: Prism
   return response;
 };
 
-export const getParsedNotes = async (_root: unknown, _args: unknown, ctx: PrismaContext)
-: Promise<EvernoteResponse> => {
+export const getParsedNotes = async (
+  _root: unknown,
+  _args: unknown,
+  ctx: PrismaContext
+): Promise<EvernoteResponse> => {
   const { req, prisma } = ctx;
   const authenticated = isAuthenticated(req);
 
@@ -73,12 +82,25 @@ export const getParsedNotes = async (_root: unknown, _args: unknown, ctx: Prisma
   return response;
 };
 
-const saveRecipe = async (note: Note, prisma: PrismaClient, importedUserId: number): Promise<void> => {
-  const { evernoteGUID, title, source, image, ingredients, instructions } = note;
+const saveRecipe = async (
+  note: unknown,
+  prisma: PrismaClient,
+  importedUserId: number
+): Promise<void> => {
+  const {
+    categories = [],
+    evernoteGUID,
+    tags = [],
+    title,
+    source,
+    image,
+    ingredients,
+    instructions,
+  } = note;
   // we'll eventually expand this to include a book reference and/or a url
   // but we'll just throw strings in for the meantime
   const sources = [];
-  console.log({ source })
+  console.log({ categories, tags });
   if (source) {
     sources.push(source);
   }
@@ -89,13 +111,19 @@ const saveRecipe = async (note: Note, prisma: PrismaClient, importedUserId: numb
       title,
       sources,
       image,
+      categories: {
+        connect: categories,
+      },
+      tags: {
+        connect: tags,
+      },
       IngredientLine: {
-        connect: ingredients
+        connect: ingredients,
       },
       InstructionLine: {
-        connect: instructions
-      }
-    }
+        connect: instructions,
+      },
+    },
   });
 };
 
@@ -115,7 +143,6 @@ export const saveRecipes = async (
     const notes = await prisma.note.findMany({
       where: { isParsed: true },
       select: {
-        // categories/tags
         id: true,
         evernoteGUID: true,
         title: true,
@@ -123,25 +150,34 @@ export const saveRecipes = async (
         image: true,
         ingredients: {
           select: {
-            id: true
-          }
+            id: true,
+          },
         },
         instructions: {
           select: {
-            id: true
-          }
+            id: true,
+          },
         },
-      }
+        categories: {
+          select: {
+            id: true,
+          },
+        },
+        tags: {
+          select: {
+            id: true,
+          },
+        },
+      },
     });
     const noteIds = notes.map((note) => note.id);
-    console.log(notes[0].source)
 
     // create new recipes
     await Promise.all(notes.map((note) => saveRecipe(note, prisma, userId)));
 
     // remove notes
     await prisma.note.deleteMany({
-      where: { id: { in: noteIds } }
+      where: { id: { in: noteIds } },
     });
   } catch (err) {
     response.error = `${err}`;

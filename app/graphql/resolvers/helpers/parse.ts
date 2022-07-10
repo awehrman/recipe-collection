@@ -269,7 +269,6 @@ const saveParsedNote = async (
       },
     },
   });
-  console.log({ savedNote });
   return savedNote;
 };
 
@@ -310,6 +309,5 @@ export const parseNotes = async (prisma: PrismaClient): Promise<unknown[]> => {
   const saved = await Promise.all(
     _.map(parsedNotes, (note) => saveParsedNote(note, prisma))
   );
-  console.log(saved);
   return saved;
 };

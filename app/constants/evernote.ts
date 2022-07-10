@@ -7,8 +7,8 @@ export const METADATA_NOTE_SPEC = new Evernote.NoteStore.NotesMetadataResultSpec
   includeUpdated: false,
   includeDeleted: false,
   includeUpdateSequenceNum: false,
-  includeNotebookGuid: false,
-  includeTagGuids: false,
+  includeNotebookGuid: true,
+  includeTagGuids: true,
   includeAttributes: true, // needed for source
   includeLargestResourceMime: false,
   includeLargestResourceSize: false,
