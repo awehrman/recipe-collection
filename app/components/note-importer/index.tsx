@@ -59,7 +59,7 @@ const NoteImporter: React.FC<NoteImporterProps> = () => {
         ) : null}
 
         {/* No Notes Placeholder */}
-        {notes.length === 0 && isLoading ? <Placeholder>No imported notes.</Placeholder> : null}
+        {notes.length === 0 && !isLoading ? <Placeholder>No imported notes.</Placeholder> : null}
 
         {/* Notes */}
         <Notes status={status} />

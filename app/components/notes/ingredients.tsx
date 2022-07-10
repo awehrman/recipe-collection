@@ -25,7 +25,7 @@ const Ingredients: React.FC<IngredientsProps> = ({
     const sortedParsed = parsed?.length
       ? [...parsed].sort(sortByIndexAsc)
       : parsed;
-    return sortedParsed.map((v) => {
+    return sortedParsed.map((v, index) => {
       let ingClassName = '';
       if (v.ingredient) {
         ingClassName = v.ingredient.isValidated ? ' valid' : ' invalid';
@@ -36,7 +36,7 @@ const Ingredients: React.FC<IngredientsProps> = ({
 
       return (
         <span
-          key={`_${v.value}`}
+          key={`parsed_segment_${v.value}_${index}`}
           className={`${v.type} ${ingClassName} ${hasComma}`}
         >
           {v.value}
@@ -67,9 +67,10 @@ const Ingredients: React.FC<IngredientsProps> = ({
     ));
   }
 
+  // TODO need better keys here
   function renderIngredients(status: StatusProps) {
     return ingBlocks.map((blockIndex) => (
-      <Block key={`parsed_ingredient_block${blockIndex}`} className='block'>
+      <Block key={`parsed_ingredient_block_${blockIndex}`} className='block'>
         {renderBlock(blockIndex, status)}
       </Block>
     ));
@@ -124,6 +125,8 @@ const Parsed = styled.span`
 const IngredientList = styled.ul`
   &&& {
     margin-top: 20px;
+    min-height: 220px;
+    max-width: 450px;
   }
 `;
 

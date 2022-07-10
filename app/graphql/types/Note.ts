@@ -161,7 +161,6 @@ export const GetNotesContent = extendType({
   },
 });
 
-
 export const GetParsedNotes = extendType({
   type: 'Mutation',
   definition(t) {

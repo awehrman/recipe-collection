@@ -7,6 +7,7 @@ export const GET_ALL_NOTES_QUERY = gql`
       id
       title
       evernoteGUID
+      image
       ingredients {
         id
         blockIndex

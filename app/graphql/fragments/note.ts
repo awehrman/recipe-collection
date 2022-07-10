@@ -54,6 +54,7 @@ export const NOTE_META_FIELDS = gql`
 		evernoteGUID
 		title
 		source
+		image
 		tags {
 			id
 			name

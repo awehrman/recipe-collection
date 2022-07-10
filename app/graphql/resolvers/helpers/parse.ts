@@ -234,6 +234,7 @@ const saveParsedNote = async (
       title: true,
       isParsed: true,
       source: true,
+      image: true,
       ingredients: {
         select: {
           id: true,

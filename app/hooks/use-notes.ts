@@ -19,7 +19,8 @@ const loadingSkeleton = new Array(MAX_NOTES_LIMIT)
   .fill(null)
   .map((_empty, index) => ({
     id: index,
-    evernoteGUID: `loading_${index}`,
+    image: null,
+    evernoteGUID: `loading_note_skeleton_${index}`,
     title: null,
     ingredients: [],
     instructions: [],
@@ -69,7 +70,7 @@ const defaultLoadingStatus = {
   saving: false,
 };
 
-const loadingContent = (notes: Note[]) =>
+const loadingContent = (notes: Note[]) => console.log({ notes }) ||
   notes.map((note) => ({
     ...note,
     ingredients: loadingIngredients,
@@ -140,7 +141,7 @@ function useNotes(status = defaultLoadingStatus, setStatus = _.noop) {
     },
     update: (cache, { data: { getNotesMeta } }) => {
       const isOptimisticResponse = _.some(getNotesMeta.notes, (note) =>
-        _.includes(note.evernoteGUID, 'loading_')
+      _.includes(note.evernoteGUID, 'loading_note_skeleton_')
       );
 
       const newNotesFromResponse = getNotesMeta?.notes ?? [];
@@ -190,6 +191,7 @@ function useNotes(status = defaultLoadingStatus, setStatus = _.noop) {
         query: GET_ALL_NOTES_QUERY,
         data: { notes: [] },
       });
+      setStatus(defaultLoadingStatus);
     },
   });
 

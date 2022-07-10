@@ -12,8 +12,8 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
 
   return (
     <Page title='Ingredients'>
-      {ingredients.map((ing) => (
-        <div key={`ingredient_${ing.id}`}>{ing.name}</div>
+      {ingredients.map((ing, index) => (
+        <div key={`ingredient_${ing.id}_${index}`}>{ing.name}</div>
       ))}
     </Page>
   );

@@ -215,6 +215,7 @@ export const fetchNotesMeta = async (
           const { categories, tags } = noteGUIDHash[note.evernoteGUID];
           const response = {
             ...note,
+            image: null,
           };
           if (categories) {
             response.categories = categories;
@@ -257,6 +258,7 @@ export const fetchNotesContent = async (
       select: {
         id: true,
         evernoteGUID: true,
+        image: true,
         source: true,
         title: true,
       },

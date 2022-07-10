@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const Loading = () => (
+const Loader = () => (
   <Icon>
     <div></div>
     <div></div>
@@ -13,8 +13,8 @@ const Loading = () => (
 const Icon = styled.div`
   display: inline-block;
   position: relative;
-	right: 60px;
-	top: 10px;
+	right: 65px;
+	top: 8px;
 
   div {
     position: absolute;
@@ -66,8 +66,8 @@ const Icon = styled.div`
   }
 `;
 
-Loading.defaultProps = {};
+Loader.defaultProps = {};
 
-Loading.displayName = 'Loading';
+Loader.displayName = 'Loader';
 
-export default Loading;
+export default Loader;
