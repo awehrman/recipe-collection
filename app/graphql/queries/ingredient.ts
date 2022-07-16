@@ -5,6 +5,7 @@ export const GET_ALL_INGREDIENTS_QUERY = gql`
     ingredients {
       id
       name
+      isValidated
     }
   }
 `;

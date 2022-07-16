@@ -1,20 +1,31 @@
 import React from 'react';
-
+import { useRouter, NextRouter } from 'next/router';
 import Page from '../../components/Page';
-import useIngredients from '../../hooks/use-ingredients';
+// import useIngredients from '../../hooks/use-ingredients';
 
-type IngredientsProps = {
+import ViewContext from '../../contexts/view-context';
+import Filters from '../../components/ingredients/filters';
+import Containers from '../../components/ingredients/containers';
+import AddNew from '../../components/ingredients/add-new';
 
-};
-
-const Ingredients: React.FC<IngredientsProps> = (props) => {
-  const { ingredients } = useIngredients();
+const Ingredients: React.FC = () => {
+  // const { ingredients } = useIngredients();
+  const router: NextRouter = useRouter();
+  const { query: { group = 'name', view = 'all' } } = router;
+  const context = { group: `${group}`, view: `${view}` };
 
   return (
     <Page title='Ingredients'>
-      {ingredients.map((ing, index) => (
-        <div key={`ingredient_${ing.id}_${index}`}>{ing.name}</div>
-      ))}
+      <ViewContext.Provider value={context}>
+        {/* View and Group Filters */}
+        <Filters />
+
+        {/*  Containers */}
+        <Containers />
+
+        {/* Add New  */}
+        <AddNew />
+      </ViewContext.Provider>
     </Page>
   );
 };

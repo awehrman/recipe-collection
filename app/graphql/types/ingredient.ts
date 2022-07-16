@@ -49,6 +49,7 @@ export const Ingredient = objectType({
               select: {
                 id: true,
                 name: true,
+                isValidated: true,
               },
             },
           },
@@ -69,6 +70,7 @@ export const Ingredient = objectType({
               select: {
                 id: true,
                 name: true,
+                isValidated: true,
               },
             },
           },
@@ -90,6 +92,7 @@ export const Ingredient = objectType({
               select: {
                 id: true,
                 name: true,
+                isValidated: true,
               },
             },
           },
@@ -226,6 +229,7 @@ export const IngredientQuery = extendType({
           select: {
             id: true,
             name: true,
+            isValidated: true,
           }
         });
 
@@ -247,6 +251,7 @@ export const IngredientsQuery = extendType({
           select: {
             id: true,
             name: true,
+            isValidated: true,
           }
         });
         return data;

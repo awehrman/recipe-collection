@@ -109,14 +109,10 @@ const Parsed = styled.span`
 
     &.ingredient {
       font-weight: 900;
-      color: orange;
+      color: ${({ theme }) => theme.colors.altGreen};
 
       &.valid {
         color: #222;
-      }
-
-      &.invalid {
-        color: ${({ theme }) => theme.colors.altGreen};
       }
     }
   }
