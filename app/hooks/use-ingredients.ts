@@ -21,6 +21,7 @@ function useIngredients() {
     : 0;
 
   return {
+    containers: [], // deprecated
     loading,
     ingredients,
     ingredientsCount,

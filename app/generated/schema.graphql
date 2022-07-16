@@ -24,6 +24,11 @@ type Category {
   name: String
 }
 
+type Container {
+  id: String
+  name: String
+}
+
 type EvernoteResponse {
   error: String
   notes: [Note]
@@ -120,6 +125,8 @@ enum Property {
 }
 
 type Query {
+  container(id: ID): Container
+  containers(group: String, view: String): [Container]
   ingredient(id: ID): Ingredient
   ingredients: [Ingredient]
   note(id: ID): Note

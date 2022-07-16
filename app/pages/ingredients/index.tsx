@@ -1,7 +1,6 @@
 import React from 'react';
 import { useRouter, NextRouter } from 'next/router';
 import Page from '../../components/Page';
-// import useIngredients from '../../hooks/use-ingredients';
 
 import ViewContext from '../../contexts/view-context';
 import Filters from '../../components/ingredients/filters';
@@ -9,7 +8,6 @@ import Containers from '../../components/ingredients/containers';
 import AddNew from '../../components/ingredients/add-new';
 
 const Ingredients: React.FC = () => {
-  // const { ingredients } = useIngredients();
   const router: NextRouter = useRouter();
   const { query: { group = 'name', view = 'all' } } = router;
   const context = { group: `${group}`, view: `${view}` };
@@ -20,10 +18,10 @@ const Ingredients: React.FC = () => {
         {/* View and Group Filters */}
         <Filters />
 
-        {/*  Containers */}
+        {/* Containers */}
         <Containers />
 
-        {/* Add New  */}
+        {/* Add New */}
         <AddNew />
       </ViewContext.Provider>
     </Page>

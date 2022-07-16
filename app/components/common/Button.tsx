@@ -9,8 +9,8 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 type Ref = HTMLButtonElement|null;
 
-const Button = forwardRef<Ref, ButtonProps>(({ icon, label, ...props}, ref) => (
-	<StyledButton ref={ref} {...props} >
+const Button = forwardRef<Ref, ButtonProps>(({ icon, label, type = 'button', ...props}, ref) => (
+	<StyledButton ref={ref} type={type} {...props}>
 		{icon}
 		{label}
 	</StyledButton>

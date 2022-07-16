@@ -1,12 +1,31 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import styled from 'styled-components';
 
-// import useIngredients from '../../hooks/use-ingredients';
+import ViewContext from '../../../contexts/view-context';
+import useContainers from '../../../hooks/use-containers';
+
+import Container from './container';
 
 const Containers: React.FC = () => {
-  // const { ingredients } = useAdd New();
+  const { group, view } = useContext(ViewContext);
+  const { containers } = useContainers({ group, view });
+
+  function renderContainers() {
+    return containers.map((container) =>
+      <Container container={container} key={container.id} />)
+  }
+
   return (
-    <div>Containers</div>
+    <Wrapper>
+      {renderContainers()}
+    </Wrapper>
   );
 };
 
 export default Containers;
+
+const Wrapper = styled.div`
+  display: flex;
+	flex-wrap: wrap;
+	margin: 20px 0;
+`;

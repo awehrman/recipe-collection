@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client';
-// import { ALL_NOTE_FIELDS } from '../fragments/note';
 
 export const GET_ALL_NOTES_QUERY = gql`
   query GET_ALL_NOTES_QUERY {
