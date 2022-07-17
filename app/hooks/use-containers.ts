@@ -1,6 +1,7 @@
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 
-import { GET_ALL_CONTAINERS_QUERY } from '../graphql/queries/container';
+import { GET_ALL_CONTAINERS_QUERY, GET_CONTAINER_QUERY } from '../graphql/queries/container';
+import { TOGGLE_CONTAINER_MUTATION } from '../graphql/mutations/container';
 
 function useContainers({ group = 'name', view = 'all'}) {
   const {
@@ -13,9 +14,25 @@ function useContainers({ group = 'name', view = 'all'}) {
   });
 
   const containers: unknown[] = data?.containers ?? [];
-  console.log({ data });
+
+  const [toggleContainer] = useMutation(TOGGLE_CONTAINER_MUTATION, {
+    update: (cache, { data: { toggleContainer }}) => {
+      console.log('toggle update', toggleContainer.id);
+      // why is this always returning null?
+      const res = cache.readQuery({
+        query: GET_CONTAINER_QUERY,
+        variables: { id: toggleContainer.id }
+      });
+      console.log({ res });
+    },
+  });
+
+  function onContainerClick(id: string) {
+    toggleContainer({ variables: { id }});
+  }
 
   return {
+    onContainerClick,
     containers,
     loading,
     refetch,

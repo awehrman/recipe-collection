@@ -6,6 +6,22 @@ export const GET_ALL_CONTAINERS_QUERY = gql`
       id
       name
       count
+      isExpanded
+      ingredients {
+        id
+        name
+      }
+    }
+  }
+`;
+
+export const GET_CONTAINER_QUERY = gql`
+  query GET_CONTAINER_QUERY($id: ID) {
+    container(id: $id) {
+      id
+      name
+      count
+      isExpanded
       ingredients {
         id
         name
@@ -16,4 +32,5 @@ export const GET_ALL_CONTAINERS_QUERY = gql`
 
 export default {
   GET_ALL_CONTAINERS_QUERY,
+  GET_CONTAINER_QUERY,
 };

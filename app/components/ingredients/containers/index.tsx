@@ -8,13 +8,13 @@ import Container from './container';
 
 const Containers: React.FC = () => {
   const { group, view } = useContext(ViewContext);
-  const { containers } = useContainers({ group, view });
+  const { containers, onContainerClick } = useContainers({ group, view });
 
   console.log({ containers });
 
   function renderContainers() {
     return containers.map((container) => (
-      <Container container={container} key={container.id} />
+      <Container container={container} key={container.id} onClick={onContainerClick} />
     ));
   }
 

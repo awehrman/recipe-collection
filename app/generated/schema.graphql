@@ -81,6 +81,7 @@ type Mutation {
   getParsedNotes: EvernoteResponse
   resetDatabase: EvernoteResponse
   saveRecipes: EvernoteResponse
+  toggleContainer(id: String): Container
 }
 
 type Note {
@@ -128,6 +129,7 @@ enum Property {
 }
 
 type Query {
+  container(id: ID): Container
   containers(group: String, view: String): [Container]
   ingredient(id: ID): Ingredient
   ingredients: [Ingredient]

@@ -15,13 +15,13 @@ const buildContainersByCount = (containersByCount = {}, ingHash = {}) => {
     }
   } else {
     // determine count range
-    let floor = Math.floor(referenceCount / 10) * 10 + 1;
-    let ceil = floor + 10;
+    let floor = Math.floor(referenceCount / 10) * 10;
+    let ceil = floor + 9;
 
-    if (referenceCount < 11) {
+    if (referenceCount < 10) {
       floor = 3;
       ceil = 10;
-    } else if (referenceCount < 21) {
+    } else if (referenceCount < 20) {
       floor = 11;
       ceil = 20;
     }

@@ -12,7 +12,8 @@ type ContainerProps = {
     isExpanded: boolean;
     ingredients: Ingredient[];
     currentIngredientId?: string;
-  }
+  },
+  onClick: unknown;
 }
 
 const ExpandedCardView = () => {
@@ -23,6 +24,7 @@ const ExpandedCardView = () => {
 
 const ColumnsList = ({ container }) => {
   const { id, ingredients = [] } = container;
+
   function renderIngredientColumns() {
     return ingredients.map((ingredient) => (
       <IngredientColumnItem key={`columns_${id}_${ingredient.id}`}>
@@ -45,9 +47,9 @@ const ColumnsList = ({ container }) => {
   )
 };
 
-const Container: React.FC<ContainerProps> = ({ container }) => {
+const Container: React.FC<ContainerProps> = ({ container, onClick }) => {
   return (
-    <Wrapper>
+    <Wrapper onClick={() => onClick(container.id)}>
       {/* Container Header */}
       <Header>
         {container.name}
@@ -55,7 +57,7 @@ const Container: React.FC<ContainerProps> = ({ container }) => {
       </Header>
 
       {/* Ingredients */}
-      <Ingredients>
+      <Ingredients className={container.isExpanded ? 'expanded' : ''}>
         <ColumnsList container={container} />
       </Ingredients>
     </Wrapper>
@@ -87,7 +89,11 @@ const Count = styled.span`
 `;
 
 const Ingredients = styled.div`
-	display: flex;
+	display: none;
+
+  &.expanded {
+    display: flex;
+  }
 `;
 
 const Columns = styled.ul`

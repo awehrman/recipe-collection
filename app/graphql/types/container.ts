@@ -1,17 +1,34 @@
-import { stringArg, extendType, objectType } from 'nexus';
+import { idArg, stringArg, extendType, objectType, FieldResolver } from 'nexus';
 
 import { buildContainers } from './helpers/container';
+import { resolveToggleContainer } from '../resolvers/container';
 
 export const Container = objectType({
   name: 'Container',
   definition(t) {
     t.string('id');
-    t.string('name');
-    t.int('count');
-    t.boolean('isExpanded');
-    t.list.field('ingredients', {
+    t.nullable.string('name');
+    t.nullable.int('count');
+    t.nullable.boolean('isExpanded');
+    t.nullable.list.field('ingredients', {
       type: 'Ingredient',
       resolve: async (root) => root?.ingredients ?? [],
+    });
+  },
+});
+
+// Queries
+export const ContainerQuery = extendType({
+  type: 'Query',
+  definition(t) {
+    t.field('container', {
+      type: 'Container',
+      args: { id: idArg() },
+      resolve: (root, args, ctx) => {
+        console.log('container query', { root, args, ctx });
+        const id = parseInt(`${args.id}`, 10);
+        return { container: { id } };
+      },
     });
   },
 });
@@ -44,10 +61,21 @@ export const ContainersQuery = extendType({
           return [];
         }
         const containers = buildContainers({ group, ingredients, view });
-        // TODO create other containers per group
-
         return containers;
       },
+    });
+  },
+});
+
+// Mutations
+export const ToggleContainer = extendType({
+  type: 'Mutation',
+  definition(t) {
+    t.field('toggleContainer', {
+      type: 'Container',
+      args: { id: stringArg() },
+      // man idk wtf is up with these fucking types
+      resolve: (resolveToggleContainer) as FieldResolver<"Mutation", "toggleContainer">,
     });
   },
 });
