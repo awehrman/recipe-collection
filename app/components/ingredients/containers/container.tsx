@@ -9,6 +9,7 @@ type ContainerProps = {
     id: string;
     name: string;
     count: number;
+    isExpanded: boolean;
     ingredients: Ingredient[];
     currentIngredientId?: string;
   }
@@ -22,7 +23,6 @@ const ExpandedCardView = () => {
 
 const ColumnsList = ({ container }) => {
   const { id, ingredients = [] } = container;
-  console.log({ id, ingredients });
   function renderIngredientColumns() {
     return ingredients.map((ingredient) => (
       <IngredientColumnItem key={`columns_${id}_${ingredient.id}`}>
@@ -46,13 +46,11 @@ const ColumnsList = ({ container }) => {
 };
 
 const Container: React.FC<ContainerProps> = ({ container }) => {
-  console.log({ container });
   return (
     <Wrapper>
       {/* Container Header */}
       <Header>
         {container.name}
-
         <Count>{container.count}</Count>
       </Header>
 

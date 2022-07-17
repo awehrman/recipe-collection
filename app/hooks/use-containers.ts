@@ -7,7 +7,10 @@ function useContainers({ group = 'name', view = 'all'}) {
     data = {},
     loading,
     refetch,
-  } = useQuery(GET_ALL_CONTAINERS_QUERY, { variables: { group, view } });
+  } = useQuery(GET_ALL_CONTAINERS_QUERY, {
+    fetchPolicy: 'cache-and-network',
+    variables: { group, view }
+  });
 
   const containers: unknown[] = data?.containers ?? [];
   console.log({ data });

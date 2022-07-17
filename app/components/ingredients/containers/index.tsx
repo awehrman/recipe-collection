@@ -10,13 +10,19 @@ const Containers: React.FC = () => {
   const { group, view } = useContext(ViewContext);
   const { containers } = useContainers({ group, view });
 
+  console.log({ containers });
+
   function renderContainers() {
     return containers.map((container) => (
       <Container container={container} key={container.id} />
     ));
   }
 
-  return <Wrapper>{renderContainers()}</Wrapper>;
+  return (
+    <Wrapper>
+    {containers.length > 0 ? renderContainers() : 'No ingredients imported.'}
+    </Wrapper>
+  );
 };
 
 export default Containers;

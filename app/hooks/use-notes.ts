@@ -88,8 +88,7 @@ function useNotes(status = defaultLoadingStatus, setStatus = _.noop) {
     nextFetchPolicy: 'cache-only',
   });
 
-  let notes: Note[] = data?.notes ?? [];
-  notes = [...notes].sort(sortByDateCreatedDesc);
+  const notes: Note[] = data?.notes ?? [];
 
   const [getParsedNotes] = useMutation(GET_PARSED_NOTES_MUTATION, {
     update: (cache, { data: { getParsedNotes } }) => {

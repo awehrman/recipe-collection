@@ -28,6 +28,7 @@ type Container {
   count: Int
   id: String
   ingredients: [Ingredient]
+  isExpanded: Boolean
   name: String
 }
 
