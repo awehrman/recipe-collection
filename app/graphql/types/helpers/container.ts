@@ -1,15 +1,83 @@
 import { v4 } from 'uuid';
 
+const buildContainersByCount = (containersByCount = {}, ingHash = {}) => {
+  const referenceCount = ingHash.count;
+  if (referenceCount === 0 || referenceCount === 1 || referenceCount === 2) {
+    if (!containersByCount?.[referenceCount]) {
+      containersByCount[referenceCount] = {
+        name: `${referenceCount} Reference${referenceCount === 1 ? '' : 's'}`,
+        ingredients: [ingHash],
+        sortOrder: referenceCount,
+      };
+
+    } else {
+      containersByCount[referenceCount].ingredients.push(ingHash);
+    }
+  } else {
+    // determine count range
+    let floor = Math.floor(referenceCount / 10) * 10 + 1;
+    let ceil = floor + 10;
+
+    if (referenceCount < 11) {
+      floor = 3;
+      ceil = 10;
+    } else if (referenceCount < 21) {
+      floor = 11;
+      ceil = 20;
+    }
+    const range = `${floor} - ${ceil} References`;
+
+    if (!containersByCount?.[range]) {
+      containersByCount[range] = {
+        name: range,
+        ingredients: [ingHash],
+        sortOrder: floor,
+      }
+    } else {
+      containersByCount[range].ingredients.push(ingHash);
+    }
+  }
+}
+
+const buildContainersByName = (containersByName = {}, ingHash = {}, view = 'all', ingredients = []) => {
+  if (ingredients.length < 300) {
+    if (!containersByName?.all) {
+      containersByName.all = {
+        name: `${view === 'new' ? 'New' : 'All'} Ingredients`,
+        ingredients: [ingHash],
+        sortOrder: 1,
+      };
+
+    } else {
+      containersByName.all.ingredients.push(ingHash);
+    }
+  } else {
+    // separate out by alphanumeric header character
+    const char = ingHash.name[0]; // TODO adjust non-alpha starts
+    // TODO careful with those damn ligatures too 'ﬁ' (although this might be a parsing concern)
+
+    if (!containersByName?.[char]) {
+      containersByName[char] = {
+        name: char,
+        ingredients: [ingHash],
+        sortOrder: char,
+      };
+
+    } else {
+      containersByName[char].ingredients.push(ingHash);
+    }
+  }
+}
+
 export const buildContainers = ({ group = 'name', ingredients = [], view = 'all' }) => {
+  let containers = [];
 	const containersByCount = {};
   const containersByName = {};
   const containersByProperty = {};
   const containersByRelationship = {};
 
-  const ingHash = {};
-
   ingredients.forEach(({ id, parentId, name, properties, references = [] }) => {
-    ingHash[id] = {
+    const ingHash = {
       id,
       count: references.length,
       isParent: Boolean(parentId),
@@ -18,65 +86,13 @@ export const buildContainers = ({ group = 'name', ingredients = [], view = 'all'
     };
 
     // add to count containers
-    const referenceCount = ingHash[id].count;
-    if (referenceCount === 0 || referenceCount === 1 || referenceCount === 2) {
-      if (!containersByCount?.[referenceCount]) {
-        containersByCount[referenceCount] = {
-          id: v4(),
-          name: `${referenceCount} Reference${referenceCount === 1 ? '' : 's'}`,
-          ingredients: [ingHash[id]],
-          isExpanded: false,
-        };
-
-      } else {
-        containersByCount[referenceCount].ingredients.push(ingHash[id]);
-      }
-    } else {
-      // determine count range
-      const floor = Math.floor(referenceCount);
-      const floorMultiplier = floor * 10;
-      const range = `${floorMultiplier === 0 ? 3 : floorMultiplier} - ${floorMultiplier + 9} References`;
-
-      if (!containersByCount?.[range]) {
-        containersByCount[range] = {
-          id: v4(),
-          name: range,
-          ingredients: [ingHash[id]],
-          isExpanded: false,
-        }
-      } else {
-        containersByCount[range].ingredients.push(ingHash[id]);
-      }
+    if (group === 'count') {
+      buildContainersByCount(containersByCount, ingHash);
     }
 
     // add to name containers
-    if (ingredients.length < 300) {
-      if (!containersByName?.all) {
-        containersByName.all = {
-          id: v4(),
-          name: `${view === 'new' ? 'New' : 'All'} Ingredients`,
-          ingredients: [ingHash[id]],
-          isExpanded: false,
-        };
-
-      } else {
-        containersByName.all.ingredients.push(ingHash[id]);
-      }
-    } else {
-      // separate out by alphanumeric header character
-      const char = ingHash[id].name[0]; // TODO adjust non-alpha starts
-
-      if (!containersByName?.[char]) {
-        containersByName[char] = {
-          id: v4(),
-          name: `${view === 'new' ? 'New' : 'All'} Ingredients`,
-          ingredients: [ingHash[id]],
-          isExpanded: false,
-        };
-
-      } else {
-        containersByName[char].ingredients.push(ingHash[id]);
-      }
+    if (group === 'name') {
+      buildContainersByName(containersByName, ingHash, view, ingredients);
     }
 
     // add to property containers
@@ -86,12 +102,32 @@ export const buildContainers = ({ group = 'name', ingredients = [], view = 'all'
 
 	switch (group) {
 	case 'count':
-		return Object.values(containersByCount);
+		containers = Object.values(containersByCount);
+    break;
 	case 'property':
-		return Object.values(containersByProperty);
+		containers = Object.values(containersByProperty);
+    break;
 	case 'relationship':
-		return Object.values(containersByRelationship);
+		containers = Object.values(containersByRelationship);
+    break;
 	default: // name
-		return Object.values(containersByName);
+    containers = Object.values(containersByName);
+    break;
 	}
+
+  if (group === 'count') {
+    containers.sort((a, b) => a.sortOrder - b.sortOrder);
+  } else {
+    containers.sort((a, b) => a.sortOrder.localeCompare(b.sortOrder));
+  }
+
+  containers = containers.map(({ name, ingredients }) => ({
+    name,
+    isExpanded: containers.length > 10,
+    id: v4(),
+    count: ingredients.length,
+    ingredients: ingredients.sort((a, b) => a.name.localeCompare(b.name)),
+  }));
+
+  return containers;
 };
