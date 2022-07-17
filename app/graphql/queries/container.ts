@@ -5,6 +5,11 @@ export const GET_ALL_CONTAINERS_QUERY = gql`
     containers(group: $group, view: $view) {
       id
       name
+      count
+      ingredients {
+        id
+        name
+      }
     }
   }
 `;

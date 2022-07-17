@@ -5,23 +5,10 @@ export const Container = objectType({
   definition(t) {
     t.string('id');
     t.string('name');
-  },
-});
-
-export const ContainerQuery = extendType({
-  type: 'Query',
-  definition(t) {
-    t.field('container', {
-      type: 'Container',
-      args: { id: idArg() },
-      resolve: async (root, args, ctx) => {
-        const id = parseInt(`${args.id}`, 10);
-        // TODO
-        const container = { id, name: 'TODO container'}
-        return {
-          container,
-        };
-      },
+    t.int('count');
+    t.list.field('ingredients', {
+      type: 'Ingredient',
+      resolve: async (root) => root?.ingredients ?? [],
     });
   },
 });
@@ -33,7 +20,7 @@ export const ContainersQuery = extendType({
       type: 'Container',
       args: { group: stringArg(), view: stringArg() },
       resolve: async (_root, args, ctx) => {
-        console.log('containers');
+        console.log('containers', { _root });
         const { group = 'name', view = 'all' } = args;
         const { prisma } = ctx;
         const where = view === 'new' ? { isValidated: false } : {};
@@ -48,9 +35,11 @@ export const ContainersQuery = extendType({
 
         containers.push({
           id: `container_0`,
-          name: view === 'new' ? 'New Ingredients' : 'All Ingredients'
+          name: view === 'new' ? 'New Ingredients' : 'All Ingredients',
+          count: ingredients.length,
+          ingredients,
         });
-        console.log({ ingredients, containers })
+        console.log({ containers })
         // TODO create other containers per group
         return containers;
       },

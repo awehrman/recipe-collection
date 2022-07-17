@@ -25,7 +25,9 @@ type Category {
 }
 
 type Container {
+  count: Int
   id: String
+  ingredients: [Ingredient]
   name: String
 }
 
@@ -125,7 +127,6 @@ enum Property {
 }
 
 type Query {
-  container(id: ID): Container
   containers(group: String, view: String): [Container]
   ingredient(id: ID): Ingredient
   ingredients: [Ingredient]
