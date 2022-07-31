@@ -73,14 +73,14 @@ const buildContainersByName = (containersByName = {}, ingHash = {}, view = 'all'
   }
 };
 
-const buildContainersByProperty = (containersByProperty = {}, ingHash = {}, view = 'all', ingredients = []) => {
+const buildContainersByProperty = (containersByProperty = {}, ingHash = {}) => {
   if (!ingHash.properties?.length) {
     if (!containersByProperty?.other) {
       containersByProperty.other = {
         name: 'No Properties',
         ingredients: [ingHash],
         sortOrder: PROPERTY_ENUMS.length,
-      }
+      };
     } else {
       containersByProperty.other.ingredients.push(ingHash);
     }
@@ -99,7 +99,27 @@ const buildContainersByProperty = (containersByProperty = {}, ingHash = {}, view
 };
 
 const buildContainersByRelationship = (containersByRelationship = {}, ingHash = {}, view = 'all', ingredients = []) => {
-  
+  if (!ingHash.isParent) {
+    if (!containersByRelationship?.children) {
+      containersByRelationship.children = {
+        name: 'Other',
+        ingredients: [ingHash],
+        sortOrder: 1,
+      }
+    } else {
+      containersByRelationship.children.ingredients.push(ingHash);
+    }
+  } else {
+    if (!containersByRelationship?.parent) {
+      containersByRelationship.parent = {
+        name: 'Top Level Ingredients',
+        ingredients: [ingHash],
+        sortOrder: 0,
+      }
+    } else {
+      containersByRelationship.parent.ingredients.push(ingHash);
+    }
+  }
 };
 
 export const buildContainers = ({ group = 'name', ingredients = [], view = 'all' }) => {
@@ -109,11 +129,11 @@ export const buildContainers = ({ group = 'name', ingredients = [], view = 'all'
   const containersByProperty = {};
   const containersByRelationship = {};
 
-  ingredients.forEach(({ id, parentId, name, properties, references = [] }) => {
+  ingredients.forEach(({ id, parent, name, properties, references = [] }) => {
     const ingHash = {
       id,
       count: references.length,
-      isParent: Boolean(parentId),
+      isParent: !Boolean(parent?.id && parent?.name),
       name,
       properties,
     };
@@ -130,15 +150,15 @@ export const buildContainers = ({ group = 'name', ingredients = [], view = 'all'
 
     // add to property containers
     if (group === 'property') {
-      buildContainersByProperty(containersByProperty, ingHash, view, ingredients);
+      buildContainersByProperty(containersByProperty, ingHash);
     }
 
     // add to relationship containers
     if (group === 'relationship') {
-      buildContainersByRelationship(containersByRelationship, ingHash, view, ingredients);
+      buildContainersByRelationship(containersByRelationship, ingHash);
     }
   });
-
+  console.log({ containersByRelationship })
 	switch (group) {
 	case 'count':
 		containers = Object.values(containersByCount);
@@ -154,7 +174,7 @@ export const buildContainers = ({ group = 'name', ingredients = [], view = 'all'
     break;
 	}
 
-  if (group === 'count' || group === 'property') {
+  if (group !== 'name') {
     containers.sort((a, b) => a.sortOrder - b.sortOrder);
   } else {
     containers.sort((a, b) => a.sortOrder.localeCompare(b.sortOrder));
