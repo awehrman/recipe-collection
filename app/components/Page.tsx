@@ -1,3 +1,4 @@
+import { ApolloConsumer } from '@apollo/client';
 import { useSession } from 'next-auth/client';
 import Link from 'next/link';
 import React, { useContext, useState } from 'react';
@@ -17,35 +18,39 @@ const Page: React.FC<PageProps> = ({ title, children }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <React.Fragment>
-      <Canvas theme={themeContext}>
-        {!session ? (
-          <SignUp>
-            <Link href='/api/auth/signin'>
-              <a>Log in</a>
-            </Link>
-          </SignUp>
-        ) : (
-          <Wrapper theme={themeContext} isExpanded={isExpanded}>
-            <Nav isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
-            <Header title={title} />
-            <Content>{children}</Content>
-          </Wrapper>
-        )}
-      </Canvas>
-      <style global jsx>
-        {`
-          html,
-          body,
-          body > div:first-child,
-          div#__next,
-          div#__next > div {
-            height: 100vh;
-            min-height: 100vh;
-          }
-        `}
-      </style>
-    </React.Fragment>
+    <ApolloConsumer>
+      {client => (
+        <>
+          <Canvas theme={themeContext}>
+            {!session ? (
+              <SignUp>
+                <Link href='/api/auth/signin'>
+                  <a>Log in</a>
+                </Link>
+              </SignUp>
+            ) : (
+              <Wrapper theme={themeContext} isExpanded={isExpanded}>
+                <Nav isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
+                <Header title={title} />
+                <Content client={client}>{children}</Content>
+              </Wrapper>
+            )}
+          </Canvas>
+          <style global jsx>
+            {`
+              html,
+              body,
+              body > div:first-child,
+              div#__next,
+              div#__next > div {
+                height: 100vh;
+                min-height: 100vh;
+              }
+            `}
+          </style>
+        </>
+      )}
+    </ApolloConsumer>
   );
 };
 

@@ -158,8 +158,8 @@ export const buildContainers = ({ group = 'name', ingredients = [], view = 'all'
       buildContainersByRelationship(containersByRelationship, ingHash);
     }
   });
-  console.log({ containersByRelationship })
-	switch (group) {
+
+  switch (group) {
 	case 'count':
 		containers = Object.values(containersByCount);
     break;
@@ -188,6 +188,5 @@ export const buildContainers = ({ group = 'name', ingredients = [], view = 'all'
     ingredients: ingredients.sort((a, b) => a.name.localeCompare(b.name)),
   }));
   
-  console.log({ containers });
   return containers;
 };

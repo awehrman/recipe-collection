@@ -25,8 +25,9 @@ export const ContainerQuery = extendType({
       type: 'Container',
       args: { id: idArg() },
       resolve: (root, args, ctx) => {
-        console.log('container query', { root, args, ctx });
+        console.log('~ resolving container query');
         const id = parseInt(`${args.id}`, 10);
+        console.log({ id });
         return { container: { id } };
       },
     });
@@ -41,6 +42,7 @@ export const ContainersQuery = extendType({
       type: 'Container',
       args: { group: stringArg(), view: stringArg() },
       resolve: async (_root, args, ctx) => {
+        console.log('~ ~ ~ resolving containers query');
         const { group = 'name', view = 'all' } = args;
         const { prisma } = ctx;
         const where = view === 'new' ? { isValidated: false } : {};
@@ -67,6 +69,8 @@ export const ContainersQuery = extendType({
           return [];
         }
         const containers = buildContainers({ group, ingredients, view });
+        // does this create a new container every time?
+        // we really need to grab this out of the cache if it exists
         return containers;
       },
     });

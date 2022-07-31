@@ -54,5 +54,5 @@ export function initializeApollo(
 
 export default function useApollo(initialState = {}, ctx: PrismaContext, ): ApolloClient<NormalizedCacheObject> {
   const store = useMemo(() => initializeApollo(initialState, ctx), [initialState])
-  return store
+  return store;
 }

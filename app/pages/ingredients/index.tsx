@@ -7,7 +7,7 @@ import Filters from '../../components/ingredients/filters';
 import Containers from '../../components/ingredients/containers';
 import AddNew from '../../components/ingredients/add-new';
 
-const Ingredients: React.FC = () => {
+const Ingredients: React.FC = (props) => {
   const router: NextRouter = useRouter();
   const { query: { group = 'name', view = 'all' } } = router;
   const context = { group: `${group}`, view: `${view}` };
