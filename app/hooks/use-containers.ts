@@ -9,7 +9,7 @@ function useContainers({ group = 'name', view = 'all'}) {
     loading,
     refetch,
   } = useQuery(GET_ALL_CONTAINERS_QUERY, {
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: 'network-only',
     variables: { group, view }
   });
 

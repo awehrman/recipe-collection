@@ -1,4 +1,8 @@
+import _ from 'lodash';
+import { property } from 'lodash';
 import { v4 } from 'uuid';
+
+import { PROPERTY_ENUMS } from '../../../constants/ingredient';
 
 const buildContainersByCount = (containersByCount = {}, ingHash = {}) => {
   const referenceCount = ingHash.count;
@@ -37,7 +41,7 @@ const buildContainersByCount = (containersByCount = {}, ingHash = {}) => {
       containersByCount[range].ingredients.push(ingHash);
     }
   }
-}
+};
 
 const buildContainersByName = (containersByName = {}, ingHash = {}, view = 'all', ingredients = []) => {
   if (ingredients.length < 300) {
@@ -67,7 +71,36 @@ const buildContainersByName = (containersByName = {}, ingHash = {}, view = 'all'
       containersByName[char].ingredients.push(ingHash);
     }
   }
-}
+};
+
+const buildContainersByProperty = (containersByProperty = {}, ingHash = {}, view = 'all', ingredients = []) => {
+  if (!ingHash.properties?.length) {
+    if (!containersByProperty?.other) {
+      containersByProperty.other = {
+        name: 'No Properties',
+        ingredients: [ingHash],
+        sortOrder: PROPERTY_ENUMS.length,
+      }
+    } else {
+      containersByProperty.other.ingredients.push(ingHash);
+    }
+  }
+  ingHash.properties.map((property) => {
+    if (property && !containersByProperty?.[property]) {
+      containersByProperty[property] = {
+        name: _.capitalize(property),
+        ingredients: [ingHash],
+        sortOrder: _.findIndex(PROPERTY_ENUMS, (propertyEnum) => propertyEnum === property),
+      };
+    } else {
+      containersByProperty[property].ingredients.push(ingHash);
+    }
+  })
+};
+
+const buildContainersByRelationship = (containersByRelationship = {}, ingHash = {}, view = 'all', ingredients = []) => {
+  
+};
 
 export const buildContainers = ({ group = 'name', ingredients = [], view = 'all' }) => {
   let containers = [];
@@ -96,8 +129,14 @@ export const buildContainers = ({ group = 'name', ingredients = [], view = 'all'
     }
 
     // add to property containers
+    if (group === 'property') {
+      buildContainersByProperty(containersByProperty, ingHash, view, ingredients);
+    }
 
     // add to relationship containers
+    if (group === 'relationship') {
+      buildContainersByRelationship(containersByRelationship, ingHash, view, ingredients);
+    }
   });
 
 	switch (group) {
@@ -115,7 +154,7 @@ export const buildContainers = ({ group = 'name', ingredients = [], view = 'all'
     break;
 	}
 
-  if (group === 'count') {
+  if (group === 'count' || group === 'property') {
     containers.sort((a, b) => a.sortOrder - b.sortOrder);
   } else {
     containers.sort((a, b) => a.sortOrder.localeCompare(b.sortOrder));
@@ -123,11 +162,12 @@ export const buildContainers = ({ group = 'name', ingredients = [], view = 'all'
 
   containers = containers.map(({ name, ingredients }) => ({
     name,
-    isExpanded: containers.length > 10,
+    isExpanded: containers.length < 10,
     id: v4(),
     count: ingredients.length,
     ingredients: ingredients.sort((a, b) => a.name.localeCompare(b.name)),
   }));
-
+  
+  console.log({ containers });
   return containers;
 };

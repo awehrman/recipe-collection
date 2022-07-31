@@ -38,11 +38,11 @@ const Navigation: React.FC<NavProps> = ({ isExpanded, setIsExpanded }) => {
 		}
 
     return () => {
-			if (navRef?.current) {
-				navRef.current.removeEventListener('mouseover', handleMouseOver);
-				navRef.current.removeEventListener('mouseleave', handleMouseLeave);
-			}
-    };
+		if (navRef?.current) {
+			navRef.current.removeEventListener('mouseover', handleMouseOver);
+			navRef.current.removeEventListener('mouseleave', handleMouseLeave);
+		}
+};
   }, [handleMouseOver, handleMouseLeave]);
 
 	function handleNavigationToggle(e: React.MouseEvent) {

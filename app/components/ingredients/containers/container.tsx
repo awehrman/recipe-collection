@@ -72,7 +72,6 @@ const Wrapper = styled.div`
 	max-width: 1200px;
 `;
 
-
 const Header = styled.div`
 	flex-basis: 100%;
 	font-size: 1.2em;

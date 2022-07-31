@@ -230,6 +230,13 @@ export const IngredientQuery = extendType({
             id: true,
             name: true,
             isValidated: true,
+            properties: true,
+            parent: {
+              select: {
+                id: true,
+                name: true,
+              }
+            }
           }
         });
 
@@ -252,6 +259,13 @@ export const IngredientsQuery = extendType({
             id: true,
             name: true,
             isValidated: true,
+            properties: true,
+            parent: {
+              select: {
+                id: true,
+                name: true,
+              }
+            }
           }
         });
         return data;

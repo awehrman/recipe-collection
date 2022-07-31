@@ -6,6 +6,11 @@ export const GET_ALL_INGREDIENTS_QUERY = gql`
       id
       name
       isValidated
+      properties
+      parent {
+        id
+        name
+      }
     }
   }
 `;

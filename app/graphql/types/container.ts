@@ -49,7 +49,13 @@ export const ContainersQuery = extendType({
           select: {
             id: true,
             name: true,
-            parentId: true,
+            properties: true,
+            parent: {
+              select: {
+                id: true,
+                name: true,
+              }
+            },
             references: {
               select: {
                 id: true,
