@@ -26,6 +26,7 @@ const CardList = ({ container, onIngredientClick }) => {
           container={container}
           ingredient={ingredient}
           index={index}
+          listRef={listRef}
           onIngredientClick={onIngredientClick}
         />
       </Row>
@@ -48,7 +49,7 @@ const CardList = ({ container, onIngredientClick }) => {
       </SideList>
       
       {/* Ingredient Card */}
-      <Card />
+      <Card id={currentIngredientId}/>
     </Wrapper>
   );
 };
@@ -56,7 +57,6 @@ const CardList = ({ container, onIngredientClick }) => {
 export default CardList;
 
 const Wrapper = styled.div`
-  border: 2px solid yellow;
   width: 100%;
   display: flex;
   flex-wrap: wrap;
@@ -76,7 +76,6 @@ const SideList = styled(FixedSizeList)`
   padding: 5px 0;
   border-bottom: 1px solid #ddd;
   padding-left: 2px; /* give some space for outline */
-  background: aqua;
 
   a {
     cursor: pointer;

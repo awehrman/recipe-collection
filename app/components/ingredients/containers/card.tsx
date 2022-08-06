@@ -1,11 +1,12 @@
+import ingredient from 'constants/ingredient';
 import React from 'react';
 import styled from 'styled-components';
 
-const Card = () => {
+const Card = ({ id }) => {
   // TODO
   return (
     <CardWrapper>
-      card
+      {id}
     </CardWrapper>
   )
 }
@@ -13,7 +14,6 @@ const Card = () => {
 export default Card;
 
 const CardWrapper = styled.div`
-  background: pink;
   display: flex;
   order: 0;
   flex-basis: 100%;

@@ -24,9 +24,9 @@ const Container: React.FC<ContainerProps> = ({
   onIngredientClick,
 }) => {
   return (
-    <Wrapper onClick={() => onContainerClick(container.id)}>
+    <Wrapper>
       {/* Container Header */}
-      <Header>
+      <Header onClick={() => onContainerClick(container.id)}>
         {container.name}
         <Count>{container.count}</Count>
       </Header>
