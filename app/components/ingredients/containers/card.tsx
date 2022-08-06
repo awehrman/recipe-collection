@@ -2,11 +2,20 @@ import ingredient from 'constants/ingredient';
 import React from 'react';
 import styled from 'styled-components';
 
+import useIngredient from '../../../hooks/use-ingredient';
+
 const Card = ({ id }) => {
-  // TODO
+  const { ingredient, loading } = useIngredient({ id });
+  const { name } = ingredient;
+
   return (
     <CardWrapper>
-      {id}
+      {loading && 'loading...'}
+      {!loading && (
+        <>
+        {name}
+        </>
+      )}
     </CardWrapper>
   )
 }

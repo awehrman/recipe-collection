@@ -223,8 +223,7 @@ export const IngredientQuery = extendType({
             }
           }
         });
-        console.log('query', ingredient);
-        return { ingredient };
+        return ingredient;
       },
     });
   },
@@ -250,7 +249,6 @@ export const IngredientsQuery = extendType({
             }
           }
         });
-        console.log('query', ingredients[0]);
         return ingredients;
       },
     });
