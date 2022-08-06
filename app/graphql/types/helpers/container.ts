@@ -183,6 +183,7 @@ export const buildContainers = ({ group = 'name', ingredients = [], view = 'all'
   containers = containers.map(({ name, ingredients }) => ({
     name,
     isExpanded: containers.length < 10,
+    currentIngredientId: null,
     id: v4(),
     count: ingredients.length,
     ingredients: ingredients.sort((a, b) => a.name.localeCompare(b.name)),

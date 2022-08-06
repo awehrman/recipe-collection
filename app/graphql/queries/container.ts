@@ -6,6 +6,7 @@ export const GET_ALL_CONTAINERS_QUERY = gql`
       id
       name
       count
+      currentIngredientId
       isExpanded
       ingredients {
         id
@@ -21,6 +22,7 @@ export const GET_CONTAINER_QUERY = gql`
       id
       name
       count
+      currentIngredientId
       isExpanded
       ingredients {
         id

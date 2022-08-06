@@ -1,11 +1,7 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
 
-import {
-  GET_ALL_CONTAINERS_QUERY,
-  GET_CONTAINER_QUERY,
-} from '../graphql/queries/container';
-import { TOGGLE_CONTAINER_MUTATION } from '../graphql/mutations/container';
-import { update } from 'lodash';
+import { GET_ALL_CONTAINERS_QUERY } from '../graphql/queries/container';
+import { TOGGLE_CONTAINER_MUTATION, TOGGLE_CONTAINER_INGREDIENT_MUTATION } from '../graphql/mutations/container';
 
 function useContainers({ group = 'name', view = 'all' }) {
   const {
@@ -15,14 +11,12 @@ function useContainers({ group = 'name', view = 'all' }) {
   } = useQuery(GET_ALL_CONTAINERS_QUERY, {
     variables: { group, view },
   });
+  console.log('use-containers', { loading })
   const containers: unknown[] = data?.containers ?? [];
-  console.log({ containers });
+
   const [toggleContainer] = useMutation(TOGGLE_CONTAINER_MUTATION, {
-    // refetchQueries: [
-    //   { query: GET_ALL_CONTAINERS_QUERY, variables: { group, view } },
-    // ],
+    // TODO can this just be accomplished in the prior resolver? similar to how toggle ingredient works?
     update: async (cache, { data: { toggleContainer } }) => {
-      console.log('toggle update', group, view);
       const res = cache.readQuery({
         query: GET_ALL_CONTAINERS_QUERY,
         variables: { group, view },
@@ -41,12 +35,19 @@ function useContainers({ group = 'name', view = 'all' }) {
     },
   });
 
+  const [toggleContainerIngredient] = useMutation(TOGGLE_CONTAINER_INGREDIENT_MUTATION);
+
   function onContainerClick(id: string) {
     toggleContainer({ variables: { id } });
   }
 
+  function onIngredientClick(containerId: string, ingredientId: string | null) {
+    toggleContainerIngredient({ variables: { containerId, ingredientId }})
+  }
+
   return {
     onContainerClick,
+    onIngredientClick,
     containers,
     loading,
     refetch,

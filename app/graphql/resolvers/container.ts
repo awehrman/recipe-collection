@@ -2,15 +2,18 @@ import { Container } from '../../types/container';
 
 export const resolveToggleContainer = async (
   _root: unknown,
-  args: unknown,
-  ctx
-): Promise<Container> => {
-  const { id } = args;
-  console.log('resolveToggleContainer');
-  // just pass through the id so we can directly toggle the cache locally
-  return { id };
-};
+  args: unknown
+): Promise<Container> => ({ ...args });
+
+export const resolveToggleContainerIngredient = async (
+  _root: unknown,
+  args: unknown
+): Promise<Container> => ({
+  id: args.containerId,
+  currentIngredientId: args.ingredientId,
+});
 
 export default {
   resolveToggleContainer,
+  resolveToggleContainerIngredient,
 };
