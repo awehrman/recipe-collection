@@ -11,7 +11,10 @@ const List = ({ container, onIngredientClick }) => {
   function handleIngredientClick(event: Event, ingredientId, index) {
     event.stopPropagation();
     // listRef.current.scrollToItem(index - 1, 'start');
-    const showHideIngredientId = `${container.currentIngredientId}` === `${ingredientId}` ? null : `${ingredientId}`;
+    const showHideIngredientId =
+      `${container.currentIngredientId}` === `${ingredientId}`
+        ? null
+        : `${ingredientId}`;
     onIngredientClick(`${container.id}`, showHideIngredientId);
   }
 
@@ -32,7 +35,9 @@ const List = ({ container, onIngredientClick }) => {
       <IngredientColumnItem key={`columns_${id}_${ingredient.id}`}>
         <Link href={getIngredientLink(ingredient.id)}>
           <a
-            onClick={(e: Event) => handleIngredientClick(e, ingredient.id, index)}
+            onClick={(e: Event) =>
+              handleIngredientClick(e, ingredient.id, index)
+            }
             onKeyPress={handleIngredientClick}
             role="link"
             tabIndex={0}
@@ -44,13 +49,17 @@ const List = ({ container, onIngredientClick }) => {
     ));
   }
 
-  return <Columns>{renderIngredientColumns()}</Columns>;
+  return (
+    <Columns className={container.currentIngredientId ? 'expanded' : ''}>
+      {renderIngredientColumns()}
+    </Columns>
+  );
 };
 
 export default List;
 
 const Columns = styled.ul`
-  max-height: 500px;
+  max-height: 235px;
   overflow-x: scroll;
   display: block;
   flex-basis: 100%;
@@ -61,6 +70,7 @@ const Columns = styled.ul`
   position: relative;
   padding: 5px 0;
   border-bottom: 1px solid #ddd;
+  padding-left: 2px; /* give some space for outline */
 
   a {
     cursor: pointer;
@@ -71,6 +81,10 @@ const Columns = styled.ul`
     &:hover {
       color: ${({ theme }) => theme.colors.highlight};
     }
+  }
+
+  &.expanded {
+    order: 1;
   }
 
   &.small {
@@ -89,11 +103,13 @@ const Columns = styled.ul`
 
   @media (min-width: ${({ theme }) => theme.sizes.desktopCardWidth}) {
     padding: 10px 0;
+    max-height: 500px;
 
     /* swing the ingredient list over to the left */
     &.expanded {
       column-count: unset;
-      flex-basis: 25%;
+      flex-basis: 200px;
+      order: 0;
     }
   }
 

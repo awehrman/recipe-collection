@@ -14,5 +14,15 @@ export default Card;
 
 const CardWrapper = styled.div`
   background: pink;
+  display: flex;
+  order: 0;
+  flex-basis: 100%;
+  min-height: 350px;
+
+  @media (min-width: ${({ theme }) => theme.sizes.desktopCardWidth}) {
+    min-height: 500px;
+    order: 1;
+    flex-basis: calc(100% - 200px);
+  }
 `
 

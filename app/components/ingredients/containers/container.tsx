@@ -70,6 +70,7 @@ const Ingredients = styled.div`
   display: none;
 
   &.expanded {
+    flex-wrap: wrap;
     display: flex;
   }
 `;
