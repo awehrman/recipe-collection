@@ -21,7 +21,7 @@ const CardWrapper = styled.div`
 
   @media (min-width: ${({ theme }) => theme.sizes.desktopCardWidth}) {
     min-height: 500px;
-    order: 1;
+    order: 2;
     flex-basis: calc(100% - 200px);
   }
 `

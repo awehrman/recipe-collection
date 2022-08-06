@@ -3,49 +3,22 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 
 import ViewContext from '../../../contexts/view-context';
+import ListItem from './list-item';
 
+// TODO virtualize this
 const List = ({ container, onIngredientClick }) => {
   const { group, view } = useContext(ViewContext);
   const { id, ingredients = [] } = container;
 
-  function handleIngredientClick(event: Event, ingredientId, index) {
-    event.stopPropagation();
-    // listRef.current.scrollToItem(index - 1, 'start');
-    const showHideIngredientId =
-      `${container.currentIngredientId}` === `${ingredientId}`
-        ? null
-        : `${ingredientId}`;
-    onIngredientClick(`${container.id}`, showHideIngredientId);
-  }
-
-  function getIngredientLink(_id: string) {
-    const { currentIngredientId } = container;
-    const query = {
-      group,
-      view,
-    };
-    if (currentIngredientId !== _id) {
-      query.id = _id;
-    }
-    return { pathname: '/ingredients', query };
-  }
-
   function renderIngredientColumns() {
     return ingredients.map((ingredient, index) => (
-      <IngredientColumnItem key={`columns_${id}_${ingredient.id}`}>
-        <Link href={getIngredientLink(ingredient.id)}>
-          <a
-            onClick={(e: Event) =>
-              handleIngredientClick(e, ingredient.id, index)
-            }
-            onKeyPress={handleIngredientClick}
-            role="link"
-            tabIndex={0}
-          >
-            {ingredient.name}
-          </a>
-        </Link>
-      </IngredientColumnItem>
+      <ListItem
+        key={`columns_${id}_${ingredient.id}`}
+        container={container}
+        ingredient={ingredient}
+        index={index}
+        onIngredientClick={onIngredientClick}
+      />
     ));
   }
 
@@ -119,21 +92,5 @@ const Columns = styled.ul`
 
   @media (min-width: 1100px) {
     column-count: 5;
-  }
-`;
-
-const IngredientColumnItem = styled.li`
-  + .active {
-    display: inline-block;
-    background: rgba(128, 174, 245, 0.08);
-    width: 100%;
-  }
-
-  + .child a {
-    font-style: italic;
-  }
-
-  &.invalid > a {
-    color: silver;
   }
 `;

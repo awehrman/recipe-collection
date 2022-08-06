@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Ingredient } from '../../../types/ingredient';
 
 import List from './list';
-import Card from './card';
+import CardList from './card-list';
 
 type ContainerProps = {
   container: {
@@ -33,11 +33,11 @@ const Container: React.FC<ContainerProps> = ({
 
       {/* Ingredients */}
       <Ingredients className={container.isExpanded ? 'expanded' : ''}>
-        <List
-          container={container}
-          onIngredientClick={onIngredientClick}
-        />
-        {container.currentIngredientId && <Card />}
+        {container.currentIngredientId ? (
+          <CardList container={container} onIngredientClick={onIngredientClick} />
+        ) : (
+          <List container={container} onIngredientClick={onIngredientClick} />
+        )}
       </Ingredients>
     </Wrapper>
   );
