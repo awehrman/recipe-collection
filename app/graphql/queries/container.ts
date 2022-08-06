@@ -11,6 +11,11 @@ export const GET_ALL_CONTAINERS_QUERY = gql`
       ingredients {
         id
         name
+        isValidated
+        parent {
+          id
+          name
+        }
       }
     }
   }
@@ -27,6 +32,11 @@ export const GET_CONTAINER_QUERY = gql`
       ingredients {
         id
         name
+        isValidated
+        parent {
+          id
+          name
+        }
       }
     }
   }

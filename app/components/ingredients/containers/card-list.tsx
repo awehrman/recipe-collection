@@ -14,14 +14,10 @@ const CardList = ({ container, onIngredientClick }) => {
 
   function rowRenderer({ data, index, style }) {
     const ingredient = data[index]
-    const { id, isValidated, hasParent, name } = ingredient;
-		const ingClassName = [];
-		if (!isValidated) ingClassName.push('invalid');
-		if (hasParent) ingClassName.push('child');
-		if (id === container?.ingredientID) ingClassName.push('active');
+    const { id } = ingredient;
     
     return (
-      <Row key={`card-list_${id}_${ingredient.id}`} style={style}>
+      <Row key={`card-list_${id}_${id}`} style={style}>
         <ListItem
           container={container}
           ingredient={ingredient}
@@ -39,7 +35,7 @@ const CardList = ({ container, onIngredientClick }) => {
       <SideList
         className={currentIngredientId ? 'expanded' : ''}
         ref={listRef}
-        height={500} // TODO
+        height={500} // TODO 235px - 500 based on screen
         itemCount={ingredients.length}
         itemData={ingredients}
         itemSize={22}
@@ -64,7 +60,6 @@ const Wrapper = styled.div`
 const Row = styled.div``;
 
 const SideList = styled(FixedSizeList)`
-  max-height: 235px;
   overflow-x: scroll;
   display: block;
   flex-basis: 150px;

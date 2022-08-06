@@ -99,7 +99,7 @@ const buildContainersByProperty = (containersByProperty = {}, ingHash = {}) => {
 };
 
 const buildContainersByRelationship = (containersByRelationship = {}, ingHash = {}, view = 'all', ingredients = []) => {
-  if (!ingHash.isParent) {
+  if (!ingHash?.parent?.id) {
     if (!containersByRelationship?.children) {
       containersByRelationship.children = {
         name: 'Other',
@@ -129,11 +129,12 @@ export const buildContainers = ({ group = 'name', ingredients = [], view = 'all'
   const containersByProperty = {};
   const containersByRelationship = {};
 
-  ingredients.forEach(({ id, parent, name, properties, references = [] }) => {
+  ingredients.forEach(({ id, isValidated, parent, name, properties, references = [] }) => {
     const ingHash = {
       id,
       count: references.length,
-      isParent: !Boolean(parent?.id && parent?.name),
+      parent,
+      isValidated: isValidated,
       name,
       properties,
     };

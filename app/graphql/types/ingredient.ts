@@ -1,5 +1,6 @@
 import { enumType, extendType, idArg, objectType } from 'nexus';
 
+// TODO review these resolvers and see if we can just return whats on their root
 export const Ingredient = objectType({
   name: 'Ingredient',
   definition(t) {
@@ -39,22 +40,7 @@ export const Ingredient = objectType({
     t.field('parent', {
       type: 'Ingredient',
       resolve: async (root, _args, ctx) => {
-        if (!root?.id) {
-          return [];
-        }
-        const parent = await ctx.prisma.ingredient.findUnique({
-          where: { id: root.id },
-          select: {
-            parent: {
-              select: {
-                id: true,
-                name: true,
-                isValidated: true,
-              },
-            },
-          },
-        });
-        return parent;
+        return root?.parent || null;
       },
     });
     t.list.field('relatedIngredients', {
@@ -219,9 +205,7 @@ export const IngredientQuery = extendType({
   definition(t) {
     t.field('ingredient', {
       type: 'Ingredient',
-      args: {
-        id: idArg(),
-      },
+      args: { id: idArg() },
       resolve: async (root, args, ctx) => {
         const id = parseInt(`${args.id}`, 10);
         const ingredient = await ctx.prisma.ingredient.findUnique({
@@ -239,10 +223,8 @@ export const IngredientQuery = extendType({
             }
           }
         });
-
-        return {
-          ingredient,
-        };
+        console.log('query', ingredient);
+        return { ingredient };
       },
     });
   },
@@ -254,7 +236,7 @@ export const IngredientsQuery = extendType({
     t.list.field('ingredients', {
       type: 'Ingredient',
       resolve: async (root, _args, ctx) => {
-        const data = await ctx.prisma.ingredient.findMany({
+        const ingredients = await ctx.prisma.ingredient.findMany({
           select: {
             id: true,
             name: true,
@@ -268,7 +250,8 @@ export const IngredientsQuery = extendType({
             }
           }
         });
-        return data;
+        console.log('query', ingredients[0]);
+        return ingredients;
       },
     });
   },

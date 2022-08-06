@@ -8,10 +8,9 @@ const ListItem = ({ container, ingredient, index, onIngredientClick, listRef }) 
   const { group, view } = useContext(ViewContext);
   const { currentIngredientId } = container;
   const isValid = !ingredient.isValidated ? 'invalid' : ''; // TODO include in ingredient res
-  const isChild = ingredient.hasParent ? 'child' : ''; // TODO include in ingredient res
+  const isChild = ingredient?.parent?.id ? 'child' : ''; // TODO include in ingredient res
   const isActive = `${ingredient.id}` === `${currentIngredientId}` ? 'active' : '';
   const className = `${isValid} ${isChild} ${isActive}`;
-  console.log(className);
 
   function handleIngredientClick(event: Event, ingredientId: string, index: number) {
     event.stopPropagation();
@@ -62,6 +61,7 @@ const ListItem = ({ container, ingredient, index, onIngredientClick, listRef }) 
 export default ListItem;
 
 const Wrapper = styled.div`
+  padding-left: 2px;
   &.active {
     display: inline-block;
     background: rgba(128, 174, 245, 0.08);
@@ -69,11 +69,11 @@ const Wrapper = styled.div`
     color: #222;
   }
 
-  &.child {
+  &.child a {
     font-style: italic;
   }
 
-  &.invalid {
+  &.invalid a {
     color: silver;
   }
 `;

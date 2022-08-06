@@ -52,6 +52,7 @@ export const ContainersQuery = extendType({
           select: {
             id: true,
             name: true,
+            isValidated: true,
             properties: true,
             parent: {
               select: {
