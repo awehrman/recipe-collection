@@ -28,6 +28,23 @@ export const GET_INGREDIENT_QUERY = gql`
         id
         name
       }
+      alternateNames {
+        name
+      }
+      relatedIngredients {
+        id
+        name
+        isValidated
+      }
+      substitutes {
+        id
+        name
+        isValidated
+      }
+      references {
+        id
+        reference
+      }
     }
   }
 `;

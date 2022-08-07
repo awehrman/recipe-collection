@@ -222,6 +222,31 @@ export const IngredientQuery = extendType({
                 id: true,
                 name: true,
               }
+            },
+            alternateNames: {
+              select: {
+                name: true,
+              }
+            },
+            relatedIngredients: {
+              select: {
+                id: true,
+                name: true,
+                isValidated: true,
+              }
+            },
+            substitutes: {
+              select: {
+                id: true,
+                name: true,
+                isValidated: true,
+              }
+            },
+            references: {
+              select: {
+                id: true,
+                reference: true,
+              }
             }
           }
         });

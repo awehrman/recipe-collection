@@ -42,13 +42,14 @@ const Form = styled.form`
   flex-basis: 100%;
   min-height: ${({ theme }) => theme.sizes.mobileCardHeight};
 	border-bottom: 1px solid #ddd;
-  background: pink;
   position: relative;
+  padding: 20px;
 
   @media (min-width: ${({ theme }) => theme.sizes.desktopCardWidth}) {
     min-height: 500px;
     order: 2;
     flex-basis: calc(100% - 200px);
     min-height: ${({ theme }) => theme.sizes.desktopCardHeight};
+    border-left: 1px solid #ddd;
   }
 `;

@@ -1,21 +1,25 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
-import CardContext from '../../../../contexts/card-context';
+import AlternateNames from './fields/alternate-names';
+import RelatedIngredients from './fields/related-ingredients';
+import Substitutes from './fields/substitutes';
+import References from './fields/references';
 
 const RelationalFields = () => {
-  const { id, isEditMode, setIsEditMode } = useContext(CardContext);
-
   return (
     <Wrapper>
-      Relational
       {/* Alternate Names */}
+      <AlternateNames />
 
       {/* Related Ingredients */}
+      <RelatedIngredients />
 
       {/* Substitutes */}
+      <Substitutes />
 
       {/* References */}
+      <References />
     </Wrapper>
   )
 }
@@ -23,6 +27,6 @@ const RelationalFields = () => {
 export default RelationalFields;
 
 const Wrapper = styled.div`
-  background: purple;
+  // background: purple;
   flex-basis: 100%;
 `;

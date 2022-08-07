@@ -23,5 +23,5 @@ const ValidationsAndActions = () => {
 export default ValidationsAndActions;
 
 const Wrapper = styled.div`
-  background: aqua;
+  // background: aqua;
 `;

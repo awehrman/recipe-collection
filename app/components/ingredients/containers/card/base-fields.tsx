@@ -1,24 +1,25 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 
-import useIngredient from '../../../../hooks/use-ingredient';
-import CardContext from '../../../../contexts/card-context';
+import Name from './fields/name';
+import Plural from './fields/plural';
+import Properties from './fields/properties';
+import IsComposedIngredient from './fields/is-composed-ingredient';
 
 const BaseFields = () => {
-  const { id, isEditMode } = useContext(CardContext);
-  const { ingredient } = useIngredient({ id });
-  const { name, plural, properties, isComposedIngredient } = ingredient;
-
   return (
     <Wrapper>
       {/* Name */}
-      {name}
+      <Name />
 
       {/* Plural */}
+      <Plural />
 
       {/* Properties */}
+      <Properties />
 
       {/* Is Composed Ingredient */}
+      <IsComposedIngredient />
     </Wrapper>
   )
 }
@@ -26,5 +27,5 @@ const BaseFields = () => {
 export default BaseFields;
 
 const Wrapper = styled.div`
-  background: yellow;
+  // background: yellow;
 `;
