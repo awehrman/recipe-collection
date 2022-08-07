@@ -12,6 +12,7 @@ const isComposedIngredient = () => {
   return (
     <Wrapper>
       {/* TODO */}
+      Is Composed Ingredient?
     </Wrapper>
   )
 }
@@ -19,4 +20,8 @@ const isComposedIngredient = () => {
 export default isComposedIngredient;
 
 const Wrapper = styled.div`
+  order: 4;
+  flex-basis: 50%;
+  flex-grow: 2;
+  text-align: right;
 `;

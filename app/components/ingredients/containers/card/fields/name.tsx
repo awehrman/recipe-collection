@@ -10,15 +10,21 @@ const Name = () => {
   const { ingredient, loading } = useIngredient({ id });
   const { name } = ingredient;
 
+  function handleNameChange(event: Event) {
+    const { target: { value, name } } = event;
+    console.log({ value, name });
+    // TODO
+  }
+
   return (
     <Wrapper aria-busy={loading} disabled={loading}>
       <HighlightedInput
-        className="left"
         fieldName="name"
         isEditMode={isEditMode}
         isRequired
         isSpellCheck={isEditMode}
         loading={loading}
+        onChange={handleNameChange}
         placeholder="name"
         value={name}
       />
@@ -28,4 +34,6 @@ const Name = () => {
 
 export default Name;
 
-const Wrapper = styled.fieldset``;
+const Wrapper = styled.fieldset`
+  order: 0;
+`;
