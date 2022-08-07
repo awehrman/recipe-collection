@@ -4,8 +4,8 @@ import Link from 'next/link';
 import React, { useContext, useState } from 'react';
 import styled, { ThemeContext } from 'styled-components';
 
-import Header from './Header';
-import Nav from './Nav';
+import Header from './header';
+import Nav from './nav';
 
 export type PageProps = {
   title: string;

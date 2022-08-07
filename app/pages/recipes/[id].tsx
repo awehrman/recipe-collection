@@ -2,7 +2,7 @@ import React from "react"
 // import { GetServerSideProps } from "next"
 
 // import prisma from '../../lib/prisma'
-import Page from '../../components/Page';
+import Page from '../../components/page';
 
 // export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 //   const recipe = await prisma.recipe.findUnique({

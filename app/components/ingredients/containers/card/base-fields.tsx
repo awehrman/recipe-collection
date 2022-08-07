@@ -27,5 +27,20 @@ const BaseFields = () => {
 export default BaseFields;
 
 const Wrapper = styled.div`
-  // background: yellow;
+  background: yellow;
+
+  @media (min-width: ${({ theme }) => theme.sizes.desktopCardWidth }) {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 20px;
+
+    .left {
+			flex-grow: 1;
+		}
+
+		.right {
+			text-align: right;
+			flex-shrink: 2;
+    }
+  }
 `;

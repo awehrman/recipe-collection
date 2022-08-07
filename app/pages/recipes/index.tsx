@@ -1,6 +1,6 @@
 import React from 'react'
 
-import Page from '../../components/Page';
+import Page from '../../components/page';
 import useRecipes from '../../hooks/use-recipes';
 
 type RecipesProps = {
