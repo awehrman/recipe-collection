@@ -30,8 +30,16 @@ const Property = ({ property }) => {
 };
 
 const Properties = () => {
+  const { id, isEditMode } = useContext(CardContext);
+  const { ingredient } = useIngredient({ id });
+  const { properties = [] } = ingredient;
+
   function renderProperties() {
-    return PROPERTY_ENUMS.map((property) => <Property key={property} property={property} />);
+    let propertyKeys = PROPERTY_ENUMS;
+    if (!isEditMode) {
+      propertyKeys = propertyKeys.filter((key) => properties.includes(key))
+    }
+    return propertyKeys.map((property) => <Property key={property} property={property} />);
   }
 
   return <Wrapper>{renderProperties()}</Wrapper>;
@@ -43,6 +51,7 @@ const Wrapper = styled.div`
   order: 1;
   text-align: right;
   flex-grow: 2;
+  flex-basis: 50%;
 `;
 
 const Checkbox = styled.div`
