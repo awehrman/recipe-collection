@@ -11,7 +11,7 @@ const AlternateNames = () => {
 
   return (
     <Wrapper>
-      {JSON.stringify(alternateNames)}
+      {/* TODO */}
     </Wrapper>
   )
 }

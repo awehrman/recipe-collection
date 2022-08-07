@@ -11,7 +11,7 @@ const Plural = () => {
 
   return (
     <Wrapper>
-      {plural}
+      {/* TODO */}
     </Wrapper>
   )
 }

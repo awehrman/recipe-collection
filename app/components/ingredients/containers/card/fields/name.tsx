@@ -28,8 +28,4 @@ const Name = () => {
 
 export default Name;
 
-const Wrapper = styled.fieldset`
-  border: 0;
-  padding: 0;
-  margin: 0;
-`;
+const Wrapper = styled.fieldset``;

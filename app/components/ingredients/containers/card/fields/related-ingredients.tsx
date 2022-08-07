@@ -11,7 +11,7 @@ const RelatedIngredients = () => {
 
   return (
     <Wrapper>
-      {JSON.stringify(relatedIngredients)}
+      {/* TODO */}
     </Wrapper>
   )
 }

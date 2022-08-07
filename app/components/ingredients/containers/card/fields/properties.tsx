@@ -11,7 +11,7 @@ const Properties = () => {
 
   return (
     <Wrapper>
-      {JSON.stringify(properties)}
+      {/* TODO */}
     </Wrapper>
   )
 }

@@ -45,6 +45,13 @@ const Form = styled.form`
   position: relative;
   padding: 20px;
 
+  fieldset {
+    position: relative;
+    border: 0;
+    padding: 0;
+    margin: 0;
+  }
+
   @media (min-width: ${({ theme }) => theme.sizes.desktopCardWidth}) {
     min-height: 500px;
     order: 2;

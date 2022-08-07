@@ -18,6 +18,7 @@ declare module "styled-components" {
       bodyText: string;
       altGreen: string;
       greenBackground: string;
+      inputHighlight: string;
     },
     sizes: {
       tablet_small: string;

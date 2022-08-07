@@ -11,7 +11,7 @@ const Substitutes = () => {
 
   return (
     <Wrapper>
-      {JSON.stringify(substitutes)}
+      {/* TODO */}
     </Wrapper>
   )
 }

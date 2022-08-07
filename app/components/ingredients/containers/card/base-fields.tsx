@@ -27,8 +27,6 @@ const BaseFields = () => {
 export default BaseFields;
 
 const Wrapper = styled.div`
-  background: yellow;
-
   @media (min-width: ${({ theme }) => theme.sizes.desktopCardWidth }) {
 		display: flex;
 		justify-content: space-between;

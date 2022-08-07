@@ -18,6 +18,7 @@ export const theme = {
 
     altGreen: '#73C6B6',
     greenBackground: '#E8F8F5',
+    inputHighlight: '#C3E7E0',
   },
   sizes: {
     tablet_small: '500px',

@@ -11,7 +11,7 @@ const References = () => {
 
   return (
     <Wrapper>
-      {JSON.stringify(references)}
+      {/* TODO */}
     </Wrapper>
   )
 }

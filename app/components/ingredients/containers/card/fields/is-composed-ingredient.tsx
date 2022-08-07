@@ -11,7 +11,7 @@ const isComposedIngredient = () => {
 
   return (
     <Wrapper>
-      {JSON.stringify(isComposedIngredient)}
+      {/* TODO */}
     </Wrapper>
   )
 }
