@@ -26,7 +26,7 @@ const ListItem = ({ container, ingredient, index, onIngredientClick, listRef }) 
       `${container.currentIngredientId}` === `${ingredientId}`
         ? null
         : `${ingredientId}`;
-
+    console.log({ showHideIngredientId });
     onIngredientClick(`${container.id}`, showHideIngredientId);
   }
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouter, NextRouter } from 'next/router';
-import Page from '../../components/Page';
 
+import Page from '../../components/page';
 import ViewContext from '../../contexts/view-context';
 import Filters from '../../components/ingredients/filters';
 import Containers from '../../components/ingredients/containers';

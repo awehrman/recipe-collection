@@ -26,4 +26,4 @@ export const NOTE_SPEC = new Evernote.NoteStore.NoteResultSpec({
 });
 
 export const NOTE_FILTER = new Evernote.NoteStore.NoteFilter();
-export const MAX_NOTES_LIMIT = 1;
+export const MAX_NOTES_LIMIT = 10;

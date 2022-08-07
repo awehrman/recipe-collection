@@ -9,6 +9,7 @@ function useContainers({ group = 'name', view = 'all' }) {
     loading,
     refetch,
   } = useQuery(GET_ALL_CONTAINERS_QUERY, {
+    // fetchPolicy: 'cache-and-network', // we'll want to refetch on page transition; this screws up our toggle 
     variables: { group, view },
   });
   console.log('use-containers', { loading })

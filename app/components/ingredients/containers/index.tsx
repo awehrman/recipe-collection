@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import styled from 'styled-components';
 
 import ViewContext from '../../../contexts/view-context';
@@ -8,10 +8,12 @@ import Container from './container';
 
 const Containers: React.FC = (props) => {
   const { group, view } = useContext(ViewContext);
-  const { containers, onContainerClick, onIngredientClick } = useContainers({
+  const { containers, onContainerClick, onIngredientClick, refetch } = useContainers({
     group,
     view,
   });
+
+  useEffect(() => refetch(), []);
 
   function renderContainers() {
     return containers.map((container) => (

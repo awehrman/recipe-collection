@@ -18,7 +18,7 @@ const HighlightedInput = ({
       <InputField
         aria-busy={loading}
         autoComplete="off"
-        className={`${isEditMode ? 'editable' : ''} ${className}`}
+        className={`${isEditMode ? 'editable' : ''}`}
         disabled={!isEditMode}
         id={fieldName}
         name={fieldName}
@@ -57,7 +57,6 @@ const InputField = styled.input`
   margin-bottom: 5px; /* you'll want at least the height of the span border */
 
   background-color: transparent;
-  // border-bottom: 3px solid #ddd;
 
   &::placeholder {
     font-style: italic;
@@ -117,5 +116,9 @@ const InputHighlight = styled.span`
     border-top: 3px solid tomato;
     max-width: 100% !important;
     width: auto !important;
+  }
+
+  &.auto-suggest {
+    left: 23px;
   }
 `;
