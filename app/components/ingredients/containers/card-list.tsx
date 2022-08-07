@@ -1,14 +1,11 @@
-import React, { useContext, useRef } from 'react';
+import React, { useRef } from 'react';
 import { FixedSizeList } from 'react-window';
 import styled from 'styled-components';
 
-import ViewContext from '../../../contexts/view-context';
-
 import ListItem from './list-item';
-import Card from './card';
+import Card from './card/index';
 
 const CardList = ({ container, onIngredientClick }) => {
-  const { group, view } = useContext(ViewContext);
   const listRef = useRef(null);
   const { currentIngredientId = null, id, ingredients = [] } = container;
 

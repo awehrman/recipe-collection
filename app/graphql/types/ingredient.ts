@@ -214,6 +214,8 @@ export const IngredientQuery = extendType({
             id: true,
             name: true,
             isValidated: true,
+            plural: true,
+            isComposedIngredient: true,
             properties: true,
             parent: {
               select: {

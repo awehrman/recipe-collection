@@ -20,6 +20,8 @@ export const GET_INGREDIENT_QUERY = gql`
     ingredient(id: $id) {
       id
       name
+      plural
+      isComposedIngredient
       isValidated
       properties
       parent {

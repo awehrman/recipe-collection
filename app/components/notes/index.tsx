@@ -6,7 +6,7 @@ import { defaultLoadingStatus } from '../../constants/note';
 import { StatusProps } from '../../types/note';
 import useNotes from '../../hooks/use-notes';
 
-import Loader from '../common/Loader';
+import Loader from '../common/loader';
 
 import Ingredients from './ingredients';
 import Instructions from './instructions';
