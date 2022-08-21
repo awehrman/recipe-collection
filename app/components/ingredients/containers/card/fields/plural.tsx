@@ -1,10 +1,12 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 
-import { Button, HighlightedInput } from '../../../../common';
 import useIngredient from 'hooks/use-ingredient';
 import CardContext from 'contexts/card-context';
 import MagicIcon from 'public/icons/magic.svg';
+
+import { Button } from '../../../../common';
+import HighlightedInput from './common/highlighted-input';
 
 const Plural = () => {
   const { id, isEditMode } = useContext(CardContext);

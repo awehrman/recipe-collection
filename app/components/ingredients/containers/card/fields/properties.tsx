@@ -70,41 +70,43 @@ const Checkbox = styled.div`
 
     input {
       background: tomato;
-      margin-right: 8px;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 0;
-      height: 0;
-      pointer-events: none;
-      opacity: 0; /* we want to hide the original input, but maintain focus state */
+			margin-right: 8px;
+			position: absolute;
+			top: 0;
+		  left: 0;
+		  width: 0;
+		  height: 0;
+		  pointer-events: none;
+			opacity: 0; /* we want to hide the original input, but maintain focus state */
 
       &:checked + span::after {
         position: absolute;
-        top: 0;
+		    top: 0;
         color: ${({ theme }) => theme.colors.altGreen};
         display: block;
-        font-style: normal;
-        font-variant: normal;
-        text-rendering: auto;
-        -webkit-font-smoothing: antialiased;
+				font-style: normal;
+				font-variant: normal;
+				text-rendering: auto;
+				-webkit-font-smoothing: antialiased;
 
-        content: url(./public/icons/check.svg);
+				font-family: "Font Awesome 5 Pro";
+				font-weight: 900;
+				content: "\f00c";
       }
     }
   }
 
   label::before {
     display: block;
-    position: absolute;
-    top: 5px;
-    left: 0;
-    width: 11px;
-    height: 11px;
-    border-radius: 3px;
-    background-color: white;
-    border: 1px solid #aaa;
-    content: '';
+	  position: absolute;
+	  top: 5px;
+	  left: 0;
+	  width: 11px;
+	  height: 11px;
+	  border-radius: 3px;
+	  background-color: white;
+	  border: 1px solid #ddd;
+	  content: '';
   }
 
   &.editable > label {

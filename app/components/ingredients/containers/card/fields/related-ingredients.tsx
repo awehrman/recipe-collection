@@ -1,22 +1,19 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
-import useIngredient from 'hooks/use-ingredient';
-import CardContext from 'contexts/card-context';
+import List from './common/list';
 
 const RelatedIngredients = () => {
-  const { id, isEditMode } = useContext(CardContext);
-  const { ingredient } = useIngredient({ id });
-  const { relatedIngredients } = ingredient;
-
   return (
     <Wrapper>
-      {/* TODO */}
+      <List
+        fieldName="relatedIngredients"
+        label="Related Ingredients"
+      />
     </Wrapper>
   )
 }
 
 export default RelatedIngredients;
 
-const Wrapper = styled.div`
-`;
+const Wrapper = styled.div``;
