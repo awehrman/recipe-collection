@@ -48,7 +48,6 @@ export default Container;
 const Wrapper = styled.div`
   width: 100%;
   position: relative;
-  max-width: 1200px;
 `;
 
 const Header = styled.div`

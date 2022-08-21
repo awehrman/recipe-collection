@@ -7,14 +7,14 @@ import CardContext from 'contexts/card-context';
 const isComposedIngredient = () => {
   const { id, isEditMode } = useContext(CardContext);
   const { ingredient } = useIngredient({ id });
-  const { isComposedIngredient } = ingredient;
+  const { isComposedIngredient, properties } = ingredient;
 
   function handleOnChange(event: Event) {
     event.preventDefault();
   }
 
   return (
-    <Wrapper>
+    <Wrapper className={!isEditMode && !properties.length ? 'adjust' : ''}>
       <Checkbox className={isEditMode ? 'editable' : ''}>
         <label htmlFor="isComposedIngredient">
           <input
@@ -39,6 +39,10 @@ const Wrapper = styled.div`
   flex-basis: 50%;
   flex-grow: 2;
   text-align: right;
+
+  &.adjust {
+    order: 0;
+  }
 `;
 
 // TODO dry this up between this and properties

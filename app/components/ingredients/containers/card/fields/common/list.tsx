@@ -8,8 +8,14 @@ import PlusIcon from 'public/icons/plus.svg';
 import { Button } from 'components/common';
 
 const ListItems = ({ list = [] }) => {
+  function renderList() {
+    return list.map((item) => 
+    <ListItem key={item.id}>
+      {item.name}
+    </ListItem>)
+  }
   return (
-    <StyledList />
+    <StyledList>{renderList()}</StyledList>
   )
 };
 
@@ -27,7 +33,6 @@ const List = ({ fieldName = '', label = '' }) => {
   const showButton = isEditMode;
   const showList = isEditMode || list.length;
   const showInput = isEditMode;
-  console.log({ list })
 
   function handleAddToListClick(event) {
     event.preventDefault();
@@ -36,7 +41,7 @@ const List = ({ fieldName = '', label = '' }) => {
   return (
     <Wrapper>
       {/* List Label */}
-      {showList ? <label htmlFor={fieldName}>{label}</label> : null}
+      {showList ? <Label htmlFor={fieldName}>{label}</Label> : null}
 
 			{/* Add to List Button (+) */}
       {showButton ? <AddToListButton onClick={handleAddToListClick} icon={<PlusIcon />} /> : null}
@@ -53,6 +58,11 @@ const List = ({ fieldName = '', label = '' }) => {
 export default List;
 
 const Wrapper = styled.div``;
+
+const Label = styled.label`
+  display: inline-block;
+  margin-bottom: 10px;
+`;
 
 const AddToListButton = styled(Button)`
   display: inline-block;
@@ -72,6 +82,18 @@ const AddToListButton = styled(Button)`
   }
 `;
 
-const StyledList = styled.ul``;
+const StyledList = styled.ul`
+  margin: 0;
+  margin-bottom: 10px;
+  padding: 0;
+  list-style-type: none;
+  font-size: 13px;
+`;
+
+const ListItem = styled.li`
+  font-weight: normal;
+  padding: 4px 0;
+  position: relative;
+`;
 
 const Suggestions = styled.div``;
