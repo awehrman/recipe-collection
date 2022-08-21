@@ -39,7 +39,8 @@ const HighlightedInput = ({
 export default HighlightedInput;
 
 const Wrapper = styled.div`
-
+  max-width: 100%;
+  min-width: 90%;
 `;
 
 const InputField = styled.input`
@@ -55,7 +56,6 @@ const InputField = styled.input`
   outline: 0;
   font-family: 'Source Sans Pro', Verdana, sans-serif;
   margin-bottom: 5px; /* you'll want at least the height of the span border */
-
   background-color: transparent;
 
   &::placeholder {
@@ -83,13 +83,11 @@ const InputField = styled.input`
 			& + span {
 				border-top: 3px solid ${({ theme }) => theme.colors.inputHighlight };
 				max-width: auto;
-				/* width: 100%; */
 			}
 
 			/* if there IS content in this field and the field has focus then only highlight the length of the text */
 			& + span.enabled {
 				border-top: 3px solid ${({ theme }) => theme.colors.altGreen };
-				/* max-width: 100% !important; */
 				width: auto !important;
 			}
 

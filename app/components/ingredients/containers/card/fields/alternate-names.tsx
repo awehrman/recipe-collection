@@ -16,4 +16,5 @@ const AlternateNames = () => {
 
 export default AlternateNames;
 
-const Wrapper = styled.div``;
+const Wrapper = styled.div`
+`;

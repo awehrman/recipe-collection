@@ -1,17 +1,15 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
-import useIngredient from 'hooks/use-ingredient';
-import CardContext from 'contexts/card-context';
+import List from './common/list';
 
 const References = () => {
-  const { id, isEditMode } = useContext(CardContext);
-  const { ingredient } = useIngredient({ id });
-  const { references } = ingredient;
-
   return (
     <Wrapper>
-      {/* TODO */}
+      <List
+        fieldName="references"
+        label="References"
+      />
     </Wrapper>
   )
 }
@@ -19,4 +17,5 @@ const References = () => {
 export default References;
 
 const Wrapper = styled.div`
+  flex-grow: 2;
 `;

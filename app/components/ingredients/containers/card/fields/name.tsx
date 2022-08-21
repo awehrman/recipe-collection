@@ -37,4 +37,8 @@ export default Name;
 
 const Wrapper = styled.fieldset`
   order: 0;
+  background: yellow
+  display: flex;
+  flex-grow: 2;
+  flex-basis: 50%;
 `;

@@ -10,9 +10,9 @@ import { Button } from 'components/common';
 const ListItems = ({ list = [] }) => {
   function renderList() {
     return list.map((item) => 
-    <ListItem key={item.id}>
-      {item.name}
-    </ListItem>)
+      <ListItem key={item.id}>
+        {item?.name ?? item?.reference}
+      </ListItem>)
   }
   return (
     <StyledList>{renderList()}</StyledList>
@@ -33,6 +33,7 @@ const List = ({ fieldName = '', label = '' }) => {
   const showButton = isEditMode;
   const showList = isEditMode || list.length;
   const showInput = isEditMode;
+  console.log({ ...list });
 
   function handleAddToListClick(event) {
     event.preventDefault();
