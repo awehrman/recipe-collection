@@ -2,9 +2,9 @@ import _ from 'lodash';
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 
-import { PROPERTY_ENUMS } from '../../../../../constants/ingredient';
-import useIngredient from '../../../../../hooks/use-ingredient';
-import CardContext from '../../../../../contexts/card-context';
+import { PROPERTY_ENUMS } from 'constants/ingredient';
+import useIngredient from 'hooks/use-ingredient';
+import CardContext from 'contexts/card-context';
 
 const Property = ({ property }) => {
   const { id, isEditMode } = useContext(CardContext);
@@ -89,10 +89,7 @@ const Checkbox = styled.div`
         text-rendering: auto;
         -webkit-font-smoothing: antialiased;
 
-        // TODO
-        font-family: 'Font Awesome 5 Pro';
-        font-weight: 900;
-        content: '\f00c';
+        content: url(./public/icons/check.svg);
       }
     }
   }

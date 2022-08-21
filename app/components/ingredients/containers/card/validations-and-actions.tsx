@@ -2,8 +2,8 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 
 import { Button } from '../../../common';
-import CardContext from '../../../../contexts/card-context';
-import EditIcon from '../../../../public/icons/edit.svg';
+import CardContext from 'contexts/card-context';
+import EditIcon from 'public/icons/edit.svg';
 
 const ValidationsAndActions = () => {
   const { isEditMode, setIsEditMode } = useContext(CardContext);

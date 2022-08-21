@@ -2,9 +2,9 @@ import _ from 'lodash';
 import styled, { keyframes } from 'styled-components';
 import React from 'react';
 
-import { defaultLoadingStatus } from '../../constants/note';
-import { StatusProps } from '../../types/note';
-import useNotes from '../../hooks/use-notes';
+import { defaultLoadingStatus } from 'constants/note';
+import { StatusProps } from 'types/note';
+import useNotes from 'hooks/use-notes';
 
 import Loader from '../common/loader';
 

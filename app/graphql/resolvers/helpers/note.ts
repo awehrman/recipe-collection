@@ -4,7 +4,7 @@ import { IncomingMessage } from 'http';
 import _ from 'lodash';
 import { getSession } from 'next-auth/client';
 
-import { Note } from '../../../types/note';
+import { Note } from 'types/note';
 
 import { PrismaContext } from '../../context';
 import { fetchNotesMeta } from '../evernote';

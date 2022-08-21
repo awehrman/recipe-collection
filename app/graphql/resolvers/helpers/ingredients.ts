@@ -1,7 +1,7 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import pluralize from 'pluralize';
 
-import { IngredientLine } from '../../../types/ingredient';
+import { IngredientLine } from 'types/ingredient';
 import { buildParsedSegments } from './parsed-segments';
 
 export const findIngredient = async (
@@ -9,7 +9,7 @@ export const findIngredient = async (
   prisma: PrismaClient
 ): Promise<Prisma.IngredientCreateNestedOneWithoutParsedSegmentInput | null> => {
   const isSingular = pluralize.isSingular(name);
-  let plural: string | null = isSingular ? pluralize.plural(name) : name;
+  let plural: string | null = isSingular ? null : name;
   const singular = isSingular ? name : pluralize.singular(name);
   if (plural === singular) {
     plural = null;

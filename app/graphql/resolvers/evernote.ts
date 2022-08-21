@@ -9,8 +9,8 @@ import {
   MAX_NOTES_LIMIT,
   NOTE_FILTER,
   NOTE_SPEC,
-} from '../../constants/evernote';
-import { EvernoteNoteMeta } from '../../types/note';
+} from 'constants/evernote';
+import { EvernoteNoteMeta } from 'types/note';
 
 import { PrismaContext } from '../context';
 

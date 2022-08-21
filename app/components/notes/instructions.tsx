@@ -1,8 +1,8 @@
 import styled, { keyframes } from 'styled-components';
 import React from 'react';
 
-import { InstructionLine } from '../../types/ingredient';
-import { StatusProps } from '../../types/note';
+import { InstructionLine } from 'types/ingredient';
+import { StatusProps } from 'types/note';
 
 type InstructionsProps = {
   instructions: InstructionLine[];

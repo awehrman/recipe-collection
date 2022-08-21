@@ -2,7 +2,7 @@ import Link from 'next/link';
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 
-import ViewContext from '../../../contexts/view-context';
+import ViewContext from 'contexts/view-context';
 import ListItem from './list-item';
 
 // TODO virtualize this

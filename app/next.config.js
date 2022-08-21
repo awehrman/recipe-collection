@@ -7,6 +7,9 @@ module.exports = {
 
     return config;
   },
+  compilerOptions: {
+    baseUrl: "."
+  },
   typescript: {
     // NOTE: nexus prisma blows in its current state
     // its causing a massive type error in build

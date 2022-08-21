@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import useEvernote from '../../hooks/use-evernote';
+import useEvernote from 'hooks/use-evernote';
 import Button from '../common/button';
 
 type AuthenticateEvernoteProps = {

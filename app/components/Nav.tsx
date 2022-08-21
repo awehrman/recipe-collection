@@ -5,11 +5,11 @@ import { lighten } from 'polished';
 import { signOut } from 'next-auth/client';
 
 import Button from './common/button';
-import NavigationIcon from './../public/icons/ellipsis-v-regular.svg';
-import HomeIcon from './../public/icons/home-solid.svg';
-import CloudDownloadIcon from './../public/icons/cloud-download-alt-solid.svg';
-import LemonIcon from './../public/icons/lemon-solid.svg';
-import FolderIcon from './../public/icons/folder-open-solid.svg';
+import NavigationIcon from 'public/icons/ellipsis-v-regular.svg';
+import HomeIcon from 'public/icons/home-solid.svg';
+import CloudDownloadIcon from 'public/icons/cloud-download-alt-solid.svg';
+import LemonIcon from 'public/icons/lemon-solid.svg';
+import FolderIcon from 'public/icons/folder-open-solid.svg';
 
 type NavProps = {
   isExpanded: boolean;

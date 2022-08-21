@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Ingredient } from '../../../types/ingredient';
+import { Ingredient } from 'types/ingredient';
 
 import List from './list';
 import CardList from './card-list';

@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { property } from 'lodash';
 import { v4 } from 'uuid';
 
-import { PROPERTY_ENUMS } from '../../../constants/ingredient';
+import { PROPERTY_ENUMS } from 'constants/ingredient';
 
 const buildContainersByCount = (containersByCount = {}, ingHash = {}) => {
   const referenceCount = ingHash.count;

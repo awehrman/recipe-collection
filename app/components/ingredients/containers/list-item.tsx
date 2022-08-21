@@ -2,7 +2,7 @@ import Link from 'next/link';
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 
-import ViewContext from '../../../contexts/view-context';
+import ViewContext from 'contexts/view-context';
 
 const ListItem = ({ container, ingredient, index, onIngredientClick, listRef }) => {
   const { group, view } = useContext(ViewContext);

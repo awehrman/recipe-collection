@@ -1,6 +1,6 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 
-import { ExistingParsedSegment, ParsedSegment } from '../../../types/ingredient';
+import { ExistingParsedSegment, ParsedSegment } from 'types/ingredient';
 
 import { findIngredient } from './ingredients';
 

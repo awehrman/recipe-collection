@@ -6,8 +6,8 @@ import { getSession } from 'next-auth/client';
 import { PrismaContext } from '../context';
 import { fetchNotesMeta, fetchNotesContent } from './evernote';
 
-import { SessionUserProps } from '../../types/session';
-import { EvernoteResponse } from '../../types/evernote';
+import { SessionUserProps } from 'types/session';
+import { EvernoteResponse } from 'types/evernote';
 import { isAuthenticated } from './helpers/authenticate-evernote';
 import { parseNotes } from './helpers/parse';
 

@@ -4,8 +4,8 @@ import React from 'react';
 import {
   IngredientLine,
   ParsedSegment,
-} from '../../types/ingredient';
-import { StatusProps } from '../../types/note';
+} from 'types/ingredient';
+import { StatusProps } from 'types/note';
 
 type IngredientsProps = {
   ingredients: IngredientLine[];

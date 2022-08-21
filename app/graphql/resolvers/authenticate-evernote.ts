@@ -4,8 +4,8 @@ import { getSession } from 'next-auth/client';
 import {
   AuthenticateEvernoteArgs,
   AuthenticationResponse,
-} from '../../types/evernote';
-import { SessionUserProps } from '../../types/session';
+} from 'types/evernote';
+import { SessionUserProps } from 'types/session';
 
 import { PrismaContext } from '../context';
 

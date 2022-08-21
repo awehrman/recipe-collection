@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { defaultLoadingStatus } from '../../constants/note';
-import useAdminTools from '../../hooks/use-admin-tools';
-import useEvernote from '../../hooks/use-evernote';
-import useNotes from '../../hooks/use-notes';
+import { defaultLoadingStatus } from 'constants/note';
+import useAdminTools from 'hooks/use-admin-tools';
+import useEvernote from 'hooks/use-evernote';
+import useNotes from 'hooks/use-notes';
 
 import { Button } from '../common';
 import Notes from '../notes';

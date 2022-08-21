@@ -1,6 +1,6 @@
 import { PrismaContext } from '../context';
 
-import { EvernoteResponse } from '../../types/evernote';
+import { EvernoteResponse } from 'types/evernote';
 
 export const resetDatabase = async (
   _root: unknown,

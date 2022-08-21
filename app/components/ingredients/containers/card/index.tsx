@@ -1,8 +1,8 @@
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 
-import ViewContext from '../../../../contexts/view-context';
-import CardContext from '../../../../contexts/card-context';
+import ViewContext from 'contexts/view-context';
+import CardContext from 'contexts/card-context';
 
 import BaseFields from './base-fields';
 import RelationalFields from './relational-fields';

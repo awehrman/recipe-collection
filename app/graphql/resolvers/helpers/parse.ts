@@ -2,9 +2,9 @@ import _ from 'lodash';
 import { Prisma, PrismaClient } from '@prisma/client';
 import * as cheerio from 'cheerio';
 
-import Parser from '../../../lib/line-parser-min';
-import { Note } from '../../../types/note';
-import { IngredientLine, InstructionLine } from '../../../types/ingredient';
+import Parser from 'lib/line-parser-min';
+import { Note } from 'types/note';
+import { IngredientLine, InstructionLine } from 'types/ingredient';
 import { buildIngredientLines, updateIngredientLineRelation } from './ingredients';
 
 type BlockObject = {

@@ -2,7 +2,7 @@ import Evernote from 'evernote';
 import { IncomingMessage } from 'http';
 import { getSession } from 'next-auth/client';
 
-import { AuthenticationResponse } from '../../../types/evernote';
+import { AuthenticationResponse } from 'types/evernote';
 
 export const client = new Evernote.Client({
   consumerKey: process.env.API_CONSUMER_KEY,

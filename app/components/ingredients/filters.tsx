@@ -2,8 +2,8 @@ import Link from 'next/link';
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 
-import useIngredients from '../../hooks/use-ingredients';
-import ViewContext from '../../contexts/view-context';
+import useIngredients from 'hooks/use-ingredients';
+import ViewContext from 'contexts/view-context';
 
 const getNextGroup = (currentGroup: string) => {
   const GROUP_BY = [ 'name', 'property', 'count', 'relationship' ];

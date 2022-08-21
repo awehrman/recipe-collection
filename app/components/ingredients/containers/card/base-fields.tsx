@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 
-import useIngredient from '../../../../hooks/use-ingredient';
-import CardContext from '../../../../contexts/card-context';
+import useIngredient from 'hooks/use-ingredient';
+import CardContext from 'contexts/card-context';
 
 import Name from './fields/name';
 import Plural from './fields/plural';
@@ -11,9 +11,10 @@ import IsComposedIngredient from './fields/is-composed-ingredient';
 
 const BaseFields = () => {
   const { id, isEditMode } = useContext(CardContext);
-  const { ingredient, loading } = useIngredient({ id });
-  const { plural } = ingredient;
+  const { ingredient } = useIngredient({ id });
+  const { isComposedIngredient, plural } = ingredient;
   const showPlural = !!(isEditMode || plural?.length);
+  const showIsComposed = !!(isEditMode || isComposedIngredient);
 
   return (
     <Wrapper>
@@ -27,7 +28,7 @@ const BaseFields = () => {
       <Properties />
 
       {/* Is Composed Ingredient */}
-      <IsComposedIngredient />
+      {showIsComposed && <IsComposedIngredient />}
     </Wrapper>
   )
 }
