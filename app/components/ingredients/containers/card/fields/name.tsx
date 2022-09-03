@@ -5,17 +5,21 @@ import useIngredient from 'hooks/use-ingredient';
 import CardContext from 'contexts/card-context';
 
 import HighlightedInput from './common/highlighted-input';
+import { localFields } from './common/validation';
 
 const Name = () => {
-  const { id, isEditMode, methods } = useContext(CardContext);
+  const { edits, id, isEditMode, methods: { register } } = useContext(CardContext);
   const { ingredient, loading } = useIngredient({ id });
   const { name } = ingredient;
-  const validation = data => console.log('validate', data) ?? true;
-  const registerField = {...methods.register('name', { required: true, validate: { validation } })};
 
-  function validateField(data) {
-    console.log('validateField', data)
-  }
+  const registerField = register('name', {
+    minLength: 1,
+    required: true,
+    validate: {
+      validateLocalFields: (data: string) => localFields(data, 'name', edits, ingredient),
+      // validateAllIngredients,
+    }
+  });
 
   return (
     <Wrapper aria-busy={loading} disabled={loading}>

@@ -1,30 +1,42 @@
 import React, { useContext, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import styled from 'styled-components';
 
 import ViewContext from 'contexts/view-context';
 import CardContext from 'contexts/card-context';
+import useIngredient from 'hooks/use-ingredient';
 
 import BaseFields from './base-fields';
 import RelationalFields from './relational-fields';
 import ValidationsAndActions from './validations-and-actions';
 
 const Card = ({ id }) => {
-  const methods = useForm();
+  const { ingredient } = useIngredient({ id });
+  const { name, plural } = ingredient;
+  const methods = useForm({
+    mode: 'all',
+    defaultValues: {
+      name,
+      plural,
+    }
+  });
+  const edits = useWatch({ control: methods.control });
+
   const { view } = useContext(ViewContext);
   const [isEditMode, setIsEditMode] = useState(view === 'new');
+
   function handleFormSubmit(data) {
     console.log('handleFormSubmit', data);
   }
 
   return (
-    <CardContext.Provider value={{ id, isEditMode, methods }}>
+    <CardContext.Provider value={{ edits, id, isEditMode, methods }}>
       <FormWrapper onSubmit={methods.handleSubmit(handleFormSubmit)}>
         {/* Name, Plural, Properties, isComposedIngredient */}
         <BaseFields />
 
         {/* Alternate Names, Related Ingredients, Substitutes, References */}
-        {/* <RelationalFields /> */}
+        <RelationalFields />
 
         {/* Warnings, Edit, Save, Cancel */}
         <ValidationsAndActions />

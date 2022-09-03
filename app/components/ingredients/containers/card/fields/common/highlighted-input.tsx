@@ -1,7 +1,19 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
+import { useWatch } from 'react-hook-form';
 import styled from 'styled-components';
 
 import CardContext from 'contexts/card-context';
+
+const getHighlightLevel = (errors, fieldName) => {
+  const hasWarning = errors?.[fieldName]?.type === 'validateAllIngredients';
+  const hasError = errors?.[fieldName]?.type === 'validateLocalFields';
+
+  if (!hasWarning && !hasError) {
+    return 'default';
+  }
+
+  return hasError ? 'error' : 'warning';
+};
 
 const HighlightedInput = ({
   className = '',
@@ -14,19 +26,26 @@ const HighlightedInput = ({
   defaultValue = '',
   ...props
 }) => {
-  const { methods } = useContext(CardContext);
-  const watchName = methods.watch("name", defaultValue);
-  const trimmedValue = watchName?.replace(/ /g, '\u00a0');
+  const { methods: { control, trigger, formState: { errors } } } = useContext(CardContext);
+  const watchName = useWatch({ control, name: fieldName, defaultValue });
+  const trimmedValue = (watchName?.length ? watchName : defaultValue)?.replace(/ /g, '\u00a0');
+  const level = getHighlightLevel(errors, fieldName)
+  const adjustedClassName = `${isEditMode ? 'editable' : ''} ${className}`;
 
+  useEffect(() => {
+    trigger();
+  }, [level]);
+  
   return (
     <Wrapper className={className}>
       <InputField
         aria-busy={loading}
         autoComplete='off'
-        className={`${isEditMode ? 'editable' : ''}`}
+        className={adjustedClassName}
         disabled={!isEditMode}
         defaultValue={defaultValue}
         id={fieldName}
+        level={level}
         name={fieldName}
         required={isRequired}
         spellCheck={isSpellCheck}
@@ -35,7 +54,7 @@ const HighlightedInput = ({
         {...props}
       />
 
-      <InputHighlight className={`highlight ${className}`}>
+      <InputHighlight className={adjustedClassName} level={level}>
         {trimmedValue}
       </InputHighlight>
     </Wrapper>
@@ -43,6 +62,11 @@ const HighlightedInput = ({
 };
 
 export default HighlightedInput;
+
+const highlightHash = {
+  error: 'red',
+  warning: 'orange',
+};
 
 const Wrapper = styled.div`
   max-width: 100%;
@@ -56,7 +80,7 @@ const InputField = styled.input`
   padding: 4px 0;
   border-radius: 0;
   line-height: 1.2;
-  color: #222;
+  color: ${({ level }) => highlightHash?.[level] ?? `#222` };
   font-size: 1em;
   border: 0;
   outline: 0;
@@ -69,10 +93,6 @@ const InputField = styled.input`
     color: #ccc;
   }
 
-  &.warning {
-    color: ${({ theme }) => theme.colors.red };
-  }
-
   &.list {
     border-bottom: 3px solid ${({ theme }) => theme.colors.headerBackground};
   }
@@ -82,25 +102,11 @@ const InputField = styled.input`
 		caret-color: #222;
 
     &:focus {
-			/* disable the default dotted box borders since WE'RE USING SEXY UNDERLINES */
 			outline: none !important;
 
-			/* if there's no content in this field and the field has focus */
 			& + span {
-				border-top: 3px solid ${({ theme }) => theme.colors.inputHighlight };
-				max-width: auto;
+				border-top: 3px solid ${({ level, theme }) => highlightHash?.[level] ?? theme.colors.altGreen };
 			}
-
-			/* if there IS content in this field and the field has focus then only highlight the length of the text */
-			& + span.enabled {
-				border-top: 3px solid ${({ theme }) => theme.colors.altGreen };
-				width: auto !important;
-			}
-
-			& + span.warning {
-				border-top: 3px solid ${({ theme }) => theme.colors.red };
-			}
-		}
   }
 `;
 
@@ -115,12 +121,6 @@ const InputHighlight = styled.span`
   color: transparent;
   font-family: 'Source Sans Pro', Verdana, sans-serif;
   overflow: hidden;
-
-  &.warning {
-    border-top: 3px solid tomato;
-    max-width: 100% !important;
-    width: auto !important;
-  }
 
   &.auto-suggest {
     left: 23px;

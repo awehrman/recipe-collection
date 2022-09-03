@@ -7,36 +7,39 @@ import MagicIcon from 'public/icons/magic.svg';
 
 import { Button } from '../../../../common';
 import HighlightedInput from './common/highlighted-input';
+import { localFields } from './common/validation';
 
 const Plural = () => {
-  const { id, isEditMode } = useContext(CardContext);
+  const { edits, id, isEditMode, methods } = useContext(CardContext);
   const { ingredient, loading } = useIngredient({ id });
   const { plural } = ingredient;
   const isPluralSuggestEnabled = isEditMode;
-
-  function handlePluralChange(event: Event) {
-    const { target: { value, name } } = event;
-    // TODO
-  }
 
   function handleAutoSuggest(e) {
     // TODO
 	}
 
+  const registerField = methods.register('plural', {
+    validate: {
+      validateLocalFields: (data: string) => localFields(data, 'plural', edits, ingredient),
+      // validateAllIngredients,
+    }
+  });
+
   return (
     <Wrapper aria-busy={loading} disabled={loading}>
       {isPluralSuggestEnabled && <AutoSuggest icon={<MagicIcon />} onClick={handleAutoSuggest} />}
-      {/* <Input
+      <HighlightedInput
         className={isPluralSuggestEnabled ? 'auto-suggest' : ''}
+        defaultValue={plural}
         fieldName='plural'
         isEditMode={isEditMode}
         isRequired
         isSpellCheck={isEditMode}
         loading={loading}
-        onChange={handlePluralChange}
         placeholder='plural'
-        value={plural}
-      /> */}
+        registerField={registerField}
+      />
     </Wrapper>
   );
 };
@@ -44,16 +47,13 @@ const Plural = () => {
 export default Plural;
 
 const Wrapper = styled.fieldset`
+  display: flex;
   order: 3;
   flex-basis: 50%;
 
   span.auto-suggest {
     margin-right: 10px;
   }
-`;
-
-const Input = styled(HighlightedInput)`
-  display: inline-block;
 `;
 
 const AutoSuggest = styled(Button)`
