@@ -1,4 +1,4 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 
 import { GET_ALL_CONTAINERS_QUERY } from '../graphql/queries/container';
 import { TOGGLE_CONTAINER_MUTATION, TOGGLE_CONTAINER_INGREDIENT_MUTATION } from '../graphql/mutations/container';
@@ -12,7 +12,6 @@ function useContainers({ group = 'name', view = 'all' }) {
     // fetchPolicy: 'cache-and-network', // we'll want to refetch on page transition; this screws up our toggle 
     variables: { group, view },
   });
-  console.log('use-containers', { loading })
   const containers: unknown[] = data?.containers ?? [];
 
   const [toggleContainer] = useMutation(TOGGLE_CONTAINER_MUTATION, {

@@ -16,7 +16,6 @@ const Plural = () => {
 
   function handlePluralChange(event: Event) {
     const { target: { value, name } } = event;
-    console.log({ value, name });
     // TODO
   }
 
@@ -27,17 +26,17 @@ const Plural = () => {
   return (
     <Wrapper aria-busy={loading} disabled={loading}>
       {isPluralSuggestEnabled && <AutoSuggest icon={<MagicIcon />} onClick={handleAutoSuggest} />}
-      <Input
+      {/* <Input
         className={isPluralSuggestEnabled ? 'auto-suggest' : ''}
-        fieldName="plural"
+        fieldName='plural'
         isEditMode={isEditMode}
         isRequired
         isSpellCheck={isEditMode}
         loading={loading}
         onChange={handlePluralChange}
-        placeholder="plural"
+        placeholder='plural'
         value={plural}
-      />
+      /> */}
     </Wrapper>
   );
 };

@@ -1,31 +1,37 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 
+import CardContext from 'contexts/card-context';
+
 const HighlightedInput = ({
   className = '',
   fieldName = '',
   isEditMode = false,
-  loading = false,
   isRequired = false,
   isSpellCheck = false,
-  value = '',
+  loading = false,
+  registerField = {},
+  defaultValue = '',
   ...props
 }) => {
-  const trimmedValue = value && value.replace(/ /g, '\u00a0');
+  const { methods } = useContext(CardContext);
+  const watchName = methods.watch("name", defaultValue);
+  const trimmedValue = watchName?.replace(/ /g, '\u00a0');
 
   return (
     <Wrapper className={className}>
       <InputField
         aria-busy={loading}
-        autoComplete="off"
+        autoComplete='off'
         className={`${isEditMode ? 'editable' : ''}`}
         disabled={!isEditMode}
+        defaultValue={defaultValue}
         id={fieldName}
         name={fieldName}
         required={isRequired}
         spellCheck={isSpellCheck}
-        type="text"
-        value={value}
+        type='text'
+        {...registerField}
         {...props}
       />
 

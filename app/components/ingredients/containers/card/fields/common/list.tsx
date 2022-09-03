@@ -33,7 +33,6 @@ const List = ({ fieldName = '', label = '' }) => {
   const showButton = isEditMode;
   const showList = isEditMode || list.length;
   const showInput = isEditMode;
-  console.log({ ...list });
 
   function handleAddToListClick(event) {
     event.preventDefault();

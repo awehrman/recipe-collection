@@ -24,22 +24,33 @@ const ValidationsAndActions = () => {
       {!isEditMode && (
         <EditButton
           icon={<EditIcon />}
-          label="Edit"
+          label='Edit'
           onClick={handleEditClick}
         />
       )}
 
       {/* Save Button */}
+      {isEditMode && (<SaveButton type='submit' label='Save' /> )}
 
       {/* Cancel Button */}
       {isEditMode && (
-        <CancelButton label="Cancel" onClick={handleCancelClick} />
+        <CancelButton label='Cancel' onClick={handleCancelClick} />
       )}
     </Wrapper>
   );
 };
 
 export default ValidationsAndActions;
+
+const SaveButton = styled.input`
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: ${({ theme }) => theme.colors.highlight};
+  font-weight: 600;
+  font-size: 14px;
+  align-self: flex-end;
+`;
 
 const Wrapper = styled.div`
   display: flex;

@@ -1,13 +1,10 @@
-import Link from 'next/link';
-import React, { useContext } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
-import ViewContext from 'contexts/view-context';
 import ListItem from './list-item';
 
 // TODO virtualize this
 const List = ({ container, onIngredientClick }) => {
-  const { group, view } = useContext(ViewContext);
   const { id, ingredients = [] } = container;
 
   function renderIngredientColumns() {

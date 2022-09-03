@@ -7,27 +7,27 @@ import CardContext from 'contexts/card-context';
 import HighlightedInput from './common/highlighted-input';
 
 const Name = () => {
-  const { id, isEditMode } = useContext(CardContext);
+  const { id, isEditMode, methods } = useContext(CardContext);
   const { ingredient, loading } = useIngredient({ id });
   const { name } = ingredient;
+  const validation = data => console.log('validate', data) ?? true;
+  const registerField = {...methods.register('name', { required: true, validate: { validation } })};
 
-  function handleNameChange(event: Event) {
-    const { target: { value, name } } = event;
-    console.log({ value, name });
-    // TODO
+  function validateField(data) {
+    console.log('validateField', data)
   }
 
   return (
     <Wrapper aria-busy={loading} disabled={loading}>
       <HighlightedInput
-        fieldName="name"
+        defaultValue={name}
+        fieldName='name'
         isEditMode={isEditMode}
         isRequired
         isSpellCheck={isEditMode}
         loading={loading}
-        onChange={handleNameChange}
-        placeholder="name"
-        value={name}
+        placeholder='name'
+        registerField={registerField}
       />
     </Wrapper>
   );

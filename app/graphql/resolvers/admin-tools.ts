@@ -14,6 +14,7 @@ export const resetDatabase = async (
     await prisma.instructionLine.deleteMany({});
     await prisma.parsedSegment.deleteMany({});
     await prisma.ingredientLine.deleteMany({});
+    await prisma.alternateName.deleteMany({});
     await prisma.ingredient.deleteMany({});
     await prisma.note.deleteMany({});
     await prisma.recipe.deleteMany({});

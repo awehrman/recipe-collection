@@ -26,7 +26,6 @@ const ListItem = ({ container, ingredient, index, onIngredientClick, listRef }) 
       `${container.currentIngredientId}` === `${ingredientId}`
         ? null
         : `${ingredientId}`;
-    console.log({ showHideIngredientId });
     onIngredientClick(`${container.id}`, showHideIngredientId);
   }
 
@@ -48,7 +47,7 @@ const ListItem = ({ container, ingredient, index, onIngredientClick, listRef }) 
         <a
           onClick={(e: Event) => handleIngredientClick(e, ingredient.id, index)}
           onKeyPress={handleIngredientClick}
-          role="link"
+          role='link'
           tabIndex={0}
         >
           {ingredient.name}

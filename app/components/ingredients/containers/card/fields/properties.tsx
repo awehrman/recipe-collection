@@ -10,18 +10,18 @@ const Property = ({ property }) => {
   const { id, isEditMode } = useContext(CardContext);
   const { ingredient } = useIngredient({ id });
   const { properties = [] } = ingredient;
-  console.log({ property })
+
   return (
     <Checkbox className={isEditMode ? 'editable' : ''}>
       <label htmlFor={property}>
         <input
-          type="checkbox"
+          type='checkbox'
           id={property}
           checked={properties.includes(property)}
           name={`properties_${property}`}
           // onChange={(e) => onPropertyChange(e, property)}
           // onKeyDown={onKeyDown}
-          value={property}
+          defaultValue={property}
         />
         <span>{_.capitalize(property)}</span>
       </label>

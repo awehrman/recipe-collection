@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import styled from 'styled-components';
 
 import ViewContext from 'contexts/view-context';
@@ -9,32 +10,32 @@ import RelationalFields from './relational-fields';
 import ValidationsAndActions from './validations-and-actions';
 
 const Card = ({ id }) => {
+  const methods = useForm();
   const { view } = useContext(ViewContext);
   const [isEditMode, setIsEditMode] = useState(view === 'new');
-
-  function handleEditClick(event: Event) {
-    setIsEditMode(!isEditMode);
+  function handleFormSubmit(data) {
+    console.log('handleFormSubmit', data);
   }
 
   return (
-    <CardContext.Provider value={{ id, isEditMode, setIsEditMode }}>
-      <Form>
+    <CardContext.Provider value={{ id, isEditMode, methods }}>
+      <FormWrapper onSubmit={methods.handleSubmit(handleFormSubmit)}>
         {/* Name, Plural, Properties, isComposedIngredient */}
         <BaseFields />
 
         {/* Alternate Names, Related Ingredients, Substitutes, References */}
-        <RelationalFields />
+        {/* <RelationalFields /> */}
 
         {/* Warnings, Edit, Save, Cancel */}
         <ValidationsAndActions />
-      </Form>
+      </FormWrapper>
     </CardContext.Provider>
   )
 }
 
 export default Card;
 
-const Form = styled.form`
+const FormWrapper = styled.form`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
