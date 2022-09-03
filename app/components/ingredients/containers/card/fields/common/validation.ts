@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 export const localFields = (
   data: string,
   fieldName: string,
@@ -19,6 +21,14 @@ export const localFields = (
       return false;
     }
   }
-  // TODO check alt Names
+  
+  if (fieldName !== 'alternateNames') {
+    const matchesOnEdits = !!_.find(edits?.alternateNames, (n) => n.name === data);
+    const matchesOnIngredient = !!_.find(ingredient?.alternateNames, (n) => n.name === data);
+    if (matchesOnEdits || matchesOnIngredient) {
+      return false;
+    }
+  }
+
   return true;
 };

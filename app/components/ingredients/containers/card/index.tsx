@@ -30,7 +30,7 @@ const Card = ({ id }) => {
   }
 
   return (
-    <CardContext.Provider value={{ edits, id, isEditMode, methods }}>
+    <CardContext.Provider value={{ edits, id, isEditMode, methods, setIsEditMode }}>
       <FormWrapper onSubmit={methods.handleSubmit(handleFormSubmit)}>
         {/* Name, Plural, Properties, isComposedIngredient */}
         <BaseFields />

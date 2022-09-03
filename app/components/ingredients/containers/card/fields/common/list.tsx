@@ -9,7 +9,7 @@ import { Button } from 'components/common';
 
 const ListItems = ({ list = [] }) => {
   function renderList() {
-    return list.map((item) => 
+    return list.map((item) =>
       <ListItem key={item.id}>
         {item?.name ?? item?.reference}
       </ListItem>)

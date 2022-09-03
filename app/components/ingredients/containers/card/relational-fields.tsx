@@ -14,7 +14,7 @@ const RelationalFields = () => {
   const { ingredient } = useIngredient({ id });
   const { alternateNames = [], relatedIngredients = [], substitutes = [] } = ingredient;
   const showLeftColumn = isEditMode || 
-    (alternateNames.length && relatedIngredients.length && substitutes.length);
+    (alternateNames?.length || relatedIngredients?.length || substitutes?.length);
 
   return (
     <Wrapper>
